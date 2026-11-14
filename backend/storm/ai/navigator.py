@@ -28,6 +28,12 @@ SYSTEM = (
     "Every number, including durations and derived values, must be in a tool RESULT, preserving signs and units. "
     "Label the book synthetic. Label scenarios hypothetical and explain inherited alarm timing. "
     "Endpoint stress is before liquidation; scenario equity includes liquidation and policy cuts. "
+    "Translate tool facts into plain English for a trader. Never print raw field names or key/value fragments. "
+    "Describe negative pair moves as falls, positive moves as rises, negative P&L as a cost or loss, "
+    "and positive P&L as a gain. Use the P&L result to determine whether the book gains or loses; "
+    "a pair falling does not always mean a book loses. Express those magnitudes without a minus sign "
+    "when the direction is explicit in words, and format dollar amounts with thousands separators. "
+    "Explain whether the hypothetical result triggers a margin call. "
     "Return plain prose without lists, markdown or JSON."
 )
 
@@ -43,17 +49,22 @@ def deterministic_answer(facts: dict) -> str:
     result, name = item["result"], item["name"]
     if name == "scenario":
         storm, ships = result["facts"]["storm"], result["facts"]["ships"]
-        return (f"This hypothetical {storm['symbol']} scenario moves {storm['move_pct']:+g}% over "
+        direction = "fall" if storm["move_pct"] < 0 else "rise" if storm["move_pct"] > 0 else "move"
+        return (f"This hypothetical {storm['symbol']} scenario applies a {abs(storm['move_pct']):g}% {direction} over "
                 f"{storm['duration_minutes']:g} minutes for a synthetic book. "
                 f"Prepared equity ends at ${ships['prepared']['final_equity_usd']:,.0f} and unprepared equity "
                 f"at ${ships['unprepared']['final_equity_usd']:,.0f}. "
                 "Alarm timing and sea conditions are inherited assumptions from the base replay; this is not a price forecast.")
     if name == "stress_test":
-        margin = "breaches" if result["margin_call"] else "does not breach"
-        return (f"For the synthetic {result['symbol']} book, a {result['move_pct']:+g}% move over "
-                f"{result['minutes']} minutes produces endpoint P&L of ${result['pnl_usd']:,}. "
-                f"This {margin} maintenance margin before liquidation. "
-                "This endpoint stress excludes policy cuts, spread and slippage and is not a price forecast.")
+        direction = "fall" if result["move_pct"] < 0 else "rise" if result["move_pct"] > 0 else "move"
+        book = f"this synthetic {result['symbol']} book"
+        pnl = result["pnl_usd"]
+        impact = (f"cost {book} ${abs(pnl):,.0f}" if pnl < 0 else
+                  f"give {book} a gain of ${pnl:,.0f}" if pnl > 0 else f"leave {book} unchanged")
+        margin = "and trigger a margin call" if result["margin_call"] else "without triggering a margin call"
+        return (f"A {abs(result['move_pct']):g}% {direction} over {result['minutes']} minutes would {impact} {margin}. "
+                "This hypothetical stress is measured before liquidation and excludes policy cuts, spread and slippage. "
+                "It is not a price forecast.")
     if name == "get_exposure":
         snap = result["exposure"]
         first = (f"The synthetic {result['symbol']} book has ${result['total_notional_usd']:,.0f} "
@@ -110,6 +121,8 @@ def _format_issues(text: str) -> list[str]:
         issues.append("Return only plain prose")
     if "synthetic" not in text.lower():
         issues.append("Label the book synthetic")
+    if re.search(r"\b[a-z]+(?:_[a-z]+)+\b", text):
+        issues.append("Translate raw field names into plain English for a trader")
     return issues
 
 
@@ -157,7 +170,7 @@ def ask(question: str, storm_id: str | None = None, live: bool = False) -> dict:
             messages.append({"role": "tool", "tool_call_id": call["id"], "name": name,
                              "content": json.dumps(result, allow_nan=False)})
     facts = {"tool_results": [{"name": call["name"], "result": call["result"]} for call in calls]}
-    verification = verify_numbers(text, facts)
+    verification = verify_numbers(text, facts, allow_direction_words=True)
     errors = _format_issues(text)
     # A free-form response without tools cannot count as a grounded answer.
     if not calls:
@@ -172,15 +185,15 @@ def ask(question: str, storm_id: str | None = None, live: bool = False) -> dict:
             provider="meta", max_tokens=4096, purpose="navigator-answer", live=live,
             reasoning_effort="low")
         text = response["text"]
-        verification = verify_numbers(text, facts)
+        verification = verify_numbers(text, facts, allow_direction_words=True)
         if not verification["verified"] or _format_issues(text) or not calls:
             text = deterministic_answer(facts)
-    verification = verify_numbers(text, facts)
+    verification = verify_numbers(text, facts, allow_direction_words=True)
     audit = inspect_report(text, facts, live=live, purpose="navigator-inspector")
     if audit["verdict"] == "flag" and text != deterministic_answer(facts):
         initial = audit
         text = deterministic_answer(facts)
-        verification = verify_numbers(text, facts)
+        verification = verify_numbers(text, facts, allow_direction_words=True)
         audit = inspect_report(text, facts, live=live, purpose="navigator-inspector")
         audit["initial_audit"] = initial
     if not verification["verified"]:

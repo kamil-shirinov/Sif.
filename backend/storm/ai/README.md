@@ -16,9 +16,9 @@ requests. The gateway and reports need no new dependencies; navigator integratio
 requirements are listed below.
 
 Live commands are for Kamil's laptop only. The gateway loads environment settings
-through python-dotenv at use time, searching upward from the working directory.
-In an isolated worktree, configure the environment there or launch with settings
-already exported. Credentials and provider responses are never printed by the
+through python-dotenv at use time. Set `STORM_ENV_FILE=~/Desktop/stormscore/.env`
+for an isolated worktree; otherwise it searches upward from the working directory.
+Existing exported settings take precedence. Credentials and provider responses are never printed by the
 gateway. Smoke prints model IDs, timing, and costs. Failed calls additionally
 print the finish reason, token usage (including reasoning tokens when available),
 and up to 200 characters of assistant message data; HTTP metadata is excluded and
@@ -34,23 +34,24 @@ python -m storm.ai.bakeoff --live --models fireworks:accounts/fireworks/models/d
 Meta uses `META_API_KEY`, `META_BASE_URL`, and `META_MODEL`. Fireworks uses
 `FIREWORKS_API_KEY`, `FIREWORKS_BASE_URL`, and `FIREWORKS_MODEL_CHECKER`, unless a
 model is passed explicitly. Modal support is available through `MODAL_API_KEY`,
-`MODAL_BASE_URL`, and `MODAL_MODEL`; smoke skips it when its base URL is absent.
+`MODAL_BASE_URL`, and optionally `MODAL_MODEL` (default `Qwen/Qwen3-8B`); smoke skips
+it when its base URL is absent, unless explicitly selected with `--provider modal`.
 Smoke can select the first discovered model when no default is configured.
 It asks for one word with a 1,024-token limit and requests `minimal` reasoning
 from Meta or `low` from Fireworks. A provider rejection of `reasoning_effort`
 retries without the field, within the gateway's existing three-attempt limit.
 These settings follow the [Meta reasoning guide](https://dev.meta.ai/docs/reasoning)
 and [Fireworks reasoning guide](https://docs.fireworks.ai/guides/reasoning).
-The inspector must use a different model family from the writer, including during
+Outside private mode, the inspector must use a different model family from the writer, including during
 bakeoffs; reports preflight that configuration before the writer request. Numeric
 membership alone cannot verify which subject a number describes.
 
 Live inference fails closed without valid provider caps in
 `~/.stormscore/caps.json`. Kamil owns this file: the gateway never creates or
-changes caps. The existing caps example covers Meta and Fireworks; Modal needs a
-cap entry before this gateway will permit inference, plus its own workspace GPU
-budget because token estimates cannot account for GPU time. Shared settings files
-are unchanged by this lane.
+changes caps. Modal calls are recorded with zero token cost, for any model ID,
+including reservations and uncertain retries. They need no local token cap entry:
+GPU runtime is billed and limited by Modal's workspace settings. Shared settings
+files and Modal spending limits are unchanged by this lane.
 
 The WAL ledger at `~/.stormscore/ledger.sqlite` reserves worst-case uncached cost
 under an immediate SQLite transaction before each request. Parallel processes
@@ -68,17 +69,43 @@ rejection retries without that field through the gateway. Each attempt reserves
 its full current output limit, including correction and compatibility retries. An empty
 answer with `finish_reason="length"` raises a clear reasoning-budget exhaustion
 error after accounting for usage; a valid tool-only response remains supported.
+Modal requests instead disable Qwen thinking through `chat_template_kwargs` and
+use a 600-second timeout to allow a cold GPU start.
+
+## Private crew
+
+Set `LLM_PRIVATE_MODE=1` on the backend process to route **all live roles**, including
+the navigator and inspector, to Modal. Provider defaults and explicit external
+model IDs cannot bypass this switch. Missing Modal config and endpoint failures
+fail closed. Offline defaults and explicit `mock` calls still stay offline.
+In this mode the inspector is a separate role using the same local model weights;
+it is not an independent model family. Numeric verification remains deterministic.
+Modal is the GPU infrastructure operator; no external model inference provider is
+called. Deployment, Secret handoff, warm judging, and measurement instructions are
+in [tools/modal/README.md](../../../tools/modal/README.md).
+
+For the requested synthetic-book comparison, run with `LLM_PRIVATE_MODE=0` and
+`--models modal:Qwen/Qwen3-8B`. The inspector then uses the configured Fireworks
+checker (Kimi); this evaluation sends the synthetic book facts to Fireworks and
+must not be described as private mode. `--fx-only --expected-bundles 13` excludes
+the mock and equity replays and refuses an incomplete comparison.
 
 Every ledger connection sets a 30-second SQLite busy timeout before setup or
 transactions. Concurrent WAL initialization also retries lock errors within that
 limit, since journal-mode negotiation may bypass SQLite's busy handler. Cap checks
 and reservations remain atomic inside `BEGIN IMMEDIATE`.
+Lock retries use SQLite's primary error codes when available and its specific
+lock messages on Python 3.10; they do not patch constants into `sqlite3`.
 
 The input guard uses UTF-8 byte counts plus framing as a conservative token upper
 bound, including tools and assistant tool-call arguments. It rejects estimates
 above 60,000 tokens and disallows non-text content whose cost it cannot bound.
 Prices match the requested uncached rates; unrecognized IDs use $3/$15 per million
 input/output tokens. Version suffixes are not guessed.
+Exact Fireworks slugs `kimi-k3p1-pro`, `deepseek-v4p1-flash`, `minimax-m3p1-flash`
+and `ember-1`, including their `accounts/fireworks/models/` forms, use their mapped
+prices. Older dotted display aliases remain supported. Existing ledger entries
+are never repriced.
 
 `facts_from_bundle` computes move percentage, duration, alarm offsets, ship P&L,
 and the final equity difference directly from the bundle. A number passes when it
@@ -110,6 +137,19 @@ paths and known Fireworks family prefixes target Fireworks. Explicit provider
 prefixes work for any ID. Offline runs exercise the same report flow but do not
 measure model quality. The tests block network and replace HOME and dotenv loading.
 
+The first-try metric measures **numeric membership only**; it is not first-try
+acceptance after format and semantic inspection. `outcome_counts` partitions
+completed reports into `passed_first_try`, `passed_on_retry`, `number_check_failed`,
+`format_check_failed` and `inspector_flagged`. A check failure is the final writer
+attempt's reason for falling back; a generated draft accepted by those checks
+but rejected by the inspector is `inspector_flagged`. An inspector flag on a
+template already selected by a check failure does not change that root cause.
+Aggregate `inspector_flags` can therefore overlap the failure categories.
+`--details` retains each replay ID, fact fingerprint, numeric and format checks
+for both attempts, initial audit issues and final verdict, without the book facts
+or generated report prose. Historic runs that saved only aggregates cannot be
+retroactively assigned exact per-report causes.
+
 ## Navigator
 
 `ask(question, storm_id=None, live=False)` in `storm.ai.navigator` calls the
@@ -122,6 +162,14 @@ are sent to the model. There are at most four tool rounds, with four calls per
 round. Prose gets one correction attempt, then a deterministic template. The
 independent inspector audits the final answer; flagged generated prose is replaced
 with the template and audited again. Mock auditing certifies only that template.
+The writer translates tool fields into trader prose, including hypothetical
+falls/rises, costs/gains, formatted dollar amounts and margin-call consequences.
+Raw snake_case field dumps trigger the correction attempt and then the prose
+fallback. Navigator verification opts into explicit direction words: `3% fall`
+checks against a negative percentage and `cost ... $618,557` against negative P&L.
+It never accepts arbitrary absolute values: reversed rises/gains and invented
+amounts still fail. Signed numeric matching for radio-officer reports is unchanged;
+the inspector continues checking associations, units and economic claims.
 `verified` means numeric verification, independently of the inspector verdict or
 tool execution success; failed calls retain an `error` result.
 

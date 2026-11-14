@@ -121,3 +121,38 @@ def test_report_preflights_inspector_before_spending(bundle, monkeypatch):
     monkeypatch.setattr(llm, "complete", lambda *a, **k: pytest.fail("No inference before family validation"))
     with pytest.raises(llm.GatewayError, match="different model family"):
         report.write_report(report.facts_from_bundle(bundle), live=True)
+
+
+@pytest.mark.parametrize("drafts,outcome", [
+    ([None], "passed_first_try"),
+    (["The synthetic book lost $99999999. Alarm failed. Seas rose.", None], "passed_on_retry"),
+    (["The synthetic book lost $99999999. Alarm failed. Seas rose."] * 2, "number_check_failed"),
+    (["The synthetic book has exposure."] * 2, "format_check_failed"),
+    (["The synthetic book was safe. An election caused the move. Prices will recover."], "inspector_flagged"),
+])
+def test_report_outcomes_separate_numeric_format_retry_and_inspector(bundle, monkeypatch, drafts, outcome):
+    original = llm.complete
+    iterator = iter(drafts)
+
+    def controlled(messages, **kwargs):
+        response = original(messages, **kwargs)
+        if kwargs["purpose"] == "storm-report":
+            draft = next(iterator)
+            if draft is not None:
+                response["text"] = draft
+        return response
+
+    monkeypatch.setattr(llm, "complete", controlled)
+    result = report.write_report(report.facts_from_bundle(bundle))
+    assert result["outcome"] == outcome
+    assert len(result["attempt_checks"]) == result["attempts"] == len(drafts)
+    assert result["verified"] and result["inspector"]["verdict"] == "ok"
+    assert result["fallback"] is (outcome not in {"passed_first_try", "passed_on_retry"})
+    if outcome in {"passed_on_retry", "number_check_failed"}:
+        assert result["attempt_checks"][0]["unverified_numbers"] == ["$99999999"]
+    if outcome == "inspector_flagged":
+        assert result["first_try_verified"]  # Numbers passed; semantic audit did not.
+        assert result["inspector"]["initial_audit"]["issues"]
+    if outcome == "format_check_failed":
+        assert result["first_try_verified"]  # Neither numeric success nor a retry means acceptance.
+        assert result["attempt_checks"][1]["format_issues"] == ["Use three or four plain sentences"]

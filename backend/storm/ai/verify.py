@@ -22,7 +22,7 @@ _WORDS = re.compile(r"\b(?:" + "|".join((*_SMALL, *_TENS, *_SCALES)) + r")\b", r
 _SUFFIX = re.compile(r"\s*(billion|million|thousand|[kmb])$", re.I)
 
 
-def extract_numbers(text: str) -> list[str]:
+def _number_spans(text: str) -> list[tuple[int, int, str]]:
     digits = [(m.start(), m.end(), m.group()) for m in _DIGITS.finditer(text)]
     words = []
     for match in _WORDS.finditer(text):
@@ -33,7 +33,11 @@ def extract_numbers(text: str) -> list[str]:
             words.append((start, match.end(), previous + " " + match.group()))
         else:
             words.append((match.start(), match.end(), match.group()))
-    return [value for _, _, value in sorted(digits + words)]
+    return sorted(digits + words)
+
+
+def extract_numbers(text: str) -> list[str]:
+    return [value for _, _, value in _number_spans(text)]
 
 
 def _decimal(token: str) -> tuple[Decimal, Decimal]:
@@ -81,12 +85,39 @@ def _fact_numbers(value):
             yield from _fact_numbers(item)
 
 
-def verify_numbers(text: str, facts: dict) -> dict:
+def _directional_number(number: Decimal, text: str, start: int, end: int, token: str) -> Decimal:
+    """Read explicit trader phrasing without accepting arbitrary absolute values."""
+    before, after = text[max(0, start - 80):start], text[end:end + 40]
+    direction = None
+    if re.match(r"\s*(?:%|percent)\s+(?:fall|drop|decline|decrease|loss)\b", after, re.I):
+        direction = -1
+    elif re.match(r"\s*(?:%|percent)\s+(?:rise|gain|increase)\b", after, re.I):
+        direction = 1
+    elif re.match(r"\s*(?:%|percent\b)", after, re.I):
+        if re.search(r"\b(?:falls?|drops?|declines?|decreases?)(?: of| by)?\s*$", before, re.I):
+            direction = -1
+        elif re.search(r"\b(?:rises?|gains?|increases?)(?: of| by)?\s*$", before, re.I):
+            direction = 1
+    if "$" in token:
+        # Stop at another number, percentage, dollar amount or sentence so a
+        # cost verb cannot silently reverse unrelated numbers later in prose.
+        if re.search(r"\b(?:costs?|costing|lose|lost|losing|loss(?: of)?)\b[^\d.!?;$%]{0,60}$", before, re.I):
+            direction = -1
+        elif re.search(r"\b(?:gains?|gain of|profit of|earn|earned)\b[^\d.!?;$%]{0,60}$", before, re.I):
+            direction = 1
+    if direction == 1 and number < 0:
+        raise ValueError("A negative amount cannot describe a rise or gain")
+    return -number if direction == -1 and number > 0 else number
+
+
+def verify_numbers(text: str, facts: dict, *, allow_direction_words: bool = False) -> dict:
     allowed = set(_fact_numbers(facts))
     bad = []
-    for token in extract_numbers(text):
+    for start, end, token in _number_spans(text):
         try:
             number, quantum = _decimal(token)
+            if allow_direction_words:
+                number = _directional_number(number, text, start, end, token)
             with localcontext() as context:
                 context.prec = 64
                 matches = any(

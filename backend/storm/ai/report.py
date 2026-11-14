@@ -133,6 +133,9 @@ def write_report(facts: dict, live: bool = False, *, model: str | None = None,
     first_try_verified = False
     fallback = False
     errors = []
+    attempt_checks = []
+    outcome = None
+    writer_latency_s = 0.0
     instructions = (
         "You are the radio officer for an FX storm replay. Write three or four plain sentences for a trader. "
         "Use only supplied facts and numbers, preserving signs and units; decimal rounding is allowed. "
@@ -147,23 +150,29 @@ def write_report(facts: dict, live: bool = False, *, model: str | None = None,
             payload["correction"] = {"bad_numbers": verification["unverified_numbers"],
                                      "issues": errors, "previous_report": text}
         attempts += 1
+        writer_started = time.perf_counter()
         response = llm.complete(
             [{"role": "system", "content": instructions},
              {"role": "user", "content": json.dumps(payload, allow_nan=False)}],
             provider=provider, model=model, max_tokens=4096, purpose="storm-report", live=live,
             reasoning_effort="low",
         )
+        writer_latency_s += time.perf_counter() - writer_started
         total_cost += response["cost_usd"]
         text, selected = response["text"], response["model"]
         verification = verify_numbers(text, facts)
         if attempt == 0:
             first_try_verified = verification["verified"]
         errors = _format_issues(text)
+        attempt_checks.append({"attempt": attempts, "numbers_verified": verification["verified"],
+                               "unverified_numbers": verification["unverified_numbers"].copy(),
+                               "format_issues": errors.copy()})
         if verification["unverified_numbers"]:
             errors.append("Unsupported numbers")
         if not errors:
             break
     if errors:
+        outcome = "number_check_failed" if not verification["verified"] else "format_check_failed"
         text, selected, fallback = deterministic_report(facts), "deterministic", True
         verification = verify_numbers(text, facts)
     audit = inspect_report(text, facts, live=live, writer_model=model, writer_provider=provider)
@@ -172,14 +181,18 @@ def write_report(facts: dict, live: bool = False, *, model: str | None = None,
         # Numeric membership cannot catch swapped subjects or invented causes.
         # Do not return a fluent but unsupported report just because numbers fit.
         text, selected, fallback = deterministic_report(facts), "deterministic", True
+        outcome = "inspector_flagged"
         verification = verify_numbers(text, facts)
         original_audit = audit
         audit = inspect_report(text, facts, live=live, writer_model=model, writer_provider=provider)
         total_cost += audit["cost_usd"]
         audit["initial_audit"] = original_audit
+    if outcome is None:
+        outcome = "passed_first_try" if attempts == 1 else "passed_on_retry"
     return {"text": text, **verification, "inspector": audit, "model": selected,
             "cost_usd": total_cost, "attempts": attempts, "fallback": fallback,
-            "first_try_verified": first_try_verified}
+            "first_try_verified": first_try_verified, "writer_latency_s": writer_latency_s,
+            "outcome": outcome, "attempt_checks": attempt_checks}
 
 
 def main(argv=None) -> int:

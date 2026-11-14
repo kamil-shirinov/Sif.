@@ -64,3 +64,33 @@ def test_smoke_prints_reasoning_exhaustion_diagnostics_from_mock(monkeypatch, ca
     assert diagnostic["finish_reason"] == "length"
     assert diagnostic["usage"]["completion_tokens"] == 1024
     assert diagnostic["raw_message"]
+
+
+def test_bakeoff_retains_disjoint_outcomes_and_check_details(bundle, tmp_path, monkeypatch, capsys):
+    paths = []
+    for index in range(5):
+        path = tmp_path / f"storm-{index}.json"
+        path.write_text(json.dumps(bundle))
+        paths.append(path)
+    outcomes = iter(["passed_first_try", "passed_on_retry", "number_check_failed", "format_check_failed", "inspector_flagged"])
+
+    def result(*a, **k):
+        outcome = next(outcomes)
+        return {"outcome": outcome, "first_try_verified": outcome not in {"passed_on_retry", "number_check_failed"},
+                "attempt_checks": [{"attempt": 1, "numbers_verified": False,
+                                    "unverified_numbers": ["99999999"], "format_issues": []}],
+                "cost_usd": 0, "writer_latency_s": 0,
+                "fallback": outcome not in {"passed_first_try", "passed_on_retry"},
+                "inspector": {"model": "offline-inspector", "verdict": "ok", "issues": [],
+                              **({"initial_audit": {"verdict": "flag", "issues": ["Invented cause"]}}
+                                 if outcome == "inspector_flagged" else {})}}
+
+    monkeypatch.setattr(bakeoff, "write_report", result)
+    assert bakeoff.main(["--models", "modal:Qwen/Qwen3-8B", "--details", "--bundles", str(tmp_path)]) == 0
+    row = json.loads(capsys.readouterr().out)
+    assert row["reports"] == sum(row["outcome_counts"].values()) == 5
+    assert set(row["outcome_counts"].values()) == {1}
+    assert row["fallbacks"] == 3 and row["inspector_flags"] == 1
+    assert row["details"][-1]["initial_inspector_issues"] == ["Invented cause"]
+    assert len({d["facts_sha256"] for d in row["details"]}) == 1
+    assert all("text" not in d and "facts" not in d for d in row["details"])

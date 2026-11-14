@@ -17,6 +17,10 @@ def _family(model: str) -> str:
 
 
 def validate_model_families(writer_model=None, writer_provider="meta") -> None:
+    if llm.private_mode():
+        # Separate roles share the locally hosted weights in private mode.
+        # Requiring a different family here would leak facts to a provider.
+        return
     writer = llm.resolve_model(writer_provider, writer_model)
     checker = llm.resolve_model("fireworks")
     if _family(writer) == _family(checker):

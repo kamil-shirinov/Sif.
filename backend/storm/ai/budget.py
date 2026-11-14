@@ -20,6 +20,16 @@ from .prices import cost_usd
 LEDGER_BUSY_TIMEOUT_MS = 30_000
 
 
+def _is_locked(error: sqlite3.OperationalError) -> bool:
+    # sqlite_errorcode and the symbolic constants appeared in Python 3.11.
+    # SQLite's stable primary codes are BUSY=5 and LOCKED=6. Older Python
+    # exposes only the message. Never retry unrelated operational errors.
+    code = getattr(error, "sqlite_errorcode", None)
+    if code is not None:
+        return code & 0xff in {5, 6}
+    return str(error).lower() in {"database is locked", "database table is locked"}
+
+
 def _enable_wal(db) -> None:
     # Concurrent first opens can fail journal-mode negotiation without invoking
     # SQLite's busy handler. Retry only that startup step within the same limit.
@@ -29,9 +39,8 @@ def _enable_wal(db) -> None:
             db.execute("PRAGMA journal_mode=WAL")
             return
         except sqlite3.OperationalError as error:
-            code = getattr(error, "sqlite_errorcode", 0) & 0xff
             remaining = deadline - time.monotonic()
-            if code not in {sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED} or remaining <= 0:
+            if not _is_locked(error) or remaining <= 0:
                 raise
             time.sleep(min(.05, remaining))
 
@@ -86,8 +95,10 @@ def _ledger():
 
 def reserve(provider: str, model: str, input_tokens: int, max_tokens: int,
             purpose: str) -> str:
-    cap = _cap(provider)
-    estimate = cost_usd(model, input_tokens, max_tokens)
+    # Modal runtime is capped by Modal itself. Do not require or alter a token
+    # cap for a provider whose token price is zero; still record every call.
+    cap = None if provider == "modal" else _cap(provider)
+    estimate = cost_usd(model, input_tokens, max_tokens, provider=provider)
     call_id = uuid.uuid4().hex
     with _ledger() as db:
         rows = db.execute(
@@ -96,10 +107,10 @@ def reserve(provider: str, model: str, input_tokens: int, max_tokens: int,
         ).fetchall()
         used = sum((Decimal(str(row[0])) for row in rows), Decimal(0))
         projected = used + Decimal(str(estimate))
-        start = Decimal(str(cap["start_usd"]))
-        if projected >= start * Decimal(str(cap["stop_at"])):
+        start = Decimal(str(cap["start_usd"])) if cap is not None else None
+        if cap is not None and projected >= start * Decimal(str(cap["stop_at"])):
             raise BudgetExceeded(f"{provider} call refused: budget stop threshold reached")
-        if projected >= start * Decimal(str(cap["warn_at"])):
+        if cap is not None and projected >= start * Decimal(str(cap["warn_at"])):
             print(f"Warning: {provider} budget at or above warning threshold", file=sys.stderr)
         db.execute(
             "INSERT INTO ai_calls (id, provider, model, purpose, input_tokens, "
@@ -112,10 +123,10 @@ def reserve(provider: str, model: str, input_tokens: int, max_tokens: int,
 
 def settle(call_id: str, *, input_tokens: int, output_tokens: int) -> float:
     with _ledger() as db:
-        row = db.execute("SELECT model, status FROM ai_calls WHERE id = ?", (call_id,)).fetchone()
+        row = db.execute("SELECT model, status, provider FROM ai_calls WHERE id = ?", (call_id,)).fetchone()
         if row is None or row[1] != "pending":
             raise BudgetError("Unknown or already settled reservation")
-        actual = cost_usd(row[0], input_tokens, output_tokens)
+        actual = cost_usd(row[0], input_tokens, output_tokens, provider=row[2])
         db.execute(
             "UPDATE ai_calls SET input_tokens=?, output_tokens=?, cost_usd=?, status='complete' WHERE id=?",
             (input_tokens, output_tokens, actual, call_id),
