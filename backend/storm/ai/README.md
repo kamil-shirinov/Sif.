@@ -12,7 +12,8 @@ Run from `backend` with the project Python:
 Every inference goes through `storm.ai.llm.complete`. All providers use the
 deterministic mock unless `live=True` or `LLM_MODE=live`. The explicit `mock`
 provider always stays offline. SDK construction is lazy; imports never make
-requests. No new dependencies or contract changes are needed.
+requests. The gateway and reports need no new dependencies; navigator integration
+requirements are listed below.
 
 Live commands are for Kamil's laptop only. The gateway loads environment settings
 through python-dotenv at use time, searching upward from the working directory.
@@ -101,3 +102,71 @@ fallback count, and errors. Unprefixed Muse IDs target Meta; Fireworks account
 paths and known Fireworks family prefixes target Fireworks. Explicit provider
 prefixes work for any ID. Offline runs exercise the same report flow but do not
 measure model quality. The tests block network and replace HOME and dotenv loading.
+
+## Navigator
+
+`ask(question, storm_id=None, live=False)` in `storm.ai.navigator` calls the
+registered deterministic tools through `llm.complete` (Meta in live mode). The
+response has exactly `answer`, `verified`, `unverified_numbers`, `tool_calls`,
+`inspector`, and `scenario`. Each recorded call includes its ID, name, arguments,
+and result. Only actual tool results authorize numbers; requested arguments do
+not. The complete scenario bundle is returned separately; compact derived facts
+are sent to the model. There are at most four tool rounds, with four calls per
+round. Prose gets one correction attempt, then a deterministic template. The
+independent inspector audits the final answer; flagged generated prose is replaced
+with the template and audited again. Mock auditing certifies only that template.
+`verified` means numeric verification, independently of the inspector verdict or
+tool execution success; failed calls retain an `error` result.
+
+```sh
+cd backend
+python -m pytest -q tests/ai
+python -m storm.ai.navigator "what if USDJPY drops 3% in 30 minutes?" --storm usdjpy-2026-07-30
+```
+
+The CLI writes a scenario JSON to `web/public/bundles` (override with `--out`).
+It exits unsuccessfully for tool errors. First export the real base bundle with
+`storm.export`; missing SGX data is an explicit error, never replaced with mock
+prices. For an entirely offline smoke using the labelled synthetic fixture:
+
+```sh
+LLM_MODE=mock python -m storm.ai.navigator "what if USDJPY drops 3% in 30 minutes?" \
+  --storm mock_storm --bundles ../contracts --out ../work/navigator-bundles
+```
+
+Scenario prices resample cumulative onset-to-trough log returns and scale them by
+`log1p(move_pct / 100) / log(base_trough / base_onset)`. The replay starts at onset,
+ends at the resized trough, and checks the rounded final price against the target
+within a basis point. Both ships, their cuts, liquidations and exposure snapshot
+are recomputed with the existing `storm.exposure` functions. The synthetic book
+uses the exporter's default long-USD notional and equity; it is not a custom trader
+book. OHLC envelopes use consecutive scenario mids. Alarm timing and sea conditions
+are resampled assumptions from the base, not a rerun or forecast from the detector.
+The title identifies a synthetic shape when a test fixture is used. Endpoint
+stress uses `storm.exposure.stress_test` before liquidation; its P&L can differ
+from final scenario equity because the latter includes policy cuts and liquidation.
+All calculations mark at mid with no spread or slippage, matching the simulator.
+
+The backend owner can mount `storm.ai.navigator_api.router` with
+`app.include_router(router)`. `POST /api/navigator/ask` accepts
+`{"question": "...", "storm_id": "..."}` (storm_id optional) and returns the
+six fields above, including `scenario: null` for non-scenario answers. Live mode
+is configured on the server, never selected by a request field. Validation errors
+return 422, provider errors 502, and unavailable budgets 503. Synchronous routes
+run in FastAPI's threadpool.
+
+Integration requirements for Kamil (shared files are not changed in this lane):
+
+- Add **`fastapi>=0.115`** to `backend/requirements.txt`; the router also uses its
+  Pydantic dependency. API tests use `httpx` (already supplied with compatible
+  OpenAI installations; install separately if needed). FastAPI was already
+  installed in this development environment.
+- CC-L must add `source: "scenario"` to `storm.validate` and the replay contract.
+  Until that shared change lands, `validate_shape` passes a copy with
+  `source: "synthetic"` to the existing validator, preserving every other field.
+  The returned and written bundle retains `source: "scenario"`; tests assert it
+  separately. Direct `python -m storm.validate` on that file will reject the source
+  until CC-L's enum extension lands. No shared files or validator globals change.
+- Mount the router in the live backend application. No app or `contracts/api.md`
+  exists on the main revision used for this lane, so the request/response shape
+  follows the live-task contract supplied in the navigator assignment.
