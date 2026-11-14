@@ -1,0 +1,73 @@
+{
+  "date_utc": "2026-11-14",
+  "base_url": "https://kamil-shirinov--stormscore-private-llm-serve.us-east.modal.run/v1",
+  "model": "Qwen/Qwen3-8B",
+  "revision": "c4991a667c9137cff07024144d448d2afe76abc4",
+  "deployed_gpu": "L40S",
+  "gpu_choice_reason": "L4 and A10G reported unavailable worker capacity. L40S is a capacity fallback, not evidence of a model-memory requirement. Failed packaging startup attempts are included in the GPU allocation window.",
+  "offline_tests_passed": 100,
+  "unauthenticated_models_http_status": 401,
+  "warm_smoke_latency_s": 1.344,
+  "modal_token_cost_usd": 0.0,
+  "private_report": {
+    "verified": true,
+    "first_try_verified": false,
+    "fallback": true,
+    "inspector_model": "Qwen/Qwen3-8B",
+    "inspector_verdict": "ok",
+    "latency_s": 12.56416633399931
+  },
+  "private_navigator": {
+    "verified": true,
+    "tool_names": [
+      "stress_test"
+    ],
+    "tool_errors": 0,
+    "inspector_model": "Qwen/Qwen3-8B",
+    "inspector_verdict": "ok",
+    "latency_s": 4.750527208001586
+  },
+  "bakeoff": {
+    "model": "modal:Qwen/Qwen3-8B",
+    "private_mode": false,
+    "reports": 13,
+    "errors": 0,
+    "first_try_verification_rate": 0.6153846153846154,
+    "fallbacks": 9,
+    "inspector_flags": 4,
+    "inspector_models": [
+      "accounts/fireworks/models/kimi-k3p1-pro"
+    ],
+    "mean_writer_latency_s": 8.695614573691833,
+    "mean_latency_s": 12.361478765922165,
+    "cost_per_report_usd": 0.007025307692307693,
+    "scope": "13 SGX FX bundles; books labelled synthetic. Mock and equity bundles excluded. Kimi evaluation sends synthetic facts to Fireworks; it is not private mode."
+  },
+  "cold_start": {
+    "cold_start_s": 55.136228750001465,
+    "confirmed_zero_runners_before_request": true,
+    "models": [
+      "Qwen/Qwen3-8B"
+    ],
+    "request_started_utc": "2026-11-14T19:31:37.355722+00:00",
+    "configured_idle_window_s": 300,
+    "last_observed_external_request_utc": "2026-11-14T19:25:10.650106+00:00",
+    "note": "Zero was observed about 6.5 minutes after the last external request, including platform shutdown and up-to-30-second observer polling. Startup timing begins only after confirmed zero runners.",
+    "observed_idle_upper_bound_s": 386.705616
+  },
+  "gpu_allocation": {
+    "source": "Modal allocated GPU count averages integrated over complete one-minute metric buckets",
+    "since_utc": "2026-11-14T19:06:00+00:00",
+    "until_utc": "2026-11-14T19:33:00+00:00",
+    "bucket_seconds": 60,
+    "gpu_minutes_observed_by_type": {
+      "A10G": 0.20197544892628988,
+      "L40S": 14.375413155555725
+    },
+    "total_gpu_minutes_observed": 14.577388604482014,
+    "includes": "Failed startup attempts, model loading, report and navigator validation, bake-off, idle scale-down wait, cached cold start",
+    "missing_buckets_note": "Missing observations remain unknown rather than zero. This total is observed allocation in the reported UTC window, not a dollar bill.",
+    "end_state": "Confirmed zero runners and zero backlog after cold-start measurement; no container required manual termination"
+  },
+  "temporary_credential_deleted": true
+}

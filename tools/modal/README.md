@@ -9,6 +9,15 @@ the model fits or measure inference quality. Validate after the env handoff.
 `MODAL_GPU=L40S` is an explicit 48 GB fallback if later measurements require it.
 There is no automatic GPU upgrade or multi-GPU allocation.
 
+The 14 November 2026 deployment uses `MODAL_GPU=L40S`: Modal reported unavailable
+L4 and A10G capacity. Reproduce that deployment with the same variable; plain
+`modal deploy` returns to the default L4 configuration. Recorded smoke, privacy,
+quality, cold-start and allocation results are in [validation.json](validation.json).
+The configured idle window is 300 seconds; this run observed zero runners about
+6.5 minutes after the final external request, including platform shutdown and
+30-second observer polling. Treat the setting as an autoscaler policy, not an
+exact wall-clock shutdown guarantee.
+
 The Hugging Face cache is on the `stormscore-qwen3-weights` Modal Volume. The
 container receives only the `stormscore-private-llm` Secret, containing
 `MODAL_API_KEY`. vLLM enforces `--api-key` on its `/v1` inference routes. Request
