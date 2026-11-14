@@ -40,7 +40,8 @@ def inspect_report(text: str, facts: dict, live: bool = False, *, writer_model=N
             "Hypothetical scenarios inherit alarm timing and must not imply predictive detection. "
             'Return only JSON: {"verdict":"ok" or "flag", "issues":[strings]}.')},
          {"role": "user", "content": json.dumps({"facts": facts, "text": text}, allow_nan=False)}],
-        provider="fireworks", max_tokens=1024, purpose=purpose, live=live,
+        provider="fireworks", max_tokens=2048, purpose=purpose, live=live,
+        reasoning_effort="low",
     )
     try:
         raw = response["text"].strip()

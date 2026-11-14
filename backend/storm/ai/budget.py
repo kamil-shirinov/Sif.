@@ -12,9 +12,28 @@ import math
 from pathlib import Path
 import sqlite3
 import sys
+import time
 import uuid
 
 from .prices import cost_usd
+
+LEDGER_BUSY_TIMEOUT_MS = 30_000
+
+
+def _enable_wal(db) -> None:
+    # Concurrent first opens can fail journal-mode negotiation without invoking
+    # SQLite's busy handler. Retry only that startup step within the same limit.
+    deadline = time.monotonic() + LEDGER_BUSY_TIMEOUT_MS / 1000
+    while True:
+        try:
+            db.execute("PRAGMA journal_mode=WAL")
+            return
+        except sqlite3.OperationalError as error:
+            code = getattr(error, "sqlite_errorcode", 0) & 0xff
+            remaining = deadline - time.monotonic()
+            if code not in {sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED} or remaining <= 0:
+                raise
+            time.sleep(min(.05, remaining))
 
 
 class BudgetError(RuntimeError):
@@ -42,10 +61,11 @@ def _cap(provider: str) -> dict:
 def _ledger():
     directory = Path.home() / ".stormscore"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
-    db = sqlite3.connect(directory / "ledger.sqlite", timeout=30, isolation_level=None)
+    db = sqlite3.connect(directory / "ledger.sqlite",
+                         timeout=LEDGER_BUSY_TIMEOUT_MS / 1000, isolation_level=None)
     try:
-        db.execute("PRAGMA busy_timeout=30000")
-        db.execute("PRAGMA journal_mode=WAL")
+        db.execute(f"PRAGMA busy_timeout={LEDGER_BUSY_TIMEOUT_MS}")
+        _enable_wal(db)
         db.execute("""CREATE TABLE IF NOT EXISTS ai_calls (
             id TEXT PRIMARY KEY, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             provider TEXT NOT NULL, model TEXT NOT NULL, purpose TEXT NOT NULL,

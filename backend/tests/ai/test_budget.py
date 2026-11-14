@@ -66,3 +66,68 @@ def test_parallel_processes_share_atomic_reservations(caps):
     assert budget.spent("meta") == pytest.approx(.6)
     with sqlite3.connect(caps.parent / "ledger.sqlite") as db:
         assert db.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
+
+
+def test_every_ledger_connection_has_busy_timeout(caps, monkeypatch):
+    connect = sqlite3.connect
+    timeouts = []
+
+    def track(*args, **kwargs):
+        db = connect(*args, **kwargs)
+        timeouts.append(db.execute('PRAGMA busy_timeout').fetchone()[0])
+        return db
+
+    monkeypatch.setattr(budget.sqlite3, 'connect', track)
+    call = budget.reserve('meta', 'unknown', 10, 20, 'timeout-test')
+    budget.settle(call, input_tokens=1, output_tokens=1)
+    call = budget.reserve('meta', 'unknown', 10, 20, 'timeout-test')
+    budget.failed(call, definitely_unbilled=True)
+    budget.spent('meta')
+    assert len(timeouts) == 5
+    assert all(timeout >= 5000 for timeout in timeouts)
+
+
+def test_reservation_waits_for_other_connection_to_release_lock(caps):
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError
+    import threading
+
+    budget.spent('meta')  # Initialize the ledger, then hold a competing write lock.
+    started = threading.Event()
+
+    def reserve():
+        started.set()
+        return budget.reserve('meta', 'unknown', 0, 20_000, 'contended-test')
+
+    with sqlite3.connect(caps.parent / 'ledger.sqlite') as lock:
+        lock.execute('BEGIN IMMEDIATE')
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(reserve)
+            try:
+                assert started.wait(timeout=5)
+                with pytest.raises(TimeoutError):
+                    future.result(timeout=.1)
+            finally:
+                lock.rollback()
+            assert future.result(timeout=5)
+    assert budget.spent('meta') == pytest.approx(.3)
+
+
+def test_concurrent_wal_startup_busy_is_retried(caps, monkeypatch):
+    connect = sqlite3.connect
+    failures, sleeps = [], []
+
+    class StartupRace(sqlite3.Connection):
+        def execute(self, sql, *args, **kwargs):
+            if sql == 'PRAGMA journal_mode=WAL' and not failures:
+                failures.append(sql)
+                error = sqlite3.OperationalError('database is locked')
+                error.sqlite_errorcode = sqlite3.SQLITE_BUSY
+                raise error
+            return super().execute(sql, *args, **kwargs)
+
+    monkeypatch.setattr(budget.sqlite3, 'connect',
+                        lambda *args, **kwargs: connect(*args, factory=StartupRace, **kwargs))
+    monkeypatch.setattr(budget.time, 'sleep', sleeps.append)
+    assert budget.reserve('meta', 'unknown', 0, 20_000, 'wal-race-test')
+    assert budget.spent('meta') == pytest.approx(.3)
+    assert len(failures) == 1 and sleeps == [.05]

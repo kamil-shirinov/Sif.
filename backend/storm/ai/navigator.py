@@ -127,8 +127,8 @@ def ask(question: str, storm_id: str | None = None, live: bool = False) -> dict:
     calls, scenario_bundle = [], None
     text = ""
     for _ in range(MAX_TOOL_ROUNDS):
-        response = llm.complete(messages, provider="meta", max_tokens=2048, purpose="storm-navigator",
-                                tools=tools.TOOL_SCHEMAS, live=live)
+        response = llm.complete(messages, provider="meta", max_tokens=4096, purpose="storm-navigator",
+                                tools=tools.TOOL_SCHEMAS, live=live, reasoning_effort="low")
         pending = response["tool_calls"]
         if not pending:
             text = response["text"]
@@ -169,7 +169,8 @@ def ask(question: str, storm_id: str | None = None, live: bool = False) -> dict:
         response = llm.complete(
             [{"role": "system", "content": SYSTEM}, {"role": "user", "content": json.dumps({
                 "question": question, "facts": facts, "correction": correction})}],
-            provider="meta", max_tokens=2048, purpose="navigator-answer", live=live)
+            provider="meta", max_tokens=4096, purpose="navigator-answer", live=live,
+            reasoning_effort="low")
         text = response["text"]
         verification = verify_numbers(text, facts)
         if not verification["verified"] or _format_issues(text) or not calls:

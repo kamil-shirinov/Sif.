@@ -62,10 +62,17 @@ clear ledger rows to bypass the guard. Returned gateway costs include any prior
 uncertain retry attempts. The SDK's internal retries are disabled; the gateway
 allows at most two retries with backoff.
 
-Reports allow 2,048 output tokens and inspector audits allow 1,024, including
-reasoning tokens. Each attempt reserves its full current output limit. An empty
+Report and navigator writers allow 4,096 output tokens and inspector audits allow
+2,048, including reasoning tokens. All request `reasoning_effort="low"`; a provider
+rejection retries without that field through the gateway. Each attempt reserves
+its full current output limit, including correction and compatibility retries. An empty
 answer with `finish_reason="length"` raises a clear reasoning-budget exhaustion
 error after accounting for usage; a valid tool-only response remains supported.
+
+Every ledger connection sets a 30-second SQLite busy timeout before setup or
+transactions. Concurrent WAL initialization also retries lock errors within that
+limit, since journal-mode negotiation may bypass SQLite's busy handler. Cap checks
+and reservations remain atomic inside `BEGIN IMMEDIATE`.
 
 The input guard uses UTF-8 byte counts plus framing as a conservative token upper
 bound, including tools and assistant tool-call arguments. It rejects estimates
