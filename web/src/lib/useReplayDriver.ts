@@ -5,7 +5,7 @@ import type { Derived, TriggerSpec } from "./derive";
 import { sampleAt, stepAt } from "./derive";
 import { useTimeline } from "../state/timeline";
 import { useApp } from "../state/app";
-import { emitJump } from "./bus";
+import { emitJump, emitSceneEvent } from "./bus";
 
 const MAX_CATCHUP_FRAMES = 30; // never fire a burst of more than this many frames at once
 
@@ -19,8 +19,19 @@ function toastFor(e: BundleEvent, b: Bundle): { title: string; text: string } {
       return { title: `Margin call: ${b.ships[e.ship].label}`, text: e.text };
     case "all_clear":
       return { title: "All clear", text: e.text };
+    case "squall":
+      return { title: "Squall", text: e.text || "A sharp move against the book. No cut." };
+    case "fair_wind":
+      return { title: "Fair wind", text: e.text || "A sharp move in the book's favour. No trade." };
+    case "cut":
+      return { title: `${b.ships[e.ship ?? "prepared"].label}: cargo cut`, text: e.text || "Threw cargo overboard to protect the margin." };
+    case "restore":
+      return { title: `${b.ships[e.ship ?? "prepared"].label}: cargo restored`, text: e.text || "Hoisted the cargo back aboard." };
   }
 }
+
+/** Events the sound engine has a cue for. Squall, fair_wind and restore stay silent: its interface has no cue for them. */
+const AUDIO_EVENTS = new Set(["watch", "alarm", "cut", "margin_call", "all_clear"]);
 
 /** Jump strength for the sound engine: vol_ratio scaled so 10x normal is full strength. */
 export const jumpStrength = (b: Bundle, i: number) => Math.min(1, Math.max(0.2, b.series.vol_ratio[i] / 10));
@@ -47,11 +58,16 @@ export function useReplayDriver(bundle: Bundle | null, derived: Derived | null, 
           emitJump({ frame: f, strength });
         } else if (s.kind === "cut") {
           audio.trigger({ type: "cut" });
+          emitSceneEvent({ type: "cut", frame: f });
           const label = bundle.ships[s.ship].label;
           pushToast({ kind: "cut", title: `${label}: cargo cut`, text: `Threw ${Math.round(s.fraction * 100)}% of the cargo overboard to protect the margin.` });
+        } else if (s.kind === "restore") {
+          emitSceneEvent({ type: "restore", frame: f });
+          pushToast({ kind: "restore", title: `${bundle.ships[s.ship].label}: cargo restored`, text: "Hoisted the cargo back aboard." });
         } else {
           const e = s.event;
-          audio.trigger({ type: e.type });
+          if (AUDIO_EVENTS.has(e.type)) audio.trigger({ type: e.type } as Parameters<AudioEngine["trigger"]>[0]);
+          emitSceneEvent({ type: e.type, frame: f });
           pushToast({ kind: e.type, ...toastFor(e, bundle) });
         }
       }

@@ -47,15 +47,15 @@ function makeBeam(): Mesh {
   geo.translate(0, -len / 2, 0); // apex at origin
   geo.rotateZ(Math.PI / 2); // point along +x
   const mat = new ShaderMaterial({
-    uniforms: { uOpacity: { value: 0 } },
+    uniforms: { uOpacity: { value: 0 }, uTint: { value: new Color(1.6, 1.45, 1.0) } },
     vertexShader: /* glsl */ `
       varying float vAlong;
       void main() { vAlong = clamp(position.x / ${len.toFixed(1)}, 0.0, 1.0); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */ `
-      uniform float uOpacity; varying float vAlong;
+      uniform float uOpacity; uniform vec3 uTint; varying float vAlong;
       void main() {
         float a = uOpacity * pow(1.0 - vAlong, 1.6);
-        gl_FragColor = vec4(vec3(1.6, 1.45, 1.0) * a, a);
+        gl_FragColor = vec4(uTint * a, a);
       }`,
     transparent: true,
     depthWrite: false,
@@ -69,8 +69,16 @@ function makeBeam(): Mesh {
 
 const LAMP_ON = new Color(16, 13, 7);
 const LAMP_OFF = new Color("#3a3a33");
+const LAMP_AMBER = new Color(18, 8, 0.6);
+const BEAM_WHITE = new Color(1.6, 1.45, 1.0);
+const BEAM_AMBER = new Color(1.9, 0.95, 0.2);
+const LIGHT_WHITE = new Color("#ffd9a0");
+const LIGHT_AMBER = new Color("#ff9a1f");
 
-/** Lighthouse on a rock. The lamp lights and the beam sweeps while an alarm event is active. */
+/**
+ * Lighthouse on a rock. The lamp lights and the beam sweeps white while an alarm event is active.
+ * A squall event flashes the lamp and beam amber for a few market minutes: a warning, no cut.
+ */
 export function Lighthouse() {
   const rock = useMemo(() => makeRock(42, 9), []);
   const rock2 = useMemo(() => makeRock(7, 5), []);
@@ -80,17 +88,33 @@ export function Lighthouse() {
     () => new MeshStandardMaterial({ color: "#9fb7c2", transparent: true, opacity: 0.35, emissive: new Color(0, 0, 0), roughness: 0.1 }),
     [],
   );
+  // Amber halo around the lamp: the squall flash, visible from far away.
+  const haloMat = useMemo(
+    () => new MeshBasicMaterial({ color: new Color(3.2, 1.5, 0.2), transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false, toneMapped: false, fog: false }),
+    [],
+  );
   const spin = useRef<Group>(null);
   const light = useRef<PointLight>(null);
 
   useFrame((_, dt) => {
     const a = vis.alarm;
-    lampMat.color.copy(LAMP_OFF).lerp(LAMP_ON, a);
-    glassMat.emissive.setRGB(a * 2.2, a * 1.8, a * 1.0);
-    if (spin.current) spin.current.rotation.y += dt * 1.15 * Math.min(1, a * 1.5);
-    const op = a * (0.3 + 0.25 * vis.risk + 0.15 * (1 - vis.dayFactor));
-    beams.forEach((b) => ((b.material as ShaderMaterial).uniforms.uOpacity.value = op));
-    if (light.current) light.current.intensity = a * 900;
+    // Squall: strobing amber, between dim and full.
+    const amber = vis.squall > 0 ? vis.squall * (0.45 + 0.55 * Math.max(0, Math.sin(vis.elapsed * 15))) : 0;
+    lampMat.color.copy(LAMP_OFF).lerp(LAMP_ON, a).lerp(LAMP_AMBER, amber);
+    haloMat.opacity = amber * 0.55;
+    glassMat.emissive.setRGB(a * 2.2 + amber * 2.4, a * 1.8 + amber * 1.1, a * 1.0 + amber * 0.15);
+    if (spin.current) spin.current.rotation.y += dt * 1.15 * Math.min(1, Math.max(a, vis.squall) * 1.5);
+    const op = Math.max(a * (0.3 + 0.25 * vis.risk + 0.15 * (1 - vis.dayFactor)), amber * 0.9);
+    const amberShare = amber / (amber + a + 1e-4);
+    beams.forEach((b) => {
+      const u = (b.material as ShaderMaterial).uniforms;
+      u.uOpacity.value = op;
+      u.uTint.value.copy(BEAM_WHITE).lerp(BEAM_AMBER, amberShare);
+    });
+    if (light.current) {
+      light.current.intensity = Math.max(a * 900, amber * 750);
+      light.current.color.copy(LIGHT_WHITE).lerp(LIGHT_AMBER, amberShare);
+    }
   });
 
   return (
@@ -124,6 +148,9 @@ export function Lighthouse() {
         </mesh>
         <mesh position={[0, LAMP_Y, 0]} material={lampMat}>
           <sphereGeometry args={[0.62, 16, 12]} />
+        </mesh>
+        <mesh position={[0, LAMP_Y, 0]} material={haloMat} renderOrder={3}>
+          <sphereGeometry args={[2.6, 20, 14]} />
         </mesh>
         <mesh position={[0, LAMP_Y + 1.9, 0]}>
           <coneGeometry args={[1.55, 1.5, 16]} />

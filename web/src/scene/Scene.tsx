@@ -1,39 +1,55 @@
+import { useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer, ToneMapping } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
 import { ACESFilmicToneMapping } from "three";
 import type { Bundle } from "../types/bundle";
 import type { Derived } from "../lib/derive";
+import { onSceneEvent } from "../lib/bus";
+import { useApp } from "../state/app";
 import { playhead } from "../state/timeline";
-import { updateVis } from "./vis";
+import { pulseFairWind, pulseSquall, updateVis } from "./vis";
 import { Sea } from "./Sea";
 import { Atmosphere } from "./Atmosphere";
 import { Rain } from "./Rain";
 import { Lightning } from "./Lightning";
 import { StormFronts } from "./StormFront";
 import { Lighthouse } from "./Lighthouse";
+import { SunBreak } from "./SunBreak";
 import { Ship } from "./Ship";
 import { Jettison } from "./Jettison";
 import { CameraRig, HOME_POS } from "./CameraRig";
 
 function VisDriver({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
+  // The replay announces squall and fair_wind events it crosses while playing: a wall-clock pulse keeps them visible at high speed.
+  useEffect(
+    () =>
+      onSceneEvent(({ type }) => {
+        if (type === "squall") pulseSquall();
+        else if (type === "fair_wind") pulseFairWind();
+      }),
+    [],
+  );
   // Runs before every other useFrame: turns the playhead into shared visual state.
   useFrame((_, dt) => updateVis(bundle, derived, playhead(), Math.min(dt, 0.1)), -1);
   return null;
 }
 
 function World({ bundle, derived, lowQuality }: { bundle: Bundle; derived: Derived; lowQuality: boolean }) {
+  // Each loaded bundle (a new storm, a scenario) remounts what holds per-bundle state; the canvas stays.
+  const seq = useApp((s) => s.bundleSeq);
   return (
     <>
       <VisDriver bundle={bundle} derived={derived} />
       <Atmosphere />
       <Sea lowQuality={lowQuality} />
-      <StormFronts watches={derived.watches} />
+      <StormFronts key={`f${seq}`} watches={derived.watches} />
       <Lighthouse />
-      <Ship shipKey="prepared" derived={derived} />
-      <Ship shipKey="unprepared" derived={derived} />
-      <Jettison shipKey="prepared" derived={derived} />
-      <Jettison shipKey="unprepared" derived={derived} />
+      <SunBreak />
+      <Ship key={`p${seq}`} shipKey="prepared" derived={derived} />
+      <Ship key={`u${seq}`} shipKey="unprepared" derived={derived} />
+      <Jettison key={`jp${seq}`} shipKey="prepared" derived={derived} />
+      <Jettison key={`ju${seq}`} shipKey="unprepared" derived={derived} />
       <Rain lowQuality={lowQuality} />
       <Lightning />
       <CameraRig />

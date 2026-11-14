@@ -121,7 +121,9 @@ export function Atmosphere() {
 
   useFrame(() => {
     const u = sky.material.uniforms;
-    const r = vis.risk;
+    // A fair_wind event thins the cloud: the sky reads as if risk had dropped, so the sun breaks through.
+    const fw = vis.fairWind;
+    const r = vis.risk * (1 - 0.55 * fw);
     u.sunPosition.value.copy(vis.sunDir);
     u.time.value = vis.elapsed;
     u.cloudCoverage.value = 0.18 + 0.8 * r;
@@ -137,7 +139,7 @@ export function Atmosphere() {
     (dome.material as ShaderMaterial).uniforms.uDark.value = dark * 0.8;
 
     fog.color.copy(FOG_CALM).lerp(FOG_STORM, Math.min(1, r * 1.1)).multiplyScalar(0.25 + 0.75 * vis.dayFactor);
-    fog.color.lerp(SUN_WHITE, vis.flash * 0.35);
+    fog.color.lerp(SUN_WHITE, vis.flash * 0.35 + fw * 0.12);
     fog.density = 0.00035 + 0.0032 * r * r + 0.0006 * r;
     const hz = (haze.material as ShaderMaterial).uniforms;
     hz.uColor.value.copy(fog.color);
@@ -146,7 +148,7 @@ export function Atmosphere() {
     if (sunRef.current) {
       const s = sunRef.current;
       s.position.copy(vis.sunDir).multiplyScalar(120);
-      s.intensity = 2.4 * vis.dayFactor * (1 - 0.8 * r) + vis.flash * 5;
+      s.intensity = 2.4 * vis.dayFactor * (1 - 0.8 * r) + vis.flash * 5 + fw * 1.6 * Math.max(0.3, vis.dayFactor);
       tmp.copy(SUN_WARM).lerp(SUN_WHITE, Math.min(1, vis.sunDir.y * 3));
       s.color.copy(tmp);
     }

@@ -20,7 +20,16 @@ import {
 import type { Bundle } from "../types/bundle";
 import type { Derived } from "../lib/derive";
 import { useFrameIndex, useTimeline } from "../state/timeline";
+import { useApp } from "../state/app";
 import { fmtUtc } from "../lib/format";
+
+/** The four price arrays the chart draws: the bundle's own, or the server's candles laid onto its frames. */
+interface PriceSeries {
+  open: number[];
+  high: number[];
+  low: number[];
+  mid: number[];
+}
 
 export const BUCKET = 5; // minutes per candle
 
@@ -36,25 +45,25 @@ interface BucketAgg {
 }
 
 /** Aggregate one-minute bars into 5-minute candles, using frames first..upto (inclusive). */
-function aggregate(b: Bundle, first: number, upto: number): BucketAgg {
+function aggregate(b: Bundle, px: PriceSeries, first: number, upto: number): BucketAgg {
   const s = b.series;
   let high = -Infinity;
   let low = Infinity;
   let maxRisk = 0;
   let spread = 0;
   for (let i = first; i <= upto; i++) {
-    high = Math.max(high, s.high[i]);
-    low = Math.min(low, s.low[i]);
+    high = Math.max(high, px.high[i]);
+    low = Math.min(low, px.low[i]);
     maxRisk = Math.max(maxRisk, s.risk[i]);
     spread += s.spread_bp[i];
   }
   return {
     time: (b.t0 + first * b.step_s) as UTCTimestamp,
     first,
-    open: s.open[first],
+    open: px.open[first],
     high,
     low,
-    close: s.mid[upto],
+    close: px.mid[upto],
     maxRisk,
     meanSpread: spread / (upto - first + 1),
   };
@@ -78,6 +87,9 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
   const frame = useFrameIndex();
   const [hover, setHover] = useState<BucketAgg | null>(null);
   const nBuckets = Math.ceil(derived.n / BUCKET);
+  // With a live server (health.tiger) the candles come from GET /api/candles; otherwise from the bundle.
+  const live = useApp((st) => (st.live && st.live.seq === st.bundleSeq ? st.live : null));
+  const px: PriceSeries = live ?? bundle.series;
 
   // All markers, revealed as the playhead passes them.
   const allMarkers = useMemo(() => {
@@ -86,12 +98,20 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
       i: bundle.storm.onset_i,
       m: { time: bucketTime(bundle, bundle.storm.onset_i), position: "aboveBar", shape: "circle", color: "#e0e6ee", text: "Onset" },
     });
+    const releases = new Set<number>();
+    const mark = (i: number, position: "aboveBar" | "belowBar", shape: SeriesMarker<Time>["shape"], color: string, text: string) =>
+      out.push({ i, m: { time: bucketTime(bundle, i), position, shape, color, text } });
     for (const e of bundle.events) {
-      if (e.type === "alarm")
-        out.push({ i: e.i, m: { time: bucketTime(bundle, e.i), position: "aboveBar", shape: "arrowDown", color: "#f5a623", text: "Alarm" } });
-      if (e.type === "margin_call")
-        out.push({ i: e.i, m: { time: bucketTime(bundle, e.i), position: "belowBar", shape: "square", color: "#ef5350", text: "Margin call" } });
+      if (e.type === "alarm") mark(e.i, "aboveBar", "arrowDown", "#f5a623", "Alarm");
+      if (e.type === "margin_call") mark(e.i, "belowBar", "square", "#ef5350", "Margin call");
+      if (e.type === "squall") mark(e.i, "aboveBar", "circle", "#f0b44c", "Squall");
+      if (e.type === "fair_wind") mark(e.i, "aboveBar", "arrowUp", "#5ecf9a", "Fair wind");
+      if (e.type === "cut") mark(e.i, "belowBar", "arrowDown", "#7cc4ff", "Cut");
+      if (e.type === "restore") mark(e.i, "belowBar", "arrowUp", "#7cc4ff", "Restore");
+      if (e.type === "watch" && e.at_i !== undefined) releases.add(e.at_i);
     }
+    if (bundle.storm.kind === "scheduled" && bundle.storm.event_i !== undefined) releases.add(bundle.storm.event_i);
+    for (const i of releases) mark(i, "aboveBar", "circle", "#d6c450", "Release");
     out.sort((a, b) => a.i - b.i);
     return out;
   }, [bundle]);
@@ -130,8 +150,8 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
     let lo = Infinity;
     let hi = -Infinity;
     for (let i = 0; i < derived.n; i++) {
-      lo = Math.min(lo, bundle.series.low[i]);
-      hi = Math.max(hi, bundle.series.high[i]);
+      lo = Math.min(lo, px.low[i]);
+      hi = Math.max(hi, px.high[i]);
     }
     const pad = (hi - lo) * 0.04;
     c.applyOptions({ autoscaleInfoProvider: () => ({ priceRange: { minValue: lo - pad, maxValue: hi + pad } }) });
@@ -154,7 +174,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
       const cur = Math.floor(useTimeline.getState().t);
       const first = bucket * BUCKET;
       if (first > cur) return setHover(null);
-      setHover(aggregate(bundle, first, Math.min(cur, first + BUCKET - 1, derived.n - 1)));
+      setHover(aggregate(bundle, px, first, Math.min(cur, first + BUCKET - 1, derived.n - 1)));
     };
     chart.subscribeClick(onClick);
     chart.subscribeCrosshairMove(onMove);
@@ -164,7 +184,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
       chart.remove();
       chartRef.current = null;
     };
-  }, [bundle, derived, nBuckets]);
+  }, [bundle, derived, nBuckets, px]);
 
   // Reveal candles up to the playhead; future buckets are whitespace so the time axis spans the storm.
   useEffect(() => {
@@ -181,7 +201,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
         rd.push({ time });
         continue;
       }
-      const a = aggregate(bundle, first, Math.min(frame, first + BUCKET - 1, derived.n - 1));
+      const a = aggregate(bundle, px, first, Math.min(frame, first + BUCKET - 1, derived.n - 1));
       cd.push({ time, open: a.open, high: a.high, low: a.low, close: a.close });
       rd.push({ time, value: Math.max(0.04, a.maxRisk), color: riskColor(a.maxRisk) });
     }
@@ -190,7 +210,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
     markers.current?.setMarkers(allMarkers.filter((m) => m.i <= frame).map((m) => m.m));
     // Keep the whole storm on the axis so candles draw in from left to right.
     chartRef.current?.timeScale().setVisibleLogicalRange({ from: -0.5, to: nBuckets - 0.5 });
-  }, [frame, bundle, derived, nBuckets, allMarkers]);
+  }, [frame, bundle, derived, nBuckets, allMarkers, px]);
 
   return (
     <div className={`panel chart ${large ? "large" : ""}`}>
@@ -198,7 +218,13 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
         <span>
           {bundle.symbol} · {BUCKET}-min candles
         </span>
-        <span className="muted">{bundle.title}</span>
+        {live ? (
+          <span className="chart-src" title="Candles fetched from the live server (GET /api/candles)">
+            Tiger Data{live.queryMs !== null ? ` · ${live.queryMs < 10 ? live.queryMs.toFixed(1) : Math.round(live.queryMs)} ms` : ""}
+          </span>
+        ) : (
+          <span className="muted">{bundle.title}</span>
+        )}
       </div>
       <div className="chart-host" ref={el} />
       <div className="chart-foot">

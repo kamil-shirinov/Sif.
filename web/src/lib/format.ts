@@ -23,3 +23,17 @@ export function fmtUtc(epochSec: number, withDate = true): string {
 }
 
 export const STATE_NAMES = ["Calm", "Watch", "Storm"] as const;
+
+/** Name of the scheduled release a watch event announces: `event`, else parsed from "Watch: <name> at HH:MM UTC", else the text. */
+export function watchName(w: { event?: string; text: string }): string {
+  if (w.event) return w.event;
+  const m = /^\s*Watch:\s*(.+?)\s+at\s+\d{1,2}:\d{2}/i.exec(w.text);
+  return m ? m[1] : w.text;
+}
+
+/** "in 12 min", "in under a minute", "now" for a signed number of minutes until a release. */
+export function fmtCountdown(minutes: number): string {
+  if (minutes <= 0) return "now";
+  if (minutes < 1) return "in under a minute";
+  return `in ${Math.ceil(minutes)} min`;
+}

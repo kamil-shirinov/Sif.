@@ -1,7 +1,8 @@
 import { Component, lazy, Suspense, useCallback, useEffect, type ReactNode } from "react";
 import { createAudioEngine } from "./audio/engine";
-import { BundleError, loadBundle, stormIdFromUrl } from "./lib/loadBundle";
-import { derive } from "./lib/derive";
+import { BundleError, DEFAULT_STORM_ID, loadBundle, loadIndex, stormIdFromUrl } from "./lib/loadBundle";
+import { fetchCandles, fetchHealth } from "./lib/api";
+import { applyBundle, COLD_OPEN_MS, defaultStorm } from "./lib/session";
 import { useReplayDriver } from "./lib/useReplayDriver";
 import { useApp } from "./state/app";
 import { useTimeline } from "./state/timeline";
@@ -11,10 +12,13 @@ import { Manifest } from "./ui/Manifest";
 import { MarketChart } from "./ui/MarketChart";
 import { Controls } from "./ui/Controls";
 import { ShipLabels } from "./ui/ShipLabels";
+import { FrontLabels } from "./ui/FrontLabels";
+import { StormPicker } from "./ui/StormPicker";
+import { EvidenceCard } from "./ui/EvidenceCard";
+import { ReportPanel } from "./ui/ReportPanel";
+import { NavigatorPanel } from "./ui/NavigatorPanel";
 
 const StormScene = lazy(() => import("./scene/Scene").then((m) => ({ default: m.StormScene })));
-
-const AUTOPLAY_MS = 2000;
 
 // One engine for the page's lifetime (StrictMode remounts must not dispose it).
 const audioEngine = createAudioEngine();
@@ -51,34 +55,63 @@ export function App() {
   const webglOk = useApp((s) => s.webglOk);
   const audio = audioEngine;
 
-  // Load the bundle named by ?storm= (default mock_storm).
+  // Start: read index.json and ask the server for its health (both optional), then load the storm
+  // named by ?storm=, else the largest move in the index, else mock_storm.
   useEffect(() => {
     let cancelled = false;
-    let timer = 0;
+    const ctl = new AbortController();
     useApp.getState().setWebglOk(hasWebGL());
+    void fetchHealth(ctl.signal).then((h) => {
+      if (!cancelled) useApp.getState().setHealth(h);
+    });
     (async () => {
       try {
-        const b = await loadBundle(stormIdFromUrl());
+        const index = await loadIndex();
         if (cancelled) return;
-        const d = derive(b);
-        useApp.getState().setBundle(b, d);
-        useTimeline.getState().reset(b.n);
+        useApp.getState().setIndex(index);
         const params = new URLSearchParams(window.location.search);
+        const named = stormIdFromUrl();
+        let pick = named !== null ? { id: named, file: index?.storms.find((s) => s.storm_id === named)?.file } : defaultStorm(index);
+        let b;
+        try {
+          b = await loadBundle(pick.id, pick.file);
+        } catch (e) {
+          // A default taken from the index may name a file that is not there: fall back to the synthetic example.
+          if (named !== null || pick.id === DEFAULT_STORM_ID) throw e;
+          pick = { id: DEFAULT_STORM_ID, file: undefined };
+          b = await loadBundle(pick.id);
+        }
+        if (cancelled) return;
         const at = Number(params.get("at"));
-        if (params.has("at") && Number.isFinite(at)) useTimeline.getState().seek(at);
-        if (params.get("autoplay") === "0") return;
-        document.title = `StormScore · ${b.title}`;
-        // Cold open: calm water, then auto-play.
-        timer = window.setTimeout(() => useTimeline.getState().play(), AUTOPLAY_MS);
+        applyBundle(b, {
+          autoplayMs: params.get("autoplay") === "0" ? null : COLD_OPEN_MS, // cold open: calm water, then auto-play
+          at: params.has("at") ? at : null,
+        });
+        useApp.getState().setBaseStormId(b.storm_id);
       } catch (e) {
         if (!cancelled) useApp.getState().setError(e instanceof BundleError ? e.message : String(e));
       }
     })();
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
+      ctl.abort();
     };
   }, []);
+
+  // With a live server (health.tiger), fetch the chart's candles for each bundle's window.
+  const tiger = useApp((s) => s.health?.tiger === true);
+  const bundleSeq = useApp((s) => s.bundleSeq);
+  useEffect(() => {
+    const { bundle: b } = useApp.getState();
+    if (!tiger || !b) return;
+    const ctl = new AbortController();
+    useApp.getState().setLive(null, "loading");
+    void fetchCandles(b, bundleSeq, ctl.signal).then((live) => {
+      if (ctl.signal.aborted) return;
+      useApp.getState().setLive(live, live ? "ok" : "failed");
+    });
+    return () => ctl.abort();
+  }, [tiger, bundleSeq]);
 
   // Sound: start() on the first user gesture (browsers block audio before one).
   const startAudio = useCallback(async () => {
@@ -163,9 +196,18 @@ export function App() {
       )}
       <div className="overlay">
         {webglOk && <ShipLabels bundle={bundle} derived={derived} />}
-        <Hud bundle={bundle} derived={derived} onSound={onSound} />
+        {webglOk && <FrontLabels bundle={bundle} derived={derived} />}
+        <div className="stack stack-left">
+          <Hud bundle={bundle} derived={derived} onSound={onSound} />
+          <StormPicker bundle={bundle} />
+          <EvidenceCard />
+        </div>
         <Toasts />
-        <Manifest bundle={bundle} derived={derived} />
+        <div className="stack stack-right">
+          <Manifest bundle={bundle} derived={derived} />
+          <ReportPanel report={bundle.report} />
+          <NavigatorPanel />
+        </div>
         <MarketChart bundle={bundle} derived={derived} large={!webglOk} />
         <Controls derived={derived} />
         {webglOk && <div className="hint">drag to orbit · scroll to zoom · double-click to reset</div>}
