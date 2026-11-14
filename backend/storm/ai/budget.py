@@ -19,6 +19,7 @@ from .prices import cost_usd
 
 LEDGER_BUSY_TIMEOUT_MS = 30_000
 
+
 def _is_locked(error: sqlite3.OperationalError) -> bool:
     # sqlite_errorcode and the symbolic constants appeared in Python 3.11.
     # SQLite's stable primary codes are BUSY=5 and LOCKED=6. Older Python

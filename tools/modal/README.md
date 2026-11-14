@@ -114,6 +114,12 @@ first attempts, accepted retries, number-check fallbacks, format fallbacks and
 inspector fallbacks, and retain audit issues. The original `validation.json` saved
 only aggregates, so its exact historical partition cannot be recovered.
 
+[review_bakeoff.json](review_bakeoff.json) retains the review repeat's per-replay
+checks, audit issues and exclusive outcomes. It also recovers the original
+acceptance/retry counts from read-only completed-call metadata. Original terminal
+number-versus-format causes remain unknown; they are not replaced with the repeat's
+results. Initial numeric success is kept separate from final prose acceptance.
+
 For a cold-start measurement, first confirm `serve.get_current_stats()` reports
 zero runners after the 300-second idle window, then time authenticated model
 discovery through `storm.ai.llm.list_models('modal', live=True)`. Report the

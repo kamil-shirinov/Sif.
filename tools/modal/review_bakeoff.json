@@ -1,0 +1,506 @@
+{
+  "recorded_at_utc": "2026-11-14T20:04:15.759244+00:00",
+  "code_commit": "ef86b15",
+  "offline_suite": {
+    "passed": 189,
+    "skipped": 3
+  },
+  "historical_run": {
+    "aggregate": {
+      "model": "modal:Qwen/Qwen3-8B",
+      "private_mode": false,
+      "reports": 13,
+      "errors": 0,
+      "first_try_verification_rate": 0.6153846153846154,
+      "fallbacks": 9,
+      "inspector_flags": 4,
+      "inspector_models": [
+        "accounts/fireworks/models/kimi-k3p1-pro"
+      ],
+      "mean_writer_latency_s": 8.695614573691833,
+      "mean_latency_s": 12.361478765922165,
+      "cost_per_report_usd": 0.007025307692307693,
+      "scope": "13 SGX FX bundles; books labelled synthetic. Mock and equity bundles excluded. Kimi evaluation sends synthetic facts to Fireworks; it is not private mode."
+    },
+    "reconstructed_from_readonly_metadata": {
+      "accepted_first_try": 3,
+      "accepted_on_retry": 1,
+      "terminal_number_or_format_failures_unsplit": 6,
+      "inspector_driven_fallbacks": 3,
+      "first_try_numeric_passes": 8,
+      "first_try_numeric_failures": 5,
+      "first_try_format_only_failures": 4,
+      "reports_requiring_writer_retry": 9,
+      "additional_template_audit_flags": 1,
+      "terminal_number_failures": null,
+      "terminal_format_failures": null,
+      "limitations": "Completed-call order plus the original aggregate recovers acceptance and retry counts. Original drafts, check reasons and audit text were not retained, so the six terminal writer-check failures cannot be split into numbers versus format."
+    },
+    "call_groups": {
+      "source": "Read-only complete-call metadata, 2026-11-14 19:21:34 to 19:24:12 UTC, grouped by sequential writer and inspector phases",
+      "statuses": {
+        "complete": 38
+      },
+      "groups": [
+        {
+          "writer_completions": 2,
+          "inspector_completions": 2
+        },
+        {
+          "writer_completions": 1,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 1,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 1,
+          "inspector_completions": 2
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 2
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 2,
+          "inspector_completions": 1
+        },
+        {
+          "writer_completions": 1,
+          "inspector_completions": 1
+        }
+      ]
+    }
+  },
+  "repeat_run": {
+    "cost_per_report_usd": 0.004726461538461539,
+    "details": [
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          },
+          {
+            "attempt": 2,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "e6aef6ad96d9b5d56269bc951fa73c1ecb7e2f4ed5bcb36cbe9d6fe9c7cea21d",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [],
+        "initial_inspector_verdict": "ok",
+        "outcome": "format_check_failed",
+        "storm_id": "eurusd-2026-07-02"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          },
+          {
+            "attempt": 2,
+            "format_issues": [],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "5ad7d3968db55d9f276c77c454e0a491e4315f1e1ad2b3ad30f92e39186f6cce",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [
+          "The report calls the EURUSD move a 46.2 bp decline, but the supplied storm fact records move_bp as +46.2, reversing the sign."
+        ],
+        "initial_inspector_verdict": "flag",
+        "outcome": "inspector_flagged",
+        "storm_id": "eurusd-2026-07-14"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [],
+            "numbers_verified": false,
+            "unverified_numbers": [
+              "85"
+            ]
+          },
+          {
+            "attempt": 2,
+            "format_issues": [],
+            "numbers_verified": false,
+            "unverified_numbers": [
+              "85"
+            ]
+          }
+        ],
+        "facts_sha256": "9fa3140ee373f4f1cd00d8638055a1452062d741db91a5ef4e6d96b316584345",
+        "fallback": true,
+        "final_inspector_verdict": "flag",
+        "first_try_numbers_verified": false,
+        "initial_inspector_issues": [
+          "The report incorrectly says no storm alarm was recorded. The facts list a watch at 2026-07-31T12:00:00Z (85 minutes before onset; released at 12:30 UTC, 30 minutes before release) and an all_clear at 2026-07-31T14:37:00Z (72 minutes after onset)."
+        ],
+        "initial_inspector_verdict": "flag",
+        "outcome": "number_check_failed",
+        "storm_id": "eurusd-2026-07-31"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          },
+          {
+            "attempt": 2,
+            "format_issues": [],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "19f29f3d3f403ae4bd1087f1e565bc07a87490313287df0bcd7ec3b50290be0d",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [
+          "The alarm at 2026-08-07T12:32:00Z occurred 3 minutes after the 12:29:00Z onset, not 3 minutes before it; the report incorrectly implies predictive detection."
+        ],
+        "initial_inspector_verdict": "flag",
+        "outcome": "inspector_flagged",
+        "storm_id": "eurusd-2026-08-07"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          },
+          {
+            "attempt": 2,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "c7ace221798177f344c641bc24073f4ae7b932e5f8e2ebe25da80885c458506b",
+        "fallback": true,
+        "final_inspector_verdict": "flag",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [
+          "The claim that no storm alarm was recorded is contradicted by the supplied alarm events: a watch at 2026-08-28T13:30:00Z and an all_clear at 2026-08-28T16:14:00Z."
+        ],
+        "initial_inspector_verdict": "flag",
+        "outcome": "format_check_failed",
+        "storm_id": "eurusd-2026-08-28"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          },
+          {
+            "attempt": 2,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "c16c948dc9fcb6a15548afd3311fa84acf8ec05c6c04c4d16cfdbdad099da686",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [],
+        "initial_inspector_verdict": "ok",
+        "outcome": "format_check_failed",
+        "storm_id": "usdjpy-2026-07-02"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "a23017fc83706817f39e84187b8dbaf65062306e105958fed1460730f331f064",
+        "fallback": false,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [],
+        "initial_inspector_verdict": "ok",
+        "outcome": "passed_first_try",
+        "storm_id": "usdjpy-2026-07-14"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "911b46a0f3da2ccc69c5528eaa8c12d793b6644566f5ff4a2a3865759ca84ec1",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [
+          "Alarm timing is reversed: the alarm at 2026-07-30T13:37:00Z occurred 8 minutes after onset, not before."
+        ],
+        "initial_inspector_verdict": "flag",
+        "outcome": "inspector_flagged",
+        "storm_id": "usdjpy-2026-07-30"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": false,
+            "unverified_numbers": [
+              "-55.5"
+            ]
+          },
+          {
+            "attempt": 2,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "f96902a51bae5205f1c119338a6af4c14888ec8d4ac1bf50e7ce3ed62ab9c51b",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": false,
+        "initial_inspector_issues": [],
+        "initial_inspector_verdict": "ok",
+        "outcome": "format_check_failed",
+        "storm_id": "usdjpy-2026-08-03"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": false,
+            "unverified_numbers": [
+              "-59.3"
+            ]
+          },
+          {
+            "attempt": 2,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "5c5e573cb7349943c3c9831769e2383fe796eb16c98b76d0e01e87c0fbf84b6a",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": false,
+        "initial_inspector_issues": [],
+        "initial_inspector_verdict": "ok",
+        "outcome": "format_check_failed",
+        "storm_id": "usdjpy-2026-08-07"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "307110a3712e53946a8204c0f5c1225426e92543313dc05371e2f077902dbd89",
+        "fallback": false,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [],
+        "initial_inspector_verdict": "ok",
+        "outcome": "passed_first_try",
+        "storm_id": "usdjpy-2026-08-19"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          },
+          {
+            "attempt": 2,
+            "format_issues": [],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "b2150777de9c258d512d5ff252121089f6ecb526987da37a46c48872f876b231",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [
+          "The watch was 30 minutes before the release, not 26 minutes; it occurred 26 minutes before storm onset.",
+          "The alarm occurred 6 minutes after onset, not 6 minutes before onset."
+        ],
+        "initial_inspector_verdict": "flag",
+        "outcome": "inspector_flagged",
+        "storm_id": "usdsgd-2026-07-02"
+      },
+      {
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "format_issues": [
+              "Use three or four plain sentences"
+            ],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          },
+          {
+            "attempt": 2,
+            "format_issues": [],
+            "numbers_verified": true,
+            "unverified_numbers": []
+          }
+        ],
+        "facts_sha256": "e01c513edfd208742ed7f7e2c72632cbcbd5124bda5083049d66bc82894e7a70",
+        "fallback": true,
+        "final_inspector_verdict": "ok",
+        "first_try_numbers_verified": true,
+        "initial_inspector_issues": [
+          "The alarm occurred 4.0 minutes after onset, not before onset (12:32:00Z versus onset at 12:28:00Z)."
+        ],
+        "initial_inspector_verdict": "flag",
+        "outcome": "inspector_flagged",
+        "storm_id": "usdsgd-2026-08-07"
+      }
+    ],
+    "errors": 0,
+    "fallbacks": 11,
+    "first_try_verification_rate": 0.7692307692307693,
+    "inspector_flags": 7,
+    "inspector_models": [
+      "accounts/fireworks/models/kimi-k3p1-pro"
+    ],
+    "mean_latency_s": 18.698637009770138,
+    "mean_writer_latency_s": 13.997614041615565,
+    "model": "modal:Qwen/Qwen3-8B",
+    "outcome_counts": {
+      "format_check_failed": 5,
+      "inspector_flagged": 5,
+      "number_check_failed": 1,
+      "passed_first_try": 2
+    },
+    "private_mode": false,
+    "reports": 13
+  },
+  "repeat_summary": {
+    "exclusive_outcomes": {
+      "passed_first_try": 2,
+      "passed_on_retry": 0,
+      "number_check_failed": 1,
+      "format_check_failed": 5,
+      "inspector_flagged": 5
+    },
+    "terminal_format_reasons": {
+      "Use three or four plain sentences": 5
+    },
+    "terminal_unsupported_tokens": {
+      "85": 1
+    },
+    "additional_template_flags": [
+      {
+        "storm_id": "eurusd-2026-07-31",
+        "current_facts_match_benchmark": true,
+        "alarm_event_types": [
+          "watch",
+          "all_clear"
+        ],
+        "contains_alarm_type": false,
+        "note": "Inspector flagged the deterministic no-alarm sentence despite watch/all_clear being distinct event types. This is an additional template flag, not the fallback trigger."
+      },
+      {
+        "storm_id": "eurusd-2026-08-28",
+        "current_facts_match_benchmark": true,
+        "alarm_event_types": [
+          "watch",
+          "all_clear"
+        ],
+        "contains_alarm_type": false,
+        "note": "Inspector flagged the deterministic no-alarm sentence despite watch/all_clear being distinct event types. This is an additional template flag, not the fallback trigger."
+      }
+    ]
+  },
+  "comparison_note": "The repeat is a new stochastic sample, not reconstructed original drafts. Report writer prompt and strict numeric policy are unchanged. No warm-up was run for the repeat; its latency is not a controlled comparison with the original warm run. Pricing aliases are fixed for new calls; historical ledger rows were not repriced."
+}
