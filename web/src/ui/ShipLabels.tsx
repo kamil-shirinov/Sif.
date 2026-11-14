@@ -4,6 +4,8 @@ import { useFrameIndex } from "../state/timeline";
 import { fmtPct, fmtUsd } from "../lib/format";
 import { labelEls } from "../scene/labels";
 
+const RESTORED_LINGER = 20; // frames "Cargo back aboard" stays after a restore
+
 /** Labels above the two ships (text from ships.*.label); the 3D scene positions them each frame. */
 export function ShipLabels({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
   const i = useFrameIndex();
@@ -14,7 +16,9 @@ export function ShipLabels({ bundle, derived }: { bundle: Bundle; derived: Deriv
         const eq = ship.equity[i];
         const chg = (eq / ship.startEquity - 1) * 100;
         const sunk = ship.marginCallI !== null && i >= ship.marginCallI;
-        const cut = ship.cutI !== null && i >= ship.cutI && ship.cutFraction > 0;
+        // Cut while the cargo is short (between a cut and the next restore); "restored" lingers for a while after a restore.
+        const cut = ship.held[i] < 1;
+        const restored = !cut && ship.actions.some((a) => a.kind === "restore" && i >= a.i && i < a.i + RESTORED_LINGER);
         const mc = bundle.events.find((e) => e.type === "margin_call" && e.ship === k);
         return (
           <div
@@ -31,6 +35,7 @@ export function ShipLabels({ bundle, derived }: { bundle: Bundle; derived: Deriv
             </div>
             {sunk && <div className="ship-label-status">{mc ? mc.text : "Margin call"}</div>}
             {!sunk && cut && <div className="ship-label-status">Cut {Math.round(ship.cutFraction * 100)}% of cargo</div>}
+            {!sunk && restored && <div className="ship-label-status">Cargo back aboard</div>}
           </div>
         );
       })}

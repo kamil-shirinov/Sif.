@@ -20,6 +20,8 @@ export interface Vis {
   utcHours: number;
   alarm: number; // 0..1 smoothed alarmActive
   flash: number; // lightning flash 0..1 (set by Lightning)
+  squall: number; // 0..1: lighthouse amber flash after a squall event
+  fairWind: number; // 0..1: sun breaking through and sails filling after a fair_wind event
   elapsed: number; // wall-clock seconds
   dt: number;
 }
@@ -37,6 +39,8 @@ export const vis: Vis = {
   utcHours: 12,
   alarm: 0,
   flash: 0,
+  squall: 0,
+  fairWind: 0,
   elapsed: 0,
   dt: 0.016,
 };
@@ -65,6 +69,43 @@ export function sunFromUtcHours(h: number, out: Vector3): { dayFactor: number } 
 const damp = (cur: number, target: number, rate: number, dt: number) =>
   cur + (target - cur) * (1 - Math.exp(-rate * dt));
 
+// ---- squall and fair wind ----
+// Two sources, take the larger: (1) the playhead's distance from the event frame, so a paused
+// frame (?at=) shows the effect and scrubbing is exact; (2) a wall-clock pulse started when the replay
+// crosses the event while playing, so the effect stays visible at 8x and 16x.
+export const SQUALL_FRAMES = 6; // flashing for this many market minutes after a squall
+export const FAIR_WIND_RISE = 4; // frames for the sun to break through
+export const FAIR_WIND_HOLD = 10; // frames at full effect
+export const FAIR_WIND_FRAMES = 34; // frames until the effect has gone
+const SQUALL_PULSE_S = 1.8;
+const FAIR_WIND_PULSE_S = 8;
+let squallPulseLeft = 0;
+let fairWindPulseLeft = 0;
+let prevT = 0;
+
+export function pulseSquall() {
+  squallPulseLeft = SQUALL_PULSE_S;
+}
+export function pulseFairWind() {
+  fairWindPulseLeft = FAIR_WIND_PULSE_S;
+}
+
+/** Strength 0..1 of a squall `age` frames after its event frame. */
+export function squallEnvelope(age: number): number {
+  return age < 0 || age >= SQUALL_FRAMES ? 0 : 1 - age / SQUALL_FRAMES;
+}
+
+/** Strength 0..1 of a fair wind `age` frames after its event frame. */
+export function fairWindEnvelope(age: number): number {
+  if (age < 0 || age >= FAIR_WIND_FRAMES) return 0;
+  if (age < FAIR_WIND_RISE) {
+    const u = age / FAIR_WIND_RISE;
+    return u * u * (3 - 2 * u);
+  }
+  if (age < FAIR_WIND_RISE + FAIR_WIND_HOLD) return 1;
+  return 1 - (age - FAIR_WIND_RISE - FAIR_WIND_HOLD) / (FAIR_WIND_FRAMES - FAIR_WIND_RISE - FAIR_WIND_HOLD);
+}
+
 export function updateVis(b: Bundle, d: Derived, t: number, dt: number) {
   vis.dt = dt;
   vis.elapsed += dt;
@@ -85,4 +126,19 @@ export function updateVis(b: Bundle, d: Derived, t: number, dt: number) {
   vis.dayFactor = sunFromUtcHours(vis.utcHours, vis.sunDir).dayFactor;
   vis.alarm = damp(vis.alarm, stepAt(d.alarmActive, t), 3, dt);
   vis.flash = Math.max(0, vis.flash - dt * 3.5);
+
+  // A jump of the playhead (seek, reload) drops any pulse left over from the old position.
+  if (Math.abs(t - prevT) > 8) {
+    squallPulseLeft = 0;
+    fairWindPulseLeft = 0;
+  }
+  prevT = t;
+  squallPulseLeft = Math.max(0, squallPulseLeft - dt);
+  fairWindPulseLeft = Math.max(0, fairWindPulseLeft - dt);
+  let sq = Math.min(1, squallPulseLeft / (SQUALL_PULSE_S * 0.66));
+  for (const f of d.squalls) sq = Math.max(sq, squallEnvelope(t - f));
+  let fw = Math.min(1, fairWindPulseLeft / (FAIR_WIND_PULSE_S * 0.75));
+  for (const f of d.fairWinds) fw = Math.max(fw, fairWindEnvelope(t - f));
+  vis.squall = sq;
+  vis.fairWind = damp(vis.fairWind, fw, 4, dt);
 }

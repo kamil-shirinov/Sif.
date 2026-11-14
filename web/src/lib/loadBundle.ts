@@ -1,34 +1,64 @@
-import type { Bundle, BundleEvent, ShipKey } from "../types/bundle";
+import type {
+  Bundle,
+  BundleEvent,
+  IndexMetrics,
+  Inspector,
+  Report,
+  ShipKey,
+  StormIndex,
+  StormIndexEntry,
+} from "../types/bundle";
 import { SERIES_KEYS } from "../types/bundle";
 
 export class BundleError extends Error {}
 
-const STORM_ID_RE = /^[A-Za-z0-9_-]{1,80}$/;
+export const DEFAULT_STORM_ID = "mock_storm";
 
-/** The storm named by ?storm=, default mock_storm. Only safe file names are accepted. */
-export function stormIdFromUrl(search = window.location.search): string {
-  const id = new URLSearchParams(search).get("storm") ?? "mock_storm";
+const STORM_ID_RE = /^[A-Za-z0-9_-]{1,80}$/;
+const FILE_RE = /^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,100}\.json$/;
+
+/** The storm named by ?storm=, or null when the URL does not name one. Only safe file names are accepted. */
+export function stormIdFromUrl(search = window.location.search): string | null {
+  const id = new URLSearchParams(search).get("storm");
+  if (id === null) return null;
   if (!STORM_ID_RE.test(id)) throw new BundleError(`Invalid storm id "${id}"`);
   return id;
 }
 
-export async function loadBundle(stormId: string): Promise<Bundle> {
-  const url = `${import.meta.env.BASE_URL}bundles/${encodeURIComponent(stormId)}.json`;
+const bundlesUrl = (name: string) => `${import.meta.env.BASE_URL}bundles/${name}`;
+
+async function fetchJson(url: string): Promise<unknown> {
   let res: Response;
   try {
     res = await fetch(url, { cache: "no-cache" });
   } catch (e) {
     throw new BundleError(`Could not fetch ${url}: ${(e as Error).message}`);
   }
-  if (!res.ok) throw new BundleError(`Bundle ${url} returned HTTP ${res.status}`);
-  let raw: unknown;
+  if (!res.ok) throw new BundleError(`${url} returned HTTP ${res.status}`);
   try {
-    raw = await res.json();
+    return await res.json();
   } catch {
-    throw new BundleError(`Bundle ${url} is not valid JSON`);
+    throw new BundleError(`${url} is not valid JSON`);
   }
-  return validateBundle(raw);
 }
+
+/** Load public/bundles/<file>. `file` defaults to <stormId>.json (index.json entries name their own file). */
+export async function loadBundle(stormId: string, file?: string): Promise<Bundle> {
+  if (!STORM_ID_RE.test(stormId)) throw new BundleError(`Invalid storm id "${stormId}"`);
+  const name = file && FILE_RE.test(file) ? file : `${stormId}.json`;
+  return validateBundle(await fetchJson(bundlesUrl(encodeURIComponent(name))));
+}
+
+/** Load public/bundles/index.json. Returns null when it is missing or unreadable: the app then plays mock_storm. */
+export async function loadIndex(): Promise<StormIndex | null> {
+  try {
+    return parseIndex(await fetchJson(bundlesUrl("index.json")));
+  } catch {
+    return null;
+  }
+}
+
+// ---------- helpers ----------
 
 function fail(msg: string): never {
   throw new BundleError(`Bundle check failed: ${msg}`);
@@ -38,9 +68,12 @@ function isObj(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
+const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+const isInt = (v: unknown): v is number => isNum(v) && Number.isInteger(v);
+
 function num(o: Record<string, unknown>, k: string, where: string): number {
   const v = o[k];
-  if (typeof v !== "number" || !Number.isFinite(v)) fail(`${where}.${k} must be a finite number`);
+  if (!isNum(v)) fail(`${where}.${k} must be a finite number`);
   return v;
 }
 
@@ -65,7 +98,33 @@ function frameIn(i: number, n: number, where: string) {
   if (i < 0 || i >= n) fail(`${where} = ${i} is outside 0..${n - 1}`);
 }
 
-/** Runtime checks that the JSON matches contracts/replay_bundle.md (schema_version 1). */
+const inFrames = (v: unknown, n: number): v is number => isInt(v) && v >= 0 && v < n;
+
+const SHIP_KEYS: ShipKey[] = ["prepared", "unprepared"];
+
+/** Lenient report: a bundle without a usable report text simply has no report panel. */
+function parseReport(raw: unknown): Report | null {
+  if (!isObj(raw) || typeof raw.text !== "string" || raw.text.trim() === "") return null;
+  let inspector: Inspector | null = null;
+  if (isObj(raw.inspector) && typeof raw.inspector.verdict === "string") {
+    const issues = Array.isArray(raw.inspector.issues) ? raw.inspector.issues.filter((x): x is string => typeof x === "string") : [];
+    inspector = { verdict: raw.inspector.verdict, issues };
+  }
+  return {
+    text: raw.text,
+    verified: raw.verified === true,
+    unverified_numbers: Array.isArray(raw.unverified_numbers) ? raw.unverified_numbers : [],
+    model: typeof raw.model === "string" ? raw.model : "",
+    inspector,
+  };
+}
+
+/**
+ * Runtime checks that the JSON matches contracts/replay_bundle.md (schema_version 1).
+ * The core (series, ships, exposure) is strict: the scene cannot run without it. The additions
+ * (restore_i, squall / fair_wind / cut / restore events, storm.event, report.inspector) are lenient:
+ * a malformed addition is dropped, never fatal.
+ */
 export function validateBundle(raw: unknown): Bundle {
   if (!isObj(raw)) fail("top level must be an object");
   if (raw.schema_version !== 1) fail(`schema_version must be 1, got ${String(raw.schema_version)}`);
@@ -90,6 +149,8 @@ export function validateBundle(raw: unknown): Bundle {
   const kind = str(st, "kind", "storm");
   if (kind !== "scheduled" && kind !== "unscheduled") fail(`storm.kind must be scheduled or unscheduled`);
   str(st, "label", "storm");
+  if (typeof st.event !== "string" || st.event.trim() === "") delete st.event;
+  if (!inFrames(st.event_i, n)) delete st.event_i;
 
   // series: every array has length n
   if (!isObj(raw.series)) fail("series must be an object");
@@ -100,7 +161,7 @@ export function validateBundle(raw: unknown): Bundle {
     if (arr.length !== n) fail(`series.${k} has length ${arr.length}, expected n = ${n}`);
     for (let i = 0; i < arr.length; i++) {
       const v = arr[i];
-      if (typeof v !== "number" || !Number.isFinite(v)) fail(`series.${k}[${i}] is not a finite number`);
+      if (!isNum(v)) fail(`series.${k}[${i}] is not a finite number`);
     }
   }
   const s = series as unknown as Record<string, number[]>;
@@ -112,7 +173,7 @@ export function validateBundle(raw: unknown): Bundle {
 
   // ships
   if (!isObj(raw.ships)) fail("ships must be an object");
-  for (const key of ["prepared", "unprepared"] as ShipKey[]) {
+  for (const key of SHIP_KEYS) {
     const sh = raw.ships[key];
     const w = `ships.${key}`;
     if (!isObj(sh)) fail(`${w} must be an object`);
@@ -124,32 +185,61 @@ export function validateBundle(raw: unknown): Bundle {
     if (cut !== null) frameIn(cut, n, `${w}.cut_i`);
     const cf = num(sh, "cut_fraction", w);
     if (cf < 0 || cf > 1) fail(`${w}.cut_fraction must be between 0 and 1`);
+    // restore_i is optional: anything that is not a frame in range counts as "no restore".
+    sh.restore_i = inFrames(sh.restore_i, n) ? sh.restore_i : null;
   }
 
   // events
   if (!Array.isArray(raw.events)) fail("events must be an array");
+  const events: BundleEvent[] = [];
   raw.events.forEach((e: unknown, idx: number) => {
     const w = `events[${idx}]`;
     if (!isObj(e)) fail(`${w} must be an object`);
-    frameIn(int(e, "i", w), n, `${w}.i`);
-    str(e, "text", w);
-    const type = str(e, "type", w) as BundleEvent["type"];
+    const type = str(e, "type", w);
     switch (type) {
-      case "watch":
-        frameIn(int(e, "at_i", w), n, `${w}.at_i`);
-        break;
+      case "watch": {
+        frameIn(int(e, "i", w), n, `${w}.i`);
+        str(e, "text", w);
+        // at_i and event are optional: without at_i there is no storm front, only the toast.
+        if (!inFrames(e.at_i, n)) delete e.at_i;
+        if (typeof e.event !== "string" || e.event.trim() === "") delete e.event;
+        events.push(e as unknown as BundleEvent);
+        return;
+      }
       case "alarm":
+        frameIn(int(e, "i", w), n, `${w}.i`);
+        str(e, "text", w);
         num(e, "move_ahead_pct", w);
-        break;
+        events.push(e as unknown as BundleEvent);
+        return;
       case "margin_call": {
+        frameIn(int(e, "i", w), n, `${w}.i`);
+        str(e, "text", w);
         const ship = str(e, "ship", w);
         if (ship !== "prepared" && ship !== "unprepared") fail(`${w}.ship must be prepared or unprepared`);
-        break;
+        events.push(e as unknown as BundleEvent);
+        return;
       }
       case "all_clear":
-        break;
+        frameIn(int(e, "i", w), n, `${w}.i`);
+        str(e, "text", w);
+        events.push(e as unknown as BundleEvent);
+        return;
+      case "squall":
+      case "fair_wind":
+      case "cut":
+      case "restore": {
+        if (!inFrames(e.i, n)) {
+          console.warn(`Ignoring ${w}: ${type} with frame ${String(e.i)} outside 0..${n - 1}`);
+          return;
+        }
+        if (typeof e.text !== "string") e.text = "";
+        if (e.ship !== "prepared" && e.ship !== "unprepared") delete e.ship;
+        events.push(e as unknown as BundleEvent);
+        return;
+      }
       default:
-        fail(`${w}.type "${String(type)}" is not watch, alarm, margin_call or all_clear`);
+        console.warn(`Ignoring ${w}: unknown event type "${type}"`);
     }
   });
 
@@ -180,16 +270,46 @@ export function validateBundle(raw: unknown): Bundle {
     if (typeof r.margin_call !== "boolean") fail(`${w}.margin_call must be a boolean`);
   });
 
-  // report
-  if (raw.report !== null) {
-    if (!isObj(raw.report)) fail("report must be an object or null");
-    str(raw.report, "text", "report");
-    if (typeof raw.report.verified !== "boolean") fail("report.verified must be a boolean");
-    if (!Array.isArray(raw.report.unverified_numbers)) fail("report.unverified_numbers must be an array");
-    str(raw.report, "model", "report");
-  }
-
+  // report: optional, lenient
   const bundle = raw as unknown as Bundle;
-  bundle.events = [...bundle.events].sort((a, b) => a.i - b.i);
+  bundle.report = parseReport(raw.report);
+  bundle.events = events.sort((a, b) => a.i - b.i);
   return bundle;
+}
+
+// ---------- index.json ----------
+
+const numOrNull = (v: unknown): number | null => (isNum(v) ? v : null);
+
+function parseMetrics(raw: unknown): IndexMetrics | null {
+  if (!isObj(raw)) return null;
+  const m: IndexMetrics = {
+    split: typeof raw.split === "string" ? raw.split : null,
+    storms: numOrNull(raw.storms),
+    alarmed: numOrNull(raw.alarmed),
+    caught: numOrNull(raw.caught),
+    median_move_ahead_pct: numOrNull(raw.median_move_ahead_pct),
+    median_minutes_to_alarm: numOrNull(raw.median_minutes_to_alarm),
+    false_alarms_per_day: numOrNull(raw.false_alarms_per_day),
+  };
+  return m;
+}
+
+/** Lenient: bad entries are skipped; anything unreadable gives null. */
+export function parseIndex(raw: unknown): StormIndex | null {
+  if (!isObj(raw) || !Array.isArray(raw.storms)) return null;
+  const storms: StormIndexEntry[] = [];
+  for (const e of raw.storms) {
+    if (!isObj(e) || typeof e.storm_id !== "string" || !STORM_ID_RE.test(e.storm_id)) continue;
+    storms.push({
+      storm_id: e.storm_id,
+      title: typeof e.title === "string" ? e.title : e.storm_id,
+      symbol: typeof e.symbol === "string" ? e.symbol : "",
+      asset_class: typeof e.asset_class === "string" ? e.asset_class : "fx",
+      kind: e.kind === "scheduled" ? "scheduled" : "unscheduled",
+      move_bp: isNum(e.move_bp) ? e.move_bp : 0,
+      file: typeof e.file === "string" && FILE_RE.test(e.file) ? e.file : `${e.storm_id}.json`,
+    });
+  }
+  return { schema_version: 1, storms, metrics: parseMetrics(raw.metrics) };
 }

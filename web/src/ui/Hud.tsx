@@ -10,6 +10,8 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
   const lowQuality = useApp((s) => s.lowQuality);
   const setLowQuality = useApp((s) => s.setLowQuality);
   const webglOk = useApp((s) => s.webglOk);
+  const tiger = useApp((s) => s.health?.tiger === true);
+  const liveStatus = useApp((s) => s.liveStatus);
   const state = bundle.series.state[i] as 0 | 1 | 2;
   const risk = bundle.series.risk[i];
   const mid = bundle.series.mid[i];
@@ -37,6 +39,15 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
         <span className="symbol">{bundle.symbol}</span>
         <span className={`badge state-${state}`}>{STATE_NAMES[state]}</span>
         {bundle.source === "synthetic" && <span className="badge synthetic">synthetic data</span>}
+        {bundle.source === "scenario" && <span className="badge scenario">what-if scenario</span>}
+        {tiger && (
+          <span
+            className={`badge live ${liveStatus}`}
+            title={liveStatus === "failed" ? "Server is up, but its candles were not usable: the chart shows the bundle's own candles" : "Connected to the live server (GET /api/health)"}
+          >
+            Live · Tiger Data
+          </span>
+        )}
       </div>
       <div className="hud-price">
         <span className={mid >= prev ? "up" : "down"}>{mid.toFixed(derived.priceDecimals)}</span>
@@ -53,7 +64,7 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
         </div>
       </div>
       <div className="hud-storm">
-        {bundle.storm.kind === "scheduled" ? "Scheduled event" : "Unscheduled storm"}
+        {bundle.storm.kind === "scheduled" ? `Scheduled event${bundle.storm.event ? ` · ${bundle.storm.event}` : ""}` : "Unscheduled storm"}
         {onset ? ` · ${bundle.storm.label}` : ""}
       </div>
       {webglOk && (

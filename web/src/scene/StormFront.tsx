@@ -1,12 +1,15 @@
 import { useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
-import { CylinderGeometry, DoubleSide, Group, Mesh, ShaderMaterial } from "three";
-import type { WatchEvent } from "../types/bundle";
+import { CylinderGeometry, DoubleSide, Group, Mesh, ShaderMaterial, Vector3 } from "three";
+import type { FrontWatch } from "../lib/derive";
 import { vis } from "./vis";
+import { hideLabel, placeLabel } from "./labels";
 
 const FAR = 1500;
 const NEAR = 110;
-const LINGER = 40; // frames after at_i over which the front fades (it is overhead by then)
+export const FRONT_LINGER = 40; // frames after at_i over which the front fades (it is overhead by then)
+const LINGER = FRONT_LINGER;
+const _anchor = new Vector3();
 
 const NOISE = /* glsl */ `
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -57,7 +60,7 @@ function makeFront(): Mesh {
 }
 
 /** One storm front per watch event: appears at e.i, closes from the horizon to overhead by e.at_i. */
-export function StormFronts({ watches }: { watches: WatchEvent[] }) {
+export function StormFronts({ watches }: { watches: FrontWatch[] }) {
   // Build meshes and their group in one memo (StrictMode may run memo factories twice).
   const { fronts, group } = useMemo(() => {
     const fronts = watches.map(() => makeFront());
@@ -66,14 +69,17 @@ export function StormFronts({ watches }: { watches: WatchEvent[] }) {
     return { fronts, group };
   }, [watches]);
 
-  useFrame(() => {
+  useFrame(({ camera, size }) => {
     watches.forEach((e, k) => {
       const f = fronts[k];
       const t = vis.t;
       const span = Math.max(1, e.at_i - e.i);
       const visible = t >= e.i && t <= e.at_i + LINGER;
       f.visible = visible;
-      if (!visible) return;
+      if (!visible) {
+        hideLabel(`front-${k}`);
+        return;
+      }
       const p = Math.min(1, (t - e.i) / span);
       const dist = FAR + (NEAR - FAR) * Math.pow(p, 0.85);
       const fadeIn = Math.min(1, (t - e.i) / 6);
@@ -83,6 +89,9 @@ export function StormFronts({ watches }: { watches: WatchEvent[] }) {
       u.uTime.value = vis.elapsed;
       u.uOpacity.value = fadeIn * Math.max(0, fadeOut);
       u.uFlash.value = vis.flash;
+      // The label rides on the face of the cloud wall (see ui/FrontLabels.tsx for its text).
+      _anchor.set(0, f.scale.y * 0.5, -dist * 0.97);
+      placeLabel(`front-${k}`, _anchor, camera, size.width, size.height, 0.72);
     });
   });
 

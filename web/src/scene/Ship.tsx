@@ -15,7 +15,7 @@ import {
 } from "three";
 import type { ShipKey } from "../types/bundle";
 import type { CrateSpec, Derived, ShipDerived } from "../lib/derive";
-import { sampleAt } from "../lib/derive";
+import { HOIST_FRAMES, sampleAt } from "../lib/derive";
 import { WAVE_GLSL, waveAt, waveUniforms, type WaveSample } from "./waves";
 import { vis } from "./vis";
 import { placeLabel } from "./labels";
@@ -161,12 +161,21 @@ export function crateSlots(crates: CrateSpec[]): CrateSlot[] {
   });
 }
 
-/** Number of crates the ship throws overboard at cut_i (cut_fraction of its cargo). */
-export function thrownCount(ship: ShipDerived, total: number): number {
-  return ship.cutI === null ? 0 : Math.round(ship.cutFraction * total);
+/**
+ * Is crate `crate` on deck at playhead t? It leaves at each trip's `out` frame and is back on deck
+ * once its hoist (which starts at `back`) has finished. Trips come from the cut and restore events.
+ */
+export function crateAboard(ship: ShipDerived, crate: number, t: number): boolean {
+  const trips = ship.tripsByCrate[crate];
+  if (!trips) return true;
+  for (const tr of trips) {
+    if (t >= tr.out && (tr.back === null || t < tr.back + HOIST_FRAMES)) return false;
+  }
+  return true;
 }
-/** Frame at which the j-th thrown crate goes over the side. */
-export const throwFrame = (ship: ShipDerived, j: number) => (ship.cutI ?? 0) + j * 0.4;
+
+/** Live deck height of each ship (world y of the deck), so crates thrown and hoisted meet the real deck. */
+export const shipPose: Record<ShipKey, { y: number }> = { prepared: { y: 1 }, unprepared: { y: 1 } };
 
 // ---------- motion shared by ship + jettisoned crates ----------
 export function shipBuffer(ship: ShipDerived, t: number): number {
@@ -191,7 +200,6 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
   const sailGeo = useMemo(makeSailGeometry, []);
   const wake = useMemo(makeWake, []);
   const slots = useMemo(() => crateSlots(derived.crates), [derived.crates]);
-  const nThrown = thrownCount(ship, slots.length);
   const crateGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
   const crateMats = useMemo(() => slots.map((s) => new MeshStandardMaterial({ color: s.color, roughness: 0.8 })), [slots]);
 
@@ -211,7 +219,9 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
     const buffer = shipBuffer(ship, t);
     sm.freeboard += (FREEBOARD_MIN + (FREEBOARD_MAX - FREEBOARD_MIN) * buffer - sm.freeboard) * k;
     sm.heel += (sampleAt(ship.heelDeg, t) - sm.heel) * k;
-    sm.rising += (sampleAt(ship.rising, t) * (1 - sink) - sm.rising) * (1 - Math.exp(-vis.dt * 1.5));
+    // Sails fill when equity is rising, and when a fair_wind event has the sun breaking through.
+    const fill = Math.max(sampleAt(ship.rising, t), vis.fairWind * 0.9);
+    sm.rising += (fill * (1 - sink) - sm.rising) * (1 - Math.exp(-vis.dt * 1.5));
 
     waveAt(lay.x, lay.z, vis.wave, _w);
     const fx = Math.cos(lay.heading);
@@ -220,6 +230,7 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
     const slopeS = _w.dhdx * -fz + _w.dhdz * fx; // local +z in world = (sin h, cos h) = (-fz, fx)
     if (outer.current) {
       outer.current.position.set(lay.x, _w.h + sm.freeboard - sink * 11, lay.z);
+      shipPose[shipKey].y = outer.current.position.y;
       outer.current.visible = sink < 0.999;
       anchor.set(lay.x, Math.max(outer.current.position.y, 0) + 9, lay.z);
       placeLabel(`ship-${shipKey}`, anchor, camera, size.width, size.height);
@@ -241,9 +252,7 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
 
     for (let i = 0; i < slots.length; i++) {
       const m = crateRefs.current[i];
-      if (!m) continue;
-      const j = slots.length - 1 - i; // throw order: top/last-stowed crate first
-      m.visible = !(j < nThrown && t >= throwFrame(ship, j));
+      if (m) m.visible = crateAboard(ship, i, t);
     }
   });
 
