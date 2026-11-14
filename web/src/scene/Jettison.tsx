@@ -5,6 +5,7 @@ import { HOIST_FRAMES, shipOf, THROW_FRAMES, type Derived, type SceneShip } from
 import { waveAt, type WaveSample } from "./waves";
 import { vis } from "./vis";
 import { crateSlots, SHIP_LAYOUT, shipPose } from "./Ship";
+import { splash } from "./Particles";
 
 const MAST_TOP = 8.4; // local height of the mast head (Ship.tsx: mast centre 4.2, height 8.4)
 const MAST_X = -2.4; // local x of the mast
@@ -78,9 +79,15 @@ export function Jettison({ shipKey, derived }: { shipKey: SceneShip; derived: De
 
   const refs = useRef<(Mesh | null)[]>([]);
   const ropes = useRef<(Mesh | null)[]>([]);
+  const prevT = useRef(vis.t);
 
   useFrame(() => {
     const t = vis.t;
+    // Splashes only while the replay plays forward through a landing (not on a seek): a crate hits the water, or
+    // leaves it on a hoist line.
+    const pt = prevT.current;
+    prevT.current = t;
+    const playing = t > pt && t - pt < 3;
     const deckY = shipPose[shipKey].y;
     for (let k = 0; k < plan.length; k++) {
       const c = plan[k];
@@ -98,6 +105,16 @@ export function Jettison({ shipKey, derived }: { shipKey: SceneShip; derived: De
       m.visible = true;
       const size = c.slot.spec.size;
       const startY = deckY + c.slot.local.y;
+      if (playing) {
+        const land = trip.out + THROW_FRAMES;
+        if (pt < land && t >= land) {
+          floatAt(c, size, 0, _p0, _e);
+          splash(_p0.x, _p0.y, _p0.z, Math.min(1.6, size));
+        } else if (trip.back !== null && pt < trip.back && t >= trip.back) {
+          floatAt(c, size, Math.max(0, trip.back - trip.out - THROW_FRAMES), _p0, _e);
+          splash(_p0.x, _p0.y, _p0.z, 0.4);
+        }
+      }
 
       if (age < THROW_FRAMES) {
         // Over the side: an arc from the deck to the water.

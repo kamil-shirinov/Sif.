@@ -117,6 +117,16 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
   );
 }
 
+/** ?tier=0..3 pins the quality tier (no adaptive changes), for measuring like with like. */
+const PINNED_TIER = (() => {
+  try {
+    const v = Number(new URLSearchParams(window.location.search).get("tier"));
+    return Number.isInteger(v) && v >= 0 && v < TIERS.length && new URLSearchParams(window.location.search).has("tier") ? v : null;
+  } catch {
+    return null;
+  }
+})();
+
 const maxDpr = () => Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 1.75);
 
 export function StormScene({
@@ -130,7 +140,7 @@ export function StormScene({
   lowQuality: boolean;
   onError: () => void;
 }) {
-  const [tier, setTier] = useState(3);
+  const [tier, setTier] = useState(PINNED_TIER ?? 3);
   const dpr = lowQuality ? 1 : Math.min(maxDpr(), TIERS[tier].dpr);
   return (
     <Canvas
@@ -144,7 +154,7 @@ export function StormScene({
         gl.getContext().canvas.addEventListener("webglcontextlost", onError);
       }}
     >
-      {!lowQuality && (
+      {!lowQuality && PINNED_TIER === null && (
         <PerformanceMonitor
           flipflops={4}
           onDecline={() => setTier((t) => Math.max(0, t - 1))}

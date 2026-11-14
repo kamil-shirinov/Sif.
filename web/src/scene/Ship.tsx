@@ -20,6 +20,7 @@ import { HOIST_FRAMES, SINK_FRAMES, sampleAt, shipOf } from "../lib/derive";
 import { WAVE_GLSL, waveAt, waveUniforms, type WaveSample } from "./waves";
 import { vis } from "./vis";
 import { placeLabel } from "./labels";
+import { PK, rnd, spawnDebris, spawnParticle, splash } from "./Particles";
 
 // ---------- layout ----------
 export const SHIP_LAYOUT: Record<SceneShip, { x: number; z: number; heading: number }> = {
@@ -230,8 +231,25 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
   const smooth = useRef({ rising: 0, heel: 0, freeboard: 1 });
 
   const anchor = useMemo(() => new Vector3(), []);
+  const prevT = useRef(vis.t);
   useFrame(({ camera, size }) => {
     const t = vis.t;
+    // Sinking (from margin_call_i): a boil of foam around the hull while she goes down, planks surfacing after.
+    const pt = prevT.current;
+    prevT.current = t;
+    const mc = ship.marginCallI;
+    if (mc !== null && t > pt && t - pt < 3) {
+      if (pt < mc && t >= mc) splash(lay.x, 0, lay.z, 1.4);
+      if (pt < mc + SINK_FRAMES * 0.6 && t >= mc + SINK_FRAMES * 0.6) spawnDebris(lay.x, lay.z, 12);
+      const sk = sinkProgress(ship, t);
+      if (sk > 0 && sk < 1) {
+        for (let k = 0; k < 3; k++) {
+          const a = rnd() * Math.PI * 2;
+          const r = rnd() * 6;
+          spawnParticle(PK.Boil, lay.x + Math.cos(a) * r, 0, lay.z + Math.sin(a) * r * 0.5, Math.cos(a) * 0.6, 0, Math.sin(a) * 0.6, 1.5 + rnd(), 0.8 + rnd() * 0.8);
+        }
+      }
+    }
     const sm = smooth.current;
     const k = 1 - Math.exp(-vis.dt * 3);
     const sink = sinkProgress(ship, t);
@@ -253,6 +271,17 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
       outer.current.visible = sink < 0.999;
       anchor.set(lay.x, Math.max(outer.current.position.y, 0) + 9, lay.z);
       placeLabel(`ship-${shipKey}`, anchor, camera, size.width, size.height);
+    }
+    // Spray at the bow in heavy seas: rate from chop (vol_ratio); none in a calm sea or once she is sinking.
+    const sprayRate = Math.max(0, vis.wave.chop - 0.45) * 55 * (1 - sink);
+    let nSpray = Math.floor(sprayRate * vis.dt + rnd());
+    while (nSpray-- > 0) {
+      const bx = lay.x + fx * (L / 2 - 0.5);
+      const bz = lay.z + fz * (L / 2 - 0.5);
+      const sideways = (rnd() - 0.5) * 2;
+      spawnParticle(PK.Spray, bx - fz * sideways * 1.6, _w.h + 0.3, bz + fx * sideways * 1.6,
+        fx * (1.5 + rnd() * 2) - fz * sideways * 2.5, 2.5 + rnd() * 3 + vis.wave.chop * 1.5, fz * (1.5 + rnd() * 2) + fx * sideways * 2.5,
+        0.8 + rnd() * 0.5, 0.2 + rnd() * 0.25);
     }
     if (pitchG.current) pitchG.current.rotation.z = Math.atan(slopeF) * 0.75 + sink * 0.6;
     if (rollG.current) {
