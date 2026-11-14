@@ -8,7 +8,7 @@ Runs ingest first if data/processed is missing, then features -> labels (rewrite
 storms.csv) -> detector v1 (data/processed/detector_config.json) -> policy v1 ships ->
 bundles. --all writes one bundle per storm in storms.csv, each from 3 hours before onset
 to 3 hours after (trimmed to the bars that exist), and an index.json listing exactly
-those bundles. Times are UTC; the window is inclusive.
+those bundles plus any Yahoo equity bundle already in the folder (storm.equity). Times are UTC; the window is inclusive.
 
 Each bundle's ship trades the storm's pair: a SYNTHETIC book long USD 20,000,000 against
 the pair's other currency (short EUR for EURUSD), $1,000,000 equity, 2.5% maintenance.
@@ -92,21 +92,27 @@ def load_context(processed: Path = PROCESSED_DIR, raw: Path = RAW_DIR,
     return Context(feats, storms, calendar, cfg)
 
 
-def _grid(feat: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp) -> tuple[pd.DataFrame, int]:
-    """Reindex onto the one-minute frame grid; short holes are forward-filled as flat bars."""
+def _grid(feat: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp,
+          open_mask=None) -> tuple[pd.DataFrame, int]:
+    """Reindex onto the one-minute frame grid; short holes are forward-filled as flat bars.
+
+    `open_mask` (bool per grid minute, default all open) marks when the market trades: a
+    closed stretch of any length is filled flat at the last price; a hole longer than
+    MAX_FILL_MINUTES while open is an error. Returns (grid, holes filled while open)."""
     idx = pd.date_range(start, end, freq=f"{STEP_S}s")
     g = feat.reindex(idx)
     missing = g["mid"].isna()
     if missing.iloc[0]:
         raise ValueError(f"no bar at the window start {start}")
-    runs = missing.groupby((~missing).cumsum()).sum()
+    hole = missing if open_mask is None else missing & pd.Series(open_mask, index=idx).astype(bool)
+    runs = hole.groupby((~hole).cumsum()).sum()
     if runs.max() > MAX_FILL_MINUTES:
         raise ValueError(f"window has a hole of {int(runs.max())} minutes; pick another window")
     g = g.ffill()
     for col in ("open", "high", "low"):
         g.loc[missing, col] = g.loc[missing, "mid"]
     g.loc[missing, "jump"] = 0
-    return g, int(missing.sum())
+    return g, int(hole.sum())
 
 
 def default_window(feat: pd.DataFrame, storm) -> tuple[pd.Timestamp, pd.Timestamp]:
@@ -323,20 +329,26 @@ def load_index_metrics(processed: Path = PROCESSED_DIR) -> dict | None:
     return index_metrics(json.loads(path.read_text()))
 
 
+def scan_bundles(out_dir: Path) -> list[tuple[dict, str]]:
+    """Every non-synthetic bundle in out_dir as (bundle, file name)."""
+    found = []
+    for f in sorted(out_dir.glob("*.json")):
+        if f.name == "index.json":
+            continue
+        try:
+            b = json.loads(f.read_text())
+        except ValueError:
+            continue
+        if isinstance(b, dict) and "series" in b and b.get("source") != "synthetic":
+            found.append((b, f.name))
+    return found
+
+
 def write_index(out_dir: Path, bundles: list[tuple[dict, str]] | None = None,
                 metrics: dict | None = None) -> Path:
-    """index.json lists `bundles` (bundle, file name), or else every SGX bundle in out_dir."""
+    """index.json lists `bundles` (bundle, file name), or else every non-synthetic bundle in out_dir."""
     if bundles is None:
-        bundles = []
-        for f in sorted(out_dir.glob("*.json")):
-            if f.name == "index.json":
-                continue
-            try:
-                b = json.loads(f.read_text())
-            except ValueError:
-                continue
-            if isinstance(b, dict) and "series" in b and b.get("source") != "synthetic":
-                bundles.append((b, f.name))
+        bundles = scan_bundles(out_dir)
     index = {"schema_version": SCHEMA_VERSION,
              "storms": [_index_entry(b, name) for b, name in bundles],
              "metrics": metrics}
@@ -364,7 +376,10 @@ def export_all(ctx: Context, out_dir: Path, metrics: dict | None, live: bool = F
         summaries.append({**s, "path": path, "n": bundle["n"], "report": bundle["report"],
                           "report_cost_usd": r["cost_usd"], "report_fallback": r["fallback"],
                           "kind": st.kind, "event": st.event})
-    index = write_index(out_dir, written, metrics)
+    # Keep the Yahoo equity bundles (written by storm.equity) listed alongside the SGX storms.
+    mine = {name for _, name in written}
+    others = [(b, name) for b, name in scan_bundles(out_dir) if b.get("source") == "yahoo" and name not in mine]
+    index = write_index(out_dir, written + others, metrics)
     return [out_dir / name for _, name in written], index, summaries
 
 

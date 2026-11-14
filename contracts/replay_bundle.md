@@ -13,7 +13,7 @@ Every array in `series` has length `n` and is indexed by frame `i`. Frame time =
 | title | string | e.g. `USDJPY, 30 July 2026` |
 | symbol | string | what the ship trades, e.g. `USDJPY` (any market works) |
 | asset_class | string | `fx` for SGX data; `equity` or `crypto` later |
-| source | string | `sgx` (SGX data) or `synthetic` |
+| source | string | `sgx` (SGX data), `synthetic`, `scenario` or `yahoo` (see Additions) |
 | book_is_synthetic | bool | always `true`: the trader book is invented |
 | t0 | int | UTC epoch seconds of frame 0 |
 | step_s | int | 60 |
@@ -71,7 +71,14 @@ A reader built against the tables above keeps working: every addition is optiona
 | storm | event_i | int | scheduled storms only: the calendar event's frame |
 | report | inspector | object | `{verdict: "ok" or "flag", issues: [strings]}` from the independent inspector model |
 
-`storm.event` and `storm.event_i` appear together or not at all. A scheduled storm states timing only: the move began near a scheduled release, never what caused it. The watch state (`state` = 1) runs from 30 minutes before each calendar event until 15 minutes after it, unless a storm is active.
+| top level | source `scenario` | string value | a what-if bundle: the navigator (`storm.ai`) resized a real storm; prices are not market data |
+| top level | source `yahoo` | string value | one-minute trade bars from Yahoo Finance (equities, with pre- and after-hours) |
+| series | market_open | int 0 or 1, length n | 1 when the market trades (for equities: 04:00 to 20:00 ET, extended hours included), 0 when closed; absent means always open |
+| index.json metrics | watch_precision | float 0 to 1 or null | scheduled releases whose watch window held a storm onset, divided by all scheduled releases (the test split) |
+
+`storm.event` and `storm.event_i` appear together or not at all.
+
+While `market_open` is 0 every series holds its value from the last trading minute (flat candles at the last price, `jump` 0, no equity change), and no return or move is measured across the closed stretch. `source: yahoo` has trades but no quotes, so `spread_bp` is 0 throughout and is not a measured spread: hide it for that source. For an equity storm, `storm.label` and the move may span a closed night (e.g. `-14.4% from the 11 Nov close to the 12 Nov low`), and `move_bp` runs from the onset frame's close to the trough frame's low. A scheduled storm states timing only: the move began near a scheduled release, never what caused it. The watch state (`state` = 1) runs from 30 minutes before each calendar event until 15 minutes after it, unless a storm is active.
 
 ## Example
 

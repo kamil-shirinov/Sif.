@@ -24,6 +24,14 @@ Scheduled vs unscheduled (storm.labels: onset within 15 minutes of a calendar ev
 Reported on August (the test split), and over July + August for reference (July is
 the tuning month for the alarm, so its alarm results are in-sample; the watch is
 set by the calendar alone and has no tuned parameter).
+
+Watch precision (the honest side of the watch: how often a watch was for nothing)
+  per scheduled release in contracts/calendar.csv, its watch window is
+  [release - watch_lead_minutes, release + watch_after_minutes); the release produced a
+  storm when a labelled storm on any pair has its onset inside that window, else the
+  watch was quiet. watch_precision = releases with a storm / releases, for July, August
+  and both. The calendar is the full list of verified releases and is never filtered
+  to improve this number.
 """
 from __future__ import annotations
 
@@ -119,6 +127,36 @@ def per_storm_coverage(storms: pd.DataFrame, v1: dict, alarm_rows: list[dict], l
     return out
 
 
+WATCH_PERIODS = {"july": (ALL_START, TEST_START), "august": (TEST_START, TEST_END),
+                 "all_months": (ALL_START, TEST_END)}
+WATCH_PERIOD_LABELS = {"july": "July", "august": "August", "all_months": "July + August"}
+
+
+def watch_outcomes(calendar: pd.DataFrame, storms: pd.DataFrame, lead_minutes: int, after_minutes: int,
+                   start: pd.Timestamp, end: pd.Timestamp) -> dict:
+    """Scheduled releases in [start, end): which watch windows held a storm, which were quiet."""
+    lead, after = pd.Timedelta(minutes=lead_minutes), pd.Timedelta(minutes=after_minutes)
+    rows = []
+    for r in calendar.itertuples():
+        t = r.time_utc
+        if not start <= t < end:
+            continue
+        inside = storms[(storms["onset_utc"] >= t - lead) & (storms["onset_utc"] < t + after)]
+        rows.append({"release_utc": f"{t:%Y-%m-%d %H:%M}", "event": str(r.event),
+                     "storms": [str(x) for x in inside["storm_id"]]})
+    n = len(rows)
+    quiet = [r for r in rows if not r["storms"]]
+    return {
+        "releases": n,
+        "with_storm": n - len(quiet),
+        "quiet": len(quiet),
+        "quiet_share_pct": round(len(quiet) / n * 100, 1) if n else None,
+        "watch_precision": round((n - len(quiet)) / n, 2) if n else None,
+        "quiet_releases": [f"{r['event']} ({r['release_utc']} UTC)" for r in quiet],
+        "per_release": rows,
+    }
+
+
 def _alarm_summary(rows: list[dict]) -> dict:
     alarmed = [r for r in rows if r["alarm_utc"] is not None]
     return {"storms": len(rows), "alarmed": len(alarmed), "caught": sum(r["caught"] for r in rows),
@@ -185,6 +223,9 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
         "all_months": kind_summary(coverage),
     }
 
+    watch = {k: watch_outcomes(calendar, storms_all, cfg["watch_lead_minutes"], cfg["watch_after_minutes"], a, b)
+             for k, (a, b) in WATCH_PERIODS.items()}
+
     policy = policy_backtest(feats, cfg, TEST_START, TEST_END, calendar)
     saved = json.loads(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
     return {
@@ -202,9 +243,15 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
             "warning_minutes": "onset - first watch minute",
             "covered": f"watched before onset, or alarm with >= {CAUGHT_PCT:.0f}% of the move ahead",
             "all_months": "July + August; July alarm results are in-sample (tuning month)",
+            "quiet_watch": "a calendar release whose watch window (event - 30 min to event + 15 min) "
+                           "holds no labelled storm onset on any pair",
+            "watch_precision": "releases whose watch window holds a storm onset / all releases "
+                               "(top level: August, the test split)",
         },
         "methods": methods,
         "by_kind": by_kind,
+        "watch_precision": watch["august"]["watch_precision"],
+        "watch": watch,
         "storms": coverage,
         "policy": policy,
     }
@@ -215,7 +262,8 @@ def index_metrics(metrics: dict) -> dict:
     v1 = metrics["methods"]["v1"]
     return {"split": metrics["split"], "storms": v1["storms"], "caught": v1["caught"],
             "median_move_ahead_pct": v1["median_move_ahead_pct"],
-            "false_alarms_per_day": v1["false_alarms_per_day"]}
+            "false_alarms_per_day": v1["false_alarms_per_day"],
+            "watch_precision": metrics.get("watch_precision")}
 
 
 def _fmt(v, spec: str = "", suffix: str = "") -> str:
@@ -253,6 +301,7 @@ def print_report(m: dict) -> None:
     print("(* caught)")
 
     print_kinds(m)
+    print_watch(m)
 
     pol = m["policy"]
     b = pol["book"]
@@ -308,6 +357,21 @@ def print_kinds(m: dict) -> None:
         print(f"{label:34}" + "".join(f"{_fmt(v[key], spec, suf):>10}" for v in t["unscheduled"].values()))
     print(coverage_line(t, "COMBINED, August (test)"))
     print(coverage_line(m["by_kind"]["all_months"], "COMBINED, July + August"))
+
+
+def watch_line(w: dict, label: str) -> str:
+    return (f"{label}: {w['releases']} scheduled releases, {w['with_storm']} produced a storm, "
+            f"{w['quiet']} were quiet (watch precision {_fmt(w['watch_precision'], '.2f')})")
+
+
+def print_watch(m: dict) -> None:
+    print("\nwatch precision (a quiet watch: no storm onset on any pair in the release's watch window):")
+    for k, label in WATCH_PERIOD_LABELS.items():
+        w = m["watch"][k]
+        print(watch_line(w, label))
+        if k != "all_months":
+            for q in w["quiet_releases"]:
+                print(f"    quiet: {q}")
 
 
 def main() -> None:

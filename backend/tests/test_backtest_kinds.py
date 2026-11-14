@@ -41,3 +41,24 @@ def test_combined_counts_a_watch_or_a_caught_alarm():
     assert k["combined"] == {"storms": 3, "covered": 2, "covered_pct": 66.7}
     assert k["scheduled"]["watched_before_onset"] == 1 and k["scheduled"]["median_warning_minutes"] == 20
     assert k["unscheduled"]["v1"]["storms"] == 2 and k["unscheduled"]["v1"]["caught"] == 1
+
+
+def test_quiet_watches_counted_per_release():
+    from storm.backtest import watch_outcomes, watch_line
+    cal = pd.DataFrame({"time_utc": pd.to_datetime(["2026-08-07 12:30", "2026-08-12 12:30", "2026-08-13 12:30",
+                                                    "2026-09-02 12:30"], utc=True),
+                        "event": ["NFP", "CPI", "PPI", "outside"]})
+    storms = pd.DataFrame({"storm_id": ["usdjpy-a", "eurusd-a", "usdjpy-b", "usdjpy-c"],
+                           "onset_utc": pd.to_datetime(["2026-08-07 12:20", "2026-08-07 12:29",
+                                                        "2026-08-12 12:45",    # window ends 12:45: outside
+                                                        "2026-08-13 12:00"],   # window starts 12:00: inside
+                                                       utc=True)})
+    w = watch_outcomes(cal, storms, 30, 15, pd.Timestamp("2026-08-01", tz="UTC"), pd.Timestamp("2026-09-01", tz="UTC"))
+    assert (w["releases"], w["with_storm"], w["quiet"]) == (3, 2, 1)
+    assert w["watch_precision"] == 0.67 and w["quiet_share_pct"] == 33.3
+    assert w["quiet_releases"] == ["CPI (2026-08-12 12:30 UTC)"]
+    assert w["per_release"][0]["storms"] == ["usdjpy-a", "eurusd-a"]
+    assert watch_line(w, "August") == "August: 3 scheduled releases, 2 produced a storm, 1 were quiet (watch precision 0.67)"
+    none = watch_outcomes(cal.iloc[:0], storms, 30, 15, pd.Timestamp("2026-08-01", tz="UTC"),
+                          pd.Timestamp("2026-09-01", tz="UTC"))
+    assert none["releases"] == 0 and none["watch_precision"] is None

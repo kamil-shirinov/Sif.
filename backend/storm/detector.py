@@ -3,8 +3,8 @@
 Detection (a storm is a storm, whichever way it blows)
   strength   max over the windows m in `move_windows` of
              |mid_t / mid_(t-m) - 1| / (sd_24h x sqrt(m)): the move of the last m minutes
-             in units of its normal size (m = 1 is |z|). A window that spans a bar gap is
-             undefined.
+             in units of its normal size (m = 1 is |z|). A window that spans a bar gap,
+             or a change of `session` when the features carry one, is undefined.
   risk       clip(strength / strength_full + w_comove x [comove >= comove_min], 0, 1)
   direction  sign of the move in the window that set the strength (+1 pair up, -1 down)
   episode    opens at the first minute with risk >= squall_on and closes (all-clear) after
@@ -93,6 +93,7 @@ def risk_frame(feat: pd.DataFrame, cfg: dict = DEFAULT_CONFIG) -> pd.DataFrame:
     mid = feat["mid"].to_numpy(dtype=float)
     sd = feat["sd_24h"].to_numpy(dtype=float)
     t = feat.index.asi8 // 60_000_000_000  # minutes since epoch
+    sess = feat["session"].to_numpy() if "session" in feat else None
     n = len(mid)
     strengths, signs = [], []
     for m in cfg["move_windows"]:
@@ -102,6 +103,8 @@ def risk_frame(feat: pd.DataFrame, cfg: dict = DEFAULT_CONFIG) -> pd.DataFrame:
             move = mid[m:] / mid[:-m] - 1.0
             span = t[m:] - t[:-m]
             ok = span <= (m - 1) + cfg["max_bar_gap_minutes"]
+            if sess is not None:
+                ok &= sess[m:] == sess[:-m]   # never measure a move across a closed market
             val = np.abs(move) * 1e4 / (sd[m:] * np.sqrt(m))
             s[m:] = np.where(ok, val, np.nan)
             d[m:] = np.sign(move)

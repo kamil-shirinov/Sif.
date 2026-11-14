@@ -8,7 +8,9 @@ types, enum values, index ranges, and that every series has length n.
 Also accepts the optional additions (still schema_version 1): ships.<name>.restore_i
 (int or null); event types squall, fair_wind, cut and restore; watch events' `event`;
 storm.event and storm.event_i (scheduled storms only, both or neither); and
-report.inspector {verdict: ok | flag, issues: [str]}.
+report.inspector {verdict: ok | flag, issues: [str]}; source values scenario (a what-if
+bundle resized from a real storm) and yahoo (Yahoo Finance bars); series market_open (int
+0 or 1 per frame); and index metrics.watch_precision (0..1 or null).
 """
 from __future__ import annotations
 
@@ -26,6 +28,8 @@ TOP_KEYS = {
 FLOAT_SERIES = ("open", "high", "low", "mid", "spread_bp", "vol_ratio", "risk",
                 "prepared_equity", "unprepared_equity")
 INT_SERIES = {"state": {0, 1, 2}, "jump": {0, 1}}
+OPTIONAL_INT_SERIES = {"market_open": {0, 1}}
+SOURCES = ("sgx", "synthetic", "scenario", "yahoo")
 STORM_KEYS = {"onset_i": int, "trough_i": int, "move_bp": "num", "kind": str, "label": str}
 STORM_OPTIONAL = {"event": "str", "event_i": "int"}
 SHIP_KEYS = {"label": str, "start_equity_usd": "num", "margin_call_i": "int?", "cut_i": "int?",
@@ -44,6 +48,7 @@ INDEX_STORM_KEYS = {"storm_id": str, "title": str, "symbol": str, "asset_class":
                     "kind": str, "move_bp": "num", "file": str}
 METRIC_KEYS = {"split": str, "storms": int, "caught": int, "median_move_ahead_pct": "num?",
                "false_alarms_per_day": "num?"}
+METRIC_OPTIONAL = {"watch_precision": "num?"}
 
 
 def _is_num(v) -> bool:
@@ -108,8 +113,8 @@ def validate_bundle(b: dict) -> list[str]:
         errors.append("step_s: must be 60")
     if b.get("book_is_synthetic") is not True:
         errors.append("book_is_synthetic: must be true")
-    if b.get("source") not in ("sgx", "synthetic"):
-        errors.append("source: must be sgx or synthetic")
+    if b.get("source") not in SOURCES:
+        errors.append(f"source: must be one of {', '.join(SOURCES)}")
     if b.get("asset_class") not in ("fx", "equity", "crypto"):
         errors.append("asset_class: must be fx, equity or crypto")
     if not _is_int(n) or n <= 0:
@@ -119,9 +124,10 @@ def validate_bundle(b: dict) -> list[str]:
     series = b.get("series")
     if isinstance(series, dict):
         expected = set(FLOAT_SERIES) | set(INT_SERIES)
+        ints = {**INT_SERIES, **OPTIONAL_INT_SERIES}
         for k in expected - series.keys():
             errors.append(f"series.{k}: missing")
-        for k in series.keys() - expected:
+        for k in series.keys() - expected - OPTIONAL_INT_SERIES.keys():
             errors.append(f"series.{k}: not in the contract")
         for k, arr in series.items():
             if not isinstance(arr, list):
@@ -133,10 +139,10 @@ def validate_bundle(b: dict) -> list[str]:
                 bad = [i for i, v in enumerate(arr) if not _is_num(v)]
                 if bad:
                     errors.append(f"series.{k}: non-numeric at frames {bad[:5]}")
-            elif k in INT_SERIES:
-                bad = [i for i, v in enumerate(arr) if not _is_int(v) or v not in INT_SERIES[k]]
+            elif k in ints:
+                bad = [i for i, v in enumerate(arr) if not _is_int(v) or v not in ints[k]]
                 if bad:
-                    errors.append(f"series.{k}: values outside {sorted(INT_SERIES[k])} at frames {bad[:5]}")
+                    errors.append(f"series.{k}: values outside {sorted(ints[k])} at frames {bad[:5]}")
         risk = series.get("risk")
         if isinstance(risk, list) and any(_is_num(v) and not 0 <= v <= 1 for v in risk):
             errors.append("series.risk: values outside 0..1")
@@ -219,7 +225,10 @@ def validate_index(ix: dict) -> list[str]:
     for k, s in enumerate(ix.get("storms") or []):
         _check_obj(s, INDEX_STORM_KEYS, f"storms[{k}]", errors)
     if isinstance(ix.get("metrics"), dict):
-        _check_obj(ix["metrics"], METRIC_KEYS, "metrics", errors)
+        _check_obj(ix["metrics"], METRIC_KEYS, "metrics", errors, optional=METRIC_OPTIONAL)
+        wp = ix["metrics"].get("watch_precision")
+        if _is_num(wp) and not 0 <= wp <= 1:
+            errors.append("metrics.watch_precision: outside 0..1")
     return errors
 
 
