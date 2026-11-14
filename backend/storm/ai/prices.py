@@ -24,8 +24,12 @@ def price_for_model(model: str) -> tuple[float, float]:
     return PRICES.get(name, CONSERVATIVE_PRICE)
 
 
-def cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
+def cost_usd(model: str, input_tokens: int, output_tokens: int, *, provider: str | None = None) -> float:
     if any(type(n) is not int or n < 0 for n in (input_tokens, output_tokens)):
         raise ValueError("Token counts must be non-negative integers")
+    # Modal bills GPU runtime under its workspace limits, not model tokens.
+    # Key this on provider so the same weights hosted elsewhere still cost money.
+    if provider == "modal":
+        return 0.0
     incoming, outgoing = (Decimal(str(p)) for p in price_for_model(model))
     return float((incoming * input_tokens + outgoing * output_tokens) / 1_000_000)

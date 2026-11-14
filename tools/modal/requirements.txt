@@ -1,0 +1,2 @@
+# Deployment tools only; inference dependencies live in the pinned container.
+modal==1.6.4

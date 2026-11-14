@@ -2,6 +2,7 @@
 
 import json
 import os
+from pathlib import Path
 import time
 
 from dotenv import find_dotenv, load_dotenv
@@ -50,7 +51,19 @@ def _result(*, text: str, calls: list, provider: str, model: str,
 
 def load_environment() -> None:
     # Called at use time, not at import, and never renders environment values.
-    load_dotenv(find_dotenv(usecwd=True), override=False)
+    env_file = os.getenv("STORM_ENV_FILE")
+    load_dotenv(Path(env_file).expanduser() if env_file else find_dotenv(usecwd=True), override=False)
+
+
+def private_mode() -> bool:
+    """All live crew roles stay on our Modal GPU, with no provider fallback."""
+    return os.getenv("LLM_PRIVATE_MODE", "0").lower() in {"1", "true", "yes"}
+
+
+def _route(provider: str, model: str | None = None) -> tuple[str, str | None]:
+    if private_mode() and provider not in {"mock", "modal"}:
+        return "modal", None
+    return provider, model
 
 
 def live_enabled(live: bool = False) -> bool:
@@ -58,12 +71,15 @@ def live_enabled(live: bool = False) -> bool:
 
 
 def resolve_model(provider: str, model: str | None = None) -> str:
+    provider, model = _route(provider, model)
     if model:
         return model
     if provider == "mock":
         return "mock"
     if provider == "meta":
         return os.getenv("META_MODEL") or "muse-spark-1.1"
+    if provider == "modal":
+        return os.getenv("MODAL_MODEL") or "Qwen/Qwen3-8B"
     variable = {"fireworks": "FIREWORKS_MODEL_CHECKER", "modal": "MODAL_MODEL"}[provider]
     value = os.getenv(variable)
     if not value:
@@ -78,7 +94,10 @@ def _client(provider: str) -> OpenAI:
     if not key or not url:
         raise GatewayError(f"Configure {prefix}_API_KEY and {prefix}_BASE_URL")
     try:
-        return OpenAI(api_key=key, base_url=url, max_retries=0, timeout=30.0)
+        # Cold starts include loading weights. Other providers retain the short
+        # timeout. SDK retries remain disabled: the gateway owns reservations.
+        return OpenAI(api_key=key, base_url=url, max_retries=0,
+                      timeout=600.0 if provider == "modal" else 30.0)
     except Exception:
         raise GatewayError(f"{provider} client configuration failed") from None
 
@@ -160,6 +179,7 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
                        charged=0.0, finish_reason=finish_reason,
                        message={"role": "assistant", "content": text})
 
+    provider, model = _route(provider, model)
     selected = resolve_model(provider, model)
     previous_cost = 0.0
     with _client(provider) as client:
@@ -168,7 +188,9 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
             kwargs = {"model": selected, "messages": messages, "max_tokens": max_tokens}
             if tools is not None:
                 kwargs["tools"] = tools
-            if reasoning_effort is not None:
+            if provider == "modal":
+                kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+            elif reasoning_effort is not None:
                 # extra_body also works with SDK versions predating the named
                 # reasoning_effort argument while using the same API field.
                 kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
@@ -179,7 +201,7 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
                 unbilled = status is not None and 400 <= status < 500 and status != 408
                 budget.failed(call_id, definitely_unbilled=unbilled)
                 if not unbilled:
-                    previous_cost += cost_usd(selected, estimated, max_tokens)
+                    previous_cost += cost_usd(selected, estimated, max_tokens, provider=provider)
                 if (reasoning_effort is not None and status in (400, 422) and attempt < 2
                         and "reasoning_effort" in str(getattr(error, "body", ""))):
                     reasoning_effort = None
@@ -227,6 +249,7 @@ def list_models(provider: str, *, live: bool = False) -> list[str]:
     load_environment()
     if provider == "mock" or not live_enabled(live):
         return ["mock"]
+    provider, _ = _route(provider)
     try:
         with _client(provider) as client:
             return sorted(item.id for item in client.models.list())

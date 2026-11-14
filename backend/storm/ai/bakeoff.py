@@ -13,6 +13,8 @@ from .report import facts_from_bundle, write_report
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--fx-only", action="store_true", help="Only real SGX FX replays; exclude mock and equities")
+    parser.add_argument("--expected-bundles", type=int, help="Refuse to run unless exactly this many bundles match")
     parser.add_argument("--models", nargs="+", required=True,
                         help="Model IDs, optionally provider:id, space- or comma-separated")
     parser.add_argument("--bundles", type=Path,
@@ -22,9 +24,15 @@ def main(argv=None) -> int:
     for path in sorted(args.bundles.glob("*.json")):
         if path.name == "index.json":
             continue
-        bundles.append(facts_from_bundle(json.loads(path.read_text())))
+        bundle = json.loads(path.read_text())
+        if args.fx_only and (bundle.get("source") != "sgx" or bundle.get("symbol") not in {"EURUSD", "USDJPY", "USDSGD"}):
+            continue
+        bundles.append(facts_from_bundle(bundle))
     if not bundles:
         print(f"No replay bundles found in {args.bundles}")
+        return 1
+    if args.expected_bundles is not None and len(bundles) != args.expected_bundles:
+        print(f"Expected {args.expected_bundles} replay bundles; found {len(bundles)}")
         return 1
     failed = False
     for model in [item for argument in args.models for item in argument.split(",") if item]:
@@ -53,9 +61,12 @@ def main(argv=None) -> int:
                     for result in results)
         print(json.dumps({
             "model": model, "reports": len(results), "errors": errors,
+            "private_mode": llm.private_mode(),
+            "inspector_models": sorted({r["inspector"]["model"] for r in results}),
             "first_try_verification_rate": sum(r["first_try_verified"] for r in results) / len(bundles),
             "inspector_flags": flags,
             "mean_latency_s": statistics.mean(latencies) if latencies else None,
+            "mean_writer_latency_s": statistics.mean(r["writer_latency_s"] for r in results) if results else None,
             "cost_per_report_usd": statistics.mean(costs) if costs else None,
             "fallbacks": sum(r["fallback"] for r in results),
         }, sort_keys=True))

@@ -11,12 +11,18 @@ from . import budget, llm
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--provider", choices=sorted(llm.PROVIDERS),
+                        help="Exercise only this provider (private mode always routes to Modal)")
     args = parser.parse_args(argv)
     llm.load_environment()
     providers = ["meta", "fireworks", "modal"] if llm.live_enabled(args.live) else ["mock"]
+    if args.provider:
+        providers = [args.provider]
+    if llm.private_mode() and llm.live_enabled(args.live):
+        providers = ["modal"]
     errors = 0
     for provider in providers:
-        if provider == "modal" and not os.getenv("MODAL_BASE_URL"):
+        if provider == "modal" and not os.getenv("MODAL_BASE_URL") and not (args.provider or llm.private_mode()):
             print("modal: skipped (not configured)")
             continue
         try:
