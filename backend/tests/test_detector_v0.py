@@ -28,7 +28,7 @@ def test_storm_needs_two_minutes_and_twenty_calm():
 
 def test_watch_before_calendar_release(tmp_path):
     cal = tmp_path / "calendar.csv"
-    cal.write_text("time_utc,event,region,source_url,verified\n2026-07-30 10:40,US CPI,US,https://example.org,true\n")
+    cal.write_text("time_utc,event,region,source_url,verified\n2026-07-30 10:40,US CPI,US,https://example.org,yes\n")
     out, events = run_detector(_feat([0.1] * 60), load_calendar(cal))
     watch = out.index[out["state"] == WATCH]
     assert watch[0] == pd.Timestamp("2026-07-30 10:10", tz="UTC")

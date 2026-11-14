@@ -32,9 +32,20 @@ Watch precision (the honest side of the watch: how often a watch was for nothing
   watch was quiet. watch_precision = releases with a storm / releases, for July, August
   and both. The calendar is the full list of verified releases and is never filtered
   to improve this number.
+
+Storm-state share: v1's storm-state minutes (state 2) in August over the pair-minutes
+actually observed (each pair's own bars in August), not days x 1,440 x pairs.
+
+Provenance: metrics.json records the SHA-256 of the three spot parquets, the calendar and
+data/processed/detector_config.json it was computed from; storm.export refuses metrics
+whose provenance does not match the files on disk.
+
+Every figure is computed unrounded; metrics.json and the printed tables are rounded by
+storm.evaluate.for_display.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -43,17 +54,45 @@ import pandas as pd
 
 from . import detector_v0
 from .detector import CONFIG_PATH, WATCH, load_calendar, load_config, run_detector
-from .evaluate import CAUGHT_PCT, _median, market_days, score, v1_alarms_and_squalls
+from .evaluate import (CAUGHT_PCT, _median, for_display, market_days, observed_minutes, score,
+                       v1_alarms_and_squalls)
 from .exposure import policy_backtest
 from .features import PAIRS, build_features
 from .labels import label_all, window_moves
-from .paths import PROCESSED_DIR
+from .paths import CALENDAR_CSV, PROCESSED_DIR
 
 TEST_START = pd.Timestamp("2026-08-01", tz="UTC")
 TEST_END = pd.Timestamp("2026-09-01", tz="UTC")   # exclusive
 ALL_START = pd.Timestamp("2026-07-01", tz="UTC")
 SPLIT = "test: August 2026"
 NAIVE_REARM_MINUTES = 20
+
+
+def _sha256(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def provenance(processed: Path = PROCESSED_DIR, calendar_path: Path = CALENDAR_CSV,
+               config_path: Path = CONFIG_PATH) -> dict:
+    """SHA-256 of every input the metrics depend on: spot data, calendar, detector config."""
+    return {"data": {f"{p}_SPOT.parquet": _sha256(processed / f"{p}_SPOT.parquet") for p in PAIRS},
+            "calendar": _sha256(calendar_path), "config": _sha256(config_path)}
+
+
+def provenance_mismatches(recorded: dict | None, current: dict) -> list[str]:
+    """What differs between a metrics.json provenance and the files now (empty: they match)."""
+    if not recorded:
+        return ["metrics.json has no provenance"]
+    bad = [f"data {k}" for k in sorted(set(recorded.get("data", {})) | set(current["data"]))
+           if recorded.get("data", {}).get(k) != current["data"].get(k)]
+    bad += [k for k in ("calendar", "config") if recorded.get(k) != current[k]]
+    return bad
 
 
 def naive_alarms(feat: pd.DataFrame) -> list[tuple[pd.Timestamp, pd.Timestamp | None]]:
@@ -122,6 +161,9 @@ def per_storm_coverage(storms: pd.DataFrame, v1: dict, alarm_rows: list[dict], l
             **w,
             "alarm_utc": a["alarm_utc"], "alarm_minutes": a["minutes"],
             "move_ahead_pct": a["move_ahead_pct"], "caught": a["caught"],
+            "first_onset_utc": f"{s.first_onset_utc:%Y-%m-%d %H:%M}",
+            "alarm_minutes_first_onset": a["minutes_first_onset"],
+            "move_ahead_pct_first_onset": a["move_ahead_pct_first_onset"],
             "covered": bool(w["watch_before_onset"]) or a["caught"],
         })
     return out
@@ -150,8 +192,8 @@ def watch_outcomes(calendar: pd.DataFrame, storms: pd.DataFrame, lead_minutes: i
         "releases": n,
         "with_storm": n - len(quiet),
         "quiet": len(quiet),
-        "quiet_share_pct": round(len(quiet) / n * 100, 1) if n else None,
-        "watch_precision": round((n - len(quiet)) / n, 2) if n else None,
+        "quiet_share_pct": len(quiet) / n * 100 if n else None,
+        "watch_precision": (n - len(quiet)) / n if n else None,
         "quiet_releases": [f"{r['event']} ({r['release_utc']} UTC)" for r in quiet],
         "per_release": rows,
     }
@@ -182,7 +224,7 @@ def kind_summary(coverage: list[dict], methods_per_storm: dict[str, list[dict]] 
         "combined": {"storms": len(coverage), "covered": sum(r["covered"] for r in coverage)},
     }
     c = out["combined"]
-    c["covered_pct"] = round(c["covered"] / c["storms"] * 100, 1) if c["storms"] else None
+    c["covered_pct"] = c["covered"] / c["storms"] * 100 if c["storms"] else None
     for name, rows in (methods_per_storm or {}).items():
         out["unscheduled"][name] = _alarm_summary([r for r in rows if r["storm_id"] in unsched_ids])
     if not methods_per_storm:
@@ -191,9 +233,10 @@ def kind_summary(coverage: list[dict], methods_per_storm: dict[str, list[dict]] 
     return out
 
 
-def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None = None) -> dict:
-    cfg = load_config()
-    calendar = load_calendar() if calendar is None else calendar
+def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None = None,
+                 calendar_path: Path = CALENDAR_CSV, config_path: Path = CONFIG_PATH) -> dict:
+    cfg = load_config(config_path)
+    calendar = load_calendar(calendar_path) if calendar is None else calendar
     feats = build_features(processed, PAIRS)
     storms_all = label_all(feats, calendar)
     storms = storms_all[(storms_all["onset_utc"] >= TEST_START) & (storms_all["onset_utc"] < TEST_END)]
@@ -209,7 +252,10 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
     }
     storm_minutes = sum(int((r.frame["state"].to_numpy() == 2)[(f.index >= TEST_START) & (f.index < TEST_END)].sum())
                         for r, f in zip(v1.values(), feats.values()))
-    methods["v1"]["storm_state_share_pct"] = round(storm_minutes / (days * 1440 * len(PAIRS)) * 100, 2)
+    observed = observed_minutes(feats, TEST_START, TEST_END)
+    methods["v1"]["storm_state_minutes"] = storm_minutes
+    methods["v1"]["observed_pair_minutes"] = observed
+    methods["v1"]["storm_state_share_pct"] = storm_minutes / observed * 100 if observed else None
 
     # Scheduled vs unscheduled. Alarms for every storm (July in-sample) come from one
     # score over the whole span; the August rows match methods["v1"]["per_storm"].
@@ -227,18 +273,29 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
              for k, (a, b) in WATCH_PERIODS.items()}
 
     policy = policy_backtest(feats, cfg, TEST_START, TEST_END, calendar)
-    saved = json.loads(CONFIG_PATH.read_text()) if CONFIG_PATH.exists() else {}
+    saved = json.loads(config_path.read_text()) if config_path.exists() else {}
     return {
         "split": SPLIT,
+        "provenance": provenance(processed, calendar_path, config_path),
         "tuned_on": saved.get("tuned_on", "untuned DEFAULT_CONFIG"),
         "config": cfg,
         "definitions": {
             "caught": "storm alarmed with >= 50% of the onset-to-trough move still ahead",
             "alarmed": "an alarm on the storm's pair from onset - 60 min to the trough, in force at onset",
             "false_alarm": "storm alarm outside [onset - 60 min, end + 60 min] of every storm on its pair",
-            "per_day": "per 1,440 minutes with a bar on any pair",
-            "false_alarm_episode": "false alarms on any pairs, sorted by time, each within 15 min "
-                                   "of the previous one: counted once",
+            "per_day": "per observed day: 1,440 minutes with a bar on any pair",
+            "false_alarms_per_day": "pair alarms per observed day: each pair's false alarm counts "
+                                    "on its own, no de-duplication across pairs",
+            "false_alarm_episodes_per_day": "distinct alert episodes per observed day: an episode opens "
+                                            "at a false alarm and holds every false alarm on any pair "
+                                            "within 15 min of it (alarms on different pairs within "
+                                            "15 min count as one)",
+            "first_onset": "start of a storm's first triggering 15-minute window (onset is the "
+                           "strongest window's start); *_first_onset figures use it in place of onset",
+            "storm_state_share_pct": "v1 storm-state minutes / pair-minutes actually observed",
+            "execution": "signal at bar t's close, fill at the next bar's open bid or ask (side-correct); "
+                         "maintenance tested at the open before any trade and at the close",
+            "rounding": "computed unrounded; rounded only for this file and printing",
             "direction": "detection metrics ignore direction; policy uses the book's exposure",
             "scheduled": "onset within 15 min of a contracts/calendar.csv event (either side)",
             "watched": "v1 watch state on the storm's pair between event - 30 min and onset",
@@ -291,17 +348,21 @@ def print_report(m: dict) -> None:
         ("caught (>= 50% of move ahead)", "caught", "d", ""),
         ("median share of move ahead", "median_move_ahead_pct", ".1f", "%"),
         ("median minutes onset -> alarm", "median_minutes_to_alarm", "+.1f", ""),
+        ("  vs first onset: caught", "caught_first_onset", "d", ""),
+        ("  vs first onset: share ahead", "median_move_ahead_pct_first_onset", ".1f", "%"),
+        ("  vs first onset: minutes", "median_minutes_to_alarm_first_onset", "+.1f", ""),
         ("storm alarms fired", "storm_alarms", "d", ""),
-        ("false storm alarms per day", "false_alarms_per_day", ".2f", ""),
-        ("  de-duplicated across pairs", "false_alarm_episodes_per_day", ".2f", ""),
+        ("false: pair alarms per obs. day", "false_alarms_per_day", ".2f", ""),
+        ("false: alert episodes per obs. day", "false_alarm_episodes_per_day", ".2f", ""),
         ("squalls per day", "squalls_per_day", ".2f", ""),
     ]
     names = ("v1", "v0", "naive")
     print(f"{'':34}" + "".join(f"{n:>10}" for n in names))
     for label, key, spec, suf in rows:
         print(f"{label:34}" + "".join(f"{_fmt(m['methods'][n][key], spec, suf):>10}" for n in names))
-    print(f"(market days in August: {m['methods']['v1']['days']}; "
-          f"v1 in storm state {m['methods']['v1']['storm_state_share_pct']}% of pair-minutes)")
+    v1 = m["methods"]["v1"]
+    print(f"(observed days in August: {v1['days']:.2f}; v1 in storm state {v1['storm_state_minutes']} of "
+          f"{v1['observed_pair_minutes']} observed pair-minutes = {v1['storm_state_share_pct']:.2f}%)")
 
     print("\nper storm (alarm UTC, share ahead):")
     print(f"{'':22}" + "".join(f"{n:>24}" for n in names))
@@ -309,8 +370,9 @@ def print_report(m: dict) -> None:
         cells = []
         for n in names:
             p = m["methods"][n]["per_storm"][k]
+            ahead = "-" if p["move_ahead_pct"] is None else f"{p['move_ahead_pct']:.0f}%"
             cells.append("missed" if p["alarm_utc"] is None
-                         else f"{p['alarm_utc'][11:]} {p['move_ahead_pct']:.0f}%{'*' if p['caught'] else ''}")
+                         else f"{p['alarm_utc'][11:]} {ahead}{'*' if p['caught'] else ''}")
         print(f"{s['storm_id']:22}" + "".join(f"{c:>24}" for c in cells))
     print("(* caught)")
 
@@ -326,8 +388,10 @@ def print_report(m: dict) -> None:
           f"{a['fair_winds']} fair winds")
     print(f"{'':22}{'prepared':>14}{'unprepared':>14}")
     for label, key, f in (("final equity", "final_equity_usd", lambda v: f"${v:,.0f}"),
-                          ("max drawdown", "max_drawdown_usd", lambda v: f"${v:,.0f}"),
+                          ("max drawdown $", "max_drawdown_usd", lambda v: f"${v:,.0f}"),
                           ("max drawdown %", "max_drawdown_pct", lambda v: f"{v:.1f}%"),
+                          ("fills", "fills", str),
+                          ("spread cost vs mid", "spread_cost_usd", lambda v: f"${v:,.0f}"),
                           ("margin calls", "margin_calls", str),
                           ("cuts / restores", None, None)):
         if key is None:
@@ -389,7 +453,7 @@ def print_watch(m: dict) -> None:
 
 
 def main() -> None:
-    m = run_backtest()
+    m = for_display(run_backtest())
     path = PROCESSED_DIR / "metrics.json"
     path.write_text(json.dumps(m, indent=2, allow_nan=False) + "\n")
     print_report(m)

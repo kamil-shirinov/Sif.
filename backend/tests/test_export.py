@@ -42,10 +42,14 @@ def test_synthetic_storm_against_the_book_cuts_and_restores(tmp_path):
     ship = b["ships"]["prepared"]
     assert ship["cut_i"] is not None and ship["restore_i"] is not None and ship["restore_i"] > ship["cut_i"]
     alarm = next(e for e in b["events"] if e["type"] == "alarm")
-    assert alarm["i"] == ship["cut_i"] and alarm["move_ahead_pct"] is not None
+    assert ship["cut_i"] == alarm["i"] + 1 and alarm["move_ahead_pct"] is not None   # fills at the next bar
+    cut = next(e for e in b["events"] if e["type"] == "cut")
+    assert cut["i"] == ship["cut_i"] and "(bid), the next bar's open" in cut["text"]   # long USDJPY sells at the bid
     # EURUSD up is USD down: danger for the short-EUR leg too.
     e = json.loads((tmp_path / "out" / "eurusd-2026-07-20.json").read_text())
     assert e["ships"]["prepared"]["cut_i"] is not None
+    cut = next(ev for ev in e["events"] if ev["type"] == "cut")
+    assert "(ask)" in cut["text"]                     # short EUR buys EUR back at the ask
 
 
 @pytest.mark.skipif(not HAVE_PROCESSED, reason="no processed SGX data")

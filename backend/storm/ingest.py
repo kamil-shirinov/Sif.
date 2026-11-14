@@ -97,7 +97,8 @@ def read_zip(path: Path) -> tuple[pd.DataFrame, ZipReport]:
             raise ValueError(f"{path.name}: missing columns {missing}")
         df = df[FORWARD_COLUMNS]
 
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    # pandas 3 parses to microseconds; every module downstream assumes nanoseconds.
+    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True).dt.as_unit("ns")
     df["settlement_date"] = pd.to_datetime(df["settlement_date"], format="%Y-%m-%d")
     df = df.sort_values("timestamp", kind="stable")
     dup_mask = df["timestamp"].duplicated(keep="first")

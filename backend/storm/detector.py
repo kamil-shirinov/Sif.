@@ -3,8 +3,11 @@
 Detection (a storm is a storm, whichever way it blows)
   strength   max over the windows m in `move_windows` of
              |mid_t / mid_(t-m) - 1| / (sd_24h x sqrt(m)): the move of the last m minutes
-             in units of its normal size (m = 1 is |z|). A window that spans a bar gap,
-             or a change of `session` when the features carry one, is undefined.
+             in units of its normal size (m = 1 is |z|). A window is defined only when
+             its m bars span exactly m clock minutes (no missing minute inside it) and,
+             when the features carry a `session`, no change of session. After a flagged
+             bad print (feature `bad_print`), later windows skip it; at its own minute
+             it is visible (storm.features).
   risk       clip(strength / strength_full + w_comove x [comove >= comove_min], 0, 1)
   direction  sign of the move in the window that set the strength (+1 pair up, -1 down)
   episode    opens at the first minute with risk >= squall_on and closes (all-clear) after
@@ -13,7 +16,8 @@ Detection (a storm is a storm, whichever way it blows)
              risk >= storm_on. State is 2 from then until the all-clear.
   watch      from `watch_lead_minutes` before each event in contracts/calendar.csv
              until `watch_after_minutes` after it (state 1 unless a storm is active);
-             one watch event per calendar event, at its first watch minute
+             one watch event per calendar event, at its first watch minute. Only rows
+             with verified = yes and a source URL are loaded (load_calendar).
 
 Book-aware alerts, given the book's signed exposure to the pair (> 0 long the base
 currency, < 0 short it, 0 no position: no alerts)
@@ -23,7 +27,10 @@ currency, < 0 short it, 0 no position: no alerts)
   alarm      `storm_minutes` consecutive danger minutes with risk >= storm_on
   fair_wind  `storm_minutes` consecutive fair-wind minutes with risk >= storm_on
   all_clear  the close of an episode that reached storm level or raised an alert
-Each alert fires at most once per episode.
+Each alert fires at most once per episode. Every squall, alarm and fair_wind event
+carries `clear`: the all-clear time of its episode (None while the episode is still
+open), so storm.evaluate.alarm_matches can tell whether it was still in force at a
+storm's onset.
 
 Undefined risk (warm-up, gaps) breaks every run of minutes. Every threshold lives in
 the config dict; storm.tune picks them on July and writes data/processed/detector_config.json.
@@ -37,6 +44,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from .features import epoch_minutes
 from .paths import CALENDAR_CSV, PROCESSED_DIR
 
 CONFIG_PATH = PROCESSED_DIR / "detector_config.json"
@@ -61,14 +69,19 @@ CALM, WATCH, STORM = 0, 1, 2
 
 
 def load_calendar(path: Path = CALENDAR_CSV) -> pd.DataFrame:
-    """Scheduled releases. An empty calendar (header only) or a missing file is fine."""
+    """Scheduled releases that may create watches and scheduled labels: only rows with
+    verified = yes (any case) and an http(s) source URL. An empty calendar (header only)
+    or a missing file is fine."""
     cols = ["time_utc", "event", "region", "source_url", "verified"]
     if not path.exists():
         return pd.DataFrame(columns=cols)
-    cal = pd.read_csv(path)
+    cal = pd.read_csv(path, dtype=str, keep_default_na=False)
     if cal.empty:
         return pd.DataFrame(columns=cols)
-    cal["time_utc"] = pd.to_datetime(cal["time_utc"], utc=True)
+    ok = (cal["verified"].str.strip().str.lower() == "yes") & \
+        cal["source_url"].str.strip().str.match(r"https?://\S+$")
+    cal = cal[ok].copy()
+    cal["time_utc"] = pd.to_datetime(cal["time_utc"], utc=True).dt.as_unit("ns")
     return cal.sort_values("time_utc").reset_index(drop=True)
 
 
@@ -90,9 +103,23 @@ def check_config(cfg: dict) -> None:
 
 def risk_frame(feat: pd.DataFrame, cfg: dict = DEFAULT_CONFIG) -> pd.DataFrame:
     """Per-minute `strength`, `risk` (0..1, NaN when undefined) and `direction` (-1, 0, +1)."""
+    bad = feat["bad_print"].astype(bool) if "bad_print" in feat else None
+    if bad is None or not bad.any():
+        return _risk_frame(feat, cfg)
+    # Causal, as in storm.features: later minutes never look back through a bad print;
+    # the bad minute itself looks back through the clean history before it.
+    out = _risk_frame(feat[~bad], cfg).reindex(feat.index)
+    for t in feat.index[bad]:
+        keep = ~bad | (feat.index == t)
+        out.loc[t] = _risk_frame(feat[keep].loc[:t], cfg).loc[t]
+    out["direction"] = out["direction"].astype(int)
+    return out
+
+
+def _risk_frame(feat: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     mid = feat["mid"].to_numpy(dtype=float)
     sd = feat["sd_24h"].to_numpy(dtype=float)
-    t = feat.index.asi8 // 60_000_000_000  # minutes since epoch
+    t = epoch_minutes(feat.index)
     sess = feat["session"].to_numpy() if "session" in feat else None
     n = len(mid)
     strengths, signs = [], []
@@ -101,8 +128,7 @@ def risk_frame(feat: pd.DataFrame, cfg: dict = DEFAULT_CONFIG) -> pd.DataFrame:
         d = np.zeros(n)
         if n > m:
             move = mid[m:] / mid[:-m] - 1.0
-            span = t[m:] - t[:-m]
-            ok = span <= (m - 1) + cfg["max_bar_gap_minutes"]
+            ok = (t[m:] - t[:-m]) == m          # m bars, m clock minutes: no gap inside
             if sess is not None:
                 ok &= sess[m:] == sess[:-m]   # never measure a move across a closed market
             val = np.abs(move) * 1e4 / (sd[m:] * np.sqrt(m))
@@ -174,7 +200,7 @@ def run_detector(
 
     risk = rf["risk"].to_numpy()
     dirs = rf["direction"].to_numpy()
-    t_min = idx.asi8 // 60_000_000_000
+    t_min = epoch_minutes(idx)
     storm_on, squall_on, calm_off = cfg["storm_on"], cfg["squall_on"], cfg["calm_off"]
     k, calm_n, max_gap = cfg["storm_minutes"], cfg["calm_minutes"], cfg["max_bar_gap_minutes"]
 
@@ -183,6 +209,7 @@ def run_detector(
     episodes: list[Episode] = []
     ep: Episode | None = None
     alerted = squalled = fair = False
+    ep_alerts: list[dict] = []
     hot = hot_against = hot_favour = cold = 0
     announced: set[int] = set()
     for i in range(len(idx)):
@@ -202,20 +229,26 @@ def run_detector(
             ep = Episode(start=t)
             episodes.append(ep)
             alerted = squalled = fair = False
+            ep_alerts = []
         if ep is not None:
             if ep.storm_at is None and hot >= k:
                 ep.storm_at, ep.direction = t, int(dirs[i])
             if not alerted and hot_against >= k:
                 alerted = True
-                events.append({"time": t, "type": "alarm", "direction": int(dirs[i])})
+                ep_alerts.append({"time": t, "type": "alarm", "direction": int(dirs[i]), "clear": None})
+                events.append(ep_alerts[-1])
             elif not alerted and not squalled and side < 0 and r >= squall_on:
                 squalled = True
-                events.append({"time": t, "type": "squall", "direction": int(dirs[i])})
+                ep_alerts.append({"time": t, "type": "squall", "direction": int(dirs[i]), "clear": None})
+                events.append(ep_alerts[-1])
             if not fair and hot_favour >= k:
                 fair = True
-                events.append({"time": t, "type": "fair_wind", "direction": int(dirs[i])})
+                ep_alerts.append({"time": t, "type": "fair_wind", "direction": int(dirs[i]), "clear": None})
+                events.append(ep_alerts[-1])
             if cold >= calm_n:
                 ep.end = t
+                for e in ep_alerts:
+                    e["clear"] = t
                 if ep.storm_at is not None or alerted or squalled or fair:
                     events.append({"time": t, "type": "all_clear"})
                 ep = None
