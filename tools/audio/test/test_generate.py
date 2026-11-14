@@ -71,7 +71,9 @@ def test_live_paths_with_fake_sdk_only(monkeypatch, tmp_path, capsys):
     music = client.calls[13:16]
     assert all(call["music_length_ms"] == 60000 and call["force_instrumental"] for call in music)
     assert all("C minor" in call["prompt"] and "80 BPM" in call["prompt"] for call in music)
-    assert "credits used = 123" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "credits used = 123" in output
+    assert "Total reported credits used = 2337; assets with unknown usage = 0." in output
 
 
 def test_failed_generation_stops_and_preserves_old_asset(monkeypatch, tmp_path, capsys):
@@ -94,6 +96,27 @@ def test_generate_enforces_cap_even_if_caller_passes_more(monkeypatch, tmp_path)
     client = FakeClient()
     assert audio.generate(client, assets, manifest) == 0
     assert len(client.calls) == 40
+
+
+def test_permission_failure_reports_only_safe_diagnostics(monkeypatch, tmp_path, capsys):
+    manifest = audio.load_manifest()
+    monkeypatch.setattr(audio, "OUTPUT", tmp_path)
+
+    class PermissionError(RuntimeError):
+        status_code = 401
+        body = {"detail": {"status": "missing_permissions", "message": "sound_generation private-sentinel"}}
+
+    def denied(*args):
+        raise PermissionError("private-sentinel")
+
+    monkeypatch.setattr(audio, "request_audio", denied)
+    assert audio.generate(FakeClient(), manifest["assets"], manifest) == 1
+    error = capsys.readouterr().err
+    assert "API HTTP status: 401" in error
+    assert "API error: missing_permissions" in error
+    assert "Required API permission: sound_generation" in error
+    assert "private-sentinel" not in error
+    assert not list(tmp_path.iterdir())
 
 
 def test_voice_selection_rejects_clones_and_prefers_calm_british():

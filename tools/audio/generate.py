@@ -131,6 +131,8 @@ def request_audio(client: Any, asset: dict[str, Any], manifest: dict[str, Any], 
 def generate(client: Any, pending: list[dict[str, Any]], manifest: dict[str, Any]) -> int:
     OUTPUT.mkdir(parents=True, exist_ok=True)
     voice_id = None
+    total_used = 0.0
+    unknown_usage = 0
     for number, asset in enumerate(pending[:MAX_GENERATIONS], 1):
         if asset["kind"] == "tts" and voice_id is None:
             voice_id = select_stock_voice(client, manifest)
@@ -152,6 +154,17 @@ def generate(client: Any, pending: list[dict[str, Any]], manifest: dict[str, Any
             partial.unlink(missing_ok=True)
             # SDK exception bodies can contain request details; never print them.
             print(f'{asset["id"]}: failed ({type(error).__name__}); stopping without retry.', file=sys.stderr)
+            status = getattr(error, "status_code", None)
+            if isinstance(status, int):
+                print(f"API HTTP status: {status}", file=sys.stderr)
+            body = getattr(error, "body", None)
+            detail = body.get("detail") if isinstance(body, dict) else None
+            if isinstance(detail, dict) and detail.get("status") == "missing_permissions":
+                print("API error: missing_permissions", file=sys.stderr)
+                message = detail.get("message", "")
+                for permission in ("sound_generation", "music_generation", "text_to_speech", "user_read", "voices_read"):
+                    if isinstance(message, str) and permission in message:
+                        print(f"Required API permission: {permission}", file=sys.stderr)
             return 1
         finally:
             if used is None:
@@ -165,6 +178,11 @@ def generate(client: Any, pending: list[dict[str, Any]], manifest: dict[str, Any
                 source = "API response"
             amount = f"{used:g}" if used is not None else "unknown"
             print(f'{number}/{MAX_GENERATIONS} {asset["id"]}: credits used = {amount} ({source})')
+            if used is None:
+                unknown_usage += 1
+            else:
+                total_used += used
+    print(f"Total reported credits used = {total_used:g}; assets with unknown usage = {unknown_usage}.")
     return 0
 
 
@@ -181,7 +199,8 @@ def main() -> int:
     # Only Kamil runs this live path after review. Never load .env in dry-run.
     from dotenv import load_dotenv
     from elevenlabs.client import ElevenLabs
-    load_dotenv(ROOT / ".env", override=False)
+    env_file = Path(os.environ.get("STORM_ENV_FILE", str(ROOT / ".env"))).expanduser()
+    load_dotenv(env_file, override=False)
     key = os.environ.get("ELEVENLABS_API_KEY")
     if not key:
         print("ELEVENLABS_API_KEY is required for live generation.", file=sys.stderr)
