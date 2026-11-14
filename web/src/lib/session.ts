@@ -5,6 +5,7 @@ import type { Bundle, StormIndex } from "../types/bundle";
 import { derive } from "./derive";
 import { BundleError, DEFAULT_STORM_ID, loadBundle } from "./loadBundle";
 import { useApp } from "../state/app";
+import { useSurvive } from "../state/survive";
 import { useTimeline } from "../state/timeline";
 
 export const COLD_OPEN_MS = 2000;
@@ -23,12 +24,15 @@ interface ApplyOptions {
 /** Make `b` the running replay. Resets the playhead, toasts and per-bundle scene state. */
 export function applyBundle(b: Bundle, opts: ApplyOptions) {
   window.clearTimeout(autoplayTimer);
-  const d = derive(b);
-  useTimeline.getState().reset(b.n);
+  const base = derive(b);
+  // Survive mode: the loaded storm becomes a fresh setup (leverage slider, no run yet), shown with the player's ship.
+  const survive = useApp.getState().mode === "survive";
+  const d = survive ? useSurvive.getState().begin(b, base) : base;
+  useTimeline.getState().reset(b.n, base.closed);
   useApp.getState().setBundle(b, d);
   if (opts.at !== null && opts.at !== undefined && Number.isFinite(opts.at)) useTimeline.getState().seek(opts.at);
   document.title = `StormScore · ${b.title}`;
-  if (opts.autoplayMs !== null) {
+  if (opts.autoplayMs !== null && !survive) {
     autoplayTimer = window.setTimeout(() => useTimeline.getState().play(), opts.autoplayMs);
   }
 }
@@ -45,9 +49,14 @@ function rememberInUrl(stormId: string) {
   }
 }
 
-/** The storm to open when the URL names none: the largest move in index.json, else mock_storm. */
+/** The headline storm: opened by default when index.json lists it. */
+export const HEADLINE_STORM_ID = "usdjpy-2026-07-30";
+
+/** The storm to open when the URL names none: usdjpy-2026-07-30 when listed, else the largest move in index.json, else mock_storm. */
 export function defaultStorm(index: StormIndex | null): { id: string; file?: string } {
   if (index && index.storms.length > 0) {
+    const headline = index.storms.find((s) => s.storm_id === HEADLINE_STORM_ID);
+    if (headline) return { id: headline.storm_id, file: headline.file };
     const biggest = index.storms.reduce((a, b) => (Math.abs(b.move_bp) > Math.abs(a.move_bp) ? b : a));
     return { id: biggest.storm_id, file: biggest.file };
   }

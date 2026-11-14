@@ -6,6 +6,7 @@ import { sampleAt, stepAt } from "./derive";
 import { useTimeline } from "../state/timeline";
 import { useApp } from "../state/app";
 import { emitJump, emitSceneEvent } from "./bus";
+import { fmtPct, fmtUtc } from "./format";
 
 const MAX_CATCHUP_FRAMES = 30; // never fire a burst of more than this many frames at once
 
@@ -64,6 +65,14 @@ export function useReplayDriver(bundle: Bundle | null, derived: Derived | null, 
         } else if (s.kind === "restore") {
           emitSceneEvent({ type: "restore", frame: f });
           pushToast({ kind: "restore", title: `${bundle.ships[s.ship].label}: cargo restored`, text: "Hoisted the cargo back aboard." });
+        } else if (s.kind === "market") {
+          // Equities: the market closes (prices hold) and reopens (the gap shows).
+          if (s.open) {
+            const gap = s.gapPct !== null ? `, ${fmtPct(s.gapPct, 2)} from the last price before the close` : "";
+            pushToast({ kind: "market", title: "Market open", text: `Trading resumed at ${s.price.toFixed(derived.priceDecimals)}${gap}.` });
+          } else {
+            pushToast({ kind: "market", title: "Market closed", text: s.resumeAt !== null ? `Prices hold until trading resumes at ${fmtUtc(s.resumeAt)}.` : "Prices hold for the rest of the replay." });
+          }
         } else {
           const e = s.event;
           if (AUDIO_EVENTS.has(e.type)) audio.trigger({ type: e.type } as Parameters<AudioEngine["trigger"]>[0]);
@@ -96,7 +105,8 @@ export function useReplayDriver(bundle: Bundle | null, derived: Derived | null, 
       // Sound follows the market every animation frame.
       const ships = derived.ships;
       const afloat = ships.unprepared.marginCallI === null || t < ships.unprepared.marginCallI;
-      const heelShip = afloat ? ships.unprepared : ships.prepared;
+      // Survive mode: the player's ship is the only one; Replay: the "Ignored it" ship's heel while it is afloat.
+      const heelShip = derived.player ?? (afloat ? ships.unprepared : ships.prepared);
       audio.update({
         risk: sampleAt(bundle.series.risk, t),
         volRatio: sampleAt(bundle.series.vol_ratio, t),

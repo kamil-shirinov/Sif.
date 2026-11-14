@@ -1,6 +1,5 @@
 import type { Bundle, ShipKey } from "../types/bundle";
 import type { Derived } from "../lib/derive";
-import { MAINTENANCE_RATE } from "../lib/derive";
 import { useFrameIndex } from "../state/timeline";
 import { fmtPct, fmtUsd } from "../lib/format";
 
@@ -39,7 +38,7 @@ export function Manifest({ bundle, derived }: { bundle: Bundle; derived: Derived
         </span>
       </div>
       <div className="manifest-note">
-        1 crate ≈ {fmtUsd(derived.crates[0]?.notionalUsd ?? 0, true)} notional · maintenance {(MAINTENANCE_RATE * 100).toFixed(1)}%
+        1 crate ≈ {fmtUsd(derived.crates[0]?.notionalUsd ?? 0, true)} notional · maintenance {(derived.maintenance * 100).toFixed(1)}%
       </div>
       {(["prepared", "unprepared"] as ShipKey[]).map((k) => (
         <ShipRow key={k} k={k} i={i} derived={derived} />

@@ -3,13 +3,15 @@
 //
 //   GET  /api/health                          -> { ok: true, tiger: bool, navigator: bool }
 //   GET  /api/candles?symbol=&from=&to=       -> { candles: [...], query_ms }  (from and to: ISO 8601 UTC)
+//                                                bars of ANY size (1 minute, 5 minutes, ...): the size is read from the
+//                                                response (bucket_s, bucket, interval, ...) or from the bar spacing
 //   POST /api/navigator/ask {question, storm_id} -> { answer, verified, inspector?, scenario? }
 //
 // The vite dev server proxies /api to http://localhost:8000 (vite.config.ts). Set VITE_API_BASE to
 // point a built app at a server elsewhere (that server must then allow CORS).
 
 import type { Bundle, Inspector } from "../types/bundle";
-import type { Health, LiveCandles } from "../state/app";
+import type { Health, LiveCandles, LiveRow } from "../state/app";
 import { validateBundle } from "./loadBundle";
 
 const API = ((import.meta.env.VITE_API_BASE as string | undefined) ?? "/api").replace(/\/$/, "");
@@ -81,7 +83,7 @@ function toRow(r: unknown): Row | null {
   let t: unknown, o: unknown, h: unknown, l: unknown, c: unknown;
   if (Array.isArray(r)) [t, o, h, l, c] = r;
   else if (isObj(r)) {
-    t = pick(r, ["time", "t", "ts", "timestamp", "time_utc", "ts_utc"]);
+    t = pick(r, ["time", "t", "ts", "timestamp", "time_utc", "ts_utc", "bucket"]);
     o = pick(r, ["open", "o"]);
     h = pick(r, ["high", "h"]);
     l = pick(r, ["low", "l"]);
@@ -92,36 +94,104 @@ function toRow(r: unknown): Row | null {
   return { t: ts, o, h, l, c };
 }
 
+/** "5m", "5 min", "300s", "1h", "PT5M", 300 (seconds) -> seconds; null when it is not a size. */
+export function parseBucketSeconds(v: unknown): number | null {
+  if (isNum(v)) return v > 0 ? v : null;
+  if (typeof v !== "string") return null;
+  const s = v.trim().toLowerCase();
+  const iso = /^pt(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?$/.exec(s);
+  if (iso && (iso[1] || iso[2] || iso[3])) return Number(iso[1] ?? 0) * 3600 + Number(iso[2] ?? 0) * 60 + Number(iso[3] ?? 0);
+  const m = /^(\d+(?:\.\d+)?)\s*(s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours)$/.exec(s);
+  if (!m) return null;
+  const unit = m[2][0] === "s" ? 1 : m[2][0] === "m" ? 60 : 3600;
+  return Number(m[1]) * unit;
+}
+
+/** The bar size in seconds: stated by the server, else the median spacing between bars. */
+function barSeconds(raw: unknown, rows: Row[]): number | null {
+  if (isObj(raw)) {
+    const meta = isObj(raw.meta) ? raw.meta : {};
+    for (const key of ["bucket_s", "bucket_seconds", "interval_s", "step_s", "bucket", "interval", "resolution", "timeframe"]) {
+      const v = parseBucketSeconds(raw[key] ?? meta[key]);
+      if (v !== null) return v;
+    }
+  }
+  const gaps: number[] = [];
+  for (let i = 1; i < rows.length; i++) {
+    const d = rows[i].t - rows[i - 1].t;
+    if (d > 0) gaps.push(d);
+  }
+  if (gaps.length === 0) return null;
+  gaps.sort((a, b) => a - b);
+  return gaps[Math.floor(gaps.length / 2)];
+}
+
 /**
- * Lay server candles onto the bundle's frames. Expects one-minute bars. Frames the server did not return
- * keep the bundle's own values; if the server covers less than 80% of the window the result is rejected,
- * so the chart never mixes sources in a way that would mislead.
+ * Lay the server's candles onto the bundle's frames, whatever the bar size. One-minute (or finer) bars fill the
+ * per-frame arrays, merged when several fall in one frame. Coarser bars (5 minutes, 15 minutes, ...) are kept as
+ * rows that the chart aggregates; only bars that sit wholly inside the bundle's window count. Frames the server did
+ * not cover keep the bundle's own values; if the server covers under 80% of the window the result is rejected, so
+ * the chart never mixes sources in a way that would mislead.
  */
 export function candlesOntoFrames(raw: unknown, b: Bundle, seq: number): LiveCandles | null {
-  const rows = Array.isArray(raw) ? raw : isObj(raw) ? pick(raw, ["candles", "rows", "bars", "data"]) : undefined;
-  if (!Array.isArray(rows)) return null;
+  const list = Array.isArray(raw) ? raw : isObj(raw) ? pick(raw, ["candles", "rows", "bars", "data"]) : undefined;
+  if (!Array.isArray(list)) return null;
   const meta = isObj(raw) && isObj(raw.meta) ? raw.meta : null;
   const q = isObj(raw) ? (raw.query_ms ?? meta?.query_ms) : undefined;
+  const rows = list.map(toRow).filter((r): r is Row => r !== null).sort((a, b2) => a.t - b2.t);
+  if (rows.length === 0) return null;
+  const barS = barSeconds(raw, rows);
+  if (barS === null) return null;
+  const k = Math.max(1, Math.round(barS / b.step_s));
+
   const open = b.series.open.slice();
   const high = b.series.high.slice();
   const low = b.series.low.slice();
   const mid = b.series.mid.slice();
-  const seen = new Uint8Array(b.n);
-  let matched = 0;
-  for (const raw1 of rows) {
-    const r = toRow(raw1);
-    if (!r) continue;
-    const i = Math.round((r.t - b.t0) / b.step_s);
-    if (i < 0 || i >= b.n || Math.abs(r.t - (b.t0 + i * b.step_s)) > b.step_s / 2 || seen[i]) continue;
-    seen[i] = 1;
-    matched++;
-    open[i] = r.o;
-    high[i] = Math.max(r.h, r.o, r.c);
-    low[i] = Math.min(r.l, r.o, r.c);
-    mid[i] = r.c;
+  const covered = new Uint8Array(b.n);
+
+  if (k === 1) {
+    const touched = new Uint8Array(b.n);
+    for (const r of rows) {
+      const i = Math.round((r.t - b.t0) / b.step_s);
+      if (i < 0 || i >= b.n || Math.abs(r.t - (b.t0 + i * b.step_s)) > b.step_s / 2) continue;
+      if (touched[i]) {
+        // finer than the bundle's step: several bars in one frame
+        high[i] = Math.max(high[i], r.h);
+        low[i] = Math.min(low[i], r.l);
+        mid[i] = r.c;
+      } else {
+        touched[i] = 1;
+        open[i] = r.o;
+        high[i] = Math.max(r.h, r.o, r.c);
+        low[i] = Math.min(r.l, r.o, r.c);
+        mid[i] = r.c;
+      }
+      covered[i] = 1;
+    }
+    const matched = covered.reduce((s, v) => s + v, 0);
+    if (matched < b.n * 0.8) return null;
+    return { seq, bucketFrames: 1, open, high, low, mid, rows: [], rowAt: new Int32Array(0), queryMs: isNum(q) ? q : null };
   }
+
+  const bars: LiveRow[] = [];
+  const rowAt = new Int32Array(b.n).fill(-1);
+  for (const r of rows) {
+    const first = Math.round((r.t - b.t0) / b.step_s);
+    if (first < 0 || first + k > b.n || Math.abs(r.t - (b.t0 + first * b.step_s)) > b.step_s / 2) continue;
+    if (rowAt[first] !== -1) continue;
+    const idx = bars.length;
+    bars.push({ first, span: k, open: r.o, high: Math.max(r.h, r.o, r.c), low: Math.min(r.l, r.o, r.c), close: r.c });
+    for (let i = first; i < first + k; i++) {
+      if (rowAt[i] === -1) {
+        rowAt[i] = idx;
+        covered[i] = 1;
+      }
+    }
+  }
+  const matched = covered.reduce((s, v) => s + v, 0);
   if (matched < b.n * 0.8) return null;
-  return { seq, open, high, low, mid, queryMs: isNum(q) ? q : null };
+  return { seq, bucketFrames: k, open, high, low, mid, rows: bars, rowAt, queryMs: isNum(q) ? q : null };
 }
 
 /** The bundle's window as the server's candles, or null (no server, an error, or too few bars). */

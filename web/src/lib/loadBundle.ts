@@ -164,6 +164,14 @@ export function validateBundle(raw: unknown): Bundle {
       if (!isNum(v)) fail(`series.${k}[${i}] is not a finite number`);
     }
   }
+  // market_open is optional and lenient: anything that is not 0/1 per frame means "always open".
+  if (series.market_open !== undefined) {
+    const mo = series.market_open;
+    if (!Array.isArray(mo) || mo.length !== n || !mo.every((v) => v === 0 || v === 1)) {
+      console.warn("Ignoring series.market_open: it must hold 0 or 1 for each of the n frames");
+      delete series.market_open;
+    }
+  }
   const s = series as unknown as Record<string, number[]>;
   for (let i = 0; i < n; i++) {
     if (s.risk[i] < 0 || s.risk[i] > 1) fail(`series.risk[${i}] = ${s.risk[i]} is outside 0..1`);

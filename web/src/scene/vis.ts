@@ -15,9 +15,12 @@ export interface Vis {
   state: number; // series.state at frame
   wind: number; // 0..1 from state
   wave: WaveParams; // amp & chop from vol_ratio, time advanced by wind
-  sunDir: Vector3; // from frame time of day (UTC)
+  sunDir: Vector3; // from the solar clock (UTC for FX, exchange-local for equities); pushed below the horizon while the market is closed
   dayFactor: number; // 0 night .. 1 day
   utcHours: number;
+  solarHours: number; // hour of day the sun follows: utcHours for FX, New York time for equities
+  closed: number; // 0..1 smoothed series.market_open = 0: night, whatever the clock says
+  lantern: number; // 0..1: the ships' lanterns, lit as daylight fails
   alarm: number; // 0..1 smoothed alarmActive
   flash: number; // lightning flash 0..1 (set by Lightning)
   squall: number; // 0..1: lighthouse amber flash after a squall event
@@ -37,6 +40,9 @@ export const vis: Vis = {
   sunDir: new Vector3(0, 1, -1).normalize(),
   dayFactor: 1,
   utcHours: 12,
+  solarHours: 12,
+  closed: 0,
+  lantern: 0,
   alarm: 0,
   flash: 0,
   squall: 0,
@@ -122,8 +128,19 @@ export function updateVis(b: Bundle, d: Derived, t: number, dt: number) {
   waveUniforms.uWaveChop.value = vis.wave.chop;
   waveUniforms.uWaveTime.value = vis.wave.time;
   const time = sampleAt(d.times, t);
-  vis.utcHours = (((time % 86400) + 86400) % 86400) / 3600;
-  vis.dayFactor = sunFromUtcHours(vis.utcHours, vis.sunDir).dayFactor;
+  const hourOf = (sec: number) => (((sec % 86400) + 86400) % 86400) / 3600;
+  vis.utcHours = hourOf(time);
+  // The sun keeps the exchange's clock for equities (NVDA at 12:58 New York is noon, not 17:58 UTC) and UTC for FX.
+  vis.solarHours = hourOf(time + stepAt(d.solarOffsetS, t));
+  vis.dayFactor = sunFromUtcHours(vis.solarHours, vis.sunDir).dayFactor;
+  // Market closed (series.market_open = 0) is night: the sun goes down and the lanterns come on.
+  vis.closed = damp(vis.closed, d.closed ? stepAt(d.closed, t) : 0, 1.6, dt);
+  if (vis.closed > 0.001) {
+    vis.dayFactor *= 1 - vis.closed;
+    vis.sunDir.y = vis.sunDir.y * (1 - vis.closed) - 0.3 * vis.closed;
+    vis.sunDir.normalize();
+  }
+  vis.lantern = Math.min(1, Math.max(0, (0.75 - vis.dayFactor) / 0.5));
   vis.alarm = damp(vis.alarm, stepAt(d.alarmActive, t), 3, dt);
   vis.flash = Math.max(0, vis.flash - dt * 3.5);
 

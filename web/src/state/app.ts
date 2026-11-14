@@ -4,7 +4,7 @@ import type { Derived } from "../lib/derive";
 
 export interface Toast {
   id: number;
-  kind: BundleEventType | "cut";
+  kind: BundleEventType | "cut" | "market" | "sail" | "land" | "sunk";
   title: string;
   text: string;
 }
@@ -15,21 +15,45 @@ export interface Health {
   navigator: boolean;
 }
 
-/** The chart's candles as fetched from GET /api/candles, laid onto the bundle's frames. */
+/** One server bar that covers `span` frames from frame `first` (span > 1 only for bars coarser than the bundle's step). */
+export interface LiveRow {
+  first: number;
+  span: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+/**
+ * The chart's candles as fetched from GET /api/candles, at whatever bar size the server used.
+ * One-minute bars are laid onto the bundle's frames (open/high/low/mid). Coarser bars (5 minutes, ...) are kept as
+ * `rows`; the per-frame arrays then hold the bundle's own values, which draw the bar still in progress at the playhead.
+ */
 export interface LiveCandles {
   /** bundleSeq of the bundle they were fetched for. */
   seq: number;
+  /** Frames per server bar: 1 for one-minute bars. */
+  bucketFrames: number;
   open: number[];
   high: number[];
   low: number[];
   mid: number[];
+  /** Server bars coarser than one frame, sorted by `first`; empty for one-minute bars. */
+  rows: LiveRow[];
+  /** rowAt[i] = index into `rows` of the bar covering frame i, or -1. Empty for one-minute bars. */
+  rowAt: Int32Array;
   /** Server-reported query time in ms, when it reported one. */
   queryMs: number | null;
 }
 
 export type LiveStatus = "idle" | "loading" | "ok" | "failed";
 
+/** Replay: watch the storm and the two demo ships. Survive: sail your own ship through it. */
+export type Mode = "replay" | "survive";
+
 export interface AppState {
+  mode: Mode;
   bundle: Bundle | null;
   derived: Derived | null;
   /** Increments on every loaded bundle (a new storm, a scenario). */
@@ -51,7 +75,10 @@ export interface AppState {
   health: Health | null;
   live: LiveCandles | null;
   liveStatus: LiveStatus;
+  setMode(m: Mode): void;
   setBundle(b: Bundle, d: Derived): void;
+  /** Swap the derived data for the loaded bundle (the player's ship changed) without loading anything. */
+  setDerived(d: Derived): void;
   setError(e: string): void;
   setLowQuality(v: boolean): void;
   setSoundOn(v: boolean): void;
@@ -82,6 +109,7 @@ function initialLowQuality(): boolean {
 }
 
 export const useApp = create<AppState>((set, get) => ({
+  mode: "replay",
   bundle: null,
   derived: null,
   bundleSeq: 0,
@@ -98,6 +126,8 @@ export const useApp = create<AppState>((set, get) => ({
   health: null,
   live: null,
   liveStatus: "idle",
+  setMode: (mode) => set({ mode }),
+  setDerived: (derived) => set({ derived }),
   setBundle: (bundle, derived) =>
     set({ bundle, derived, error: null, bundleSeq: get().bundleSeq + 1, toasts: [], live: null, liveStatus: "idle", loadError: null }),
   setError: (error) => set({ error }),

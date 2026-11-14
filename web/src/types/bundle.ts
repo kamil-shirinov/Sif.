@@ -32,6 +32,11 @@ export interface BundleSeries {
   jump: number[]; // 0 or 1
   prepared_equity: number[];
   unprepared_equity: number[];
+  /**
+   * Optional. 1 while the market trades (equities: 04:00 to 20:00 ET, extended hours included), 0 while it is
+   * closed; absent means always open. While 0 every series holds its last trading value.
+   */
+  market_open?: number[];
 }
 
 export interface ShipInfo {
@@ -154,7 +159,7 @@ export interface Bundle {
   title: string;
   symbol: string;
   asset_class: string; // "fx" for SGX data; "equity" or "crypto" later
-  source: "sgx" | "synthetic" | "scenario" | string;
+  source: "sgx" | "synthetic" | "scenario" | "yahoo" | string;
   book_is_synthetic: boolean;
   t0: number; // UTC epoch seconds of frame 0
   step_s: number; // 60

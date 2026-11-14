@@ -37,3 +37,10 @@ export function fmtCountdown(minutes: number): string {
   if (minutes < 1) return "in under a minute";
   return `in ${Math.ceil(minutes)} min`;
 }
+
+/** "12:58" for an epoch time shifted by `offsetS` seconds (the clock of the exchange); the date is left out. */
+export function fmtClock(epochSec: number, offsetS = 0): string {
+  const d = new Date((epochSec + offsetS) * 1000);
+  const p = (x: number) => String(x).padStart(2, "0");
+  return `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
+}
