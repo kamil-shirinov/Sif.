@@ -1,0 +1,15 @@
+{
+  "name": "stormscore-audio-check",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.check.json",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "tone": "^15.1.22"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
