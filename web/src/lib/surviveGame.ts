@@ -104,18 +104,21 @@ function press(kind: "cut" | "restore"): boolean {
     return false;
   }
   if (kind === "cut" && !st.canCut) return false;
+  // One order per minute: it fills at the next open, so a second press on the same bar would change nothing.
+  if (useSurvive.getState().actions.some((x) => x.i === frame)) return false;
   const d = useSurvive.getState().addAction(app.bundle, { i: frame, at: tl.t, kind });
   if (!d) return false;
   app.setDerived(d);
-  const sim = useSurvive.getState().sim;
-  const price = app.bundle.series.mid[frame].toFixed(d.priceDecimals);
+  // The order fills at the next traded bar's open (side-correct), as the backend executes: its price is not known yet.
+  const next = frame + 1 < d.n ? fmtClock(d.times[frame + 1]) : null;
+  const when = next !== null ? `at the ${next} UTC open` : "never: the replay ends here";
   if (kind === "cut") {
     audio?.trigger({ type: "cut" });
     emitSceneEvent({ type: "cut", frame });
-    app.pushToast({ kind: "cut", title: "Cargo cut", text: `You threw ${Math.round(CUT_FRACTION * 100)}% of the cargo overboard at ${price}. Notional is now ${fmtUsd(sim ? sim.notional[frame] : 0, true)}.` });
+    app.pushToast({ kind: "cut", title: "Cut ordered", text: `${Math.round(CUT_FRACTION * 100)}% of the cargo goes overboard ${when}, at the bid or ask.` });
   } else {
     emitSceneEvent({ type: "restore", frame });
-    app.pushToast({ kind: "restore", title: "Cargo restored", text: `The cargo is back aboard at ${price}. Notional is ${fmtUsd(sim ? sim.notional[frame] : 0, true)} again.` });
+    app.pushToast({ kind: "restore", title: "Restore ordered", text: `The cargo comes back aboard ${when}, unless that would put you under the margin line.` });
   }
   return true;
 }
