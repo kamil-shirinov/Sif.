@@ -4,6 +4,9 @@
 
 Exit code 0 when every file is valid, 1 otherwise. Checks keys (no missing, no extra),
 types, enum values, index ranges, and that every series has length n.
+
+Also accepts the additive fields pending a contract update: ships.<name>.restore_i
+(int or null, optional) and event types squall, fair_wind, cut and restore.
 """
 from __future__ import annotations
 
@@ -24,9 +27,11 @@ INT_SERIES = {"state": {0, 1, 2}, "jump": {0, 1}}
 STORM_KEYS = {"onset_i": int, "trough_i": int, "move_bp": "num", "kind": str, "label": str}
 SHIP_KEYS = {"label": str, "start_equity_usd": "num", "margin_call_i": "int?", "cut_i": "int?",
              "cut_fraction": "num"}
-EVENT_TYPES = {"watch", "alarm", "margin_call", "all_clear"}
+SHIP_OPTIONAL = {"restore_i": "int?"}
+EVENT_TYPES = {"watch", "alarm", "margin_call", "all_clear", "squall", "fair_wind", "cut", "restore"}
 EVENT_EXTRA = {"watch": {"at_i": "int"}, "alarm": {"move_ahead_pct": "num?"},
-               "margin_call": {"ship": "str"}, "all_clear": {}}
+               "margin_call": {"ship": "str"}, "all_clear": {}, "squall": {}, "fair_wind": {},
+               "cut": {}, "restore": {}}
 EXPOSURE_KEYS = {"as_of_i": int, "positions": list, "net_usd_by_ccy": dict,
                  "leverage": "num?", "margin_buffer_pct": "num?"}
 REPORT_KEYS = {"text": str, "verified": bool, "unverified_numbers": list, "model": str}
@@ -62,17 +67,22 @@ def _type_ok(v, spec) -> bool:
     return isinstance(v, spec) and not (spec is int and isinstance(v, bool))
 
 
-def _check_obj(obj, spec: dict, where: str, errors: list[str], strict: bool = True) -> bool:
+def _check_obj(obj, spec: dict, where: str, errors: list[str], strict: bool = True,
+               optional: dict | None = None) -> bool:
     if not isinstance(obj, dict):
         errors.append(f"{where}: expected object")
         return False
+    optional = optional or {}
     for k, t in spec.items():
         if k not in obj:
             errors.append(f"{where}.{k}: missing")
         elif not _type_ok(obj[k], t):
             errors.append(f"{where}.{k}: bad type or value {obj[k]!r}")
+    for k, t in optional.items():
+        if k in obj and not _type_ok(obj[k], t):
+            errors.append(f"{where}.{k}: bad type or value {obj[k]!r}")
     if strict:
-        for k in obj.keys() - spec.keys():
+        for k in obj.keys() - spec.keys() - optional.keys():
             errors.append(f"{where}.{k}: not in the contract")
     return True
 
@@ -138,9 +148,13 @@ def validate_bundle(b: dict) -> list[str]:
         if set(ships) != {"prepared", "unprepared"}:
             errors.append(f"ships: keys must be prepared and unprepared, got {sorted(ships)}")
         for name, ship in ships.items():
-            if _check_obj(ship, SHIP_KEYS, f"ships.{name}", errors):
+            if _check_obj(ship, SHIP_KEYS, f"ships.{name}", errors, optional=SHIP_OPTIONAL):
                 _check_i(ship.get("margin_call_i"), n, f"ships.{name}.margin_call_i", errors)
                 _check_i(ship.get("cut_i"), n, f"ships.{name}.cut_i", errors)
+                _check_i(ship.get("restore_i"), n, f"ships.{name}.restore_i", errors)
+                ci, ri = ship.get("cut_i"), ship.get("restore_i")
+                if _is_int(ri) and (not _is_int(ci) or ri < ci):
+                    errors.append(f"ships.{name}.restore_i: must come after cut_i")
                 cf = ship.get("cut_fraction")
                 if _is_num(cf) and not 0 <= cf <= 1:
                     errors.append(f"ships.{name}.cut_fraction: outside 0..1")
