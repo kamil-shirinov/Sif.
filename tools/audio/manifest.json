@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "credit_estimates": {
+    "sfx_per_second": 40,
+    "music_per_minute": 1000,
+    "tts_per_character": 1,
+    "note": "Planning assumptions only; edit for your account's current rates. Actual usage is reported separately."
+  },
+  "models": {
+    "sfx": "eleven_text_to_sound_v2",
+    "music": "music_v1",
+    "tts": "eleven_multilingual_v2"
+  },
+  "music": {
+    "key": "C minor",
+    "bpm": 80,
+    "shared_prompt": "Instrumental maritime underscore in C minor, strictly 80 BPM, 4/4, exactly 20 bars in 60 seconds. Begin on the downbeat with no pickup. Hold a C minor tonic pedal throughout; no key changes, no tempo changes, no vocals. Keep the same grid and harmony so independent layers can play together. End seamlessly back at the first downbeat, no fade-in, no fade-out. Restrained dynamics, leave room for speech and sea ambience."
+  },
+  "voice": {
+    "category": "premade",
+    "accent": "british",
+    "direction": "Calm, clear British shipping-forecast delivery from a stock voice, with measured pauses.",
+    "stability": 0.85,
+    "speed": 0.9
+  },
+  "assets": [
+    {"id":"sea_calm","kind":"sfx","loop":true,"duration_seconds":20,"prompt":"Seamless calm open sea ambience, soft small waves gently lapping against a wooden ship, spacious and peaceful. No voices, no music, no birds, no sudden sounds."},
+    {"id":"sea_rough","kind":"sfx","loop":true,"duration_seconds":20,"prompt":"Seamless rough sea ambience, heavy choppy waves striking a wooden hull, deep rolling water and spray. No voices, no music, no thunder."},
+    {"id":"wind","kind":"sfx","loop":true,"duration_seconds":20,"prompt":"Seamless strong ocean wind through ship rigging, sustained low gusts and whistling air, no discrete impacts, no voices, no music."},
+    {"id":"rain","kind":"sfx","loop":true,"duration_seconds":20,"prompt":"Seamless steady heavy rain on a wooden ship deck and open seawater, detailed patter and hiss. No thunder, no voices, no music."},
+    {"id":"storm","kind":"sfx","loop":true,"duration_seconds":20,"prompt":"Seamless full ocean storm surrounding a wooden ship, roaring waves, driving rain and forceful wind, continuous intensity. No discrete thunder strikes, no voices, no music."},
+    {"id":"thunder_1","kind":"sfx","loop":false,"duration_seconds":5,"prompt":"One isolated distant rolling thunder rumble over open water, natural deep decay, no music, no voices."},
+    {"id":"thunder_2","kind":"sfx","loop":false,"duration_seconds":5,"prompt":"One isolated sharp thunder crack followed by a broad low rumble over the sea, natural decay, no music, no voices."},
+    {"id":"thunder_3","kind":"sfx","loop":false,"duration_seconds":6,"prompt":"One isolated powerful thunder peal, textured low rolling tail across open water, no music, no voices."},
+    {"id":"foghorn","kind":"sfx","loop":false,"duration_seconds":4,"prompt":"One low resonant lighthouse foghorn blast over open sea, clear attack and natural decay into silence. No voices, no music."},
+    {"id":"splash","kind":"sfx","loop":false,"duration_seconds":3,"prompt":"Wooden cargo crates thrown overboard from a ship, a short sequence of heavy splashes and bubbling water, then silence. No voices, no music."},
+    {"id":"creak","kind":"sfx","loop":false,"duration_seconds":2,"prompt":"One deep wooden ship timber creaking under strain, short natural groan and release, no breaking, no voices, no music."},
+    {"id":"sinking","kind":"sfx","loop":false,"duration_seconds":8,"prompt":"A wooden cargo ship going down, deep hull groan, timbers breaking, rushing water and bubbling descent, then quiet. No people, no voices, no music."},
+    {"id":"bell","kind":"sfx","loop":false,"duration_seconds":3,"prompt":"One clear warm brass ship bell strike, a reassuring resonant decay into silence. No voices, no music."},
+    {"id":"music_calm","kind":"music","duration_seconds":60,"prompt":"Sparse warm soft sustained pads, gentle rounded plucks, peaceful open water, very light pulse."},
+    {"id":"music_tension","kind":"music","duration_seconds":60,"prompt":"Restrained pulsing low strings and muted percussion, gathering maritime tension, moderate density."},
+    {"id":"music_storm","kind":"music","duration_seconds":60,"prompt":"Urgent low string ostinato and deep restrained drums, storm at sea, intense but no dramatic ending."},
+    {"id":"voice_alarm","kind":"tts","text":"Storm warning. Sharp move under way."},
+    {"id":"voice_margin_call","kind":"tts","text":"Margin call."},
+    {"id":"voice_all_clear","kind":"tts","text":"Storm passing."}
+  ]
+}
