@@ -4,6 +4,7 @@ import pytest
 
 from storm import export
 from storm.paths import PROCESSED_DIR
+from storm.ai.verify import verify_numbers
 from storm.validate import validate_file
 from tests.synthetic import write_spot
 from tests.test_detector import CFG
@@ -54,3 +55,37 @@ def test_every_exported_bundle_validates_real_data(tmp_path):
     assert len(paths) == len(ctx.storms)
     for p in [*paths, index]:
         assert validate_file(p) == [], p
+
+
+def test_export_embeds_a_verified_mock_report_with_the_scheduled_event(tmp_path):
+    processed = write_spot(tmp_path / "processed")
+    cal = tmp_path / "calendar.csv"
+    cal.write_text("time_utc,event,region,source_url,verified\n"
+                   "2026-07-20T12:30:00Z,US Consumer Price Index (June 2026),US,https://example.org,yes\n")
+    ctx = export.load_context(processed, processed / "raw", cal, CFG)
+    paths, index, summaries = export.export_all(ctx, tmp_path / "out", METRICS)
+    for p in [*paths, index]:
+        assert validate_file(p) == [], p
+    kinds = {}
+    for p in paths:
+        b = json.loads(p.read_text())
+        r = b["report"]
+        assert r["model"] == "mock" and r["verified"] is True and r["unverified_numbers"] == []
+        assert r["inspector"] == {"verdict": "ok", "issues": []}
+        assert "synthetic" in r["text"].lower()
+        facts = export.report_facts(b)
+        assert verify_numbers(r["text"], facts)["verified"]         # every number traces to a fact
+        kinds[b["storm_id"]] = b["storm"]["kind"]
+        if b["storm"]["kind"] == "scheduled":
+            ev = facts["storm"]["scheduled_event"]
+            assert b["storm"]["event"] == ev["name"] == "US Consumer Price Index (June 2026)"
+            assert ev["time_utc"] == "2026-07-20T12:30:00Z"
+            assert ev["onset_minutes_after_event"] == (b["storm"]["onset_i"] - b["storm"]["event_i"])
+            watch = [e for e in b["events"] if e["type"] == "watch"]
+            assert watch and watch[0]["event"] == ev["name"] and watch[0]["at_i"] == b["storm"]["event_i"]
+        else:
+            assert "event" not in b["storm"] and "scheduled_event" not in facts["storm"]
+    # Onsets 12:17, 12:17 and 12:27 on 20 July are within 15 min of the 12:30 event; the rest are not.
+    assert {k for k, v in kinds.items() if v == "scheduled"} == {
+        "usdjpy-2026-07-20", "eurusd-2026-07-20", "usdsgd-2026-07-20"}
+    assert ctx.storms.set_index("storm_id")["event"]["usdjpy-2026-08-20"] == ""

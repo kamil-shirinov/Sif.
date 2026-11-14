@@ -3,5 +3,6 @@ numpy>=1.26
 pyarrow>=15
 openai>=1.40
 python-dotenv>=1.0
-pytest>=8
+pytest>=8,<9.2
 elevenlabs
+yfinance>=0.2.50

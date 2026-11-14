@@ -11,6 +11,9 @@ windows less than 6 hours apart on the same pair are one storm. For each storm:
            the last triggering window
   move_bp  trough mid / onset mid - 1, in basis points (signed)
   duration trough - onset, in minutes
+  kind     scheduled when the onset is within 15 minutes (either side) of an event in
+           contracts/calendar.csv, else unscheduled; event = that event's name (the
+           nearest one if several qualify), empty when unscheduled
 """
 from __future__ import annotations
 
@@ -27,10 +30,11 @@ WINDOW = pd.Timedelta(minutes=15)
 MIN_MOVE_BP = 30.0
 SD_MULT = 8.0
 MERGE_GAP = pd.Timedelta(hours=6)
+SCHEDULED_WITHIN = pd.Timedelta(minutes=15)
 
 STORM_COLUMNS = [
     "storm_id", "pair", "onset_utc", "trough_utc", "end_utc", "move_bp", "usd_move_bp",
-    "duration_min", "peak_15m_bp", "onset_mid", "trough_mid",
+    "duration_min", "peak_15m_bp", "onset_mid", "trough_mid", "kind", "event", "event_utc",
 ]
 
 
@@ -84,9 +88,30 @@ def find_storms(feat: pd.DataFrame, pair: str) -> list[dict]:
     return storms
 
 
-def label_all(feats: dict[str, pd.DataFrame]) -> pd.DataFrame:
+def scheduled_event(onset: pd.Timestamp, calendar: pd.DataFrame | None) -> tuple[str, pd.Timestamp] | None:
+    """(name, time) of the calendar event nearest the onset, if within SCHEDULED_WITHIN."""
+    if calendar is None or len(calendar) == 0:
+        return None
+    gap = (calendar["time_utc"] - onset).abs()
+    k = gap.idxmin()
+    if gap[k] > SCHEDULED_WITHIN:
+        return None
+    return str(calendar.loc[k, "event"]), calendar.loc[k, "time_utc"]
+
+
+def label_all(feats: dict[str, pd.DataFrame], calendar: pd.DataFrame | None = None) -> pd.DataFrame:
+    """`calendar` defaults to contracts/calendar.csv (pass an empty frame for none)."""
+    if calendar is None:
+        from .detector import load_calendar
+        calendar = load_calendar()
     rows = [s for pair in feats for s in find_storms(feats[pair], pair)]
+    for r in rows:
+        ev = scheduled_event(r["onset_utc"], calendar)
+        r["kind"] = "unscheduled" if ev is None else "scheduled"
+        r["event"] = "" if ev is None else ev[0]
+        r["event_utc"] = pd.NaT if ev is None else ev[1]
     df = pd.DataFrame(rows, columns=[c for c in STORM_COLUMNS if c != "storm_id"])
+    df["event_utc"] = pd.to_datetime(df["event_utc"], utc=True)
     df = df.sort_values(["onset_utc", "pair"]).reset_index(drop=True)
     base = df["pair"].str.lower() + "-" + df["onset_utc"].dt.strftime("%Y-%m-%d")
     nth = base.groupby(base).cumcount()
@@ -97,24 +122,26 @@ def label_all(feats: dict[str, pd.DataFrame]) -> pd.DataFrame:
 def write_storms(storms: pd.DataFrame, path: Path = PROCESSED_DIR / "storms.csv") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     out = storms.copy()
-    for col in ("onset_utc", "trough_utc", "end_utc"):
+    for col in ("onset_utc", "trough_utc", "end_utc", "event_utc"):
         out[col] = out[col].dt.strftime("%Y-%m-%d %H:%M")
     out.to_csv(path, index=False)
     return path
 
 
 def read_storms(path: Path = PROCESSED_DIR / "storms.csv") -> pd.DataFrame:
-    df = pd.read_csv(path)
-    for col in ("onset_utc", "trough_utc", "end_utc"):
-        df[col] = pd.to_datetime(df[col], utc=True)
+    df = pd.read_csv(path, keep_default_na=False, na_values={"event_utc": [""]})
+    for col in ("onset_utc", "trough_utc", "end_utc", "event_utc"):
+        if col in df:
+            df[col] = pd.to_datetime(df[col], utc=True)
     return df
 
 
 def print_storms(storms: pd.DataFrame) -> None:
-    print(f"{'storm_id':22} {'pair':7} {'onset UTC':17} {'move_bp':>8} {'duration':>9}")
+    print(f"{'storm_id':22} {'pair':7} {'onset UTC':17} {'move_bp':>8} {'duration':>9}  {'kind':11} event")
     for r in storms.itertuples():
         print(
             f"{r.storm_id:22} {r.pair:7} {r.onset_utc:%Y-%m-%d %H:%M} {r.move_bp:8.1f} {r.duration_min:6d} min"
+            f"  {r.kind:11} {r.event}"
         )
     print(f"{len(storms)} storms")
 

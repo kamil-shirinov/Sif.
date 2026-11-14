@@ -5,8 +5,12 @@
 Exit code 0 when every file is valid, 1 otherwise. Checks keys (no missing, no extra),
 types, enum values, index ranges, and that every series has length n.
 
-Also accepts the additive fields pending a contract update: ships.<name>.restore_i
-(int or null, optional) and event types squall, fair_wind, cut and restore.
+Also accepts the optional additions (still schema_version 1): ships.<name>.restore_i
+(int or null); event types squall, fair_wind, cut and restore; watch events' `event`;
+storm.event and storm.event_i (scheduled storms only, both or neither); and
+report.inspector {verdict: ok | flag, issues: [str]}; source values scenario (a what-if
+bundle resized from a real storm) and yahoo (Yahoo Finance bars); series market_open (int
+0 or 1 per frame); and index metrics.watch_precision (0..1 or null).
 """
 from __future__ import annotations
 
@@ -24,7 +28,10 @@ TOP_KEYS = {
 FLOAT_SERIES = ("open", "high", "low", "mid", "spread_bp", "vol_ratio", "risk",
                 "prepared_equity", "unprepared_equity")
 INT_SERIES = {"state": {0, 1, 2}, "jump": {0, 1}}
+OPTIONAL_INT_SERIES = {"market_open": {0, 1}}
+SOURCES = ("sgx", "synthetic", "scenario", "yahoo")
 STORM_KEYS = {"onset_i": int, "trough_i": int, "move_bp": "num", "kind": str, "label": str}
+STORM_OPTIONAL = {"event": "str", "event_i": "int"}
 SHIP_KEYS = {"label": str, "start_equity_usd": "num", "margin_call_i": "int?", "cut_i": "int?",
              "cut_fraction": "num"}
 SHIP_OPTIONAL = {"restore_i": "int?"}
@@ -32,13 +39,16 @@ EVENT_TYPES = {"watch", "alarm", "margin_call", "all_clear", "squall", "fair_win
 EVENT_EXTRA = {"watch": {"at_i": "int"}, "alarm": {"move_ahead_pct": "num?"},
                "margin_call": {"ship": "str"}, "all_clear": {}, "squall": {}, "fair_wind": {},
                "cut": {}, "restore": {}}
+EVENT_OPTIONAL = {"watch": {"event": "str"}}
 EXPOSURE_KEYS = {"as_of_i": int, "positions": list, "net_usd_by_ccy": dict,
                  "leverage": "num?", "margin_buffer_pct": "num?"}
 REPORT_KEYS = {"text": str, "verified": bool, "unverified_numbers": list, "model": str}
+REPORT_OPTIONAL = {"inspector": dict}
 INDEX_STORM_KEYS = {"storm_id": str, "title": str, "symbol": str, "asset_class": str,
                     "kind": str, "move_bp": "num", "file": str}
 METRIC_KEYS = {"split": str, "storms": int, "caught": int, "median_move_ahead_pct": "num?",
                "false_alarms_per_day": "num?"}
+METRIC_OPTIONAL = {"watch_precision": "num?"}
 
 
 def _is_num(v) -> bool:
@@ -103,8 +113,8 @@ def validate_bundle(b: dict) -> list[str]:
         errors.append("step_s: must be 60")
     if b.get("book_is_synthetic") is not True:
         errors.append("book_is_synthetic: must be true")
-    if b.get("source") not in ("sgx", "synthetic"):
-        errors.append("source: must be sgx or synthetic")
+    if b.get("source") not in SOURCES:
+        errors.append(f"source: must be one of {', '.join(SOURCES)}")
     if b.get("asset_class") not in ("fx", "equity", "crypto"):
         errors.append("asset_class: must be fx, equity or crypto")
     if not _is_int(n) or n <= 0:
@@ -114,9 +124,10 @@ def validate_bundle(b: dict) -> list[str]:
     series = b.get("series")
     if isinstance(series, dict):
         expected = set(FLOAT_SERIES) | set(INT_SERIES)
+        ints = {**INT_SERIES, **OPTIONAL_INT_SERIES}
         for k in expected - series.keys():
             errors.append(f"series.{k}: missing")
-        for k in series.keys() - expected:
+        for k in series.keys() - expected - OPTIONAL_INT_SERIES.keys():
             errors.append(f"series.{k}: not in the contract")
         for k, arr in series.items():
             if not isinstance(arr, list):
@@ -128,20 +139,25 @@ def validate_bundle(b: dict) -> list[str]:
                 bad = [i for i, v in enumerate(arr) if not _is_num(v)]
                 if bad:
                     errors.append(f"series.{k}: non-numeric at frames {bad[:5]}")
-            elif k in INT_SERIES:
-                bad = [i for i, v in enumerate(arr) if not _is_int(v) or v not in INT_SERIES[k]]
+            elif k in ints:
+                bad = [i for i, v in enumerate(arr) if not _is_int(v) or v not in ints[k]]
                 if bad:
-                    errors.append(f"series.{k}: values outside {sorted(INT_SERIES[k])} at frames {bad[:5]}")
+                    errors.append(f"series.{k}: values outside {sorted(ints[k])} at frames {bad[:5]}")
         risk = series.get("risk")
         if isinstance(risk, list) and any(_is_num(v) and not 0 <= v <= 1 for v in risk):
             errors.append("series.risk: values outside 0..1")
 
     storm = b.get("storm")
-    if _check_obj(storm, STORM_KEYS, "storm", errors):
+    if _check_obj(storm, STORM_KEYS, "storm", errors, optional=STORM_OPTIONAL):
         _check_i(storm.get("onset_i"), n, "storm.onset_i", errors)
         _check_i(storm.get("trough_i"), n, "storm.trough_i", errors)
+        _check_i(storm.get("event_i"), n, "storm.event_i", errors)
         if storm.get("kind") not in ("scheduled", "unscheduled"):
             errors.append("storm.kind: must be scheduled or unscheduled")
+        if ("event" in storm) != ("event_i" in storm):
+            errors.append("storm.event and storm.event_i: give both or neither")
+        if "event" in storm and storm.get("kind") != "scheduled":
+            errors.append("storm.event: only a scheduled storm has an event")
 
     ships = b.get("ships")
     if isinstance(ships, dict):
@@ -165,8 +181,11 @@ def validate_bundle(b: dict) -> list[str]:
         if t not in EVENT_TYPES:
             errors.append(f"{where}.type: {t!r} not in {sorted(EVENT_TYPES)}")
             continue
-        _check_obj(ev, {"i": int, "type": str, "text": str, **EVENT_EXTRA[t]}, where, errors)
+        _check_obj(ev, {"i": int, "type": str, "text": str, **EVENT_EXTRA[t]}, where, errors,
+                   optional=EVENT_OPTIONAL.get(t))
         _check_i(ev.get("i"), n, f"{where}.i", errors)
+        if t == "watch":
+            _check_i(ev.get("at_i"), n, f"{where}.at_i", errors)
         if t == "margin_call" and ev.get("ship") not in ("prepared", "unprepared"):
             errors.append(f"{where}.ship: must be prepared or unprepared")
 
@@ -184,7 +203,15 @@ def validate_bundle(b: dict) -> list[str]:
         _check_obj(s, {"scenario": str, "pnl_usd": "num", "margin_call": bool}, f"stress[{k}]", errors)
 
     if isinstance(b.get("report"), dict):
-        _check_obj(b["report"], REPORT_KEYS, "report", errors)
+        _check_obj(b["report"], REPORT_KEYS, "report", errors, optional=REPORT_OPTIONAL)
+        insp = b["report"].get("inspector")
+        if isinstance(insp, dict) and _check_obj(insp, {"verdict": str, "issues": list}, "report.inspector", errors):
+            if insp.get("verdict") not in ("ok", "flag"):
+                errors.append("report.inspector.verdict: must be ok or flag")
+            if not all(isinstance(x, str) for x in insp.get("issues") or []):
+                errors.append("report.inspector.issues: must be strings")
+        if not all(isinstance(x, str) for x in b["report"].get("unverified_numbers") or []):
+            errors.append("report.unverified_numbers: must be strings")
     return errors
 
 
@@ -198,7 +225,10 @@ def validate_index(ix: dict) -> list[str]:
     for k, s in enumerate(ix.get("storms") or []):
         _check_obj(s, INDEX_STORM_KEYS, f"storms[{k}]", errors)
     if isinstance(ix.get("metrics"), dict):
-        _check_obj(ix["metrics"], METRIC_KEYS, "metrics", errors)
+        _check_obj(ix["metrics"], METRIC_KEYS, "metrics", errors, optional=METRIC_OPTIONAL)
+        wp = ix["metrics"].get("watch_precision")
+        if _is_num(wp) and not 0 <= wp <= 1:
+            errors.append("metrics.watch_precision: outside 0..1")
     return errors
 
 

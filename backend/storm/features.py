@@ -4,7 +4,9 @@ Columns (indexed by UTC timestamp):
   open, high, low, mid    one-minute OHLC of the mid (mid = close_mid)
   ret_bp                  simple one-minute return of mid in basis points; undefined
                           (NaN) when the previous bar is more than 5 minutes earlier,
-                          so a weekend or outage gap never counts as a one-minute move
+                          so a weekend or outage gap never counts as a one-minute move,
+                          or (when the bars carry a `session` id, as equities do) when it
+                          is in another session: no return crosses a closed market
   sd_24h                  sd of ret_bp over the trailing 1,440 bars, excluding the
                           current bar so a jump cannot dampen its own z-score
   z                       ret_bp / sd_24h
@@ -16,6 +18,9 @@ Columns (indexed by UTC timestamp):
   usd_z                   z signed so positive means USD up (EURUSD inverted)
   comove                  number of pairs with |usd_z| >= 3 in the same direction
                           that minute (the larger of the up and down counts)
+
+The rolling windows count bars, not clock minutes, so volatility is measured over
+trading minutes only. bar_features() is the generic core (storm.equity uses it too).
 """
 from __future__ import annotations
 
@@ -54,18 +59,22 @@ def usd_sign(pair: str) -> int:
     raise ValueError(f"{pair} has no USD leg")
 
 
-def pair_features(spot: pd.DataFrame, pair: str) -> pd.DataFrame:
-    """Features for one pair from its spot frame (columns as written by storm.ingest)."""
-    df = spot.sort_values("timestamp").set_index("timestamp")
-    out = pd.DataFrame(index=df.index)
-    out["open"] = df["open_mid"]
-    out["high"] = df["high_mid"]
-    out["low"] = df["low_mid"]
-    out["mid"] = df["close_mid"]
+def bar_features(bars: pd.DataFrame) -> pd.DataFrame:
+    """Features from one-minute bars indexed by UTC timestamp: columns open, high, low, mid,
+    and optionally spread_bp (NaN when the data has no quotes) and session (an int id per
+    trading session; a return never crosses a change of session)."""
+    bars = bars.sort_index()
+    out = pd.DataFrame(index=bars.index)
+    for col in ("open", "high", "low", "mid"):
+        out[col] = bars[col].astype(float)
 
     ret = (out["mid"] / out["mid"].shift(1) - 1.0) * 1e4
     dt = out.index.to_series().diff()
     ret[dt > MAX_RET_GAP] = np.nan
+    if "session" in bars:
+        out["session"] = bars["session"].astype("int64")
+        ret[out["session"].diff().fillna(0) != 0] = np.nan
+    ret.iloc[:1] = np.nan
     out["ret_bp"] = ret
 
     sd = ret.rolling(WINDOW_24H, min_periods=MIN_PERIODS_24H).std().shift(1)
@@ -75,24 +84,38 @@ def pair_features(spot: pd.DataFrame, pair: str) -> pd.DataFrame:
     rv = (ret**2).rolling(REALISED_WINDOW, min_periods=3).mean() ** 0.5
     out["vol_ratio"] = rv / sd
 
-    spread = (df["close_ask"] - df["close_bid"]) / df["close_mid"] * 1e4
+    spread = bars["spread_bp"].astype(float) if "spread_bp" in bars else pd.Series(np.nan, index=bars.index)
     out["spread_bp"] = spread
     med = spread.rolling(WINDOW_24H, min_periods=MIN_PERIODS_24H).median().shift(1)
     out["spread_ratio"] = spread / med.where(med > 0)
 
     out["jump"] = (out["z"].abs() >= JUMP_Z).astype(int)
+    return out
+
+
+def pair_features(spot: pd.DataFrame, pair: str) -> pd.DataFrame:
+    """Features for one pair from its spot frame (columns as written by storm.ingest)."""
+    df = spot.sort_values("timestamp").set_index("timestamp")
+    bars = pd.DataFrame({
+        "open": df["open_mid"], "high": df["high_mid"], "low": df["low_mid"], "mid": df["close_mid"],
+        "spread_bp": (df["close_ask"] - df["close_bid"]) / df["close_mid"] * 1e4,
+    }, index=df.index)
+    out = bar_features(bars)
     out["usd_z"] = out["z"] * usd_sign(pair)
     return out
 
 
-def add_comove(feats: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
-    """Add the cross-pair `comove` count to every pair's frame (in place, also returned)."""
-    usd_z = pd.concat({p: f["usd_z"] for p, f in feats.items()}, axis=1)
-    up = (usd_z >= COMOVE_Z).sum(axis=1)
-    down = (usd_z <= -COMOVE_Z).sum(axis=1)
+def add_comove(feats: dict[str, pd.DataFrame], col: str = "usd_z",
+               among: tuple[str, ...] | None = None) -> dict[str, pd.DataFrame]:
+    """Add the cross-market `comove` count to every frame (in place, also returned): how many
+    of the markets in `among` (default all) have |col| >= COMOVE_Z the same way that minute."""
+    among = tuple(feats) if among is None else among
+    zs = pd.concat({p: feats[p][col] for p in among}, axis=1)
+    up = (zs >= COMOVE_Z).sum(axis=1)
+    down = (zs <= -COMOVE_Z).sum(axis=1)
     comove = np.maximum(up, down)
     for f in feats.values():
-        f["comove"] = comove.reindex(f.index).astype(int)
+        f["comove"] = comove.reindex(f.index).fillna(0).astype(int)
     return feats
 
 
