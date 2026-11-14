@@ -19,7 +19,6 @@ import { SunBreak } from "./SunBreak";
 import { Ship } from "./Ship";
 import { Jettison } from "./Jettison";
 import { CameraRig, HOME_POS } from "./CameraRig";
-import { PerformanceMonitor } from "@react-three/drei";
 import { GradeEffect } from "./Grade";
 import { COMPOSER_ON, NanGuardEffect } from "./NanGuard";
 import { Clouds } from "./Clouds";
@@ -48,8 +47,8 @@ function VisDriver({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
 }
 
 /**
- * Adaptive quality (high-quality path only). drei's PerformanceMonitor watches the frame rate and steps the tier down
- * when it falls under the display's rate, up when it recovers. Each step trades the least visible thing first.
+ * Adaptive quality (high-quality path only): <AdaptiveQuality/> steps the tier down when the median frame rate stays
+ * under 45 fps (the target is 60 fps, whatever the display's rate). Each step trades the least visible thing first.
  *   3: pixel ratio up to 1.75, MSAA, reflections, bloom
  *   2: pixel ratio 1.35, no MSAA
  *   1: pixel ratio 1, no mirror reflection (sky tint instead)
@@ -118,6 +117,43 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
   );
 }
 
+const ADAPT_WARMUP_S = 6; // after load, and after every tier change: shaders compile, buffers are rebuilt
+const ADAPT_WINDOW_S = 2;
+const ADAPT_MIN_FPS = 45;
+const ADAPT_WINDOWS = 2; // slow windows in a row before stepping down
+
+/**
+ * Steps the quality tier down when the scene cannot hold 60 fps. It looks at the median frame time of 2-second
+ * windows (a median ignores single hitches), waits out a warm-up after load and after each change, and only ever
+ * steps down: a reload starts at the top again. drei's PerformanceMonitor was used before; on a 120 Hz MacBook it
+ * read the top tier's steady 60 to 65 fps as too slow, and the hitch of each tier change as another decline, and
+ * flip-flopped down to tier 0 within half a minute.
+ */
+function AdaptiveQuality({ tier, onDecline }: { tier: number; onDecline: () => void }) {
+  const st = useMemo(() => ({ since: 0, win: 0, slow: 0, samples: [] as number[] }), []);
+  useEffect(() => {
+    st.since = 0;
+    st.win = 0;
+    st.slow = 0;
+    st.samples.length = 0;
+  }, [tier, st]);
+  useFrame((_, dt) => {
+    if (tier === 0 || document.hidden || dt > 0.5) return;
+    st.since += dt;
+    if (st.since < ADAPT_WARMUP_S) return;
+    st.samples.push(dt);
+    st.win += dt;
+    if (st.win < ADAPT_WINDOW_S) return;
+    const sorted = st.samples.slice().sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
+    st.samples.length = 0;
+    st.win = 0;
+    st.slow = median > 1 / ADAPT_MIN_FPS ? st.slow + 1 : 0;
+    if (st.slow >= ADAPT_WINDOWS) onDecline();
+  });
+  return null;
+}
+
 /** ?msaa=<samples> and ?dpr=<ratio> override the tier's values (for measuring what each costs on a real GPU). */
 const OVERRIDE = (() => {
   try {
@@ -167,14 +203,7 @@ export function StormScene({
         gl.getContext().canvas.addEventListener("webglcontextlost", onError);
       }}
     >
-      {!lowQuality && PINNED_TIER === null && (
-        <PerformanceMonitor
-          flipflops={4}
-          onDecline={() => setTier((t) => Math.max(0, t - 1))}
-          onIncline={() => setTier((t) => Math.min(TIERS.length - 1, t + 1))}
-          onFallback={() => setTier(0)}
-        />
-      )}
+      {!lowQuality && PINNED_TIER === null && <AdaptiveQuality tier={tier} onDecline={() => setTier((t) => Math.max(0, t - 1))} />}
       <World bundle={bundle} derived={derived} lowQuality={lowQuality} tier={lowQuality ? 0 : tier} />
     </Canvas>
   );
