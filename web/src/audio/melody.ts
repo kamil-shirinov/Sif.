@@ -60,7 +60,9 @@ export class PriceMelody {
         else {
           const timer = setTimeout(() => {
             this.timers.delete(timer);
-            play();
+            try { play(); } catch {
+              // Delayed notes must not surface audio failures to the replay.
+            }
           }, step * 90);
           this.timers.add(timer);
         }
