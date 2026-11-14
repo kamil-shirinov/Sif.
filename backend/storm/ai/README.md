@@ -94,12 +94,18 @@ Every ledger connection sets a 30-second SQLite busy timeout before setup or
 transactions. Concurrent WAL initialization also retries lock errors within that
 limit, since journal-mode negotiation may bypass SQLite's busy handler. Cap checks
 and reservations remain atomic inside `BEGIN IMMEDIATE`.
+Lock retries use SQLite's primary error codes when available and its specific
+lock messages on Python 3.10; they do not patch constants into `sqlite3`.
 
 The input guard uses UTF-8 byte counts plus framing as a conservative token upper
 bound, including tools and assistant tool-call arguments. It rejects estimates
 above 60,000 tokens and disallows non-text content whose cost it cannot bound.
 Prices match the requested uncached rates; unrecognized IDs use $3/$15 per million
 input/output tokens. Version suffixes are not guessed.
+Exact Fireworks slugs `kimi-k3p1-pro`, `deepseek-v4p1-flash`, `minimax-m3p1-flash`
+and `ember-1`, including their `accounts/fireworks/models/` forms, use their mapped
+prices. Older dotted display aliases remain supported. Existing ledger entries
+are never repriced.
 
 `facts_from_bundle` computes move percentage, duration, alarm offsets, ship P&L,
 and the final equity difference directly from the bundle. A number passes when it
@@ -131,6 +137,19 @@ paths and known Fireworks family prefixes target Fireworks. Explicit provider
 prefixes work for any ID. Offline runs exercise the same report flow but do not
 measure model quality. The tests block network and replace HOME and dotenv loading.
 
+The first-try metric measures **numeric membership only**; it is not first-try
+acceptance after format and semantic inspection. `outcome_counts` partitions
+completed reports into `passed_first_try`, `passed_on_retry`, `number_check_failed`,
+`format_check_failed` and `inspector_flagged`. A check failure is the final writer
+attempt's reason for falling back; a generated draft accepted by those checks
+but rejected by the inspector is `inspector_flagged`. An inspector flag on a
+template already selected by a check failure does not change that root cause.
+Aggregate `inspector_flags` can therefore overlap the failure categories.
+`--details` retains each replay ID, fact fingerprint, numeric and format checks
+for both attempts, initial audit issues and final verdict, without the book facts
+or generated report prose. Historic runs that saved only aggregates cannot be
+retroactively assigned exact per-report causes.
+
 ## Navigator
 
 `ask(question, storm_id=None, live=False)` in `storm.ai.navigator` calls the
@@ -143,6 +162,14 @@ are sent to the model. There are at most four tool rounds, with four calls per
 round. Prose gets one correction attempt, then a deterministic template. The
 independent inspector audits the final answer; flagged generated prose is replaced
 with the template and audited again. Mock auditing certifies only that template.
+The writer translates tool fields into trader prose, including hypothetical
+falls/rises, costs/gains, formatted dollar amounts and margin-call consequences.
+Raw snake_case field dumps trigger the correction attempt and then the prose
+fallback. Navigator verification opts into explicit direction words: `3% fall`
+checks against a negative percentage and `cost ... $618,557` against negative P&L.
+It never accepts arbitrary absolute values: reversed rises/gains and invented
+amounts still fail. Signed numeric matching for radio-officer reports is unchanged;
+the inspector continues checking associations, units and economic claims.
 `verified` means numeric verification, independently of the inspector verdict or
 tool execution success; failed calls retain an `error` result.
 

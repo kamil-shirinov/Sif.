@@ -11,9 +11,12 @@ PRICES = {
     "muse-spark-1.3": (1.25, 4.25),
     "muse-ember-1.0": (0.10, 0.50),
     "kimi-k3.1-pro": (2.00, 10.00),
+    "kimi-k3p1-pro": (2.00, 10.00),
     "ember-1": (3.00, 15.00),
     "deepseek-v4.1-flash": (0.30, 1.20),
+    "deepseek-v4p1-flash": (0.30, 1.20),
     "minimax-m3.1-flash": (0.15, 0.60),
+    "minimax-m3p1-flash": (0.15, 0.60),
 }
 
 

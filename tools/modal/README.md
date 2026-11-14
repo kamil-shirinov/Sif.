@@ -99,7 +99,7 @@ STORM_ENV_FILE=~/Desktop/stormscore/.env \
   ~/.venvs/stormscore/bin/python -m storm.ai.smoke --live --provider modal
 STORM_ENV_FILE=~/Desktop/stormscore/.env LLM_PRIVATE_MODE=0 \
   ~/.venvs/stormscore/bin/python -m storm.ai.bakeoff --live \
-  --models modal:Qwen/Qwen3-8B --fx-only --expected-bundles 13 \
+  --models modal:Qwen/Qwen3-8B --fx-only --expected-bundles 13 --details \
   --bundles ~/Desktop/stormscore/web/public/bundles
 ```
 
@@ -108,6 +108,11 @@ labelled synthetic book facts to Fireworks for comparison; it is **not private
 mode**. The output records the inspector model, first-try numeric verification
 rate, fallback count, mean writer latency and mean end-to-end latency including
 Kimi. Offline bake-offs test the pipeline and do not measure model quality.
+First-try verification counts numbers only; it can pass before a format failure
+or an inspector rejection. Detailed runs also partition all reports into accepted
+first attempts, accepted retries, number-check fallbacks, format fallbacks and
+inspector fallbacks, and retain audit issues. The original `validation.json` saved
+only aggregates, so its exact historical partition cannot be recovered.
 
 For a cold-start measurement, first confirm `serve.get_current_stats()` reports
 zero runners after the 300-second idle window, then time authenticated model

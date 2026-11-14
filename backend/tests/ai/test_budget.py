@@ -121,7 +121,6 @@ def test_concurrent_wal_startup_busy_is_retried(caps, monkeypatch):
             if sql == 'PRAGMA journal_mode=WAL' and not failures:
                 failures.append(sql)
                 error = sqlite3.OperationalError('database is locked')
-                error.sqlite_errorcode = sqlite3.SQLITE_BUSY
                 raise error
             return super().execute(sql, *args, **kwargs)
 
@@ -131,3 +130,41 @@ def test_concurrent_wal_startup_busy_is_retried(caps, monkeypatch):
     assert budget.reserve('meta', 'unknown', 0, 20_000, 'wal-race-test')
     assert budget.spent('meta') == pytest.approx(.3)
     assert len(failures) == 1 and sleeps == [.05]
+
+
+@pytest.mark.parametrize("model,price", [
+    ("kimi-k3p1-pro", (2.00, 10.00)),
+    ("deepseek-v4p1-flash", (.30, 1.20)),
+    ("minimax-m3p1-flash", (.15, .60)),
+    ("ember-1", (3.00, 15.00)),
+])
+def test_full_fireworks_ids_use_real_prices(caps, monkeypatch, model, price):
+    from storm.ai import prices
+
+    # Ember's real price equals today's fallback; distinguish mapped pricing.
+    monkeypatch.setattr(prices, "CONSERVATIVE_PRICE", (99, 99))
+    full_id = f"accounts/fireworks/models/{model}"
+    assert price_for_model(full_id) == price
+    assert price_for_model(model) == price
+    assert price_for_model(full_id + "-unknown-version") == (99, 99)
+    assert cost_usd(full_id, 1000, 2000) == pytest.approx((price[0] + 2 * price[1]) / 1000)
+    call = budget.reserve("fireworks", full_id, 1000, 2000, "alias-test")
+    charged = budget.settle(call, input_tokens=500, output_tokens=1000)
+    assert charged == pytest.approx((.5 * price[0] + price[1]) / 1000)
+    assert budget.spent("fireworks") == charged
+
+
+@pytest.mark.parametrize("message", ["database is locked", "database table is locked"])
+def test_python310_lock_detection_without_sqlite_constants(monkeypatch, message):
+    monkeypatch.delattr(sqlite3, "SQLITE_BUSY", raising=False)
+    monkeypatch.delattr(sqlite3, "SQLITE_LOCKED", raising=False)
+    assert budget._is_locked(sqlite3.OperationalError(message))
+    assert not budget._is_locked(sqlite3.OperationalError("no such table: ai_calls"))
+    assert not hasattr(sqlite3, "SQLITE_BUSY")
+
+
+@pytest.mark.parametrize("code,locked", [(5, True), (6, True), (5 | (2 << 8), True), (1, False)])
+def test_sqlite_primary_and_extended_lock_codes(code, locked):
+    error = sqlite3.OperationalError("message supplied by SQLite")
+    error.sqlite_errorcode = code
+    assert budget._is_locked(error) is locked

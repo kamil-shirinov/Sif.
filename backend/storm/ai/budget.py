@@ -19,11 +19,14 @@ from .prices import cost_usd
 
 LEDGER_BUSY_TIMEOUT_MS = 30_000
 
-# The project laptop venv is Python 3.10, which omits SQLite result constants
-# and OperationalError.sqlite_errorcode added in 3.11. Keep the same retry policy.
-if not hasattr(sqlite3, "SQLITE_BUSY"):
-    sqlite3.SQLITE_BUSY = 5
-    sqlite3.SQLITE_LOCKED = 6
+def _is_locked(error: sqlite3.OperationalError) -> bool:
+    # sqlite_errorcode and the symbolic constants appeared in Python 3.11.
+    # SQLite's stable primary codes are BUSY=5 and LOCKED=6. Older Python
+    # exposes only the message. Never retry unrelated operational errors.
+    code = getattr(error, "sqlite_errorcode", None)
+    if code is not None:
+        return code & 0xff in {5, 6}
+    return str(error).lower() in {"database is locked", "database table is locked"}
 
 
 def _enable_wal(db) -> None:
@@ -35,13 +38,8 @@ def _enable_wal(db) -> None:
             db.execute("PRAGMA journal_mode=WAL")
             return
         except sqlite3.OperationalError as error:
-            code = getattr(error, "sqlite_errorcode", None)
-            if code is None:
-                code = {"database is locked": sqlite3.SQLITE_BUSY,
-                        "database table is locked": sqlite3.SQLITE_LOCKED}.get(str(error), 0)
-            code &= 0xff
             remaining = deadline - time.monotonic()
-            if code not in {sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED} or remaining <= 0:
+            if not _is_locked(error) or remaining <= 0:
                 raise
             time.sleep(min(.05, remaining))
 

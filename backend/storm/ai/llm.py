@@ -121,7 +121,7 @@ def _mock(messages: list[dict], purpose: str, tools: list[dict] | None) -> tuple
         from .verify import verify_numbers
         payload = json.loads(messages[-1]["content"])
         issues = []
-        if not verify_numbers(payload["text"], payload["facts"])["verified"]:
+        if not verify_numbers(payload["text"], payload["facts"], allow_direction_words=True)["verified"]:
             issues.append("Answer contains unsupported numbers")
         if payload["text"] != deterministic_answer(payload["facts"]):
             issues.append("Mock inspector only certifies the deterministic navigator template")
