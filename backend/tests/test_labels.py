@@ -4,7 +4,8 @@ import pytest
 
 from storm import ingest
 from storm.features import pair_features
-from storm.labels import find_storms, label_all
+from storm.detector import load_calendar
+from storm.labels import find_storms, label_all, scheduled_event
 from tests.conftest import USDJPY_SPOT_ZIP, needs_raw
 
 
@@ -51,3 +52,39 @@ def test_finds_30_july_usdjpy_storm():
     assert abs(s.onset_utc - pd.Timestamp("2026-07-30 13:29", tz="UTC")) <= pd.Timedelta(minutes=2)
     assert s.move_bp == pytest.approx(-290, abs=10)
     assert s.trough_utc == pd.Timestamp("2026-07-30 14:23", tz="UTC")
+
+
+def _calendar(tmp_path, *rows):
+    path = tmp_path / "calendar.csv"
+    path.write_text("time_utc,event,region,source_url,verified\n"
+                    + "".join(f"{t},{name},US,https://example.org,yes\n" for t, name in rows))
+    return load_calendar(path)
+
+
+def test_scheduled_means_onset_within_15_minutes_of_an_event(tmp_path):
+    cal = _calendar(tmp_path, ("2026-07-02T12:30:00Z", "Payrolls"), ("2026-07-02T13:00:00Z", "Later"))
+    t = lambda hm: pd.Timestamp(f"2026-07-02 {hm}", tz="UTC")
+    assert scheduled_event(t("12:15"), cal) == ("Payrolls", t("12:30"))     # 15 min before: in
+    assert scheduled_event(t("12:50"), cal) == ("Later", t("13:00"))        # nearest event wins
+    assert scheduled_event(t("12:40"), cal)[0] == "Payrolls"                # 10 min after beats 20 before
+    assert scheduled_event(t("12:14"), cal) is None                         # 16 min before: out
+    assert scheduled_event(t("13:16"), cal) is None                         # 16 min after: out
+    assert scheduled_event(t("12:30"), cal.iloc[0:0]) is None               # empty calendar
+
+
+def test_label_all_marks_scheduled_and_unscheduled_storms(tmp_path):
+    rng = np.random.default_rng(0)
+    rets = rng.normal(0, 1e-4, 4000)
+    rets[2000:2030] = -10e-4      # onset ~ 2026-07-02 09:20
+    rets[3500:3530] = -10e-4      # onset ~ 2026-07-03 10:20, far from any event
+    feat = pair_features(_toy_spot(150 * np.cumprod(1 + rets)), "USDJPY")
+    storms = find_storms(feat, "USDJPY")
+    assert len(storms) == 2
+    near = storms[0]["onset_utc"] + pd.Timedelta(minutes=10)
+    cal = _calendar(tmp_path, (f"{near:%Y-%m-%dT%H:%M:%SZ}", "US CPI"))
+    df = label_all({"USDJPY": feat}, cal)
+    assert df["kind"].tolist() == ["scheduled", "unscheduled"]
+    assert df["event"].tolist() == ["US CPI", ""]
+    assert df["event_utc"].iloc[0] == near and pd.isna(df["event_utc"].iloc[1])
+    empty = label_all({"USDJPY": feat}, cal.iloc[0:0])
+    assert (empty["kind"] == "unscheduled").all()

@@ -54,6 +54,25 @@ Rounding: prices to 5 significant decimals, ratios to 2 decimals, equity to whol
 
 `metrics` may be null until the backtest exists.
 
+## Additions (still schema_version 1, all optional)
+
+A reader built against the tables above keeps working: every addition is optional, and no existing key changes meaning.
+
+| Where | Key or value | Type | Meaning |
+|---|---|---|---|
+| ships.`<name>` | restore_i | int or null | frame of the first restore after the first cut (`cut_i`); null if the ship never restores |
+| events | type `squall` | `{i, type, text}` | first danger minute of a disturbed spell, below storm level |
+| events | type `fair_wind` | `{i, type, text}` | a storm-level move in the book's favour; no trade |
+| events | type `cut` | `{i, type, text}` | the prepared ship cuts exposure (the first one is at `cut_i`) |
+| events | type `restore` | `{i, type, text}` | the prepared ship restores its full position |
+| events | type `watch` | `{i, type: "watch", text, at_i, event}` | watch opens for a calendar event: `at_i` is the event's frame, `event` its name (from `contracts/calendar.csv`) |
+| storm | kind | string | `scheduled` when the onset is within 15 minutes (either side) of a calendar event, else `unscheduled` |
+| storm | event | string | scheduled storms only: the calendar event's name |
+| storm | event_i | int | scheduled storms only: the calendar event's frame |
+| report | inspector | object | `{verdict: "ok" or "flag", issues: [strings]}` from the independent inspector model |
+
+`storm.event` and `storm.event_i` appear together or not at all. A scheduled storm states timing only: the move began near a scheduled release, never what caused it. The watch state (`state` = 1) runs from 30 minutes before each calendar event until 15 minutes after it, unless a storm is active.
+
 ## Example
 
 `contracts/mock_storm.json` is a complete bundle with synthetic prices, labelled `source: synthetic`. The web lane copies it to `web/public/bundles/mock_storm.json` and builds against it.

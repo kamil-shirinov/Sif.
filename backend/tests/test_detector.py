@@ -64,11 +64,46 @@ def test_single_spike_is_a_squall_not_a_storm():
     assert res.storm_alarms() == [] and (res.frame["state"] != STORM).all()
 
 
-def test_watch_before_calendar_release(tmp_path):
+def _cal(tmp_path, *rows):
     cal = tmp_path / "calendar.csv"
-    cal.write_text("time_utc,event,region,source_url,verified\n2026-07-30 10:40,US CPI,US,https://example.org,true\n")
-    res = run_detector(toy([0] * 60), load_calendar(cal), CFG)
+    cal.write_text("time_utc,event,region,source_url,verified\n"
+                   + "".join(f"{t},{name},US,https://example.org,yes\n" for t, name in rows))
+    return load_calendar(cal)
+
+
+def test_watch_window_runs_30_before_to_15_after_the_event(tmp_path):
+    res = run_detector(toy([0] * 90), _cal(tmp_path, ("2026-07-30T10:40:00Z", "US CPI")), CFG)
     watch = res.frame.index[res.frame["state"] == WATCH]
     assert watch[0] == pd.Timestamp("2026-07-30 10:10", tz="UTC")
-    assert watch[-1] == pd.Timestamp("2026-07-30 10:39", tz="UTC")
+    assert watch[-1] == pd.Timestamp("2026-07-30 10:54", tz="UTC")
+    assert len(watch) == 45
     assert [e["type"] for e in res.events] == ["watch"]
+    ev = res.events[0]
+    assert ev["time"] == watch[0] and ev["at"] == pd.Timestamp("2026-07-30 10:40", tz="UTC")
+    assert ev["event"] == "US CPI"
+
+
+def test_storm_overrides_watch_and_watch_resumes_after_all_clear(tmp_path):
+    # Storm at 10:20 (minutes 20-21), all-clear 20 calm minutes later; event at 10:40.
+    f = toy([0] * 20 + [-10, -10] + [0] * 70)
+    res = run_detector(f, _cal(tmp_path, ("2026-07-30T10:40:00Z", "US CPI")), CFG, exposure=1)
+    st = res.frame["state"]
+    t = lambda hm: pd.Timestamp(f"2026-07-30 {hm}", tz="UTC")
+    minute = pd.Timedelta(minutes=1)
+    assert (st.loc[t("10:10"):t("10:20")] == WATCH).all()
+    clear = next(e["time"] for e in res.events if e["type"] == "all_clear")
+    assert (st.loc[t("10:21"):clear - minute] == STORM).all()
+    assert clear < t("10:55")
+    assert (st.loc[clear:t("10:54")] == WATCH).all() and st.loc[t("10:55")] == 0
+    assert [e["type"] for e in res.events].count("watch") == 1   # one watch per calendar event
+
+
+def test_watch_hidden_at_its_start_is_announced_when_first_shown(tmp_path):
+    # A storm from 10:05 covers the window's start (10:10); the watch event fires on its first
+    # visible minute, after the all-clear.
+    f = toy([0] * 5 + [-10, -10] + [0] * 80)
+    res = run_detector(f, _cal(tmp_path, ("2026-07-30T10:40:00Z", "US CPI")), CFG, exposure=1)
+    first = res.frame.index[res.frame["state"] == WATCH][0]
+    clear = next(e["time"] for e in res.events if e["type"] == "all_clear")
+    watch = [e for e in res.events if e["type"] == "watch"]
+    assert first == clear and len(watch) == 1 and watch[0]["time"] == first

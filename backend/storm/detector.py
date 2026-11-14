@@ -11,8 +11,9 @@ Detection (a storm is a storm, whichever way it blows)
              `calm_minutes` consecutive minutes with risk < calm_off
   storm      inside an episode, once `storm_minutes` consecutive minutes have
              risk >= storm_on. State is 2 from then until the all-clear.
-  watch      the `watch_lead_minutes` before a release in contracts/calendar.csv
-             (state 1 unless already storm)
+  watch      from `watch_lead_minutes` before each event in contracts/calendar.csv
+             until `watch_after_minutes` after it (state 1 unless a storm is active);
+             one watch event per calendar event, at its first watch minute
 
 Book-aware alerts, given the book's signed exposure to the pair (> 0 long the base
 currency, < 0 short it, 0 no position: no alerts)
@@ -52,6 +53,7 @@ DEFAULT_CONFIG = {
     "calm_off": 0.3,
     "calm_minutes": 20,
     "watch_lead_minutes": 30,
+    "watch_after_minutes": 15,
     "max_bar_gap_minutes": 5,
 }
 
@@ -137,10 +139,13 @@ class DetectorResult:
         return [(e.storm_at, e.end) for e in self.episodes if e.storm_at is not None]
 
 
-def _watch_index(idx: pd.DatetimeIndex, calendar: pd.DataFrame, lead: pd.Timedelta) -> np.ndarray:
+def _watch_index(idx: pd.DatetimeIndex, calendar: pd.DataFrame, lead: pd.Timedelta,
+                 after: pd.Timedelta) -> np.ndarray:
+    """Calendar row whose watch window [event - lead, event + after) holds each minute, or -1.
+    Where windows overlap, the earlier event keeps the minute."""
     watch_of = np.full(len(idx), -1)
     for k, release in enumerate(calendar["time_utc"] if len(calendar) else []):
-        mask = (idx >= release - lead) & (idx < release)
+        mask = (idx >= release - lead) & (idx < release + after)
         watch_of[mask & (watch_of < 0)] = k
     return watch_of
 
@@ -160,7 +165,8 @@ def run_detector(
     rf = risk_frame(feat, cfg) if rf is None else rf
     idx = feat.index
     calendar = load_calendar() if calendar is None else calendar
-    watch_of = _watch_index(idx, calendar, pd.Timedelta(minutes=cfg["watch_lead_minutes"]))
+    watch_of = _watch_index(idx, calendar, pd.Timedelta(minutes=cfg["watch_lead_minutes"]),
+                            pd.Timedelta(minutes=cfg["watch_after_minutes"]))
     book = int(np.sign(exposure))
 
     risk = rf["risk"].to_numpy()
@@ -175,7 +181,7 @@ def run_detector(
     ep: Episode | None = None
     alerted = squalled = fair = False
     hot = hot_against = hot_favour = cold = 0
-    last_watch = -1
+    announced: set[int] = set()
     for i in range(len(idx)):
         if i and t_min[i] - t_min[i - 1] > max_gap:
             hot = hot_against = hot_favour = 0
@@ -216,11 +222,10 @@ def run_detector(
             state[i] = STORM
         elif watch_of[i] >= 0:
             state[i] = WATCH
-            if watch_of[i] != last_watch:
+            if watch_of[i] not in announced:
+                announced.add(int(watch_of[i]))
                 row = calendar.iloc[watch_of[i]]
                 events.append({"time": t, "type": "watch", "at": row["time_utc"], "event": str(row["event"])})
-        if watch_of[i] >= 0:
-            last_watch = watch_of[i]
 
     frame = rf.assign(state=state)
     return DetectorResult(frame, events, episodes)

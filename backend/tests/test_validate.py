@@ -71,3 +71,23 @@ def test_unknown_event_type_and_extra_event_key_rejected():
     errors = validate_bundle(b)
     assert any("tornado" in e for e in errors)
     assert any("events" in e and ".ship: not in the contract" in e for e in errors)
+
+
+def test_additions_storm_event_watch_event_and_inspector():
+    from storm.validate import validate_bundle
+    b = _mock()
+    b["storm"].update(kind="scheduled", event="US CPI", event_i=5)
+    b["events"].append({"i": 3, "type": "watch", "text": "Watch", "at_i": 5, "event": "US CPI"})
+    b["report"]["inspector"] = {"verdict": "ok", "issues": []}
+    assert validate_bundle(b) == []
+    bad = json.loads(json.dumps(b))
+    del bad["storm"]["event_i"]
+    bad["report"]["inspector"] = {"verdict": "maybe", "issues": []}
+    bad["events"][-1]["at_i"] = b["n"]
+    errors = validate_bundle(bad)
+    assert any("give both or neither" in e for e in errors)
+    assert any("inspector.verdict" in e for e in errors)
+    assert any(".at_i: frame" in e for e in errors)
+    unsched = json.loads(json.dumps(b))
+    unsched["storm"]["kind"] = "unscheduled"
+    assert any("only a scheduled storm" in e for e in validate_bundle(unsched))

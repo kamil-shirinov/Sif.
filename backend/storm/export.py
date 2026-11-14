@@ -2,6 +2,7 @@
 
     python -m storm.export --all
     python -m storm.export --storm usdjpy-2026-07-30 [--from "2026-07-30 10:00" --to "2026-07-30 17:00"]
+    python -m storm.export --all --live [--model ID --provider meta]   (real model gateway)
 
 Runs ingest first if data/processed is missing, then features -> labels (rewrites
 storms.csv) -> detector v1 (data/processed/detector_config.json) -> policy v1 ships ->
@@ -13,21 +14,31 @@ Each bundle's ship trades the storm's pair: a SYNTHETIC book long USD 20,000,000
 the pair's other currency (short EUR for EURUSD), $1,000,000 equity, 2.5% maintenance.
 The prepared ship follows policy v1 (storm.exposure); the unprepared ship holds.
 
-Additive fields beyond schema_version 1 (pending Kamil's contract update):
+Each bundle carries a storm report from storm.ai.report (facts_from_bundle, then
+write_report): the deterministic mock by default (LLM_MODE is forced to mock), the real
+gateway with --live (the budget guard applies). A scheduled storm's facts add the
+calendar event's name and time, so the report can state the timing, never a cause.
+
+Additions documented in contracts/replay_bundle.md (still schema_version 1, all optional):
   ships.<name>.restore_i   first restore after the first cut (int or null)
   event types              squall, fair_wind, cut, restore (cut_i stays the first cut)
+  watch events             add `event` (the calendar event's name)
+  storm.event, event_i     for a scheduled storm: the calendar event and its frame
+  report.inspector         {verdict: ok | flag, issues: [...]}
 """
 from __future__ import annotations
 
 import argparse
 import json
 import math
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
 
 from . import ingest
+from .ai.report import facts_from_bundle, write_report
 from .backtest import index_metrics
 from .detector import load_calendar, load_config, run_detector
 from .evaluate import LINK_BEFORE, move_ahead_pct
@@ -41,8 +52,6 @@ STEP_S = 60
 MAX_FILL_MINUTES = 5          # a longer hole inside the window is an error, not a fill
 WINDOW_BEFORE = pd.Timedelta(hours=3)
 WINDOW_AFTER = pd.Timedelta(hours=3)
-SCHEDULED_BEFORE = pd.Timedelta(minutes=30)
-SCHEDULED_AFTER = pd.Timedelta(minutes=15)
 SHIP_LABELS = {"prepared": "Followed the alarm", "unprepared": "Ignored it"}
 EVENT_ORDER = {t: k for k, t in enumerate(
     ["watch", "squall", "alarm", "fair_wind", "cut", "margin_call", "all_clear", "restore"])}
@@ -75,11 +84,12 @@ def load_context(processed: Path = PROCESSED_DIR, raw: Path = RAW_DIR,
                  write_labels: bool = True) -> Context:
     _ensure_processed(processed, raw)
     feats = build_features(processed, PAIRS)
-    storms = label_all(feats)
+    calendar = load_calendar(calendar_path)
+    storms = label_all(feats, calendar)
     if write_labels:
         write_storms(storms, processed / "storms.csv")
     cfg = load_config(processed / "detector_config.json") if cfg is None else cfg
-    return Context(feats, storms, load_calendar(calendar_path), cfg)
+    return Context(feats, storms, calendar, cfg)
 
 
 def _grid(feat: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp) -> tuple[pd.DataFrame, int]:
@@ -162,10 +172,10 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     onset_i, trough_i = frame_of(storm.onset_utc), frame_of(storm.trough_utc)
     if not (0 <= onset_i < n and 0 <= trough_i < n):
         raise ValueError(f"{storm.storm_id}: onset or trough outside the window")
-    cal = ctx.calendar
-    scheduled = len(cal) > 0 and bool(
-        ((cal["time_utc"] >= storm.onset_utc - SCHEDULED_BEFORE)
-         & (cal["time_utc"] <= storm.onset_utc + SCHEDULED_AFTER)).any())
+    scheduled = storm.kind == "scheduled"
+    event_i = frame_of(storm.event_utc) if scheduled else None
+    if scheduled and not 0 <= event_i < n:
+        raise ValueError(f"{storm.storm_id}: scheduled event outside the window")
 
     win = _visible_events([e for e in res.events if idx[0] <= e["time"] <= idx[-1]], g["state"], frame_of)
     mid = g["mid"].to_numpy(dtype=float)
@@ -181,8 +191,11 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     for e in win:
         i = frame_of(e["time"])
         if e["type"] == "watch":
+            at_i = frame_of(e["at"])
+            if not 0 <= at_i < n:
+                continue   # release outside the replay: the state series still shows the watch
             events.append({"i": i, "type": "watch", "text": f"Watch: {e['event']} at {e['at']:%H:%M} UTC",
-                           "at_i": frame_of(e["at"])})
+                           "at_i": at_i, "event": e["event"]})
             continue
         ev = {"i": i, "type": e["type"], "text": _event_text(e, pair, ctx.cfg, ahead(e["time"]) is not None)}
         if e["type"] == "alarm":
@@ -217,6 +230,7 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
             "move_bp": _r(storm.move_bp, 1),
             "kind": "scheduled" if scheduled else "unscheduled",
             "label": _label(float(storm.move_bp), int(storm.duration_min)),
+            **({"event": storm.event, "event_i": event_i} if scheduled else {}),
         },
         "series": {
             "open": [_r(v, 5) for v in g["open"]],
@@ -266,6 +280,36 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     return bundle, summary
 
 
+def report_facts(bundle: dict) -> dict:
+    """storm.ai.report facts, plus the scheduled event (name and time) when there is one."""
+    facts = facts_from_bundle(bundle)
+    st = bundle["storm"]
+    if st["kind"] == "scheduled" and "event" in st:
+        at = pd.Timestamp(bundle["t0"] + st["event_i"] * bundle["step_s"], unit="s", tz="UTC")
+        facts["storm"]["scheduled_event"] = {
+            "name": st["event"],
+            "time_utc": at.isoformat().replace("+00:00", "Z"),
+            "onset_minutes_after_event": (st["onset_i"] - st["event_i"]) * bundle["step_s"] / 60,
+            "note": "Timing only: the move began near this scheduled release. "
+                    "The data do not show what caused it.",
+        }
+    return facts
+
+
+def attach_report(bundle: dict, live: bool = False, model: str | None = None,
+                  provider: str = "meta") -> dict:
+    """Write, verify and inspect the storm report; store the contract's fields in bundle.report."""
+    if not live:
+        os.environ["LLM_MODE"] = "mock"   # .env is loaded without override, so this wins
+    r = write_report(report_facts(bundle), live=live, model=model, provider=provider)
+    bundle["report"] = {
+        "text": r["text"], "verified": bool(r["verified"]),
+        "unverified_numbers": list(r["unverified_numbers"]), "model": r["model"],
+        "inspector": {"verdict": r["inspector"]["verdict"], "issues": list(r["inspector"]["issues"])},
+    }
+    return r
+
+
 def _index_entry(b: dict, file: str) -> dict:
     return {"storm_id": b["storm_id"], "title": b["title"], "symbol": b["symbol"],
             "asset_class": b["asset_class"], "kind": b["storm"]["kind"],
@@ -308,14 +352,18 @@ def write_bundle(bundle: dict, out_dir: Path) -> Path:
     return path
 
 
-def export_all(ctx: Context, out_dir: Path, metrics: dict | None) -> tuple[list[Path], Path, list[dict]]:
+def export_all(ctx: Context, out_dir: Path, metrics: dict | None, live: bool = False,
+               model: str | None = None, provider: str = "meta") -> tuple[list[Path], Path, list[dict]]:
     written, summaries = [], []
     for st in ctx.storms.itertuples():
         start, end = default_window(ctx.feats[st.pair], st)
         bundle, s = build_bundle(ctx, st, start, end)
+        r = attach_report(bundle, live, model, provider)
         path = write_bundle(bundle, out_dir)
         written.append((bundle, path.name))
-        summaries.append({**s, "path": path, "n": bundle["n"]})
+        summaries.append({**s, "path": path, "n": bundle["n"], "report": bundle["report"],
+                          "report_cost_usd": r["cost_usd"], "report_fallback": r["fallback"],
+                          "kind": st.kind, "event": st.event})
     index = write_index(out_dir, written, metrics)
     return [out_dir / name for _, name in written], index, summaries
 
@@ -336,6 +384,13 @@ def print_summaries(summaries: list[dict]) -> None:
               f"{_hm(s['cut']):>6} {_hm(s['restore']):>7} {s['final_equity']['prepared']:12,.0f} "
               f"{s['final_equity']['unprepared']:13,.0f}{mc}")
     print("(times UTC; alarm = first storm-level danger alarm in the window; MC = margin call)")
+
+
+def print_report_line(s: dict) -> None:
+    r = s["report"]
+    print(f"{s['storm_id']:22} model={r['model']:28} verified={r['verified']!s:5} "
+          f"inspector={r['inspector']['verdict']:4} fallback={s['report_fallback']!s:5} "
+          f"cost=${s['report_cost_usd']:.4f}")
 
 
 def print_detail(s: dict) -> None:
@@ -365,6 +420,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--out", type=Path, default=BUNDLES_DIR)
     ap.add_argument("--processed", type=Path, default=PROCESSED_DIR)
     ap.add_argument("--raw", type=Path, default=RAW_DIR)
+    ap.add_argument("--live", action="store_true", help="write reports with the real model gateway")
+    ap.add_argument("--model", help="report writer model (default: the gateway's META_MODEL)")
+    ap.add_argument("--provider", default="meta", help="report writer provider (default meta)")
     args = ap.parse_args(argv)
     if args.all == bool(args.storm):
         ap.error("pass exactly one of --all or --storm")
@@ -377,12 +435,20 @@ def main(argv: list[str] | None = None) -> None:
     print()
 
     if args.all:
-        paths, index, summaries = export_all(ctx, args.out, metrics)
+        paths, index, summaries = export_all(ctx, args.out, metrics, args.live, args.model, args.provider)
         print_summaries(summaries)
+        print(f"\nstorm reports ({'live gateway' if args.live else 'mock'}):")
+        for s in summaries:
+            print_report_line(s)
+        print(f"total report cost this run: ${sum(s['report_cost_usd'] for s in summaries):.4f}")
         demo = [s for s in summaries if s["storm_id"] == "usdjpy-2026-07-30"]
         if demo:
             print()
             print_detail(demo[0])
+            r = demo[0]["report"]
+            print(f"report ({r['model']}): {r['text']}")
+            print(f"verified={r['verified']} unverified_numbers={r['unverified_numbers']} "
+                  f"inspector={r['inspector']}")
         print(f"\nwrote {len(paths)} bundles to {args.out}")
         print(f"wrote {index}")
         return
@@ -397,9 +463,12 @@ def main(argv: list[str] | None = None) -> None:
     if args.end:
         end = pd.Timestamp(args.end, tz="UTC")
     bundle, s = build_bundle(ctx, st, start, end)
+    r = attach_report(bundle, args.live, args.model, args.provider)
     path = write_bundle(bundle, args.out)
     index = write_index(args.out, None, metrics)
     print_detail(s)
+    print(f"report ({r['model']}, verified={r['verified']}, inspector={r['inspector']['verdict']}): "
+          f"{bundle['report']['text']}")
     print(f"wrote {path}")
     print(f"wrote {index}")
 
