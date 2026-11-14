@@ -8,7 +8,8 @@ Runs ingest first if data/processed is missing, then features -> labels (rewrite
 storms.csv) -> detector v1 (data/processed/detector_config.json) -> policy v1 ships ->
 bundles. --all writes one bundle per storm in storms.csv, each from 3 hours before onset
 to 3 hours after (trimmed to the bars that exist), and an index.json listing exactly
-those bundles plus any Yahoo equity bundle already in the folder (storm.equity). Times are UTC; the window is inclusive.
+those bundles plus any Yahoo equity bundle already in the folder (storm.equity), whose
+report is rewritten by the same writer. Times are UTC; the window is inclusive.
 
 Each bundle's ship trades the storm's pair: a SYNTHETIC book long USD 20,000,000 against
 the pair's other currency (short EUR for EURUSD), $1,000,000 equity, 2.5% maintenance.
@@ -25,6 +26,9 @@ Additions documented in contracts/replay_bundle.md (still schema_version 1, all 
   watch events             add `event` (the calendar event's name)
   storm.event, event_i     for a scheduled storm: the calendar event and its frame
   report.inspector         {verdict: ok | flag, issues: [...]}
+  index storms[].source    the bundle's source (sgx, yahoo, scenario), so a reader can tell
+                           market replays from navigator what-ifs; scenario bundles already in
+                           the folder are listed but never rewritten
 """
 from __future__ import annotations
 
@@ -286,12 +290,69 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     return bundle, summary
 
 
+def _utc(bundle: dict, i: int) -> pd.Timestamp:
+    return pd.Timestamp(bundle["t0"] + i * bundle["step_s"], unit="s", tz="UTC")
+
+
+def closed_stretches(bundle: dict) -> list[tuple[int, int]]:
+    """(first closed frame, first open frame after it, or n) for each run of market_open == 0."""
+    is_open = bundle["series"].get("market_open")
+    if is_open is None:
+        return []
+    out, start = [], None
+    for i, v in enumerate(is_open):
+        if v == 0 and start is None:
+            start = i
+        elif v == 1 and start is not None:
+            out.append((start, i))
+            start = None
+    if start is not None:
+        out.append((start, len(is_open)))
+    return out
+
+
+def market_hours_facts(bundle: dict) -> dict | None:
+    """For a bundle with market_open (equities): trading minutes from onset to trough and
+    the closed stretches. Facts only: when the market traded, never why prices moved."""
+    is_open = bundle["series"].get("market_open")
+    if is_open is None:
+        return None
+    st = bundle["storm"]
+    o, t = st["onset_i"], st["trough_i"]
+    trading = int(sum(is_open[o + 1:t + 1]))
+    clock = (t - o) * bundle["step_s"] // 60
+    closed = []
+    for a, b in closed_stretches(bundle):
+        if b <= o or a > t:
+            continue
+        frm, to = _utc(bundle, a), _utc(bundle, b)
+        closed.append({"from_utc": frm.isoformat().replace("+00:00", "Z"),
+                       "to_utc": to.isoformat().replace("+00:00", "Z"),
+                       "minutes": (b - a) * bundle["step_s"] // 60,
+                       "text": f"market closed from {frm:%d %b %H:%M} UTC to {to:%d %b %H:%M} UTC"})
+    note = ("duration_minutes counts trading minutes only (pre-market, regular and after-hours "
+            f"sessions): {trading} trading minutes out of {clock} clock minutes from onset to trough. ")
+    if closed:
+        note += ("The market was closed overnight in between ("
+                 + "; ".join(c["text"] for c in closed)
+                 + "): no trades and no price change during that time. ")
+    note += "The data show when the market traded and what prices did, not why."
+    return {"trading_minutes": trading, "clock_minutes": clock,
+            "closed_minutes": clock - trading, "closed": closed,
+            "move": st["label"], "note": note}
+
+
 def report_facts(bundle: dict) -> dict:
-    """storm.ai.report facts, plus the scheduled event (name and time) when there is one."""
+    """storm.ai.report facts, plus the scheduled event (name and time) when there is one,
+    and, for a market with closed hours, trading minutes instead of clock minutes."""
     facts = facts_from_bundle(bundle)
     st = bundle["storm"]
+    hours = market_hours_facts(bundle)
+    if hours is not None:
+        facts["storm"]["duration_minutes"] = hours["trading_minutes"]
+        facts["storm"]["market_hours"] = hours
     if st["kind"] == "scheduled" and "event" in st:
-        at = pd.Timestamp(bundle["t0"] + st["event_i"] * bundle["step_s"], unit="s", tz="UTC")
+        at = _utc(bundle, st["event_i"])
         facts["storm"]["scheduled_event"] = {
             "name": st["event"],
             "time_utc": at.isoformat().replace("+00:00", "Z"),
@@ -319,7 +380,7 @@ def attach_report(bundle: dict, live: bool = False, model: str | None = None,
 def _index_entry(b: dict, file: str) -> dict:
     return {"storm_id": b["storm_id"], "title": b["title"], "symbol": b["symbol"],
             "asset_class": b["asset_class"], "kind": b["storm"]["kind"],
-            "move_bp": b["storm"]["move_bp"], "file": file}
+            "move_bp": b["storm"]["move_bp"], "file": file, "source": b["source"]}
 
 
 def load_index_metrics(processed: Path = PROCESSED_DIR) -> dict | None:
@@ -376,11 +437,21 @@ def export_all(ctx: Context, out_dir: Path, metrics: dict | None, live: bool = F
         summaries.append({**s, "path": path, "n": bundle["n"], "report": bundle["report"],
                           "report_cost_usd": r["cost_usd"], "report_fallback": r["fallback"],
                           "kind": st.kind, "event": st.event})
-    # Keep the Yahoo equity bundles (written by storm.equity) listed alongside the SGX storms.
+    # Keep the Yahoo equity bundles (written by storm.equity) listed alongside the SGX storms,
+    # and give them a fresh report from the same writer (their prices and ships are unchanged).
     mine = {name for _, name in written}
     others = [(b, name) for b, name in scan_bundles(out_dir) if b.get("source") == "yahoo" and name not in mine]
-    index = write_index(out_dir, written + others, metrics)
-    return [out_dir / name for _, name in written], index, summaries
+    for b, name in others:
+        r = attach_report(b, live, model, provider)
+        write_bundle(b, out_dir)
+        summaries.append({"storm_id": b["storm_id"], "path": out_dir / name, "n": b["n"],
+                          "report": b["report"], "report_cost_usd": r["cost_usd"],
+                          "report_fallback": r["fallback"], "kind": b["storm"]["kind"], "event": "",
+                          "sgx": False})
+    # Navigator what-if bundles (source scenario) stay listed as they are: storm.ai owns them.
+    scenarios = [(b, name) for b, name in scan_bundles(out_dir) if b.get("source") == "scenario"]
+    index = write_index(out_dir, written + others + scenarios, metrics)
+    return [out_dir / name for _, name in written + others], index, summaries
 
 
 def _hm(t) -> str:
@@ -391,6 +462,8 @@ def print_summaries(summaries: list[dict]) -> None:
     print(f"{'storm_id':22} {'move_bp':>8} {'alarm':>6} {'ahead':>6} {'fair':>6} {'cut':>6} {'restore':>7}"
           f" {'prepared $':>12} {'unprepared $':>13}")
     for s in summaries:
+        if s.get("sgx") is False:
+            continue
         a = s["alarms"][0] if s["alarms"] else (None, None)
         ahead = "-" if a[1] is None else f"{a[1]:.0f}%"
         fair = s["fair_winds"][0] if s["fair_winds"] else None

@@ -10,7 +10,10 @@ Also accepts the optional additions (still schema_version 1): ships.<name>.resto
 storm.event and storm.event_i (scheduled storms only, both or neither); and
 report.inspector {verdict: ok | flag, issues: [str]}; source values scenario (a what-if
 bundle resized from a real storm) and yahoo (Yahoo Finance bars); series market_open (int
-0 or 1 per frame); and index metrics.watch_precision (0..1 or null).
+0 or 1 per frame); and index metrics watch_precision (0..1 or null), alarmed (int or
+null), median_minutes_to_alarm, false_alarm_episodes_per_day and
+<prepared|unprepared>_max_drawdown_<usd|pct> (number or null); index storms[].source
+(one of the bundle sources).
 """
 from __future__ import annotations
 
@@ -48,7 +51,10 @@ INDEX_STORM_KEYS = {"storm_id": str, "title": str, "symbol": str, "asset_class":
                     "kind": str, "move_bp": "num", "file": str}
 METRIC_KEYS = {"split": str, "storms": int, "caught": int, "median_move_ahead_pct": "num?",
                "false_alarms_per_day": "num?"}
-METRIC_OPTIONAL = {"watch_precision": "num?"}
+METRIC_OPTIONAL = {"watch_precision": "num?", "alarmed": "int?", "median_minutes_to_alarm": "num?",
+                   "false_alarm_episodes_per_day": "num?",
+                   "prepared_max_drawdown_usd": "num?", "unprepared_max_drawdown_usd": "num?",
+                   "prepared_max_drawdown_pct": "num?", "unprepared_max_drawdown_pct": "num?"}
 
 
 def _is_num(v) -> bool:
@@ -223,12 +229,21 @@ def validate_index(ix: dict) -> list[str]:
     if ix.get("schema_version") != 1:
         errors.append("schema_version: must be 1")
     for k, s in enumerate(ix.get("storms") or []):
-        _check_obj(s, INDEX_STORM_KEYS, f"storms[{k}]", errors)
+        if _check_obj(s, INDEX_STORM_KEYS, f"storms[{k}]", errors, optional={"source": "str"}):
+            if "source" in s and s["source"] not in SOURCES:
+                errors.append(f"storms[{k}].source: must be one of {', '.join(SOURCES)}")
     if isinstance(ix.get("metrics"), dict):
         _check_obj(ix["metrics"], METRIC_KEYS, "metrics", errors, optional=METRIC_OPTIONAL)
         wp = ix["metrics"].get("watch_precision")
         if _is_num(wp) and not 0 <= wp <= 1:
             errors.append("metrics.watch_precision: outside 0..1")
+        for ship in ("prepared", "unprepared"):
+            dd = ix["metrics"].get(f"{ship}_max_drawdown_pct")
+            if _is_num(dd) and not 0 <= dd <= 100:
+                errors.append(f"metrics.{ship}_max_drawdown_pct: outside 0..100")
+        al, st = ix["metrics"].get("alarmed"), ix["metrics"].get("storms")
+        if _is_int(al) and _is_int(st) and not 0 <= al <= st:
+            errors.append("metrics.alarmed: must be between 0 and storms")
     return errors
 
 

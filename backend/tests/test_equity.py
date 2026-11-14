@@ -5,7 +5,7 @@ import pytest
 
 from storm import equity as eq
 from storm.detector import DEFAULT_CONFIG, risk_frame
-from storm.export import attach_report
+from storm.export import attach_report, report_facts
 from storm.features import bar_features
 from storm.validate import validate_bundle
 
@@ -115,4 +115,14 @@ def test_equity_bundle_validates_and_shows_the_closed_night():
     assert np.all(mids == mids[0])                     # flat while closed
     assert bundle["storm"]["onset_i"] == int(np.flatnonzero(t == pd.Timestamp("2026-11-11 20:59", tz="UTC"))[0])
     assert summary["alarms"], "a 9% fall in three minutes must raise the alarm"
+    facts = report_facts(bundle)
+    hours = facts["storm"]["market_hours"]
+    o, tr = bundle["storm"]["onset_i"], bundle["storm"]["trough_i"]
+    assert hours["clock_minutes"] == tr - o
+    assert hours["trading_minutes"] == hours["clock_minutes"] - 8 * 60 == facts["storm"]["duration_minutes"]
+    assert hours["closed"] == [{"from_utc": "2026-11-12T01:00:00Z", "to_utc": "2026-11-12T09:00:00Z",
+                                "minutes": 480,
+                                "text": "market closed from 12 Nov 01:00 UTC to 12 Nov 09:00 UTC"}]
+    assert "closed overnight" in hours["note"] and "not why" in hours["note"]
+    assert bundle["report"]["verified"] is True
     assert bundle["ships"]["prepared"]["cut_i"] is not None

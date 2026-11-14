@@ -4,6 +4,7 @@
     python -m storm.equity --export    also writes web/public/bundles/nvda-2026-11-12.json
                                        and refreshes index.json
     python -m storm.equity --refresh   fetches from Yahoo again even if the parquet exists
+    python -m storm.equity --export --live [--model ID --provider meta]   real report writer
 
 Data: one-minute bars from Yahoo Finance (yfinance, prepost=True: pre-market 04:00-09:30
 ET, regular 09:30-16:00 ET, after-hours 16:00-20:00 ET) for NVDA, AMD, AVGO, TSM, INTC, MU
@@ -425,6 +426,9 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--refresh", action="store_true", help="fetch from Yahoo again")
     ap.add_argument("--data", type=Path, default=EQUITY_DIR)
     ap.add_argument("--out", type=Path, default=BUNDLES_DIR)
+    ap.add_argument("--live", action="store_true", help="write the report with the real model gateway")
+    ap.add_argument("--model", help="report writer model (default: the gateway's META_MODEL)")
+    ap.add_argument("--provider", default="meta", help="report writer provider (default meta)")
     args = ap.parse_args(argv)
 
     bars = load_bars(SYMBOLS, args.data, args.refresh)
@@ -432,7 +436,7 @@ def main(argv: list[str] | None = None) -> None:
     bundle, s = build_bundle(run)
     print_summary(s)
     if args.export:
-        attach_report(bundle)
+        attach_report(bundle, args.live, args.model, args.provider)
         path = write_bundle(bundle, args.out)
         index = write_index(args.out, None, load_index_metrics())
         r = bundle["report"]

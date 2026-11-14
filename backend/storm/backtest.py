@@ -237,6 +237,8 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
             "alarmed": "an alarm on the storm's pair from onset - 60 min to the trough, in force at onset",
             "false_alarm": "storm alarm outside [onset - 60 min, end + 60 min] of every storm on its pair",
             "per_day": "per 1,440 minutes with a bar on any pair",
+            "false_alarm_episode": "false alarms on any pairs, sorted by time, each within 15 min "
+                                   "of the previous one: counted once",
             "direction": "detection metrics ignore direction; policy uses the book's exposure",
             "scheduled": "onset within 15 min of a contracts/calendar.csv event (either side)",
             "watched": "v1 watch state on the storm's pair between event - 30 min and onset",
@@ -258,12 +260,23 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
 
 
 def index_metrics(metrics: dict) -> dict:
-    """The contract's index.json `metrics` object, from v1."""
+    """The contract's index.json `metrics` object, from v1, plus the optional evidence-card
+    figures (alarmed, median minutes to alarm, de-duplicated false alarms, watch precision and
+    the policy backtest's max drawdown per ship)."""
     v1 = metrics["methods"]["v1"]
-    return {"split": metrics["split"], "storms": v1["storms"], "caught": v1["caught"],
-            "median_move_ahead_pct": v1["median_move_ahead_pct"],
-            "false_alarms_per_day": v1["false_alarms_per_day"],
-            "watch_precision": metrics.get("watch_precision")}
+    pol = metrics.get("policy") or {}
+    out = {"split": metrics["split"], "storms": v1["storms"], "caught": v1["caught"],
+           "median_move_ahead_pct": v1["median_move_ahead_pct"],
+           "false_alarms_per_day": v1["false_alarms_per_day"],
+           "alarmed": v1.get("alarmed"),
+           "median_minutes_to_alarm": v1.get("median_minutes_to_alarm"),
+           "false_alarm_episodes_per_day": v1.get("false_alarm_episodes_per_day"),
+           "watch_precision": metrics.get("watch_precision")}
+    for ship in ("prepared", "unprepared"):
+        p = pol.get(ship) or {}
+        out[f"{ship}_max_drawdown_usd"] = p.get("max_drawdown_usd")
+        out[f"{ship}_max_drawdown_pct"] = p.get("max_drawdown_pct")
+    return out
 
 
 def _fmt(v, spec: str = "", suffix: str = "") -> str:
@@ -280,6 +293,7 @@ def print_report(m: dict) -> None:
         ("median minutes onset -> alarm", "median_minutes_to_alarm", "+.1f", ""),
         ("storm alarms fired", "storm_alarms", "d", ""),
         ("false storm alarms per day", "false_alarms_per_day", ".2f", ""),
+        ("  de-duplicated across pairs", "false_alarm_episodes_per_day", ".2f", ""),
         ("squalls per day", "squalls_per_day", ".2f", ""),
     ]
     names = ("v1", "v0", "naive")

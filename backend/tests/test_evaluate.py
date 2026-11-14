@@ -44,3 +44,16 @@ def test_score_counts_caught_and_false_alarms():
     assert m["median_move_ahead_pct"] == 80.0 and m["median_minutes_to_alarm"] == 5.0
     assert m["false_alarms"] == 2          # 15:00 is past end + 60; EURUSD has no labelled storm
     assert m["false_alarms_per_day"] == 1.0 and m["squalls_per_day"] == 1.5
+
+
+def test_false_alarms_count_per_pair_and_episodes_dedupe_across_pairs():
+    # One USD shock at 15:00 alarms all three pairs (one within 15 min of the previous),
+    # and a lone EURUSD alarm at 18:00: four false alarms, two episodes.
+    alarms = {"USDJPY": [(T("15:00"), None)], "USDSGD": [(T("15:10"), None)],
+              "EURUSD": [(T("15:20"), None), (T("18:00"), None)]}
+    m = score(alarms, _storm(), {"USDJPY": _mid()}, days=2.0)
+    assert m["false_alarms"] == 4 and m["false_alarms_per_day"] == 2.0
+    assert m["false_alarm_episodes"] == 2 and m["false_alarm_episodes_per_day"] == 1.0
+    m = score({"USDJPY": [(T("15:00"), None)], "EURUSD": [(T("15:16"), None)]}, _storm(),
+              {"USDJPY": _mid()}, days=1.0)
+    assert m["false_alarm_episodes"] == 2          # 16 minutes apart: not the same shock
