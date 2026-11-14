@@ -34,8 +34,8 @@ export function SunBreak() {
         varying vec3 vN; varying float vH;
         void main() {
           // Soft edges: the shaft is brightest where the surface faces the camera.
-          float face = pow(abs(normalize(vN).z), 1.8);
-          float a = uOpacity * face * pow(1.0 - vH, 1.3) * smoothstep(0.0, 0.05, vH + 0.04);
+          float face = pow(abs(vN.z) / max(length(vN), 1e-4), 1.8);
+          float a = uOpacity * face * pow(clamp(1.0 - vH, 0.0, 1.0), 1.3) * smoothstep(0.0, 0.05, vH + 0.04);
           gl_FragColor = vec4(uTint, a);
         }`,
       transparent: true,

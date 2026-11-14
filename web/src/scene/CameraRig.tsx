@@ -3,7 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Spherical, Vector3 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { waveAt } from "./waves";
+import { waveAt, type WaveSample } from "./waves";
 import { vis } from "./vis";
 
 export const HOME_POS = new Vector3(4, 8.5, 38);
@@ -12,6 +12,7 @@ const IDLE_S = 5;
 const MIN_CLEARANCE = 1.6; // camera stays this far above the wave surface
 const MIN_DISTANCE = 8;
 const MAX_DISTANCE = 320;
+const _surf: WaveSample = { h: 0, dhdx: 0, dhdz: 0 };
 
 /**
  * ?cam=<azimuth>,<elevation>[,<distance>]: start the camera there (degrees around the ships, 0 = the home
@@ -105,7 +106,7 @@ export function CameraRig() {
       camera.position.copy(c.target).add(off);
     }
     // Keep the camera above the waterline (waves included).
-    const surface = waveAt(camera.position.x, camera.position.z, vis.wave).h;
+    const surface = waveAt(camera.position.x, camera.position.z, vis.wave, _surf).h;
     if (camera.position.y < surface + MIN_CLEARANCE) camera.position.y = surface + MIN_CLEARANCE;
   });
 

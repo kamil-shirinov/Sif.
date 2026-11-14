@@ -21,11 +21,58 @@ const SUN_WARM = new Color("#ffb070");
 const SUN_WHITE = new Color("#fff4e6");
 /** Sky radiance scale: keeps the HDR sky under the bloom threshold so only lamp and lightning glow. */
 const SKY_BASE = 0.6;
-/**
- * The sky box is so large that no camera position can reach its corners, and the camera's far plane
- * (Scene.tsx: CAMERA_FAR) is far beyond them: sqrt(3) x SKY_SCALE / 2 is about 390,000, far is 2,000,000.
- */
+/** Sky size. The sky is a sphere of radius SKY_SCALE / 2 (225,000) that follows the camera; the far plane (Scene.tsx: CAMERA_FAR) is 2,000,000. */
 export const SKY_SCALE = 450_000;
+/** Radius of the sky sphere: the camera sits at its centre (it follows the camera), far inside CAMERA_FAR. */
+export const SKY_RADIUS = SKY_SCALE / 2;
+/** ?sky=0 hides the sky (debugging the black-screen report on Apple GPUs). */
+const SKY_ON = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get("sky") !== "0";
+  } catch {
+    return true;
+  }
+})();
+
+/** Replace one shader snippet, and fail loudly in development if three changed it (a silent no-op would undo a fix). */
+function patch(src: string, from: string, to: string): string {
+  if (!src.includes(from)) {
+    console.warn("Sky shader patch did not apply:", from);
+    return src;
+  }
+  return src.replace(from, to);
+}
+
+/**
+ * NaN-proof the Sky fragment shader. On Apple GPUs acos/asin outside [-1, 1], atan(0, 0), pow() of a negative base and
+ * huge values fed to the hash noise give NaN, and a NaN pixel goes black (and spreads through bloom).
+ */
+function sanitizeSkyShader(src: string): string {
+  let f = src;
+  f = patch(f, "uniform float cloudScale;", "uniform float cloudScale;\nuniform float uDim;");
+  f = patch(
+    f,
+    "vec3 direction = normalize( vWorldPosition - cameraPosition );",
+    "vec3 dirRaw = vWorldPosition - cameraPosition;\n\t\t\tvec3 direction = dirRaw / max( length( dirRaw ), 1e-6 );",
+  );
+  f = patch(f, "float zenithAngle = acos( max( 0.0, direction.y ) );", "float zenithAngle = acos( clamp( direction.y, 0.0, 1.0 ) );");
+  f = patch(f, "float theta = acos( direction.y );", "float theta = acos( clamp( direction.y, -1.0, 1.0 ) );");
+  f = patch(f, "float phi = atan( direction.z, direction.x );", "float phi = atan( direction.z, abs( direction.x ) + abs( direction.z ) < 1e-6 ? 1.0 : direction.x );");
+  // Near the horizon direction.y -> 0 and the cloud plane projection runs to infinity; the noise of an infinite
+  // coordinate is NaN, and mix(x, NaN, 0) is still NaN. The horizon fade hides clouds there anyway.
+  f = patch(f, "vec2 cloudUV = direction.xz / ( direction.y * elevation );", "vec2 cloudUV = direction.xz / ( max( direction.y, 0.02 ) * elevation );");
+  f = patch(f, "float silver = clamp( 0.51 / pow( 1.49 - cosTheta * 1.4, 1.5 ), 0.0, 3.0 );", "float silver = clamp( 0.51 / pow( max( 1.49 - cosTheta * 1.4, 0.05 ), 1.5 ), 0.0, 3.0 );");
+  // Final colour: never negative (the cloud pass subtracts the sun glow, and pow() of a negative in the sRGB
+  // transfer is NaN), never NaN or Inf.
+  f = patch(
+    f,
+    "gl_FragColor = vec4( texColor, 1.0 );",
+    `vec3 skyC = texColor * uDim;
+\t\t\tskyC = vec3( skyC.r >= 0.0 && skyC.r < 1e5 ? skyC.r : 0.0, skyC.g >= 0.0 && skyC.g < 1e5 ? skyC.g : 0.0, skyC.b >= 0.0 && skyC.b < 1e5 ? skyC.b : 0.0 );
+\t\t\tgl_FragColor = vec4( skyC, 1.0 );`,
+  );
+  return f;
+}
 
 /**
  * Sky (three.js Sky with its built-in clouds), sun light, fog, storm darkening and horizon haze.
@@ -36,9 +83,15 @@ export function Atmosphere() {
 
   const sky = useMemo(() => {
     const s = new Sky();
-    s.scale.setScalar(SKY_SCALE);
+    // three's Sky is a 12-triangle box pinned to the far plane (gl_Position.z = w). Triangles of that box that cross
+    // the camera plane clip degenerately on some GPUs (Apple), giving NaN pixels that bloom spreads over the screen.
+    // Draw the same material on a finely subdivided sphere instead, well inside the far plane, with normal depth.
+    s.geometry.dispose();
+    (s as Mesh).geometry = new SphereGeometry(1, 64, 32);
+    s.scale.setScalar(SKY_RADIUS);
     // Never cull the sky: it surrounds the camera whatever the orbit, and a culling decision must not drop it.
     s.frustumCulled = false;
+    s.visible = SKY_ON;
     const u = s.material.uniforms;
     u.turbidity.value = 4;
     u.rayleigh.value = 2.2;
@@ -48,13 +101,16 @@ export function Atmosphere() {
     u.cloudScale.value = 0.00025;
     // Storm dimming happens inside the sky shader (before tone mapping), so it works in HDR too.
     u.uDim = { value: 1 };
-    // three's Sky pins every vertex exactly on the far plane (gl_Position.z = gl_Position.w). Rounding there can
-    // clip whole triangles of the box on some GPUs. Sit just inside the far plane instead: still behind every
-    // other object (the sea ends at 4,500, the camera is never beyond 320 + pan), never on the clip boundary.
-    s.material.vertexShader = s.material.vertexShader.replace("gl_Position.z = gl_Position.w;", "gl_Position.z = gl_Position.w * 0.99999;");
-    s.material.fragmentShader = s.material.fragmentShader
-      .replace("uniform float cloudScale;", "uniform float cloudScale;\nuniform float uDim;")
-      .replace("gl_FragColor = vec4( texColor, 1.0 );", "gl_FragColor = vec4( texColor * uDim, 1.0 );");
+    // Normal depth. The main camera never needs a clamp (the sphere is far inside its far plane), but the water's mirror
+    // camera uses an oblique near plane, which drags its far plane in: there, and only for vertices beyond the far
+    // plane (always w > 0), depth is held just inside it. Vertices with w <= 0 are never touched, so clipping at the
+    // camera plane stays the GPU's ordinary near-plane clip.
+    s.material.vertexShader = patch(
+      s.material.vertexShader,
+      "gl_Position.z = gl_Position.w; // set z to camera.far",
+      "if ( gl_Position.w > 0.0 ) gl_Position.z = min( gl_Position.z, gl_Position.w * 0.99999 );",
+    );
+    s.material.fragmentShader = sanitizeSkyShader(s.material.fragmentShader);
     return s;
   }, []);
 

@@ -156,9 +156,14 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
       if (e.type === "margin_call") mark(e.i, "belowBar", "square", "#ef5350", "Margin call");
       if (e.type === "squall") mark(e.i, "aboveBar", "circle", "#f0b44c", "Squall");
       if (e.type === "fair_wind") mark(e.i, "aboveBar", "arrowUp", "#5ecf9a", "Fair wind");
-      if (e.type === "cut") mark(e.i, "belowBar", "arrowDown", "#7cc4ff", "Cut");
-      if (e.type === "restore") mark(e.i, "belowBar", "arrowUp", "#7cc4ff", "Restore");
       if (e.type === "watch" && e.at_i !== undefined) releases.add(e.at_i);
+    }
+    // Cuts and restores at their fill frames (cut_i: one bar after the alarm), from the ships' derived actions:
+    // the cut / restore events when the bundle has them, else ships.*.cut_i / restore_i. Same frames as the splash and toast.
+    if (!player) {
+      for (const k of ["prepared", "unprepared"] as const) {
+        for (const a of derived.ships[k].actions) mark(a.i, "belowBar", a.kind === "cut" ? "arrowDown" : "arrowUp", "#7cc4ff", a.kind === "cut" ? "Cut" : "Restore");
+      }
     }
     if (bundle.storm.kind === "scheduled" && bundle.storm.event_i !== undefined) releases.add(bundle.storm.event_i);
     for (const i of releases) mark(i, "aboveBar", "circle", "#d6c450", "Release");
@@ -168,7 +173,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
     }
     out.sort((a, b) => a.i - b.i);
     return out;
-  }, [bundle, player, B]);
+  }, [bundle, derived, player, B]);
 
   useEffect(() => {
     const host = el.current;

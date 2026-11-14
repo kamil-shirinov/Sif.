@@ -454,6 +454,25 @@ body,
   color: var(--text);
   white-space: nowrap;
 }
+.evidence-false {
+  align-items: flex-start;
+}
+.evidence-false small {
+  display: block;
+  font-size: 10.5px;
+  color: var(--muted);
+  opacity: 0.85;
+  white-space: normal;
+}
+.evidence-false .num {
+  text-align: right;
+  font-size: 14px;
+  font-weight: 600;
+}
+.evidence-false .num small {
+  font-weight: 400;
+  max-width: 110px;
+}
 .evidence-note {
   margin-top: 6px;
   padding-top: 6px;
@@ -1472,4 +1491,66 @@ body,
 }
 .ship-label.player .ship-label-status {
   color: #ffd27a;
+}
+
+/* ---------- stress tests (manifest) ---------- */
+.stress {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.stress-head {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.stress-empty {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  padding: 2px 0;
+}
+.stress-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.stress-table td {
+  padding: 2px 0;
+  vertical-align: baseline;
+}
+.stress-table .num {
+  text-align: right;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+.stress-name {
+  color: var(--text);
+}
+.stress-mc {
+  text-align: right;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.badge.mc {
+  background: rgba(239, 83, 80, 0.18);
+  color: #ff8a80;
+}
+
+/* ---------- ?stats=1 ---------- */
+.scene-stats {
+  position: fixed;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #b8f5c8;
+  font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  pointer-events: none;
+  white-space: nowrap;
 }

@@ -17,6 +17,10 @@ Which storm opens: `?storm=<storm_id>` if given; otherwise, when `public/bundles
 | `?autoplay=0` | do not auto-play |
 | `?quality=low` | start in low quality (no reflections, no bloom) |
 | `?mode=survive` | open in Survive mode (setup for the chosen storm, paused) |
+| `?stats=1` | an overlay with fps, frame time (mean and p95 over the last second), draw calls and triangles per frame (the mirror and post-processing passes included), pixel ratio and quality tier (`scene/Stats.tsx`); also on `window.__sceneStats` |
+| `?debug=nan` | paints every NaN or Inf pixel of the rendered scene magenta (the NaN guard's check, before it zeroes them). Needs the high-quality path |
+| `?bloom=0` | no post-processing at all: the renderer tone-maps directly (as in low quality), everything else stays |
+| `?sky=0` | hides the sky |
 | `?cam=<az>,<el>[,<dist>]` | put the camera at an azimuth (degrees around the ships, 0 = the home side) and elevation (degrees above the sea), optionally at a distance in scene units (8 to 320), and keep it there until the first drag. For screenshots and for checking the sky from every side |
 
 Scripts: `npm run dev`, `npm run typecheck` (`tsc --noEmit`), `npm run build`.
@@ -29,16 +33,20 @@ Interpolation: the scene samples every series at a fractional playhead and inter
 
 | Visual | Bundle field(s) | Rule (code) |
 |---|---|---|
-| Wave height | `series.vol_ratio` | amplitude = 0.32 × vol_ratio^0.78, capped at 2.8 (`scene/vis.ts`) |
-| Chop: short waves, crest foam, ripple distortion | `series.vol_ratio` | chop = (vol_ratio − 0.4) × 0.22, clamped 0.1..1.6 |
+| Wave height | `series.vol_ratio` | amplitude = 0.32 × vol_ratio^0.78, capped at 2.8 (`scene/vis.ts`). Eight layered Gerstner waves (`scene/waves.ts`); ships, crates and spray ride the same model in JS |
+| Wave steepness (sharp crests, flat troughs) | `series.vol_ratio` | Gerstner steepness = 0.35 + 0.09 × vol_ratio, capped at 1; each wave's sharpness Q·k·A is capped so the crests can never fold over |
+| Chop: short waves, ripple distortion | `series.vol_ratio` | chop = (vol_ratio − 0.4) × 0.22, clamped 0.1..1.6 |
+| Whitecaps | `series.risk` | foam cover = (risk − 0.15) / 0.7, clamped 0..1, laid where the Gerstner crests squeeze together (low Jacobian), broken up by noise (`scene/Sea.tsx`) |
 | Sky darkness | `series.risk` | sky radiance × (1 − (0.85 risk² + 0.15 risk)), plus a darkening dome (`scene/Atmosphere.tsx`) |
-| Cloud cover and density | `series.risk` | coverage 0.18 + 0.8 risk; density 0.25 + 0.7 risk |
+| Cloud cover and density | `series.risk` | sky clouds: coverage 0.18 + 0.8 risk; density 0.25 + 0.7 risk. Two lower cloud decks at different heights (parallax): cover 0.25 + 0.7 risk, density 0.35 + 0.65 risk, darker with risk (`scene/Clouds.tsx`) |
+| Cloud drift | `series.state` | the decks drift with the wind (0.15 calm, 0.55 watch, 1.0 storm) |
+| Stars | the solar clock, `series.market_open`, `series.risk` | opacity = (1 − daylight)² × (1 − 1.3 risk, clamped), so a storm hides them (`scene/Stars.tsx`) |
 | Fog | `series.risk` | exp² fog, density rises with risk; colour moves from haze blue to storm grey |
 | Rain | `series.risk` | no rain below risk 0.25, then streak count rises linearly to the maximum at risk 1 |
 | Wind: rain slant, cloud speed, wave phase speed, sail luffing | `series.state` | wind = 0.15 calm, 0.55 watch, 1.0 storm |
 | Storm front on the horizon | `events[type=watch]`: `i`, `at_i` | appears at `i` 1500 units out and closes to overhead by `at_i`, then fades over 40 frames (`scene/StormFront.tsx`). A watch without `at_i` has a toast but no front |
 | Storm front label, e.g. "US Employment Situation in 12 min" | `events[type=watch]`: `event` (else parsed from `text`), `at_i`, `step_s` | name + minutes to `at_i` at the playhead; after `at_i` "released N min ago"; pinned to the cloud wall (`ui/FrontLabels.tsx`) |
-| Lightning bolt and flash | `series.jump` | a strike on every frame with jump = 1, strength from vol_ratio / 10 (`scene/Lightning.tsx`) |
+| Lightning bolt and flash | `series.jump` | a strike on every frame with jump = 1, strength from vol_ratio / 10 (`scene/Lightning.tsx`); the flash lights the cloud base around the bolt and the sea for its few frames |
 | Lighthouse lamp lit, beam sweeping | `events[type=alarm]` → next `all_clear` | lamp and beam on between an alarm and the following all_clear (`derive.ts: alarmActive`) |
 | Lighthouse amber flash (no cut) | `events[type=squall]` | strobing amber lamp, halo and beam for 6 market minutes after `i` (`vis.ts: squallEnvelope`, `Lighthouse.tsx`). Nothing else changes: no cut |
 | Sun breaks through, sails fill | `events[type=fair_wind]` | for 34 frames after `i` (4 rising, 10 full): effective risk of the sky falls by 55% (cloud, darkness, fog), sun brighter, a shaft of light on the ships (`SunBreak.tsx`), both ships' sails fill and wakes show (`Ship.tsx`) |
@@ -52,19 +60,20 @@ Interpolation: the scene samples every series at a fractional playhead and inter
 | Sails fill, wake appears | `series.*_equity` | while equity has risen over the last 3 frames (+0.25% of start equity in 3 min = full sail) |
 | Sun position and daylight | `t0 + i × step_s`, `asset_class`, `series.market_open` | the sun follows a solar clock: UTC for FX; exchange-local time (`America/New_York`, daylight saving included) for equity bundles (`asset_class` equity or source `yahoo`). It rises in the east at 06:00 on that clock, is highest at 12:00 and sets at 18:00. NVDA at 17:58 UTC is 12:58 in New York: noon, not dusk. While `market_open` is 0 it is night whatever the clock says: the sun sinks below the horizon (`vis.ts`) |
 | Night: lanterns, "market closed" | `series.market_open`, the solar clock | the ships' masthead, port (red) and starboard (green) lanterns and a point light come on as daylight fails (dusk, night, and every closed stretch). A "Market closed" badge in the HUD and a banner "trading resumes 09:00 UTC · 04:00 New York" show while `market_open` is 0. The closed stretch is fast-forwarded 8× so the replay does not sit through a flat night; the toasts "Market closed" and "Market open" (with the gap from the last price before the close) mark the edges. The first candle after reopening shows the gap |
-| HUD price, UTC time, state badge, risk gauge | `series.mid`, frame time, `series.state`, `series.risk` | values at the current frame |
+| HUD price, UTC time, state badge, risk gauge | `series.mid`, frame time, `series.state`, `series.risk` | values at the current frame. Prices everywhere (HUD, chart axis, tooltips, toasts, Survive) use 2 decimals for equities (`asset_class` not `fx`, or source `yahoo`), 3 for yen pairs (USDJPY), 5 for other FX (EURUSD, USDSGD) (`derive.ts: priceDecimalsFor`) |
 | HUD storm label | `storm.kind`, `storm.event`, `storm.label` | "Scheduled event · <event>" or "Unscheduled storm"; the move label is shown from `storm.onset_i` |
 | "synthetic data" badge, "What if" chip | `source`, `title` | `synthetic` shows the badge. `scenario` (a navigator scenario) shows a **What if** chip carrying the bundle's title, a what-if clock instead of a calendar date, and is never presented as real history (the picker marks it too; Survive does not save its scores) |
 | Cargo manifest | `exposure.positions`, `exposure.leverage`, `exposure.net_usd_by_ccy`, `book_is_synthetic` | labelled "synthetic book" |
+| Stress tests (in the manifest) | `stress[]`: `scenario`, `pnl_usd`, `margin_call` | one row per earlier storm: P&L and "margin call" or "afloat". An empty array says "No earlier storms to test against yet" |
 | Manifest: equity and margin-buffer bars | ship equity series + the waterline rule above | per frame |
 | Market chart candles | `series.open/high/low/mid` | aggregated to 5-minute candles and revealed up to the playhead (lightweight-charts). With a live server the candles come from `/api/candles` at whatever bar size it returns (see "Live server hooks") |
-| Chart markers | `storm.onset_i`, `events[alarm / squall / fair_wind / cut / restore / margin_call]`, release frame (`watch.at_i`, `storm.event_i`) | appear when the playhead passes them |
+| Chart markers | `storm.onset_i`, `events[alarm / squall / fair_wind / margin_call]`, release frame (`watch.at_i`, `storm.event_i`), each ship's cuts and restores | appear when the playhead passes them. Cut and Restore sit on the fill frame, the same frame as the crates' splash and the toast: the cut / restore events, else `ships.*.cut_i` (one bar after the alarm) and `restore_i` |
 | Chart risk strip | `series.risk`, `series.market_open` | max risk per 5-minute bucket, coloured green → amber → red; grey while the market is closed |
 | Chart tooltip | `series.spread_bp`, `series.risk` | mean spread and max risk of the hovered candle. For source `yahoo` the spread is not shown: Yahoo has trades but no quotes, so `spread_bp` is 0, not a measured spread. A candle wholly inside a closed stretch says "market closed" |
 | Toasts | `events[].text`, `alarm.move_ahead_pct` | one toast per event as the playhead crosses it (a bundle with no cut events gets one toast from `cut_i`) |
 | Sound (CX's engine) | `series.risk`, `vol_ratio`, `state`, `mid`, heel, frame index | `update()` every animation frame; `trigger()` on jump, watch, alarm, cut, margin_call, all_clear. Squall, fair_wind and restore are silent: the engine's interface has no cue for them |
 | Storm picker | `index.json`: `storms[]` (`symbol`, `title`, `kind`, `move_bp`, `file`) | grouped scheduled vs unscheduled; choosing one loads it without a reload (`ui/StormPicker.tsx`, `lib/session.ts`). Without `index.json` it lists the synthetic example |
-| Evidence card | `index.json`: `metrics` | rows: `alarmed` of `storms`; `caught` of `storms` (at least half the move still ahead); `median_minutes_to_alarm`; `false_alarms_per_day`. A row with no number is left out; the card is hidden when `metrics` is null. Labelled "measured on August, never seen in tuning" (the month is read from `metrics.split`) |
+| Evidence card | `index.json`: `metrics` | rows: `alarmed` of `storms`; `caught` of `storms` (at least half the move still ahead); `median_minutes_to_alarm`; false alarms, labelled as metrics.json defines them: `false_alarm_episodes_per_day` as the main figure ("distinct alert episodes per observed day") with `false_alarms_per_day` beside it ("pair alarms per observed day"); either alone if only one exists. A row with no number is left out; the card is hidden when `metrics` is null. Labelled "measured on August, never seen in tuning" (the month is read from `metrics.split`) |
 | Storm report panel | `report`: `text`, `verified`, `unverified_numbers`, `model`, `inspector` | "numbers checked by code" badge only when `verified` is true and nothing is unverified; the inspector's verdict and issues; hidden when `report` is null (`ui/ReportPanel.tsx`) |
 | "Live · Tiger Data" chip, chart candles, `query_ms` | `GET /api/health`, `GET /api/candles` | see "Live server hooks" below |
 | Navigator panel, "Sail this scenario" | `GET /api/health`, `POST /api/navigator/ask` | see "Live server hooks" below |
@@ -123,7 +132,15 @@ How it was checked: the browser simulation was run against the backend's `simula
 
 ## The sky
 
-The sea is surrounded by three.js's `Sky` box. It is 450,000 wide (`SKY_SCALE`, `scene/Atmosphere.tsx`); the camera's far plane is 2,000,000 (`CAMERA_FAR`, `scene/Scene.tsx`), so no orbit or pan reaches the box's corners (about 390,000 away) or the far plane, the sky is never frustum-culled, and the box rides with the camera (it is re-centred on the camera every frame), so no pan, orbit or zoom can bring a face or corner near the camera. `Sky`'s own vertex shader pins the box exactly on the far plane (`gl_Position.z = gl_Position.w`); it is moved just inside (× 0.99999) so rounding on the clip boundary cannot drop triangles. `?cam=` places the camera at any azimuth and elevation for checking this.
+The sky is three.js's `Sky` material drawn on a 64 × 32 sphere of radius 225,000 (`SKY_RADIUS`, `scene/Atmosphere.tsx`), not on its 12-triangle box. The sphere is re-centred on the camera every frame and is never frustum-culled; the camera's far plane is 2,000,000 (`CAMERA_FAR`, `scene/Scene.tsx`). It is drawn with normal depth: `Sky`'s own `gl_Position.z = gl_Position.w` is removed, because the box's triangles that cross the camera plane clipped degenerately on Apple GPUs and gave NaN pixels. The only depth change left: a vertex beyond the far plane with w > 0 is held just inside it, which happens only in the water's mirror camera (its oblique near plane drags the far plane in); the main camera never triggers it.
+
+Why the 3D view could go black on one side of a vertical edge (Apple GPUs): a NaN or Inf pixel goes black, and the bloom's mip chain spreads it into screen-sized blocks. Three defences:
+
+1. The sky above, and its shader made NaN-proof: `acos` arguments clamped to [-1, 1], `atan(0, 0)` avoided at the zenith, the cloud-plane projection no longer divides by a vanishing `direction.y` at the horizon, `pow()` bases kept positive, the final colour clamped to non-negative and finite.
+2. A NaN guard is the first pass of the composer (`scene/NanGuard.ts`): any NaN or Inf channel becomes 0 (negative colour too) before bloom or tone mapping see it. It runs as its own pass because bloom reads its input before the effects of its own pass.
+3. Every custom shader was checked for NaN on Apple GPUs: the water's Fresnel `pow(1 - theta, 5)` had theta able to exceed 1 by rounding (clamped now); the sun-break shaft's `normalize()` of an interpolated normal and its `pow(1 - h)` are guarded; particle sizes never divide by a zero depth.
+
+Debug flags for checking on a laptop: `?debug=nan` (bad pixels magenta), `?bloom=0` (no composer), `?sky=0` (no sky). `?cam=` places the camera at any azimuth and elevation.
 
 ## Controls
 
@@ -133,6 +150,7 @@ The sea is surrounded by three.js's `Sky` box. It is 450,000 wide (`SKY_SCALE`, 
 - Click the chart to seek to that candle.
 - Sound starts on the first click or key press (browsers block audio before one); the cold open is silent until then. The speaker button turns sound on and off.
 - "Low quality" (HUD) turns off reflections and bloom and lowers resolution. It is remembered per browser.
+- Adaptive quality (high-quality path): drei's `PerformanceMonitor` watches the frame rate and steps a tier down when it falls under the display's rate, up when it recovers. Tier 3: pixel ratio up to 1.75, MSAA, reflections, bloom; 2: pixel ratio 1.35, no MSAA; 1: pixel ratio 1, sky tint instead of the mirror reflection; 0: pixel ratio 0.85, no bloom (`scene/Scene.tsx: TIERS`). `?stats=1` shows the tier.
 - If WebGL fails, the app shows the chart, HUD, panels and controls without the 3D view.
 - Left column: HUD (with the Replay | Survive switch), storm picker, evidence card. Right column: cargo manifest, storm report, navigator (when available). On short screens the columns scroll. In Survive the left column keeps only the HUD, the right column is the Survive panel, **Cut** and **Restore** sit above the playback controls and the end card opens in the middle.
 

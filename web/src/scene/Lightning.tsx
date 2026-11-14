@@ -60,6 +60,7 @@ export function Lightning() {
         }
         for (const geo of boltGeometries(top, ground, rand)) g.add(new Mesh(geo, mat));
         if (light.current) light.current.position.copy(top).lerp(ground, 0.4);
+        vis.flashPos.copy(top);
         strike.current = { age: 0, strength, seq: strike.current.seq + 1 };
       }),
     [camera, mat],
