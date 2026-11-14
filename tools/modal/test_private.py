@@ -232,3 +232,27 @@ def test_server_redacts_vllm_startup_arguments(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "offline-startup-placeholder" not in output
     assert "[redacted]" in output
+
+
+def test_gpu_usage_integrates_allocations_and_marks_missing():
+    import importlib.util
+    import sys
+    from datetime import datetime, timedelta, timezone
+    from types import SimpleNamespace
+
+    folder = Path(__file__).parent
+    sys.path.insert(0, str(folder))
+    try:
+        spec = importlib.util.spec_from_file_location("gpu_usage", folder / "gpu_usage.py")
+        usage = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(usage)
+    finally:
+        sys.path.remove(str(folder))
+    start = datetime(2026, 11, 14, tzinfo=timezone.utc)
+    metrics = SimpleNamespace(since=start, until=start + timedelta(minutes=3),
+        bucket_size=timedelta(minutes=1), point_count=57,
+        series={"gpu_count_l4_avg": SimpleNamespace(points=[
+            SimpleNamespace(value=value) for value in [0.5, 1.0, None]])})
+    summary = usage.summarize(metrics)
+    assert summary["allocated_gpu_minutes_observed"] == {"gpu_count_l4_avg": 1.5}
+    assert summary["missing_buckets"] == {"gpu_count_l4_avg": 1}

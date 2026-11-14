@@ -106,6 +106,18 @@ runtime; use Modal runtime/billing metrics, or label sampled runner-time estimat
 and their sampling interval explicitly. Deployment/image-build time is not GPU
 inference time. Do not infer GPU minutes from report latency alone.
 
+After the final idle tail has scaled down and metric ingestion has caught up:
+
+```sh
+~/.venvs/stormscore/bin/python tools/modal/gpu_usage.py \
+  --since 2026-11-14T19:06:00Z --until <end-time-in-UTC>
+```
+
+This integrates Modal's allocated GPU count over complete one-minute buckets,
+reports the effective UTC bounds and counts missing observations. Unknown
+buckets are not silently called zero. It includes all startup attempts and idle
+time in the selected window; it is an allocation measurement, not a dollar bill.
+
 References: [Modal web servers](https://modal.com/docs/reference/modal.web_server),
 [autoscaling](https://modal.com/docs/guide/scale),
 [vLLM server flags](https://docs.vllm.ai/en/v0.10.2/cli/serve.html),
