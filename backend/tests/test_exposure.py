@@ -42,16 +42,19 @@ def test_margin_call_closes_and_freezes():
 
 
 def test_cut_avoids_margin_call_and_restore_reopens():
-    mid = np.array([100.0, 99.5, 99.0, 97.5, 96.0, 95.0, 95.0])
-    s = ships({"USDJPY": mid}, JPY, [(1, "USDJPY", "cut"), (6, "USDJPY", "restore")])
+    # Mid-only data: bar i opens at bar i-1's close with no spread. The cut is scheduled for
+    # frame 2, so it fills at frame 2's open = 99.5 (frame 1's close).
+    mid = np.array([100.0, 99.5, 99.0, 97.5, 96.0, 95.0, 95.0, 95.0])
+    s = ships({"USDJPY": mid}, JPY, [(2, "USDJPY", "cut"), (7, "USDJPY", "restore")])
     assert s["unprepared"].margin_call_i == 3
     prep = s["prepared"]
-    assert prep.margin_call_i is None and prep.cut_i == 1 and prep.cut_fraction == 0.75
+    assert prep.margin_call_i is None and prep.cut_i == 2 and prep.cut_fraction == 0.75
     # After the cut: 6M USD and -2,000M + 15M x 99.5 = -507.5M JPY (realised loss stays in JPY).
     assert prep.equity[5] == pytest.approx(6e6 - 507.5e6 / 95.0)
-    assert prep.qty["USDJPY"][1:6] == pytest.approx([5e6] * 5)
-    assert prep.restore_i == 6 and prep.qty["USDJPY"][6] == pytest.approx(20e6)
-    assert prep.equity[6] == pytest.approx(prep.equity[5])     # trading at mid moves no equity
+    assert prep.qty["USDJPY"][2:7] == pytest.approx([5e6] * 5)
+    assert prep.restore_i == 7 and prep.qty["USDJPY"][7] == pytest.approx(20e6)
+    assert prep.equity[7] == pytest.approx(prep.equity[6])     # trading at mid moves no equity
+    assert [f["price"] for f in prep.fills] == [99.5, 95.0] and prep.spread_cost_usd == 0
 
 
 def test_policy_cuts_at_storm_alarm_and_restores_after_all_clear():
@@ -59,14 +62,16 @@ def test_policy_cuts_at_storm_alarm_and_restores_after_all_clear():
     res = run_detector(f, EMPTY, CFG, exposure=1)
     i_of = {e["type"]: f.index.get_loc(e["time"]) for e in res.events}
     actions = policy_actions({"USDJPY": res.events}, f.index.get_loc)
-    assert actions == [(i_of["alarm"], "USDJPY", "cut"), (i_of["all_clear"], "USDJPY", "restore")]
+    # A signal at bar t's close is scheduled for bar t + 1.
+    assert actions == [(i_of["alarm"] + 1, "USDJPY", "cut"), (i_of["all_clear"] + 1, "USDJPY", "restore")]
     assert i_of["all_clear"] - i_of["alarm"] >= CFG["calm_minutes"]
 
     s = ships({"USDJPY": f["mid"].to_numpy()}, JPY, actions)
     q = s["prepared"].qty["USDJPY"]
-    assert s["prepared"].cut_i == i_of["alarm"] == 31 and s["prepared"].restore_i == i_of["all_clear"]
-    assert q[30] == pytest.approx(20e6) and q[31] == pytest.approx(5e6)
-    assert q[i_of["all_clear"] - 1] == pytest.approx(5e6) and q[i_of["all_clear"]] == pytest.approx(20e6)
+    assert i_of["alarm"] == 31
+    assert s["prepared"].cut_i == 32 and s["prepared"].restore_i == i_of["all_clear"] + 1
+    assert q[31] == pytest.approx(20e6) and q[32] == pytest.approx(5e6)
+    assert q[i_of["all_clear"]] == pytest.approx(5e6) and q[i_of["all_clear"] + 1] == pytest.approx(20e6)
     assert (s["unprepared"].qty["USDJPY"] == 20e6).all()
     assert s["prepared"].equity[-1] > s["unprepared"].equity[-1]
 
@@ -94,6 +99,11 @@ def test_policy_backtest_on_toy_book():
 
 def test_max_drawdown():
     assert max_drawdown(np.array([100.0, 120.0, 90.0, 130.0, 125.0])) == pytest.approx((30.0, 25.0))
+
+
+def test_max_drawdown_dollars_and_percent_are_maximised_independently():
+    # 100 -> 50 is the largest % fall (50%); 1,000 -> 600 the largest $ fall (400, only 40%).
+    assert max_drawdown(np.array([100.0, 50.0, 1000.0, 600.0])) == pytest.approx((400.0, 50.0))
 
 
 def test_stress_test_signs_and_margin_call():

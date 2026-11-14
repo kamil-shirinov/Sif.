@@ -3,19 +3,52 @@
 THE BOOKS ARE SYNTHETIC. No real trader, account or position is represented.
 
 A book is USD equity plus spot legs, each long USD against one currency (USDJPY and
-USDSGD: long the pair; EURUSD: short EUR). Legs open at the first mid. Cash is kept per
-currency and marked at spot mid, so a cut's realised P&L stays in the currency it was
-made in. Maintenance margin is a share of the open notional, in USD; when equity falls
-below it, every leg is closed at that minute's mid, all cash is converted to USD, and
-equity stays flat afterwards (one margin call ends the book). No spread, no slippage.
+USDSGD: long the pair; EURUSD: short EUR). The book already holds its legs at the
+replay's first frame, booked at that frame's mid (a starting position, not a trade).
+Cash is kept per currency and marked at mid, so a trade's realised P&L stays in the
+currency it was made in.
+
+Execution (every trade after the start)
+  A signal is read from bar t's close, so its trade fills at the open of the next bar
+  that has a real quote (t+1 unless that minute is missing or the market is closed).
+  An action's frame is the earliest bar it may fill on: policy_actions schedules each
+  signal for the bar after it, and simulate_book fills it on the first traded bar from
+  that frame on.
+  Fills are side-correct: buying the base currency pays the ask, selling it gets the bid.
+  A cut of a long-USD leg sells USD (USDJPY, USDSGD: sells the pair at the open bid;
+  EURUSD: buys EUR back at the open ask); a restore does the opposite. Every fill records
+  its price, the mid of the same quote and its cost versus mid in USD
+  (|qty| x |price - mid|, converted at mid). Data without quotes (plain mid arrays, Yahoo
+  bars) fill at the next open with no spread: cost 0, which is not a measured cost.
+
+Margin (minute i, in this order)
+  1. mark the book at bar i's open mid and test maintenance, before any trade in that
+     minute: a breach is a margin call at the open
+  2. fill the voluntary trades scheduled for this minute (policy cuts and restores)
+  3. mark at bar i's close mid and test maintenance again
+  A breach at the alarm bar's close is therefore a margin call even if a cut was
+  scheduled for the next bar. Maintenance is a share of the open notional (gross, marked
+  at mid, in USD). A margin call closes every leg side-correct at that point's bid or ask
+  (a leg with no bar that minute closes at its last quotes), converts every currency
+  balance to USD at mid, and holds equity flat afterwards (one margin call ends the book).
 
 Policy v1 (the prepared ship), per leg:
-  storm-level danger alarm   cut the leg by `cut_fraction` (75%) at that minute's mid
-  all-clear after a cut      restore the leg to its full size (skipped if restoring would
-                             put the book straight into a margin call)
+  storm-level danger alarm   cut the leg by `cut_fraction` (75%)
+  all-clear after a cut      restore the leg to its full size (skipped if, spread
+                             included, restoring would put the book straight into a
+                             margin call)
   squall                     no trade (the lighthouse goes amber)
   fair wind                  no trade
 The unprepared ship holds throughout.
+
+Stress (stress_scenarios): the replay's own book as it stands at the exposure snapshot
+(the unprepared ship's cash and legs at as_of_i), shocked by each labelled storm whose
+trough came before the snapshot (point in time: nothing from the snapshot's future; an
+empty menu when none qualifies). A storm's USD move u (unrounded, from its onset and
+trough mids) is applied to every leg (USDxxx mid x (1 + u), EURUSD mid / (1 + u)), and
+the book is revalued with the simulator's own valuation: equity at the shocked mids and
+the margin test against maintenance x gross at the shocked mids (marked notional, so a
+EURUSD leg's notional moves with the price). It applies no cuts and no path.
 """
 from __future__ import annotations
 
@@ -58,16 +91,92 @@ def _ccys(pair: str) -> tuple[str, str]:
     return pair[:3], pair[3:]
 
 
+# ---------------------------------------------------------------- quotes
+
+@dataclass
+class Quotes:
+    """One pair's prices per frame. The book is marked at mid; trades fill at bid or ask."""
+    mid: np.ndarray           # close mid: the mark
+    open_mid: np.ndarray
+    open_bid: np.ndarray
+    open_ask: np.ndarray
+    close_bid: np.ndarray
+    close_ask: np.ndarray
+    traded: np.ndarray        # bool: the frame has a real bar (fills only happen on one)
+
+    def __len__(self) -> int:
+        return len(self.mid)
+
+    @classmethod
+    def from_mid(cls, mid) -> "Quotes":
+        """Mid closes only: each bar opens at the previous close, with no spread."""
+        mid = np.asarray(mid, dtype=float)
+        prev = np.concatenate([mid[:1], mid[:-1]])
+        return cls(mid, prev, prev, prev, mid, mid, np.ones(len(mid), dtype=bool))
+
+    @classmethod
+    def from_frame(cls, g: pd.DataFrame, traded=None) -> "Quotes":
+        """From a frame with `mid` and, when present, `open` and the bid/ask quote columns.
+        On a frame that is not traded every open price is that frame's (held) close."""
+        mid = g["mid"].to_numpy(dtype=float)
+        traded = np.ones(len(mid), dtype=bool) if traded is None else np.asarray(traded, dtype=bool)
+        prev = np.concatenate([mid[:1], mid[:-1]])
+        open_mid = g["open"].to_numpy(dtype=float) if "open" in g else prev
+
+        def col(name, fallback):
+            return g[name].to_numpy(dtype=float) if name in g else fallback
+
+        close_bid, close_ask = col("close_bid", mid), col("close_ask", mid)
+        open_bid, open_ask = col("open_bid", open_mid), col("open_ask", open_mid)
+        open_mid = np.where(traded, open_mid, mid)
+        open_bid = np.where(traded, open_bid, close_bid)
+        open_ask = np.where(traded, open_ask, close_ask)
+        return cls(mid, open_mid, open_bid, open_ask, close_bid, close_ask, traded)
+
+
+def as_quotes(x) -> Quotes:
+    return x if isinstance(x, Quotes) else Quotes.from_mid(x)
+
+
+def _usd_rate(ccy: str, legs: list[str], px: dict[str, float]) -> float:
+    """USD per unit of `ccy` at the leg prices `px` (pair -> mid)."""
+    if ccy == "USD":
+        return 1.0
+    for p in legs:
+        base, quote = _ccys(p)
+        if base == ccy and quote == "USD":
+            return px[p]
+        if base == "USD" and quote == ccy:
+            return 1.0 / px[p]
+    raise ValueError(f"no USD rate for {ccy}")
+
+
+def book_value(cash: dict[str, float], qty: dict[str, float], px: dict[str, float]) -> tuple[float, float]:
+    """(equity, gross) in USD at the leg mids `px`: the one valuation every caller uses."""
+    legs = list(qty)
+    eq = sum(v * _usd_rate(c, legs, px) for c, v in cash.items())
+    gross = sum(abs(q) * _usd_rate(_ccys(p)[0], legs, px) for p, q in qty.items())
+    return eq, gross
+
+
+def shocked_prices(px: dict[str, float], usd_move: float) -> dict[str, float]:
+    """Every leg's mid after USD moves by `usd_move` (a fraction) against its other currency."""
+    return {p: m * (1.0 + usd_move) if _ccys(p)[0] == "USD" else m / (1.0 + usd_move) for p, m in px.items()}
+
+
+# ---------------------------------------------------------------- the simulator
+
 @dataclass
 class BookPath:
-    equity: np.ndarray                     # USD equity per minute
+    equity: np.ndarray                     # USD equity per minute (marked at the close mid)
     gross_usd: np.ndarray                  # open notional per minute, USD
     qty: dict[str, np.ndarray]             # base-currency position per leg per minute
     cash: dict[str, np.ndarray]            # cash per currency per minute
     margin_call_i: int | None
-    cuts: list[tuple[int, str]] = field(default_factory=list)
-    restores: list[tuple[int, str]] = field(default_factory=list)
+    cuts: list[tuple[int, str]] = field(default_factory=list)       # (fill frame, pair)
+    restores: list[tuple[int, str]] = field(default_factory=list)   # (fill frame, pair)
     cut_fraction: float = 0.0
+    fills: list[dict] = field(default_factory=list)   # every trade after the start (module doc)
 
     @property
     def cut_i(self) -> int | None:
@@ -79,119 +188,157 @@ class BookPath:
         later = [i for i, _ in self.restores if first is not None and i >= first]
         return later[0] if later else None
 
+    @property
+    def spread_cost_usd(self) -> float:
+        return float(sum(f["cost_usd"] for f in self.fills))
 
-def simulate_book(mids: dict[str, np.ndarray], book: dict, actions: list[tuple[int, str, str]] = ()) -> BookPath:
-    """Equity per minute of `book` on aligned mids. actions: (frame, pair, "cut" | "restore")."""
+
+def fill_frame(traded: np.ndarray, earliest: int) -> int | None:
+    """The first frame from `earliest` on with a real bar, or None (no fill in the replay)."""
+    if earliest < 1:
+        raise ValueError("a trade can fill at frame 1 at the earliest (frame 0 opens the book)")
+    later = np.flatnonzero(np.asarray(traded[earliest:], dtype=bool))
+    return int(earliest + later[0]) if len(later) else None
+
+
+def simulate_book(mids: dict, book: dict, actions: list[tuple[int, str, str]] = ()) -> BookPath:
+    """Equity per minute of `book`. `mids`: pair -> Quotes, or an array of close mids (no
+    spread). actions: (earliest fill frame, pair, "cut" | "restore"); each fills on the
+    first traded frame from there (fill_frame). A fill's signal_i is that frame - 1."""
+    quotes = {p: as_quotes(v) for p, v in mids.items()}
     n = None
-    for p, m in mids.items():
-        m = np.asarray(m, dtype=float)
-        if not np.all(np.isfinite(m)) or np.any(m <= 0):
-            raise ValueError(f"{p}: mid must be finite and positive")
-        if n is not None and len(m) != n:
+    for p, q in quotes.items():
+        for name in ("mid", "open_mid", "open_bid", "open_ask", "close_bid", "close_ask"):
+            arr = getattr(q, name)
+            if not np.all(np.isfinite(arr)) or np.any(arr <= 0):
+                raise ValueError(f"{p}: {name} must be finite and positive")
+        if n is not None and len(q) != n:
             raise ValueError("mids must be aligned")
-        n = len(m)
-    mids = {p: np.asarray(m, dtype=float) for p, m in mids.items()}
+        n = len(q)
     legs = [leg["pair"] for leg in book["legs"]]
     ccys = sorted({"USD"} | {c for p in legs for c in _ccys(p)})
 
-    def usd_rate(ccy: str, i: int) -> float:
-        if ccy == "USD":
-            return 1.0
-        for p in legs:
-            base, quote = _ccys(p)
-            if base == ccy and quote == "USD":
-                return mids[p][i]
-            if base == "USD" and quote == ccy:
-                return 1.0 / mids[p][i]
-        raise ValueError(f"no USD rate for {ccy}")
+    def px(i: int, where: str) -> dict[str, float]:
+        return {p: float(quotes[p].open_mid[i] if where == "open" else quotes[p].mid[i]) for p in legs}
 
     cash = {c: 0.0 for c in ccys}
     cash["USD"] = book["equity_usd"]
     full, qty = {}, {}
+    start = px(0, "close")
     for leg in book["legs"]:
         p = leg["pair"]
         base, quote = _ccys(p)
-        q = leg["usd_notional"] * leg_exposure(p) / usd_rate(base, 0)
-        full[p], qty[p] = q, 0.0
+        full[p] = leg["usd_notional"] * leg_exposure(p) / _usd_rate(base, legs, start)
+        cash[base] += full[p]
+        cash[quote] -= full[p] * start[p]
+        qty[p] = full[p]
 
-    def trade(p: str, target: float, i: int) -> None:
-        base, quote = _ccys(p)
+    mm, frac = book["maintenance_margin"], book["cut_fraction"]
+    by_fill: dict[int, list[tuple[int, str, str]]] = {}
+    for s, p, kind in sorted(actions):
+        f = fill_frame(quotes[p].traded, int(s))
+        if f is not None:
+            by_fill.setdefault(f, []).append((int(s) - 1, p, kind))
+
+    fills: list[dict] = []
+    cuts, restores = [], []
+    margin_call_i = None
+
+    def quote(p: str, i: int, where: str) -> tuple[float, float, float]:
+        q = quotes[p]
+        if where == "open":
+            return float(q.open_bid[i]), float(q.open_ask[i]), float(q.open_mid[i])
+        return float(q.close_bid[i]), float(q.close_ask[i]), float(q.mid[i])
+
+    def apply(c: dict, qy: dict, p: str, target: float, price: float) -> float:
+        base, quote_ccy = _ccys(p)
+        dq = target - qy[p]
+        c[base] += dq
+        c[quote_ccy] -= dq * price
+        qy[p] = target
+        return dq
+
+    def trade(p: str, target: float, i: int, where: str, signal_i: int, action: str) -> None:
+        bid, ask, mid = quote(p, i, where)
         dq = target - qty[p]
-        cash[base] += dq
-        cash[quote] -= dq * mids[p][i]
-        qty[p] = target
+        if dq == 0:
+            return
+        price = ask if dq > 0 else bid
+        apply(cash, qty, p, target, price)
+        rate = _usd_rate(_ccys(p)[1], legs, px(i, where))
+        fills.append({"i": i, "signal_i": signal_i, "pair": p, "action": action, "at": where,
+                      "side": "buy" if dq > 0 else "sell", "qty": abs(dq), "price": price, "mid": mid,
+                      "cost_usd": abs(dq) * abs(price - mid) * rate})
 
-    for p in legs:
-        trade(p, full[p], 0)
+    def breached(where: str, i: int) -> bool:
+        eq, g = book_value(cash, qty, px(i, where))
+        return g > 0 and eq < mm * g
 
-    mm = book["maintenance_margin"]
-    frac = book["cut_fraction"]
-    by_i: dict[int, list[tuple[str, str]]] = {}
-    for i, p, kind in actions:
-        by_i.setdefault(int(i), []).append((p, kind))
+    def margin_call(i: int, where: str) -> None:
+        nonlocal margin_call_i
+        for p in legs:
+            trade(p, 0.0, i, where, i, "margin_call")
+        eq, _ = book_value(cash, qty, px(i, where))
+        for c in ccys:
+            cash[c] = 0.0
+        cash["USD"] = eq
+        margin_call_i = i
 
     eq_out, gross_out = np.empty(n), np.empty(n)
     qty_out = {p: np.empty(n) for p in legs}
     cash_out = {c: np.empty(n) for c in ccys}
-    margin_call_i = None
-    cuts, restores = [], []
-
-    def equity(i: int) -> float:
-        return sum(cash[c] * usd_rate(c, i) for c in ccys)
-
-    def gross(i: int, q: dict) -> float:
-        return sum(abs(q[p]) * usd_rate(_ccys(p)[0], i) for p in legs)
-
     for i in range(n):
-        if margin_call_i is None:
-            for p, kind in by_i.get(i, []):
-                if kind == "cut" and qty[p] == full[p] and frac > 0:
-                    trade(p, full[p] * (1.0 - frac), i)
-                    cuts.append((i, p))
-                elif kind == "restore" and qty[p] != full[p]:
-                    if equity(i) >= mm * gross(i, {**qty, p: full[p]}):
-                        trade(p, full[p], i)
-                        restores.append((i, p))
-        eq = equity(i)
-        g = gross(i, qty)
-        if margin_call_i is None and g > 0 and eq < mm * g:
-            for p in legs:
-                trade(p, 0.0, i)
-            for c in ccys:
-                cash[c] = 0.0
-            cash["USD"] = eq
-            margin_call_i = i
-            g = 0.0
+        if margin_call_i is None and i > 0:
+            if breached("open", i):
+                margin_call(i, "open")
+            else:
+                for s, p, kind in by_fill.get(i, []):
+                    if kind == "cut" and qty[p] == full[p] and frac > 0:
+                        trade(p, full[p] * (1.0 - frac), i, "open", s, "cut")
+                        cuts.append((i, p))
+                    elif kind == "restore" and qty[p] != full[p]:
+                        bid, ask, _ = quote(p, i, "open")
+                        c2, q2 = dict(cash), dict(qty)
+                        apply(c2, q2, p, full[p], ask if full[p] > qty[p] else bid)
+                        eq2, g2 = book_value(c2, q2, px(i, "open"))
+                        if eq2 >= mm * g2:
+                            trade(p, full[p], i, "open", s, "restore")
+                            restores.append((i, p))
+        if margin_call_i is None and breached("close", i):
+            margin_call(i, "close")
+        eq, g = book_value(cash, qty, px(i, "close"))
         eq_out[i], gross_out[i] = eq, g
         for p in legs:
             qty_out[p][i] = qty[p]
         for c in ccys:
             cash_out[c][i] = cash[c]
     return BookPath(eq_out, gross_out, qty_out, cash_out, margin_call_i, cuts, restores,
-                    frac if cuts else 0.0)
+                    frac if cuts else 0.0, fills)
 
 
 def policy_actions(events: dict[str, list[dict]], frame_of) -> list[tuple[int, str, str]]:
-    """Policy v1 trades from book-aware detector events per pair (time -> frame via frame_of)."""
+    """Policy v1 actions from book-aware detector events per pair (time -> frame via
+    frame_of). A signal on bar t (its close) is scheduled for bar t + 1: (t + 1, pair, kind)."""
     out = []
     for p, evs in events.items():
         cut = False
         for e in evs:
             if e["type"] == "alarm" and not cut:
-                out.append((frame_of(e["time"]), p, "cut"))
+                out.append((frame_of(e["time"]) + 1, p, "cut"))
                 cut = True
             elif e["type"] == "all_clear" and cut:
-                out.append((frame_of(e["time"]), p, "restore"))
+                out.append((frame_of(e["time"]) + 1, p, "restore"))
                 cut = False
     return sorted(out)
 
 
-def ships(mids: dict[str, np.ndarray], book: dict, actions) -> dict[str, BookPath]:
+def ships(mids: dict, book: dict, actions) -> dict[str, BookPath]:
     return {"prepared": simulate_book(mids, book, actions), "unprepared": simulate_book(mids, book, [])}
 
 
-def exposure_snapshot(path: BookPath, mids: dict[str, np.ndarray], book: dict, i: int) -> dict:
+def exposure_snapshot(path: BookPath, mids: dict, book: dict, i: int) -> dict:
     """The book as it stands at minute i (contract `exposure` object)."""
+    mids = {p: as_quotes(v).mid for p, v in mids.items()}
     positions = []
     net: dict[str, float] = {}
     for leg in book["legs"]:
@@ -224,47 +371,109 @@ def exposure_snapshot(path: BookPath, mids: dict[str, np.ndarray], book: dict, i
     }
 
 
-def stress_test(storms: pd.DataFrame, book_mid: pd.Series, book: dict) -> list[dict]:
-    """Apply each labelled storm's onset-to-trough USD move to the book as of just before onset.
+# ---------------------------------------------------------------- stress
 
-    Every leg is long USD, so a USD move of u (bp) earns N x (1 - 1 / (1 + u)) on total
-    notional N, whatever the pair. A storm on a pair outside the book is applied as the
-    same move in USD (EURUSD inverted). Onset-to-trough is the worst point of the storm.
-    """
-    n_usd = sum(leg["usd_notional"] for leg in book["legs"])
-    symbols = {leg["pair"] for leg in book["legs"]}
+def usd_move(storm) -> float:
+    """The storm's onset-to-trough USD move as a fraction, unrounded (EURUSD inverted)."""
+    r = storm.trough_mid / storm.onset_mid
+    return r - 1.0 if usd_sign(storm.pair) > 0 else 1.0 / r - 1.0
+
+
+def _scenario_text(storm, symbols: set[str], u: float) -> str:
+    when = f"{storm.onset_utc:%d %b %H:%M} UTC"
+    move = (storm.trough_mid / storm.onset_mid - 1.0) * 1e4 if hasattr(storm, "trough_mid") else storm.move_bp
+    if storm.pair in symbols and usd_sign(storm.pair) > 0:
+        return f"{storm.pair} storm {when}: {move:+.0f} bp"
+    return f"{storm.pair} storm {when}: {move:+.0f} bp, applied as USD {u * 1e4:+.0f} bp"
+
+
+def _shock(cash: dict, qty: dict, px: dict, mm: float, u: float) -> tuple[float, bool]:
+    """(P&L, margin call) of the holdings `cash`, `qty` when USD moves by u from mids `px`."""
+    eq0, _ = book_value(cash, qty, px)
+    eq1, g1 = book_value(cash, qty, shocked_prices(px, u))
+    return eq1 - eq0, bool(g1 > 0 and eq1 < mm * g1)
+
+
+def stress_scenarios(storms: pd.DataFrame, path: BookPath, mids: dict, book: dict, i: int,
+                     as_of: pd.Timestamp) -> list[dict]:
+    """The replay's stress menu (module doc): storms with trough < `as_of`, applied to the
+    holdings of `path` at frame i through the simulator's valuation and margin test."""
+    legs = [leg["pair"] for leg in book["legs"]]
+    px = {p: float(as_quotes(mids[p]).mid[i]) for p in legs}
+    cash = {c: float(a[i]) for c, a in path.cash.items()}
+    qty = {p: float(path.qty[p][i]) for p in legs}
+    known = storms[storms["trough_utc"] < as_of]
+    out = []
+    for s in known.itertuples():
+        u = usd_move(s)
+        pnl, mc = _shock(cash, qty, px, book["maintenance_margin"], u)
+        out.append({"scenario": _scenario_text(s, set(legs), u), "pnl_usd": round(pnl), "margin_call": mc})
+    return out
+
+
+def stress_test(storms: pd.DataFrame, book_mid: pd.Series, book: dict) -> list[dict]:
+    """Endpoint stress of a freshly opened `book` (storm.ai's navigator uses this): each
+    storm's USD move (`usd_move_bp`, as given) applied through the same valuation and margin
+    test as stress_scenarios. A storm is used when `book_mid` has a price before its onset.
+    The result does not depend on the price level, so every leg opens at 1.0."""
+    legs = [leg["pair"] for leg in book["legs"]]
+    fresh = simulate_book({p: np.array([1.0]) for p in legs}, book)
+    cash = {c: float(a[0]) for c, a in fresh.cash.items()}
+    qty = {p: float(fresh.qty[p][0]) for p in legs}
     out = []
     for s in storms.itertuples():
         if book_mid[book_mid.index < s.onset_utc].empty:
             continue
         u = s.usd_move_bp / 1e4
-        pnl = n_usd * (1.0 - 1.0 / (1.0 + u))
-        margin_call = book["equity_usd"] + pnl < book["maintenance_margin"] * n_usd
+        pnl, mc = _shock(cash, qty, {p: 1.0 for p in legs}, book["maintenance_margin"], u)
         when = f"{s.onset_utc:%d %b %H:%M} UTC"
-        if s.pair in symbols and usd_sign(s.pair) > 0:
+        if s.pair in set(legs) and usd_sign(s.pair) > 0:
             scenario = f"{s.pair} storm {when}: {s.move_bp:+.0f} bp"
         else:
             scenario = f"{s.pair} storm {when}: {s.move_bp:+.0f} bp, applied as USD {s.usd_move_bp:+.0f} bp"
-        out.append({"scenario": scenario, "pnl_usd": round(pnl), "margin_call": bool(margin_call)})
+        out.append({"scenario": scenario, "pnl_usd": round(pnl), "margin_call": mc})
     return out
 
 
+# ---------------------------------------------------------------- policy backtest
+
 def max_drawdown(equity: np.ndarray) -> tuple[float, float]:
-    """Largest peak-to-trough fall of equity: (USD, % of the peak)."""
+    """(largest dollar fall from a running peak, largest percentage fall from a running
+    peak), each maximised on its own: the two can come from different peaks."""
+    equity = np.asarray(equity, dtype=float)
     peak = np.maximum.accumulate(equity)
     dd = peak - equity
-    j = int(dd.argmax())
-    return float(dd[j]), float(dd[j] / peak[j] * 100.0) if peak[j] > 0 else 0.0
+    pct = np.where(peak > 0, dd / np.where(peak > 0, peak, 1.0) * 100.0, 0.0)
+    return float(dd.max()), float(pct.max())
+
+
+def aligned_quotes(feats: dict[str, pd.DataFrame], pairs, start: pd.Timestamp,
+                   end: pd.Timestamp) -> tuple[pd.DatetimeIndex, dict[str, Quotes]]:
+    """Quotes per pair on the union of their minute bars in [start, end), from the first
+    minute at which every pair has had a bar. A pair without a bar that minute holds its
+    last quotes and cannot trade (Quotes.traded)."""
+    parts = {p: feats[p][(feats[p].index >= start) & (feats[p].index < end)] for p in pairs}
+    if any(f.empty for f in parts.values()):
+        raise ValueError(f"no common prices for {tuple(pairs)} in {start} .. {end}")
+    union = None
+    for f in parts.values():
+        union = f.index if union is None else union.union(f.index)
+    first = max(f.index[0] for f in parts.values())
+    keep = union >= first
+    idx = union[keep]
+    out = {}
+    for p, f in parts.items():
+        g = f.reindex(union)
+        traded = g["mid"].notna().to_numpy()
+        g = g.ffill()
+        out[p] = Quotes.from_frame(g[keep], traded[keep])
+    return idx, out
 
 
 def aligned_mids(feats: dict[str, pd.DataFrame], pairs, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
-    """Mid per pair on the union of their minute bars in [start, end), forward-filled,
-    starting at the first minute where every pair has a price."""
-    cols = {p: feats[p]["mid"][(feats[p].index >= start) & (feats[p].index < end)] for p in pairs}
-    df = pd.DataFrame(cols).sort_index().ffill().dropna()
-    if df.empty:
-        raise ValueError(f"no common prices for {pairs} in {start} .. {end}")
-    return df
+    """Close mid per pair on the aligned grid of aligned_quotes."""
+    idx, q = aligned_quotes(feats, pairs, start, end)
+    return pd.DataFrame({p: q[p].mid for p in pairs}, index=idx)
 
 
 def policy_backtest(
@@ -275,11 +484,10 @@ def policy_backtest(
     calendar: pd.DataFrame | None = None,
     book: dict = POLICY_BOOK,
 ) -> dict:
-    """Run policy v1 on `book` over [start, end): prepared vs unprepared."""
+    """Run policy v1 on `book` over [start, end): prepared vs unprepared. Unrounded."""
     calendar = load_calendar() if calendar is None else calendar
     pairs = [leg["pair"] for leg in book["legs"]]
-    grid = aligned_mids(feats, pairs, start, end)
-    idx = grid.index
+    idx, quotes = aligned_quotes(feats, pairs, start, end)
 
     def frame_of(t: pd.Timestamp) -> int:
         return int(idx.searchsorted(t, side="left"))
@@ -289,8 +497,7 @@ def policy_backtest(
         res = run_detector(feats[p], calendar, cfg, exposure=leg_exposure(p))
         events[p] = [e for e in res.events if idx[0] <= e["time"] <= idx[-1]]
     actions = policy_actions(events, frame_of)
-    mids = {p: grid[p].to_numpy() for p in pairs}
-    paths = ships(mids, book, actions)
+    paths = ships(quotes, book, actions)
 
     out = {"book": {
         "synthetic": True,
@@ -299,6 +506,7 @@ def policy_backtest(
         "equity_usd": book["equity_usd"], "maintenance_margin": book["maintenance_margin"],
         "cut_fraction": book["cut_fraction"],
         "from_utc": f"{idx[0]:%Y-%m-%d %H:%M}", "to_utc": f"{idx[-1]:%Y-%m-%d %H:%M}",
+        "execution": "signal at bar t's close, fill at the next bar's open, bid or ask (side-correct)",
     }}
     counts = {t: sum(1 for evs in events.values() for e in evs if e["type"] == t)
               for t in ("alarm", "squall", "fair_wind", "all_clear")}
@@ -308,15 +516,18 @@ def policy_backtest(
         dd_usd, dd_pct = max_drawdown(path.equity)
         mc = path.margin_call_i
         out[name] = {
-            "final_equity_usd": round(float(path.equity[-1])),
-            "max_drawdown_usd": round(dd_usd),
-            "max_drawdown_pct": round(dd_pct, 1),
+            "final_equity_usd": float(path.equity[-1]),
+            "max_drawdown_usd": dd_usd,
+            "max_drawdown_pct": dd_pct,
             "margin_calls": 0 if mc is None else 1,
             "margin_call_utc": None if mc is None else f"{idx[mc]:%Y-%m-%d %H:%M}",
             "cuts": len(path.cuts),
             "restores": len(path.restores),
+            "fills": len(path.fills),
+            "spread_cost_usd": path.spread_cost_usd,
         }
-    done = sorted([(i, p, "cut") for i, p in paths["prepared"].cuts]
-                  + [(i, p, "restore") for i, p in paths["prepared"].restores])
-    out["trades"] = [{"utc": f"{idx[i]:%Y-%m-%d %H:%M}", "pair": p, "action": k} for i, p, k in done]
+    out["trades"] = [{"utc": f"{idx[f['i']]:%Y-%m-%d %H:%M}", "signal_utc": f"{idx[f['signal_i']]:%Y-%m-%d %H:%M}",
+                      "pair": f["pair"], "action": f["action"], "side": f["side"], "at": f["at"],
+                      "fill_price": f["price"], "mid_price": f["mid"], "cost_usd": f["cost_usd"]}
+                     for f in paths["prepared"].fills]
     return out

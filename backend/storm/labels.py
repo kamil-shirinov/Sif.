@@ -3,13 +3,16 @@
     python -m storm.labels      -> data/processed/storms.csv and a printed table
 
 A 15-minute window triggers when |move| >= max(30 bp, 8 x sd_24h x sqrt(15)), with
-sd_24h taken at the window's start (the calm level before the move). Triggering
-windows less than 6 hours apart on the same pair are one storm. For each storm:
+sd_24h taken at the window's start (the calm level before the move), a bar at the
+window's start, and at least 13 of its 15 minutes observed (bars in (start, end]).
+Triggering windows less than 6 hours apart on the same pair are one storm. For each storm:
 
   onset    start of its strongest 15-minute window
+  first_onset  start of its first triggering window (<= onset)
   trough   the extreme mid, in that window's direction, from onset to the end of
            the last triggering window
-  move_bp  trough mid / onset mid - 1, in basis points (signed)
+  move_bp  trough mid / onset mid - 1, in basis points (signed). Every number is kept
+           unrounded here and in storms.csv; only printing rounds.
   duration trough - onset, in minutes
   kind     scheduled when the onset is within 15 minutes (either side) of an event in
            contracts/calendar.csv, else unscheduled; event = that event's name (the
@@ -31,24 +34,28 @@ MIN_MOVE_BP = 30.0
 SD_MULT = 8.0
 MERGE_GAP = pd.Timedelta(hours=6)
 SCHEDULED_WITHIN = pd.Timedelta(minutes=15)
+MIN_OBSERVED = 13          # of the 15 minutes in a label window
 
 STORM_COLUMNS = [
     "storm_id", "pair", "onset_utc", "trough_utc", "end_utc", "move_bp", "usd_move_bp",
     "duration_min", "peak_15m_bp", "onset_mid", "trough_mid", "kind", "event", "event_utc",
+    "first_onset_utc", "first_onset_mid",
 ]
+TIME_COLUMNS = ("onset_utc", "trough_utc", "end_utc", "event_utc", "first_onset_utc")
 
 
 def window_moves(feat: pd.DataFrame) -> pd.DataFrame:
-    """15-minute move ending at every bar, and its trigger threshold."""
+    """15-minute move ending at every bar, its trigger threshold and observed minutes."""
     mid = feat["mid"]
     start_ts = feat.index - WINDOW
     start_mid = mid.reindex(start_ts).to_numpy()
     start_sd = feat["sd_24h"].reindex(start_ts).to_numpy()
     move = (mid.to_numpy() / start_mid - 1.0) * 1e4
     thresh = np.maximum(MIN_MOVE_BP, SD_MULT * start_sd * math.sqrt(WINDOW / pd.Timedelta(minutes=1)))
-    w = pd.DataFrame({"move_bp": move, "threshold_bp": thresh}, index=feat.index)
+    observed = pd.Series(1.0, index=feat.index).rolling(WINDOW).sum().to_numpy()   # bars in (t-15, t]
+    w = pd.DataFrame({"move_bp": move, "threshold_bp": thresh, "observed": observed}, index=feat.index)
     # Undefined start price or sd -> undefined threshold -> the window cannot trigger.
-    w["trigger"] = np.abs(w["move_bp"]) >= w["threshold_bp"]
+    w["trigger"] = (np.abs(w["move_bp"]) >= w["threshold_bp"]) & (w["observed"] >= MIN_OBSERVED)
     return w
 
 
@@ -65,6 +72,7 @@ def find_storms(feat: pd.DataFrame, pair: str) -> list[dict]:
         peak_end = part["move_bp"].abs().idxmax()
         peak = float(part.loc[peak_end, "move_bp"])
         onset = peak_end - WINDOW
+        first_onset = part.index[0] - WINDOW
         end = part.index[-1]
         path = mid.loc[onset:end]
         trough = path.idxmin() if peak < 0 else path.idxmax()
@@ -77,12 +85,14 @@ def find_storms(feat: pd.DataFrame, pair: str) -> list[dict]:
                 "onset_utc": onset,
                 "trough_utc": trough,
                 "end_utc": end,
-                "move_bp": round(float(move), 1),
-                "usd_move_bp": round(float(usd_move), 1),
+                "move_bp": float(move),
+                "usd_move_bp": float(usd_move),
                 "duration_min": int((trough - onset) / pd.Timedelta(minutes=1)),
-                "peak_15m_bp": round(peak, 1),
+                "peak_15m_bp": peak,
                 "onset_mid": float(mid[onset]),
                 "trough_mid": float(mid[trough]),
+                "first_onset_utc": first_onset,
+                "first_onset_mid": float(mid[first_onset]),
             }
         )
     return storms
@@ -122,17 +132,17 @@ def label_all(feats: dict[str, pd.DataFrame], calendar: pd.DataFrame | None = No
 def write_storms(storms: pd.DataFrame, path: Path = PROCESSED_DIR / "storms.csv") -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     out = storms.copy()
-    for col in ("onset_utc", "trough_utc", "end_utc", "event_utc"):
+    for col in TIME_COLUMNS:
         out[col] = out[col].dt.strftime("%Y-%m-%d %H:%M")
-    out.to_csv(path, index=False)
+    out.to_csv(path, index=False, float_format="%.17g")      # unrounded: round-trips exactly
     return path
 
 
 def read_storms(path: Path = PROCESSED_DIR / "storms.csv") -> pd.DataFrame:
     df = pd.read_csv(path, keep_default_na=False, na_values={"event_utc": [""]})
-    for col in ("onset_utc", "trough_utc", "end_utc", "event_utc"):
+    for col in TIME_COLUMNS:
         if col in df:
-            df[col] = pd.to_datetime(df[col], utc=True)
+            df[col] = pd.to_datetime(df[col], utc=True).dt.as_unit("ns")
     return df
 
 

@@ -75,6 +75,14 @@ A reader built against the tables above keeps working: every addition is optiona
 | top level | source `yahoo` | string value | one-minute trade bars from Yahoo Finance (equities, with pre- and after-hours) |
 | series | market_open | int 0 or 1, length n | 1 when the market trades (for equities: 04:00 to 20:00 ET, extended hours included), 0 when closed; absent means always open |
 | index.json metrics | watch_precision | float 0 to 1 or null | scheduled releases whose watch window held a storm onset, divided by all scheduled releases (the test split) |
+| index.json metrics | alarmed | int or null | test-split storms with a matching storm-level alarm by the trough (0 to `storms`) |
+| index.json metrics | median_minutes_to_alarm | float or null | median of alarm minus onset, in minutes, over alarmed storms (negative: the alarm came first) |
+| index.json metrics | false_alarm_episodes_per_day | float or null | distinct alert episodes per observed day: false alarms on different pairs within 15 minutes of an episode's first alarm count as one |
+| index.json metrics | prepared_max_drawdown_usd, unprepared_max_drawdown_usd | number or null | each ship's largest fall from a running equity peak in the policy backtest, in USD |
+| index.json metrics | prepared_max_drawdown_pct, unprepared_max_drawdown_pct | number 0 to 100 or null | each ship's largest percentage fall from a running peak; maximised on its own, so it can come from a different peak than the USD figure |
+| index.json storms[] | source | string | the bundle's `source` (`sgx`, `synthetic`, `scenario` or `yahoo`), so a reader can tell market replays from what-ifs |
+
+In index.json metrics, `false_alarms_per_day` is **pair alarms per observed day**: each pair's false alarm counts on its own. An observed day is 1,440 minutes with a bar on any pair. docs/metrics.md has every definition.
 
 `storm.event` and `storm.event_i` appear together or not at all.
 

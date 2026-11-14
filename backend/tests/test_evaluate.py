@@ -41,6 +41,19 @@ def test_score_counts_caught_and_false_alarms():
               "EURUSD": [(T("12:25"), T("13:00"))]}
     m = score(alarms, _storm(), {"USDJPY": _mid()}, days=2.0, squalls=3)
     assert m["storms"] == 1 and m["alarmed"] == 1 and m["caught"] == 1
-    assert m["median_move_ahead_pct"] == 80.0 and m["median_minutes_to_alarm"] == 5.0
+    assert m["median_move_ahead_pct"] == pytest.approx(80.0) and m["median_minutes_to_alarm"] == 5.0
     assert m["false_alarms"] == 2          # 15:00 is past end + 60; EURUSD has no labelled storm
     assert m["false_alarms_per_day"] == 1.0 and m["squalls_per_day"] == 1.5
+
+
+def test_false_alarms_count_per_pair_and_episodes_dedupe_across_pairs():
+    # A USD shock alarms three pairs at 15:00, 15:10 and 15:14, and a lone EURUSD alarm at
+    # 18:00: four pair alarms, two distinct alert episodes.
+    alarms = {"USDJPY": [(T("15:00"), None)], "USDSGD": [(T("15:10"), None)],
+              "EURUSD": [(T("15:14"), None), (T("18:00"), None)]}
+    m = score(alarms, _storm(), {"USDJPY": _mid()}, days=2.0)
+    assert m["false_alarms"] == 4 and m["false_alarms_per_day"] == 2.0
+    assert m["false_alarm_episodes"] == 2 and m["false_alarm_episodes_per_day"] == 1.0
+    m = score({"USDJPY": [(T("15:00"), None)], "EURUSD": [(T("15:16"), None)]}, _storm(),
+              {"USDJPY": _mid()}, days=1.0)
+    assert m["false_alarm_episodes"] == 2          # 16 minutes apart: not the same shock

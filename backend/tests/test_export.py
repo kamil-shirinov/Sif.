@@ -42,10 +42,14 @@ def test_synthetic_storm_against_the_book_cuts_and_restores(tmp_path):
     ship = b["ships"]["prepared"]
     assert ship["cut_i"] is not None and ship["restore_i"] is not None and ship["restore_i"] > ship["cut_i"]
     alarm = next(e for e in b["events"] if e["type"] == "alarm")
-    assert alarm["i"] == ship["cut_i"] and alarm["move_ahead_pct"] is not None
+    assert ship["cut_i"] == alarm["i"] + 1 and alarm["move_ahead_pct"] is not None   # fills at the next bar
+    cut = next(e for e in b["events"] if e["type"] == "cut")
+    assert cut["i"] == ship["cut_i"] and "(bid), the next bar's open" in cut["text"]   # long USDJPY sells at the bid
     # EURUSD up is USD down: danger for the short-EUR leg too.
     e = json.loads((tmp_path / "out" / "eurusd-2026-07-20.json").read_text())
     assert e["ships"]["prepared"]["cut_i"] is not None
+    cut = next(ev for ev in e["events"] if ev["type"] == "cut")
+    assert "(ask)" in cut["text"]                     # short EUR buys EUR back at the ask
 
 
 @pytest.mark.skipif(not HAVE_PROCESSED, reason="no processed SGX data")
@@ -89,3 +93,39 @@ def test_export_embeds_a_verified_mock_report_with_the_scheduled_event(tmp_path)
     assert {k for k, v in kinds.items() if v == "scheduled"} == {
         "usdjpy-2026-07-20", "eurusd-2026-07-20", "usdsgd-2026-07-20"}
     assert ctx.storms.set_index("storm_id")["event"]["usdjpy-2026-08-20"] == ""
+
+
+def test_export_all_keeps_and_re_reports_yahoo_bundles(tmp_path):
+    from tests.test_equity import _run
+    from storm import equity as eq
+    out = tmp_path / "out"
+    out.mkdir()
+    nvda, _ = eq.build_bundle(_run())
+    nvda["report"] = None
+    export.write_bundle(nvda, out)
+    ctx, (paths, index, summaries) = _export_all(write_spot(tmp_path / "processed"), out, CFG)
+    assert out / "nvda-2026-11-12.json" in paths
+    b = json.loads((out / "nvda-2026-11-12.json").read_text())
+    assert b["report"]["verified"] is True and validate_file(out / "nvda-2026-11-12.json") == []
+    assert b["series"] == nvda["series"] and b["ships"] == nvda["ships"]
+    ix = json.loads(index.read_text())
+    assert "nvda-2026-11-12.json" in [s["file"] for s in ix["storms"]]
+
+
+def test_index_lists_scenario_bundles_with_their_source_and_leaves_them_alone(tmp_path):
+    out = tmp_path / "out"
+    out.mkdir()
+    ctx, _ = _export_all(write_spot(tmp_path / "processed"), out, CFG)
+    first = next(p for p in sorted(out.glob("*.json")) if p.name != "index.json")
+    sc = json.loads(first.read_text())
+    sc.update(storm_id="whatif-1", source="scenario", report=None)
+    text = json.dumps(sc)
+    (out / "whatif-1.json").write_text(text)
+    _, (paths, index, _) = _export_all(write_spot(tmp_path / "processed"), out, CFG)
+    assert (out / "whatif-1.json").read_text() == text           # never rewritten
+    assert out / "whatif-1.json" not in paths
+    ix = json.loads(index.read_text())
+    assert validate_file(index) == []
+    entry = next(s for s in ix["storms"] if s["file"] == "whatif-1.json")
+    assert entry["source"] == "scenario"
+    assert {s["source"] for s in ix["storms"] if s["file"] != "whatif-1.json"} == {"sgx"}

@@ -14,6 +14,9 @@ squall_on does not change which storm alarms fire (episodes close on the calm ru
 so it is set afterwards, also on July: the lowest level in SQUALL_LEVELS, from calm_off
 up to but below storm_on, with at most MAX_SQUALLS_PER_DAY squall-only episodes per day
 across the three pairs (if none qualifies, the highest level below storm_on). During the grid search it sits at calm_off.
+
+The constraint and the ranking use unrounded metrics (storm.evaluate.score); rounding is
+applied only to what is printed and written (storm.evaluate.for_display).
 """
 from __future__ import annotations
 
@@ -24,7 +27,7 @@ from pathlib import Path
 import pandas as pd
 
 from .detector import DEFAULT_CONFIG, load_calendar, risk_frame, run_detector
-from .evaluate import market_days, score, v1_alarms_and_squalls
+from .evaluate import for_display, market_days, score, v1_alarms_and_squalls
 from .features import PAIRS, add_comove, pair_features
 from .labels import label_all
 from .paths import PROCESSED_DIR
@@ -153,13 +156,14 @@ def main() -> None:
         print(f"  {p['storm_id']:22} {when}{ahead}{'  CAUGHT' if p['caught'] else ''}")
 
     path = PROCESSED_DIR / "detector_config.json"
-    m = {k: v for k, v in best["metrics"].items() if k != "per_storm"}
+    shown = for_display(best["metrics"])
+    m = {k: v for k, v in shown.items() if k != "per_storm"}
     path.write_text(json.dumps({
         "config": best["config"],
         "tuned_on": f"{TUNE_START:%Y-%m-%d} .. {TUNE_END - pd.Timedelta(days=1):%Y-%m-%d} (July only)",
         "objective": "max storms caught (>= 50% of the move ahead) s.t. <= 1 false storm alarm/day",
         "july_metrics": m,
-        "july_per_storm": best["metrics"]["per_storm"],
+        "july_per_storm": shown["per_storm"],
     }, indent=2, default=str) + "\n")
     print(f"\nthresholds: {json.dumps(best['config'])}")
     print(f"wrote {path}")

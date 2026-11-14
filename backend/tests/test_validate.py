@@ -120,3 +120,19 @@ def test_index_watch_precision_is_optional_and_bounded():
     assert validate_index(ix) == []
     ix["metrics"]["watch_precision"] = 1.5
     assert any("watch_precision" in e for e in validate_index(ix))
+
+
+def test_index_evidence_metrics_are_optional_and_bounded():
+    m = {"split": "test", "storms": 6, "caught": 4, "median_move_ahead_pct": 57.4, "false_alarms_per_day": 0.56,
+         "alarmed": 6, "median_minutes_to_alarm": 3.5, "false_alarm_episodes_per_day": 0.37,
+         "prepared_max_drawdown_usd": 191021, "unprepared_max_drawdown_usd": 226151,
+         "prepared_max_drawdown_pct": 17.3, "unprepared_max_drawdown_pct": 20.6}
+    ix = {"schema_version": 1, "storms": [], "metrics": dict(m)}
+    assert validate_index(ix) == []
+    ix["metrics"]["alarmed"] = 7
+    assert any("metrics.alarmed" in e for e in validate_index(ix))
+    ix["metrics"]["alarmed"] = None
+    ix["metrics"]["prepared_max_drawdown_pct"] = 120.0
+    assert any("prepared_max_drawdown_pct" in e for e in validate_index(ix))
+    ix["metrics"]["prepared_max_drawdown_pct"] = "17%"
+    assert any("prepared_max_drawdown_pct" in e for e in validate_index(ix))

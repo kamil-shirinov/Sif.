@@ -5,7 +5,7 @@ import pytest
 
 from storm import equity as eq
 from storm.detector import DEFAULT_CONFIG, risk_frame
-from storm.export import attach_report
+from storm.export import attach_report, report_facts
 from storm.features import bar_features
 from storm.validate import validate_bundle
 
@@ -69,15 +69,16 @@ def test_session_change_breaks_returns_even_without_a_clock_gap():
     assert s.drop(s.index[[0, 5]]).eq(0).all()   # the 50% jump is never measured
 
 
-def test_bad_print_is_dropped_but_a_real_step_is_kept():
+def test_bad_print_is_flagged_not_dropped_and_a_real_step_is_not_flagged():
     idx = _session_index([10])
     raw = _raw(idx, 2, sd_bp=1.0)
     k = 300
     raw.loc[k, ["close", "high"]] = raw.loc[k - 1, "close"] * 1.065      # spike, next open back
     raw.loc[600:, ["open", "high", "low", "close"]] *= 0.9                # a real -10% step
     bars = eq.bars_from_raw(raw, "X")
-    assert bars.attrs["dropped"] == [idx[k]]
-    assert idx[600] in bars.index and idx[k] not in bars.index
+    assert bars.attrs["bad_prints"] == [idx[k]]
+    assert idx[k] in bars.index and bars.loc[idx[k], "bad_print"] == 1
+    assert bars["bad_print"].sum() == 1 and bars.loc[idx[600], "bad_print"] == 0
 
 
 def test_stock_book_margin_call_and_cut():
@@ -85,8 +86,9 @@ def test_stock_book_margin_call_and_cut():
     # $1m equity, $4m long, 15% maintenance: the call comes once the price is below 3 / 3.4 of entry
     hold = eq.simulate_stock(np.array([100.0, 88.3, 88.2, 80.0]), book)
     assert hold.margin_call_i == 2 and hold.equity[3] == hold.equity[2]
-    prepared = eq.simulate_stock(np.array([100.0, 95.0, 88.2, 80.0]), book, [(1, "NVDA", "cut")])
-    assert prepared.margin_call_i is None and prepared.cut_i == 1
+    # A signal on bar 1 is scheduled for bar 2 and fills at its open (bar 1's close, 95).
+    prepared = eq.simulate_stock(np.array([100.0, 95.0, 88.2, 80.0]), book, [(2, "NVDA", "cut")])
+    assert prepared.margin_call_i is None and prepared.cut_i == 2 and prepared.fills[0]["price"] == 95.0
     assert prepared.equity[-1] == pytest.approx(1_000_000 - 40_000 * 5 - 10_000 * 15)
 
 
@@ -115,4 +117,14 @@ def test_equity_bundle_validates_and_shows_the_closed_night():
     assert np.all(mids == mids[0])                     # flat while closed
     assert bundle["storm"]["onset_i"] == int(np.flatnonzero(t == pd.Timestamp("2026-11-11 20:59", tz="UTC"))[0])
     assert summary["alarms"], "a 9% fall in three minutes must raise the alarm"
+    facts = report_facts(bundle)
+    hours = facts["storm"]["market_hours"]
+    o, tr = bundle["storm"]["onset_i"], bundle["storm"]["trough_i"]
+    assert hours["clock_minutes"] == tr - o
+    assert hours["trading_minutes"] == hours["clock_minutes"] - 8 * 60 == facts["storm"]["duration_minutes"]
+    assert hours["closed"] == [{"from_utc": "2026-11-12T01:00:00Z", "to_utc": "2026-11-12T09:00:00Z",
+                                "minutes": 480,
+                                "text": "market closed from 12 Nov 01:00 UTC to 12 Nov 09:00 UTC"}]
+    assert "closed overnight" in hours["note"] and "not why" in hours["note"]
+    assert bundle["report"]["verified"] is True
     assert bundle["ships"]["prepared"]["cut_i"] is not None

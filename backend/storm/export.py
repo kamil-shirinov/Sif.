@@ -8,11 +8,24 @@ Runs ingest first if data/processed is missing, then features -> labels (rewrite
 storms.csv) -> detector v1 (data/processed/detector_config.json) -> policy v1 ships ->
 bundles. --all writes one bundle per storm in storms.csv, each from 3 hours before onset
 to 3 hours after (trimmed to the bars that exist), and an index.json listing exactly
-those bundles plus any Yahoo equity bundle already in the folder (storm.equity). Times are UTC; the window is inclusive.
+those bundles plus any Yahoo equity bundle already in the folder (storm.equity), whose
+report is rewritten by the same writer. Times are UTC; the window is inclusive.
 
 Each bundle's ship trades the storm's pair: a SYNTHETIC book long USD 20,000,000 against
 the pair's other currency (short EUR for EURUSD), $1,000,000 equity, 2.5% maintenance.
-The prepared ship follows policy v1 (storm.exposure); the unprepared ship holds.
+The prepared ship follows policy v1 (storm.exposure); the unprepared ship holds. A cut or
+restore fills at the open bid or ask of the bar after its signal (storm.exposure), so
+`cut_i` is the fill frame, one after the alarm; the event text states the fill price.
+
+An alarm event's move_ahead_pct is set only when storm.evaluate.alarm_matches (the same
+matcher the evaluator uses) links it to the replay's storm: in [onset - 60 min, trough]
+and its episode still in force at onset. The stress menu is point in time
+(storm.exposure.stress_scenarios): only storms whose trough came before the exposure
+snapshot, which is often none.
+
+index.json metrics come from data/processed/metrics.json, and only when its provenance
+(SHA-256 of the spot parquets, contracts/calendar.csv and detector_config.json, written by
+storm.backtest) matches the files on disk now; otherwise export refuses to run.
 
 Each bundle carries a storm report from storm.ai.report (facts_from_bundle, then
 write_report): the deterministic mock by default (LLM_MODE is forced to mock), the real
@@ -25,6 +38,9 @@ Additions documented in contracts/replay_bundle.md (still schema_version 1, all 
   watch events             add `event` (the calendar event's name)
   storm.event, event_i     for a scheduled storm: the calendar event and its frame
   report.inspector         {verdict: ok | flag, issues: [...]}
+  index storms[].source    the bundle's source (sgx, yahoo, scenario), so a reader can tell
+                           market replays from navigator what-ifs; scenario bundles already in
+                           the folder are listed but never rewritten
 """
 from __future__ import annotations
 
@@ -35,14 +51,16 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from . import ingest
 from .ai.report import facts_from_bundle, write_report
-from .backtest import index_metrics
+from .backtest import index_metrics, provenance, provenance_mismatches
 from .detector import load_calendar, load_config, run_detector
-from .evaluate import LINK_BEFORE, move_ahead_pct
-from .exposure import book_for, exposure_snapshot, leg_exposure, policy_actions, ships, stress_test
+from .evaluate import alarm_matches, move_ahead_pct
+from .exposure import (Quotes, book_for, exposure_snapshot, leg_exposure, policy_actions, ships,
+                       stress_scenarios)
 from .features import PAIRS, build_features
 from .labels import label_all, print_storms, write_storms
 from .paths import BUNDLES_DIR, CALENDAR_CSV, PROCESSED_DIR, RAW_DIR
@@ -93,12 +111,13 @@ def load_context(processed: Path = PROCESSED_DIR, raw: Path = RAW_DIR,
 
 
 def _grid(feat: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp,
-          open_mask=None) -> tuple[pd.DataFrame, int]:
+          open_mask=None) -> tuple[pd.DataFrame, int, "np.ndarray"]:
     """Reindex onto the one-minute frame grid; short holes are forward-filled as flat bars.
 
     `open_mask` (bool per grid minute, default all open) marks when the market trades: a
     closed stretch of any length is filled flat at the last price; a hole longer than
-    MAX_FILL_MINUTES while open is an error. Returns (grid, holes filled while open)."""
+    MAX_FILL_MINUTES while open is an error. Returns (grid, holes filled while open,
+    traded: True on frames with a real bar, where a trade can fill)."""
     idx = pd.date_range(start, end, freq=f"{STEP_S}s")
     g = feat.reindex(idx)
     missing = g["mid"].isna()
@@ -112,7 +131,7 @@ def _grid(feat: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp,
     for col in ("open", "high", "low"):
         g.loc[missing, col] = g.loc[missing, "mid"]
     g.loc[missing, "jump"] = 0
-    return g, int(hole.sum())
+    return g, int(hole.sum()), (~missing).to_numpy()
 
 
 def default_window(feat: pd.DataFrame, storm) -> tuple[pd.Timestamp, pd.Timestamp]:
@@ -168,7 +187,7 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     feat = ctx.feats[pair]
     book = book_for(pair)
     res = run_detector(feat, ctx.calendar, ctx.cfg, exposure=leg_exposure(pair))
-    g, filled = _grid(feat.join(res.frame[["risk", "state"]]), start, end)
+    g, filled, traded = _grid(feat.join(res.frame[["risk", "state"]]), start, end)
     idx = g.index
     n = len(idx)
 
@@ -185,13 +204,15 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
 
     win = _visible_events([e for e in res.events if idx[0] <= e["time"] <= idx[-1]], g["state"], frame_of)
     mid = g["mid"].to_numpy(dtype=float)
-    paths = ships({pair: mid}, book, policy_actions({pair: win}, frame_of))
+    quotes = Quotes.from_frame(g, traded)
+    paths = ships({pair: quotes}, book, policy_actions({pair: win}, frame_of))
     prep = paths["prepared"]
 
-    def ahead(t: pd.Timestamp) -> float | None:
-        if not (storm.onset_utc - LINK_BEFORE <= t <= storm.trough_utc):
+    def ahead(e: dict) -> float | None:
+        if not alarm_matches(e["time"], e.get("clear"), storm):
             return None
-        return _r(move_ahead_pct(t, storm, feat["mid"]), 1)
+        a = move_ahead_pct(e["time"], storm, feat["mid"])
+        return None if a is None else _r(a, 1)
 
     events = []
     for e in win:
@@ -203,15 +224,11 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
             events.append({"i": i, "type": "watch", "text": f"Watch: {e['event']} at {e['at']:%H:%M} UTC",
                            "at_i": at_i, "event": e["event"]})
             continue
-        ev = {"i": i, "type": e["type"], "text": _event_text(e, pair, ctx.cfg, ahead(e["time"]) is not None)}
+        ev = {"i": i, "type": e["type"], "text": _event_text(e, pair, ctx.cfg, ahead(e) is not None)}
         if e["type"] == "alarm":
-            ev["move_ahead_pct"] = ahead(e["time"])
+            ev["move_ahead_pct"] = ahead(e)
         events.append(ev)
-    pct = round(book["cut_fraction"] * 100)
-    for i, _ in prep.cuts:
-        events.append({"i": i, "type": "cut", "text": f"Prepared ship cuts its {pair} position by {pct}%"})
-    for i, _ in prep.restores:
-        events.append({"i": i, "type": "restore", "text": f"Prepared ship restores its full {pair} position"})
+    events += trade_events(prep, pair, book["cut_fraction"])
     for name, p in paths.items():
         if p.margin_call_i is not None:
             events.append({"i": p.margin_call_i, "type": "margin_call", "ship": name,
@@ -264,7 +281,7 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
         },
         "events": events,
         "exposure": exposure_snapshot(paths["unprepared"], {pair: mid}, book, as_of_i),
-        "stress": stress_test(ctx.storms, feat["mid"], book),
+        "stress": stress_scenarios(ctx.storms, paths["unprepared"], {pair: quotes}, book, as_of_i, idx[as_of_i]),
         "report": None,
     }
     alarms = [(idx[ev["i"]], ev["move_ahead_pct"]) for ev in events if ev["type"] == "alarm"]
@@ -278,6 +295,8 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
         "fair_winds": [idx[ev["i"]] for ev in events if ev["type"] == "fair_wind"],
         "squalls": sum(ev["type"] == "squall" for ev in events),
         "cut": idx[prep.cut_i] if prep.cut_i is not None else None,
+        "fills": [{**f, "utc": idx[f["i"]]} for f in prep.fills],
+        "stress_n": len(bundle["stress"]),
         "restore": idx[prep.restore_i] if prep.restore_i is not None else None,
         "final_equity": {k: float(p.equity[-1]) for k, p in paths.items()},
         "margin_call": {k: (idx[p.margin_call_i] if p.margin_call_i is not None else None)
@@ -286,12 +305,83 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     return bundle, summary
 
 
+def trade_events(prep, symbol: str, cut_fraction: float) -> list[dict]:
+    """cut and restore events at their fill frames, stating each fill's price and side."""
+    pct = round(cut_fraction * 100)
+    out = []
+    for f in prep.fills:
+        if f["action"] not in ("cut", "restore"):
+            continue
+        at = "" if f["price"] == f["mid"] else f" ({'ask' if f['side'] == 'buy' else 'bid'})"
+        what = f"cuts its {symbol} position by {pct}%" if f["action"] == "cut" else f"restores its full {symbol} position"
+        out.append({"i": f["i"], "type": f["action"],
+                    "text": f"Prepared ship {what} at {f['price']:.6g}{at}, the next bar's open"})
+    return out
+
+
+def _utc(bundle: dict, i: int) -> pd.Timestamp:
+    return pd.Timestamp(bundle["t0"] + i * bundle["step_s"], unit="s", tz="UTC")
+
+
+def closed_stretches(bundle: dict) -> list[tuple[int, int]]:
+    """(first closed frame, first open frame after it, or n) for each run of market_open == 0."""
+    is_open = bundle["series"].get("market_open")
+    if is_open is None:
+        return []
+    out, start = [], None
+    for i, v in enumerate(is_open):
+        if v == 0 and start is None:
+            start = i
+        elif v == 1 and start is not None:
+            out.append((start, i))
+            start = None
+    if start is not None:
+        out.append((start, len(is_open)))
+    return out
+
+
+def market_hours_facts(bundle: dict) -> dict | None:
+    """For a bundle with market_open (equities): trading minutes from onset to trough and
+    the closed stretches. Facts only: when the market traded, never why prices moved."""
+    is_open = bundle["series"].get("market_open")
+    if is_open is None:
+        return None
+    st = bundle["storm"]
+    o, t = st["onset_i"], st["trough_i"]
+    trading = int(sum(is_open[o + 1:t + 1]))
+    clock = (t - o) * bundle["step_s"] // 60
+    closed = []
+    for a, b in closed_stretches(bundle):
+        if b <= o or a > t:
+            continue
+        frm, to = _utc(bundle, a), _utc(bundle, b)
+        closed.append({"from_utc": frm.isoformat().replace("+00:00", "Z"),
+                       "to_utc": to.isoformat().replace("+00:00", "Z"),
+                       "minutes": (b - a) * bundle["step_s"] // 60,
+                       "text": f"market closed from {frm:%d %b %H:%M} UTC to {to:%d %b %H:%M} UTC"})
+    note = ("duration_minutes counts trading minutes only (pre-market, regular and after-hours "
+            f"sessions): {trading} trading minutes out of {clock} clock minutes from onset to trough. ")
+    if closed:
+        note += ("The market was closed overnight in between ("
+                 + "; ".join(c["text"] for c in closed)
+                 + "): no trades and no price change during that time. ")
+    note += "The data show when the market traded and what prices did, not why."
+    return {"trading_minutes": trading, "clock_minutes": clock,
+            "closed_minutes": clock - trading, "closed": closed,
+            "move": st["label"], "note": note}
+
+
 def report_facts(bundle: dict) -> dict:
-    """storm.ai.report facts, plus the scheduled event (name and time) when there is one."""
+    """storm.ai.report facts, plus the scheduled event (name and time) when there is one,
+    and, for a market with closed hours, trading minutes instead of clock minutes."""
     facts = facts_from_bundle(bundle)
     st = bundle["storm"]
+    hours = market_hours_facts(bundle)
+    if hours is not None:
+        facts["storm"]["duration_minutes"] = hours["trading_minutes"]
+        facts["storm"]["market_hours"] = hours
     if st["kind"] == "scheduled" and "event" in st:
-        at = pd.Timestamp(bundle["t0"] + st["event_i"] * bundle["step_s"], unit="s", tz="UTC")
+        at = _utc(bundle, st["event_i"])
         facts["storm"]["scheduled_event"] = {
             "name": st["event"],
             "time_utc": at.isoformat().replace("+00:00", "Z"),
@@ -319,14 +409,26 @@ def attach_report(bundle: dict, live: bool = False, model: str | None = None,
 def _index_entry(b: dict, file: str) -> dict:
     return {"storm_id": b["storm_id"], "title": b["title"], "symbol": b["symbol"],
             "asset_class": b["asset_class"], "kind": b["storm"]["kind"],
-            "move_bp": b["storm"]["move_bp"], "file": file}
+            "move_bp": b["storm"]["move_bp"], "file": file, "source": b["source"]}
 
 
-def load_index_metrics(processed: Path = PROCESSED_DIR) -> dict | None:
+class StaleMetrics(RuntimeError):
+    """metrics.json was computed from other data, calendar or config than the files now on disk."""
+
+
+def load_index_metrics(processed: Path = PROCESSED_DIR, calendar_path: Path = CALENDAR_CSV) -> dict | None:
+    """index.json metrics from metrics.json; refuses (StaleMetrics) unless its provenance
+    matches the spot data, calendar and detector config on disk."""
     path = processed / "metrics.json"
     if not path.exists():
         return None
-    return index_metrics(json.loads(path.read_text()))
+    metrics = json.loads(path.read_text())
+    now = provenance(processed, calendar_path, processed / "detector_config.json")
+    bad = provenance_mismatches(metrics.get("provenance"), now)
+    if bad:
+        raise StaleMetrics(f"{path} does not match the files on disk ({'; '.join(bad)}); "
+                           "re-run `python -m storm.tune` if the data changed, then `python -m storm.backtest`")
+    return index_metrics(metrics)
 
 
 def scan_bundles(out_dir: Path) -> list[tuple[dict, str]]:
@@ -376,11 +478,21 @@ def export_all(ctx: Context, out_dir: Path, metrics: dict | None, live: bool = F
         summaries.append({**s, "path": path, "n": bundle["n"], "report": bundle["report"],
                           "report_cost_usd": r["cost_usd"], "report_fallback": r["fallback"],
                           "kind": st.kind, "event": st.event})
-    # Keep the Yahoo equity bundles (written by storm.equity) listed alongside the SGX storms.
+    # Keep the Yahoo equity bundles (written by storm.equity) listed alongside the SGX storms,
+    # and give them a fresh report from the same writer (their prices and ships are unchanged).
     mine = {name for _, name in written}
     others = [(b, name) for b, name in scan_bundles(out_dir) if b.get("source") == "yahoo" and name not in mine]
-    index = write_index(out_dir, written + others, metrics)
-    return [out_dir / name for _, name in written], index, summaries
+    for b, name in others:
+        r = attach_report(b, live, model, provider)
+        write_bundle(b, out_dir)
+        summaries.append({"storm_id": b["storm_id"], "path": out_dir / name, "n": b["n"],
+                          "report": b["report"], "report_cost_usd": r["cost_usd"],
+                          "report_fallback": r["fallback"], "kind": b["storm"]["kind"], "event": "",
+                          "sgx": False})
+    # Navigator what-if bundles (source scenario) stay listed as they are: storm.ai owns them.
+    scenarios = [(b, name) for b, name in scan_bundles(out_dir) if b.get("source") == "scenario"]
+    index = write_index(out_dir, written + others + scenarios, metrics)
+    return [out_dir / name for _, name in written + others], index, summaries
 
 
 def _hm(t) -> str:
@@ -391,6 +503,8 @@ def print_summaries(summaries: list[dict]) -> None:
     print(f"{'storm_id':22} {'move_bp':>8} {'alarm':>6} {'ahead':>6} {'fair':>6} {'cut':>6} {'restore':>7}"
           f" {'prepared $':>12} {'unprepared $':>13}")
     for s in summaries:
+        if s.get("sgx") is False:
+            continue
         a = s["alarms"][0] if s["alarms"] else (None, None)
         ahead = "-" if a[1] is None else f"{a[1]:.0f}%"
         fair = s["fair_winds"][0] if s["fair_winds"] else None
@@ -417,9 +531,9 @@ def print_detail(s: dict) -> None:
         print(f"storm alarm: {t:%H:%M} UTC; share of the fall still ahead: {a:.1f}%")
     else:
         print("storm alarm: none linked to this storm")
-    if s["cut"] is not None:
-        print(f"prepared ship cut 75% at {s['cut']:%H:%M} UTC; "
-              + (f"restored at {s['restore']:%H:%M} UTC" if s["restore"] is not None else "not restored in window"))
+    for f in s.get("fills", []):
+        print(f"prepared ship {f['action']} fill {f['utc']:%H:%M} UTC: {f['side']} {f['qty']:,.0f} at "
+              f"{f['price']:.6g} ({f['at']}; mid {f['mid']:.6g}; cost vs mid ${f['cost_usd']:,.0f})")
     for k in ("prepared", "unprepared"):
         mc = s["margin_call"][k]
         print(f"{k:10} final equity ${s['final_equity'][k]:,.0f}"
@@ -443,7 +557,10 @@ def main(argv: list[str] | None = None) -> None:
         ap.error("pass exactly one of --all or --storm")
 
     ctx = load_context(args.processed, args.raw)
-    metrics = load_index_metrics(args.processed)
+    try:
+        metrics = load_index_metrics(args.processed)
+    except StaleMetrics as e:
+        raise SystemExit(f"refusing to export: {e}")
     if metrics is None:
         print("note: no metrics.json yet (run `python -m storm.backtest`); index metrics = null")
     print_storms(ctx.storms)

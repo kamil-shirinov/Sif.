@@ -3,10 +3,11 @@
 Columns (indexed by UTC timestamp):
   open, high, low, mid    one-minute OHLC of the mid (mid = close_mid)
   ret_bp                  simple one-minute return of mid in basis points; undefined
-                          (NaN) when the previous bar is more than 5 minutes earlier,
-                          so a weekend or outage gap never counts as a one-minute move,
-                          or (when the bars carry a `session` id, as equities do) when it
-                          is in another session: no return crosses a closed market
+                          (NaN) unless the previous bar is exactly one minute earlier, so
+                          no gap (a missing minute, an outage, a weekend) ever counts as a
+                          one-minute move, and (when the bars carry a `session` id, as
+                          equities do) when it is in another session: no return crosses a
+                          closed market
   sd_24h                  sd of ret_bp over the trailing 1,440 bars, excluding the
                           current bar so a jump cannot dampen its own z-score
   z                       ret_bp / sd_24h
@@ -18,6 +19,17 @@ Columns (indexed by UTC timestamp):
   usd_z                   z signed so positive means USD up (EURUSD inverted)
   comove                  number of pairs with |usd_z| >= 3 in the same direction
                           that minute (the larger of the up and down counts)
+  open_bid, open_ask,     the bar's quotes, passed through when the bars carry them (SGX
+  close_bid, close_ask    spot does): trades fill at bid or ask, never at mid
+
+Bad prints (optional `bad_print` column, 1 on a bar flagged as a one-minute print the
+market did not trade through) are handled causally. At the flagged minute itself the bar
+is visible like any other: its return, z and jump use the history before it, so it can
+alarm (or count as a false alarm). From the next bar on, once the reversal has been seen,
+it is excluded: later returns, the trailing sd and spread median, and the realised
+volatility are computed as if it had never printed.
+
+The index is normalised to nanoseconds (pandas 3 parses to microseconds by default).
 
 The rolling windows count bars, not clock minutes, so volatility is measured over
 trading minutes only. bar_features() is the generic core (storm.equity uses it too).
@@ -37,9 +49,20 @@ USD_SIGN = {"EURUSD": -1, "USDJPY": 1, "USDSGD": 1}
 WINDOW_24H = 1440
 MIN_PERIODS_24H = 720
 REALISED_WINDOW = 5
-MAX_RET_GAP = pd.Timedelta(minutes=5)
+RET_STEP = pd.Timedelta(minutes=1)
 JUMP_Z = 6.0
 COMOVE_Z = 3.0
+QUOTE_COLUMNS = ("open_bid", "open_ask", "close_bid", "close_ask")
+
+
+def as_ns(idx: pd.DatetimeIndex) -> pd.DatetimeIndex:
+    """The same instants at nanosecond resolution, whatever unit pandas parsed them at."""
+    return pd.DatetimeIndex(idx).as_unit("ns")
+
+
+def epoch_minutes(idx: pd.DatetimeIndex) -> np.ndarray:
+    """Whole minutes since the Unix epoch, independent of the index's time unit."""
+    return as_ns(idx).asi8 // 60_000_000_000
 
 
 def load_spot(pair: str, processed_dir: Path = PROCESSED_DIR) -> pd.DataFrame:
@@ -61,16 +84,41 @@ def usd_sign(pair: str) -> int:
 
 def bar_features(bars: pd.DataFrame) -> pd.DataFrame:
     """Features from one-minute bars indexed by UTC timestamp: columns open, high, low, mid,
-    and optionally spread_bp (NaN when the data has no quotes) and session (an int id per
-    trading session; a return never crosses a change of session)."""
+    and optionally spread_bp (NaN when the data has no quotes), session (an int id per
+    trading session; a return never crosses a change of session), the bid/ask quotes in
+    QUOTE_COLUMNS, and bad_print (see the module doc)."""
     bars = bars.sort_index()
+    bars = bars.set_axis(as_ns(bars.index), axis=0)
+    bad = bars["bad_print"].astype(bool) if "bad_print" in bars else None
+    if bad is None or not bad.any():
+        out = _bar_features(bars)
+        if bad is not None:
+            out["bad_print"] = 0
+        return out
+    # Causal: every bar after a bad print sees the history without it; the bad bar itself
+    # sees the history before it, plus itself.
+    out = _bar_features(bars[~bad]).reindex(bars.index)
+    for t in bars.index[bad]:
+        keep = ~bad | (bars.index == t)
+        out.loc[t] = _bar_features(bars[keep].loc[:t]).loc[t]
+    out["bad_print"] = bad.astype(int)
+    out["jump"] = out["jump"].astype(int)
+    if "session" in out:
+        out["session"] = out["session"].astype("int64")
+    return out
+
+
+def _bar_features(bars: pd.DataFrame) -> pd.DataFrame:
     out = pd.DataFrame(index=bars.index)
     for col in ("open", "high", "low", "mid"):
         out[col] = bars[col].astype(float)
+    for col in QUOTE_COLUMNS:
+        if col in bars:
+            out[col] = bars[col].astype(float)
 
     ret = (out["mid"] / out["mid"].shift(1) - 1.0) * 1e4
     dt = out.index.to_series().diff()
-    ret[dt > MAX_RET_GAP] = np.nan
+    ret[dt != RET_STEP] = np.nan
     if "session" in bars:
         out["session"] = bars["session"].astype("int64")
         ret[out["session"].diff().fillna(0) != 0] = np.nan
@@ -99,6 +147,7 @@ def pair_features(spot: pd.DataFrame, pair: str) -> pd.DataFrame:
     bars = pd.DataFrame({
         "open": df["open_mid"], "high": df["high_mid"], "low": df["low_mid"], "mid": df["close_mid"],
         "spread_bp": (df["close_ask"] - df["close_bid"]) / df["close_mid"] * 1e4,
+        **{c: df[c] for c in QUOTE_COLUMNS},
     }, index=df.index)
     out = bar_features(bars)
     out["usd_z"] = out["z"] * usd_sign(pair)
