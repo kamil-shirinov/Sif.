@@ -21,6 +21,11 @@ const SUN_WARM = new Color("#ffb070");
 const SUN_WHITE = new Color("#fff4e6");
 /** Sky radiance scale: keeps the HDR sky under the bloom threshold so only lamp and lightning glow. */
 const SKY_BASE = 0.6;
+/**
+ * The sky box is so large that no camera position can reach its corners, and the camera's far plane
+ * (Scene.tsx: CAMERA_FAR) is far beyond them: sqrt(3) x SKY_SCALE / 2 is about 390,000, far is 2,000,000.
+ */
+export const SKY_SCALE = 450_000;
 
 /**
  * Sky (three.js Sky with its built-in clouds), sun light, fog, storm darkening and horizon haze.
@@ -31,7 +36,9 @@ export function Atmosphere() {
 
   const sky = useMemo(() => {
     const s = new Sky();
-    s.scale.setScalar(10000);
+    s.scale.setScalar(SKY_SCALE);
+    // Never cull the sky: it surrounds the camera whatever the orbit, and a culling decision must not drop it.
+    s.frustumCulled = false;
     const u = s.material.uniforms;
     u.turbidity.value = 4;
     u.rayleigh.value = 2.2;
@@ -41,6 +48,10 @@ export function Atmosphere() {
     u.cloudScale.value = 0.00025;
     // Storm dimming happens inside the sky shader (before tone mapping), so it works in HDR too.
     u.uDim = { value: 1 };
+    // three's Sky pins every vertex exactly on the far plane (gl_Position.z = gl_Position.w). Rounding there can
+    // clip whole triangles of the box on some GPUs. Sit just inside the far plane instead: still behind every
+    // other object (the sea ends at 4,500, the camera is never beyond 320 + pan), never on the clip boundary.
+    s.material.vertexShader = s.material.vertexShader.replace("gl_Position.z = gl_Position.w;", "gl_Position.z = gl_Position.w * 0.99999;");
     s.material.fragmentShader = s.material.fragmentShader
       .replace("uniform float cloudScale;", "uniform float cloudScale;\nuniform float uDim;")
       .replace("gl_FragColor = vec4( texColor, 1.0 );", "gl_FragColor = vec4( texColor * uDim, 1.0 );");

@@ -10,7 +10,7 @@ import { useApp } from "../state/app";
 import { playhead } from "../state/timeline";
 import { pulseFairWind, pulseSquall, updateVis } from "./vis";
 import { Sea } from "./Sea";
-import { Atmosphere } from "./Atmosphere";
+import { Atmosphere, SKY_SCALE } from "./Atmosphere";
 import { Rain } from "./Rain";
 import { Lightning } from "./Lightning";
 import { StormFronts } from "./StormFront";
@@ -19,6 +19,10 @@ import { SunBreak } from "./SunBreak";
 import { Ship } from "./Ship";
 import { Jettison } from "./Jettison";
 import { CameraRig, HOME_POS } from "./CameraRig";
+
+/** Far plane well beyond the sky box's corners (SKY_SCALE x sqrt(3) / 2), so nothing of the sky can be clipped. */
+const CAMERA_FAR = 2_000_000;
+if (CAMERA_FAR < SKY_SCALE * 2) throw new Error("camera far plane must stay well beyond the sky box");
 
 function VisDriver({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
   // The replay announces squall and fair_wind events it crosses while playing: a wall-clock pulse keeps them visible at high speed.
@@ -78,7 +82,7 @@ export function StormScene({
     <Canvas
       className="scene-canvas"
       dpr={lowQuality ? 1 : [1, 1.75]}
-      camera={{ position: HOME_POS.toArray(), fov: 50, near: 0.5, far: 14000 }}
+      camera={{ position: HOME_POS.toArray(), fov: 50, near: 0.5, far: CAMERA_FAR }}
       gl={{ antialias: lowQuality ? false : true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
         gl.toneMapping = ACESFilmicToneMapping;

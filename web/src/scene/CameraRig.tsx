@@ -10,6 +10,27 @@ export const HOME_POS = new Vector3(4, 8.5, 38);
 export const HOME_TARGET = new Vector3(0, 2.2, 0);
 const IDLE_S = 5;
 const MIN_CLEARANCE = 1.6; // camera stays this far above the wave surface
+const MIN_DISTANCE = 8;
+const MAX_DISTANCE = 320;
+
+/**
+ * ?cam=<azimuth>,<elevation>[,<distance>]: start the camera there (degrees around the ships, 0 = the home
+ * side; degrees above the sea; scene units) and keep it there until the first drag, like ?at= for frames.
+ * For screenshots and for checking the sky from every side.
+ */
+function cameraFromUrl(): Vector3 | null {
+  try {
+    const raw = new URLSearchParams(window.location.search).get("cam");
+    if (!raw) return null;
+    const [az, el, dist] = raw.split(",").map(Number);
+    if (!Number.isFinite(az) || !Number.isFinite(el)) return null;
+    const radius = Number.isFinite(dist) ? Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, dist)) : HOME_POS.distanceTo(HOME_TARGET);
+    const phi = Math.PI / 2 - (Math.min(87, Math.max(0, el)) * Math.PI) / 180;
+    return new Vector3().setFromSpherical(new Spherical(radius, phi, (az * Math.PI) / 180)).add(HOME_TARGET);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Drag to orbit 360 degrees, look down from above, scroll to zoom.
@@ -18,13 +39,15 @@ const MIN_CLEARANCE = 1.6; // camera stays this far above the wave surface
 export function CameraRig() {
   const controls = useRef<OrbitControlsImpl>(null);
   const { camera, gl } = useThree();
-  const st = useRef({ lastInput: -Infinity, interacting: false, resetUntil: 0 });
+  const urlCam = useMemo(cameraFromUrl, []);
+  // With ?cam= the camera is never "idle" until the first drag, so it stays where it was put.
+  const st = useRef({ lastInput: urlCam ? Infinity : -Infinity, interacting: false, resetUntil: 0 });
   const sph = useMemo(() => new Spherical(), []);
   const home = useMemo(() => new Spherical().setFromVector3(HOME_POS.clone().sub(HOME_TARGET)), []);
   const off = useMemo(() => new Vector3(), []);
 
   useEffect(() => {
-    camera.position.copy(HOME_POS);
+    camera.position.copy(urlCam ?? HOME_POS);
     camera.lookAt(HOME_TARGET);
     const el = gl.domElement;
     const onDbl = () => {
@@ -33,7 +56,7 @@ export function CameraRig() {
     };
     el.addEventListener("dblclick", onDbl);
     return () => el.removeEventListener("dblclick", onDbl);
-  }, [camera, gl]);
+  }, [camera, gl, urlCam]);
 
   useEffect(() => {
     const c = controls.current;
@@ -92,8 +115,8 @@ export function CameraRig() {
       makeDefault
       enableDamping
       dampingFactor={0.08}
-      minDistance={8}
-      maxDistance={320}
+      minDistance={MIN_DISTANCE}
+      maxDistance={MAX_DISTANCE}
       minPolarAngle={0}
       maxPolarAngle={Math.PI / 2 - 0.03}
       enablePan
