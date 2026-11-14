@@ -14,6 +14,9 @@ MODEL = "Qwen/Qwen3-8B"
 REVISION = "c4991a667c9137cff07024144d448d2afe76abc4"
 PORT = 8000
 KEEP_WARM = os.getenv("MODAL_KEEP_WARM", "0") == "1"
+GPU = os.getenv("MODAL_GPU", "L4")
+if GPU not in {"L4", "A10G", "L40S"}:
+    raise ValueError("MODAL_GPU must be L4, A10G, or L40S")
 
 app = modal.App(APP_NAME)
 weights = modal.Volume.from_name("stormscore-qwen3-weights", create_if_missing=True)
@@ -26,12 +29,13 @@ image = (
         "DO_NOT_TRACK": "1",
         "VLLM_NO_USAGE_STATS": "1",
     })
+    .add_local_file(__file__, remote_path="/root/llm_server.py", copy=True)
 )
 
 
 @app.function(
     image=image,
-    gpu="L4",
+    gpu=GPU,
     cpu=4,
     memory=16384,
     volumes={"/weights": weights},

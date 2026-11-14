@@ -256,3 +256,32 @@ def test_gpu_usage_integrates_allocations_and_marks_missing():
     summary = usage.summarize(metrics)
     assert summary["allocated_gpu_minutes_observed"] == {"gpu_count_l4_avg": 1.5}
     assert summary["missing_buckets"] == {"gpu_count_l4_avg": 1}
+
+
+def test_cold_start_waits_for_zero_runners_and_uses_gateway(monkeypatch, capsys):
+    import argparse
+    import importlib.util
+    import sys
+    from types import SimpleNamespace
+
+    folder = Path(__file__).parent
+    sys.path.insert(0, str(folder))
+    try:
+        spec = importlib.util.spec_from_file_location("cold_start", folder / "cold_start.py")
+        cold = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cold)
+    finally:
+        sys.path.remove(str(folder))
+    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda _: SimpleNamespace(wait_seconds=900))
+    stats = iter([SimpleNamespace(num_total_runners=1, backlog=0),
+                  SimpleNamespace(num_total_runners=0, backlog=0)])
+    function = SimpleNamespace(get_current_stats=lambda: next(stats))
+    monkeypatch.setattr(cold.modal.Function, "from_name", lambda *a: function)
+    pauses, calls = [], []
+    monkeypatch.setattr(cold.time, "sleep", pauses.append)
+    monkeypatch.setattr(cold.llm, "list_models", lambda *a, **k: calls.append((a, k)) or ["Qwen/Qwen3-8B"])
+    assert cold.main() == 0
+    assert pauses == [30]
+    assert calls == [(("modal",), {"live": True})]
+    result = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert result["confirmed_zero_runners_before_request"]

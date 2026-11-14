@@ -5,6 +5,9 @@ using vLLM 0.10.2 on **one L4 (24 GB)**. BF16 weights, a 16,384-token context, o
 generation sequence, and eager execution leave room for the KV cache without a
 larger GPU. This is the initial configuration; deployment alone does not prove
 the model fits or measure inference quality. Validate after the env handoff.
+`MODAL_GPU=A10G` selects another 24 GB GPU if L4 capacity is unavailable;
+`MODAL_GPU=L40S` is an explicit 48 GB fallback if later measurements require it.
+There is no automatic GPU upgrade or multi-GPU allocation.
 
 The Hugging Face cache is on the `stormscore-qwen3-weights` Modal Volume. The
 container receives only the `stormscore-private-llm` Secret, containing
@@ -105,6 +108,13 @@ weight-download startup. Include the idle tail and every failed startup in GPU
 runtime; use Modal runtime/billing metrics, or label sampled runner-time estimates
 and their sampling interval explicitly. Deployment/image-build time is not GPU
 inference time. Do not infer GPU minutes from report latency alone.
+
+To wait for observed scale-to-zero and time the next authenticated model discovery:
+
+```sh
+PYTHONPATH=backend STORM_ENV_FILE=~/Desktop/stormscore/.env \
+  ~/.venvs/stormscore/bin/python -u tools/modal/cold_start.py
+```
 
 After the final idle tail has scaled down and metric ingestion has caught up:
 
