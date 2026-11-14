@@ -2,7 +2,8 @@ import type { Bundle } from "../types/bundle";
 import type { Derived } from "../lib/derive";
 import { useFrameIndex } from "../state/timeline";
 import { useApp } from "../state/app";
-import { fmtUtc, STATE_NAMES } from "../lib/format";
+import { fmtClock, fmtUtc, STATE_NAMES } from "../lib/format";
+import { setMode } from "../lib/surviveGame";
 
 export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Derived; onSound: () => void }) {
   const i = useFrameIndex();
@@ -10,6 +11,7 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
   const lowQuality = useApp((s) => s.lowQuality);
   const setLowQuality = useApp((s) => s.setLowQuality);
   const webglOk = useApp((s) => s.webglOk);
+  const mode = useApp((s) => s.mode);
   const tiger = useApp((s) => s.health?.tiger === true);
   const liveStatus = useApp((s) => s.liveStatus);
   const state = bundle.series.state[i] as 0 | 1 | 2;
@@ -18,6 +20,7 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
   const prev = bundle.series.mid[Math.max(0, i - 1)];
   const fromStart = (mid / bundle.series.mid[0] - 1) * 10000;
   const onset = i >= bundle.storm.onset_i;
+  const closed = derived.closed !== null && derived.closed[i] === 1;
 
   return (
     <div className="panel hud">
@@ -35,11 +38,28 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
           {soundOn ? <SpeakerOn /> : <SpeakerOff />}
         </button>
       </div>
+      <div className="mode-switch" role="tablist" aria-label="Mode">
+        <button role="tab" aria-selected={mode === "replay"} className={mode === "replay" ? "on" : ""} onClick={() => setMode("replay")} title="Watch the storm and the two demo ships">
+          Replay
+        </button>
+        <button role="tab" aria-selected={mode === "survive"} className={mode === "survive" ? "on" : ""} onClick={() => setMode("survive")} title="Sail your own ship through the storm">
+          Survive
+        </button>
+      </div>
       <div className="hud-symbol">
         <span className="symbol">{bundle.symbol}</span>
         <span className={`badge state-${state}`}>{STATE_NAMES[state]}</span>
+        {closed && (
+          <span className="badge closed" title="series.market_open is 0: prices hold their last trading value">
+            Market closed
+          </span>
+        )}
         {bundle.source === "synthetic" && <span className="badge synthetic">synthetic data</span>}
-        {bundle.source === "scenario" && <span className="badge scenario">what-if scenario</span>}
+        {bundle.source === "scenario" && (
+          <span className="badge scenario whatif" title="A what-if scenario: the navigator resized a real storm. These prices are not market data and not real history.">
+            <b>What if</b> {bundle.title.replace(/^\s*what[\s-]*if[:\s-]*/i, "")}
+          </span>
+        )}
         {tiger && (
           <span
             className={`badge live ${liveStatus}`}
@@ -53,7 +73,10 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
         <span className={mid >= prev ? "up" : "down"}>{mid.toFixed(derived.priceDecimals)}</span>
         <span className="hud-bp">{(fromStart >= 0 ? "+" : "") + fromStart.toFixed(0)} bp</span>
       </div>
-      <div className="hud-time">{fmtUtc(derived.times[i])}</div>
+      <div className="hud-time">
+        {bundle.source === "scenario" ? `what-if clock ${fmtUtc(derived.times[i], false)}` : fmtUtc(derived.times[i])}
+        {derived.exchangeTz && <span className="muted"> · {fmtClock(derived.times[i], derived.solarOffsetS[i])} New York</span>}
+      </div>
       <div className="gauge" title="Storm risk score (series.risk)">
         <div className="gauge-label">
           <span>Storm risk</span>

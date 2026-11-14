@@ -32,7 +32,7 @@ export const SKY_SCALE = 450_000;
  * risk -> darkness, cloud cover, fog; state -> wind (cloud speed); time of day -> sun.
  */
 export function Atmosphere() {
-  const { scene } = useThree();
+  const { scene, camera } = useThree();
 
   const sky = useMemo(() => {
     const s = new Sky();
@@ -131,6 +131,9 @@ export function Atmosphere() {
   const tmp = useMemo(() => new Color(), []);
 
   useFrame(() => {
+    // The sky box rides with the camera, so wherever the camera is (orbit, pan, zoom) it sits at the box's centre:
+    // no face or corner can come near it. The sky shader looks along (vertex - camera), which the move does not change.
+    sky.position.copy(camera.position);
     const u = sky.material.uniforms;
     // A fair_wind event thins the cloud: the sky reads as if risk had dropped, so the sun breaks through.
     const fw = vis.fairWind;

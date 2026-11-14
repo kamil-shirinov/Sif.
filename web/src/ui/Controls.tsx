@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import type { Derived } from "../lib/derive";
 import { SPEEDS, useTimeline } from "../state/timeline";
+import { useApp } from "../state/app";
+import { useSurvive } from "../state/survive";
 import { fmtUtc } from "../lib/format";
 
 export function Controls({ derived }: { derived: Derived }) {
@@ -9,11 +11,21 @@ export function Controls({ derived }: { derived: Derived }) {
   const speed = useTimeline((s) => s.speed);
   const { toggle, seek, setSpeed, play, pause } = useTimeline.getState();
   const wasPlaying = useRef(false);
+  // Survive: a run cannot be scrubbed or replayed from the controls. Only sailing can be paused and resumed.
+  const survive = useApp((st) => st.mode === "survive");
+  const phase = useSurvive((st) => st.phase);
+  const cantPlay = survive && phase !== "sailing";
   const frame = Math.min(derived.n - 1, Math.floor(t));
 
   return (
     <div className="panel controls">
-      <button className="play" onClick={toggle} aria-label={playing ? "Pause" : "Play"}>
+      <button
+        className="play"
+        onClick={toggle}
+        disabled={cantPlay}
+        title={cantPlay ? (phase === "setup" ? "Press Sail to start" : "The run is over") : undefined}
+        aria-label={playing ? "Pause" : "Play"}
+      >
         {playing ? (
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
             <rect x="6" y="5" width="4" height="14" rx="1" />
@@ -33,6 +45,7 @@ export function Controls({ derived }: { derived: Derived }) {
           step={0.01}
           value={t}
           aria-label="Replay position"
+          disabled={survive}
           onPointerDown={() => {
             wasPlaying.current = useTimeline.getState().playing;
             pause();

@@ -4,6 +4,11 @@ import { BundleError, DEFAULT_STORM_ID, loadBundle, loadIndex, stormIdFromUrl } 
 import { fetchCandles, fetchHealth } from "./lib/api";
 import { applyBundle, COLD_OPEN_MS, defaultStorm } from "./lib/session";
 import { useReplayDriver } from "./lib/useReplayDriver";
+import { bindSurviveAudio, useSurviveDriver } from "./lib/surviveGame";
+import { useSurvive } from "./state/survive";
+import { SurvivePanel } from "./ui/SurvivePanel";
+import { SurviveActions } from "./ui/SurviveActions";
+import { SurviveCard } from "./ui/SurviveCard";
 import { useApp } from "./state/app";
 import { useTimeline } from "./state/timeline";
 import { Hud } from "./ui/Hud";
@@ -23,6 +28,7 @@ const StormScene = lazy(() => import("./scene/Scene").then((m) => ({ default: m.
 // One engine for the page's lifetime (StrictMode remounts must not dispose it).
 const audioEngine = createAudioEngine();
 window.addEventListener("pagehide", () => audioEngine.dispose());
+bindSurviveAudio(audioEngine);
 
 function hasWebGL(): boolean {
   try {
@@ -54,6 +60,8 @@ export function App() {
   const lowQuality = useApp((s) => s.lowQuality);
   const webglOk = useApp((s) => s.webglOk);
   const audio = audioEngine;
+  const mode = useApp((s) => s.mode);
+  const sunkAnnounced = useSurvive((s) => s.phase === "sailing" && s.sunkAnnounced);
 
   // Start: read index.json and ask the server for its health (both optional), then load the storm
   // named by ?storm=, else the largest move in the index, else mock_storm.
@@ -70,6 +78,7 @@ export function App() {
         if (cancelled) return;
         useApp.getState().setIndex(index);
         const params = new URLSearchParams(window.location.search);
+        if (params.get("mode") === "survive") useApp.getState().setMode("survive"); // ?mode=survive opens the game
         const named = stormIdFromUrl();
         let pick = named !== null ? { id: named, file: index?.storms.find((s) => s.storm_id === named)?.file } : defaultStorm(index);
         let b;
@@ -159,6 +168,8 @@ export function App() {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Space" && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement)) {
         e.preventDefault();
+        // Survive: Space pauses and resumes a run; it never starts one (Sail does) or replays a finished one.
+        if (useApp.getState().mode === "survive" && useSurvive.getState().phase !== "sailing") return;
         useTimeline.getState().toggle();
       }
     };
@@ -167,6 +178,7 @@ export function App() {
   }, []);
 
   useReplayDriver(bundle, derived, audio);
+  useSurviveDriver();
 
   const onSceneError = useCallback(() => useApp.getState().setWebglOk(false), []);
 
@@ -199,16 +211,25 @@ export function App() {
         {webglOk && <FrontLabels bundle={bundle} derived={derived} />}
         <div className="stack stack-left">
           <Hud bundle={bundle} derived={derived} onSound={onSound} />
-          <StormPicker bundle={bundle} />
-          <EvidenceCard />
+          {mode === "replay" && <StormPicker bundle={bundle} />}
+          {mode === "replay" && <EvidenceCard />}
         </div>
-        <Toasts />
+        <Toasts derived={derived} />
         <div className="stack stack-right">
-          <Manifest bundle={bundle} derived={derived} />
-          <ReportPanel report={bundle.report} />
-          <NavigatorPanel />
+          {mode === "survive" ? (
+            <SurvivePanel bundle={bundle} derived={derived} />
+          ) : (
+            <>
+              <Manifest bundle={bundle} derived={derived} />
+              <ReportPanel report={bundle.report} />
+              <NavigatorPanel />
+            </>
+          )}
         </div>
         <MarketChart bundle={bundle} derived={derived} large={!webglOk} />
+        {mode === "survive" && <SurviveActions />}
+        {mode === "survive" && <SurviveCard bundle={bundle} />}
+        {sunkAnnounced && <div className="sunk-vignette" aria-hidden="true" />}
         <Controls derived={derived} />
         {webglOk && <div className="hint">drag to orbit · scroll to zoom · double-click to reset</div>}
       </div>

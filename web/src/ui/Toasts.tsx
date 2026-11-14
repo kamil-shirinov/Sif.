@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useApp, type Toast } from "../state/app";
+import type { Derived } from "../lib/derive";
+import { MarketBanner } from "./MarketBanner";
 
 const LIFETIME_MS = 6500;
 
@@ -17,10 +19,11 @@ function ToastItem({ toast }: { toast: Toast }) {
   );
 }
 
-export function Toasts() {
+export function Toasts({ derived }: { derived: Derived }) {
   const toasts = useApp((s) => s.toasts);
   return (
     <div className="toasts" aria-live="polite">
+      <MarketBanner derived={derived} />
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} />
       ))}

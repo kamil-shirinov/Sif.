@@ -4,6 +4,8 @@ import { sampleAt, stepAt } from "../lib/derive";
 /** Default pace: 1 market minute per 0.25 s of wall time (speed 1). */
 export const FRAMES_PER_SECOND_AT_1X = 4;
 export const SPEEDS = [0.5, 1, 2, 4, 8, 16] as const;
+/** While the market is closed nothing moves, so the replay runs this many times faster until it reopens. */
+export const CLOSED_SPEEDUP = 8;
 
 export interface TimelineState {
   /** Playhead in frames; fractional so the scene can interpolate between frames. */
@@ -13,7 +15,9 @@ export interface TimelineState {
   speed: number;
   /** Increments on every seek, so the event driver does not fire everything it skipped. */
   seekEpoch: number;
-  reset(n: number): void;
+  /** 1 per frame while the market is closed (fast-forwarded); null when the bundle always trades. */
+  closed: Uint8Array | null;
+  reset(n: number, closed?: Uint8Array | null): void;
   play(): void;
   pause(): void;
   toggle(): void;
@@ -31,7 +35,8 @@ export const useTimeline = create<TimelineState>((set, get) => ({
   playing: false,
   speed: 1,
   seekEpoch: 0,
-  reset: (n) => set({ n, t: 0, playing: false, seekEpoch: get().seekEpoch + 1 }),
+  closed: null,
+  reset: (n, closed = null) => set({ n, closed, t: 0, playing: false, seekEpoch: get().seekEpoch + 1 }),
   play: () => {
     const { t, n } = get();
     if (t >= n - 1) set({ t: 0, seekEpoch: get().seekEpoch + 1, playing: true });
@@ -42,9 +47,10 @@ export const useTimeline = create<TimelineState>((set, get) => ({
   setSpeed: (speed) => set({ speed }),
   seek: (t) => set({ t: clampT(t, get().n), seekEpoch: get().seekEpoch + 1 }),
   advance: (dt) => {
-    const { playing, t, n, speed } = get();
+    const { playing, t, n, speed, closed } = get();
     if (!playing) return;
-    const next = t + dt * FRAMES_PER_SECOND_AT_1X * speed;
+    const night = closed !== null && closed[Math.min(n - 1, Math.floor(t))] === 1;
+    const next = t + dt * FRAMES_PER_SECOND_AT_1X * speed * (night ? CLOSED_SPEEDUP : 1);
     if (next >= n - 1) set({ t: n - 1, playing: false });
     else set({ t: next });
   },

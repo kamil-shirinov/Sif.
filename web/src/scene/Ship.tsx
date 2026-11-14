@@ -7,24 +7,28 @@ import {
   ExtrudeGeometry,
   Group,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  PointLight,
   ShaderMaterial,
   Shape,
   Vector3,
 } from "three";
-import type { ShipKey } from "../types/bundle";
-import type { CrateSpec, Derived, ShipDerived } from "../lib/derive";
-import { HOIST_FRAMES, sampleAt } from "../lib/derive";
+import type { CrateSpec, Derived, SceneShip, ShipDerived } from "../lib/derive";
+import { HOIST_FRAMES, SINK_FRAMES, sampleAt, shipOf } from "../lib/derive";
 import { WAVE_GLSL, waveAt, waveUniforms, type WaveSample } from "./waves";
 import { vis } from "./vis";
 import { placeLabel } from "./labels";
 
 // ---------- layout ----------
-export const SHIP_LAYOUT: Record<ShipKey, { x: number; z: number; heading: number }> = {
+export const SHIP_LAYOUT: Record<SceneShip, { x: number; z: number; heading: number }> = {
   prepared: { x: -9, z: 4, heading: 0.22 },
   unprepared: { x: 10, z: -5, heading: -0.16 },
+  // Survive mode: one ship, mid-frame.
+  player: { x: 0, z: 0, heading: 0.14 },
 };
+const FUNNEL_COLORS: Record<SceneShip, string> = { prepared: "#2c8a6a", unprepared: "#b3402c", player: "#d9a21b" };
 
 const L = 14; // hull length
 const B = 4.4; // beam
@@ -32,8 +36,14 @@ const H = 2.6; // hull depth (deck at y = 0, keel at y = -H)
 const PAINT_LINE = -1.3; // design waterline paint (red below)
 const FREEBOARD_MAX = 1.95; // deck height above water with a full margin buffer (riding high)
 const FREEBOARD_MIN = 0.2; // no margin buffer left: deck nearly awash
-const SINK_FRAMES = 30;
 const DECK = { x0: -1.0, x1: 5.6, z0: -1.75, z1: 1.75 };
+// Lanterns: masthead (white), port (red, left) and starboard (green, right) lights. Lit as daylight fails
+// (vis.lantern: dusk, night, and any stretch where the market is closed). HDR colours so the bloom picks them up.
+const LAMP_OFF = new Color("#4a463c");
+const LAMP_MAST_ON = new Color(9, 6.8, 3.2);
+const LAMP_PORT_ON = new Color(8, 0.5, 0.4);
+const LAMP_STARBOARD_ON = new Color(0.5, 7, 1.6);
+const LANTERN_LIGHT = 95; // candela of the masthead point light at full lantern
 const CRATE_COLORS = ["#c47f36", "#3f7fc4", "#5aa168", "#c14b4b", "#8b6cc4", "#c4b13f"];
 
 // ---------- geometry ----------
@@ -175,7 +185,7 @@ export function crateAboard(ship: ShipDerived, crate: number, t: number): boolea
 }
 
 /** Live deck height of each ship (world y of the deck), so crates thrown and hoisted meet the real deck. */
-export const shipPose: Record<ShipKey, { y: number }> = { prepared: { y: 1 }, unprepared: { y: 1 } };
+export const shipPose: Record<SceneShip, { y: number }> = { prepared: { y: 1 }, unprepared: { y: 1 }, player: { y: 1 } };
 
 // ---------- motion shared by ship + jettisoned crates ----------
 export function shipBuffer(ship: ShipDerived, t: number): number {
@@ -192,8 +202,8 @@ export function sinkProgress(ship: ShipDerived, t: number): number {
 const _w: WaveSample = { h: 0, dhdx: 0, dhdz: 0 };
 
 // ---------- component ----------
-export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived }) {
-  const ship = derived.ships[shipKey];
+export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derived }) {
+  const ship = shipOf(derived, shipKey);
   const lay = SHIP_LAYOUT[shipKey];
   const hullGeo = useMemo(makeHullGeometry, []);
   const hullMat = useMemo(makeHullMaterial, []);
@@ -208,6 +218,15 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
   const rollG = useRef<Group>(null);
   const sail = useRef<Mesh>(null);
   const crateRefs = useRef<(Mesh | null)[]>([]);
+  const lanternLight = useRef<PointLight>(null);
+  const lamps = useMemo(
+    () => ({
+      mast: new MeshBasicMaterial({ color: LAMP_OFF.clone(), toneMapped: false }),
+      port: new MeshBasicMaterial({ color: LAMP_OFF.clone(), toneMapped: false }),
+      starboard: new MeshBasicMaterial({ color: LAMP_OFF.clone(), toneMapped: false }),
+    }),
+    [],
+  );
   const smooth = useRef({ rising: 0, heel: 0, freeboard: 1 });
 
   const anchor = useMemo(() => new Vector3(), []);
@@ -254,6 +273,13 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
       const m = crateRefs.current[i];
       if (m) m.visible = crateAboard(ship, i, t);
     }
+
+    // Lanterns follow the light: on at dusk, at night and while the market is closed, off in daylight.
+    const lit = vis.lantern * (1 - sink);
+    lamps.mast.color.copy(LAMP_OFF).lerp(LAMP_MAST_ON, lit);
+    lamps.port.color.copy(LAMP_OFF).lerp(LAMP_PORT_ON, lit);
+    lamps.starboard.color.copy(LAMP_OFF).lerp(LAMP_STARBOARD_ON, lit);
+    if (lanternLight.current) lanternLight.current.intensity = lit * LANTERN_LIGHT;
   });
 
   return (
@@ -273,7 +299,7 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
             </mesh>
             <mesh position={[-5.6, 3.4, 0]}>
               <cylinderGeometry args={[0.45, 0.55, 1.8, 12]} />
-              <meshStandardMaterial color={shipKey === "prepared" ? "#2c8a6a" : "#b3402c"} roughness={0.5} />
+              <meshStandardMaterial color={FUNNEL_COLORS[shipKey]} roughness={0.5} />
             </mesh>
             {/* mast, yard and sail */}
             <mesh position={[-2.4, 4.2, 0]}>
@@ -287,6 +313,17 @@ export function Ship({ shipKey, derived }: { shipKey: ShipKey; derived: Derived 
             <mesh ref={sail} geometry={sailGeo} position={[-2.25, 4.55, 0]}>
               <meshStandardMaterial color="#ece4d2" roughness={0.9} side={DoubleSide} />
             </mesh>
+            {/* lanterns: masthead, port (red) and starboard (green) */}
+            <mesh position={[-2.4, 8.75, 0]} material={lamps.mast}>
+              <sphereGeometry args={[0.22, 10, 8]} />
+            </mesh>
+            <mesh position={[-3.7, 1.9, -1.78]} material={lamps.port}>
+              <sphereGeometry args={[0.16, 8, 6]} />
+            </mesh>
+            <mesh position={[-3.7, 1.9, 1.78]} material={lamps.starboard}>
+              <sphereGeometry args={[0.16, 8, 6]} />
+            </mesh>
+            <pointLight ref={lanternLight} position={[-2.4, 8.2, 0]} intensity={0} distance={38} decay={1.5} color="#ffd9a0" />
             {/* cargo: one crate per USD_PER_CRATE of notional from exposure.positions */}
             {slots.map((s, i) => (
               <mesh

@@ -50,10 +50,20 @@ function World({ bundle, derived, lowQuality }: { bundle: Bundle; derived: Deriv
       <StormFronts key={`f${seq}`} watches={derived.watches} />
       <Lighthouse />
       <SunBreak />
-      <Ship key={`p${seq}`} shipKey="prepared" derived={derived} />
-      <Ship key={`u${seq}`} shipKey="unprepared" derived={derived} />
-      <Jettison key={`jp${seq}`} shipKey="prepared" derived={derived} />
-      <Jettison key={`ju${seq}`} shipKey="unprepared" derived={derived} />
+      {derived.player ? (
+        // Survive mode: one ship, the player's.
+        <>
+          <Ship key={`y${seq}`} shipKey="player" derived={derived} />
+          <Jettison key={`jy${seq}`} shipKey="player" derived={derived} />
+        </>
+      ) : (
+        <>
+          <Ship key={`p${seq}`} shipKey="prepared" derived={derived} />
+          <Ship key={`u${seq}`} shipKey="unprepared" derived={derived} />
+          <Jettison key={`jp${seq}`} shipKey="prepared" derived={derived} />
+          <Jettison key={`ju${seq}`} shipKey="unprepared" derived={derived} />
+        </>
+      )}
       <Rain lowQuality={lowQuality} />
       <Lightning />
       <CameraRig />

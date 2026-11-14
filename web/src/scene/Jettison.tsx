@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { BoxGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3 } from "three";
-import type { ShipKey } from "../types/bundle";
-import { HOIST_FRAMES, THROW_FRAMES, type Derived } from "../lib/derive";
+import { HOIST_FRAMES, shipOf, THROW_FRAMES, type Derived, type SceneShip } from "../lib/derive";
 import { waveAt, type WaveSample } from "./waves";
 import { vis } from "./vis";
 import { crateSlots, SHIP_LAYOUT, shipPose } from "./Ship";
@@ -41,8 +40,8 @@ function floatAt(c: Floater, size: number, d: number, out: Vector3, rot: Euler) 
  * event it is hoisted back aboard on a line from the mast head and lands on its place on deck.
  * One mesh per crate trip (derived.ships[ship].trips), so several cuts and restores per bundle just work.
  */
-export function Jettison({ shipKey, derived }: { shipKey: ShipKey; derived: Derived }) {
-  const ship = derived.ships[shipKey];
+export function Jettison({ shipKey, derived }: { shipKey: SceneShip; derived: Derived }) {
+  const ship = shipOf(derived, shipKey);
   const lay = SHIP_LAYOUT[shipKey];
   const slots = useMemo(() => crateSlots(derived.crates), [derived.crates]);
   const geo = useMemo(() => new BoxGeometry(1, 1, 1), []);
