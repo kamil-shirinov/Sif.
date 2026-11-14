@@ -183,7 +183,12 @@ def test_reasoning_only_response_is_charged_and_diagnostics_are_bounded(caps, mo
     assert "Authorization" not in json.dumps(diagnostics)
 
 
-def test_rejected_reasoning_effort_retries_without_it_under_budget_guard(caps, monkeypatch):
+@pytest.mark.parametrize("provider,status,limit,model", [
+    ("meta", 400, 4096, "muse-spark-1.3"),
+    ("fireworks", 422, 2048, "accounts/fireworks/models/kimi-k3p1-pro"),
+])
+def test_rejected_reasoning_effort_retries_without_it_under_budget_guard(
+        caps, monkeypatch, provider, status, limit, model):
     requests, reservations = [], []
     reserve = budget.reserve
 
@@ -195,19 +200,19 @@ def test_rejected_reasoning_effort_retries_without_it_under_budget_guard(caps, m
         requests.append(json.loads(request.content))
         assert len(reservations) == len(requests)
         if "reasoning_effort" in requests[-1]:
-            return httpx.Response(400, json={"error": {
+            return httpx.Response(status, json={"error": {
                 "message": "Unsupported parameter: reasoning_effort", "param": "reasoning_effort"}})
         return httpx.Response(200, json=response())
 
     monkeypatch.setattr(budget, "reserve", guarded)
     sdk_client(monkeypatch, handler)
-    result = llm.complete(MESSAGES, provider="meta", max_tokens=1024, purpose="smoke", live=True,
-                          reasoning_effort="minimal")
-    assert requests[0]["reasoning_effort"] == "minimal"
+    result = llm.complete(MESSAGES, provider=provider, model=model, max_tokens=limit,
+                          purpose="reasoning-test", live=True, reasoning_effort="low")
+    assert requests[0]["reasoning_effort"] == "low"
     assert "reasoning_effort" not in requests[1]
-    assert reservations == [1024, 1024]
+    assert reservations == [limit, limit]
     assert result["text"] == "OK"
-    assert budget.spent("meta") == cost_usd("muse-spark-1.1", 10, 4)
+    assert budget.spent(provider) == cost_usd(model, 10, 4)
 
 
 def test_report_and_inspector_reserve_their_larger_output_limits(caps, bundle, monkeypatch):
@@ -220,7 +225,11 @@ def test_report_and_inspector_reserve_their_larger_output_limits(caps, bundle, m
 
     def guarded(*args):
         reservations.append((args[0], args[3]))
-        return reserve(*args)
+        call_id = reserve(*args)
+        # The gateway reserves the full new reasoning+text output ceiling before
+        # the mocked provider is invoked, not the smaller previous token limit.
+        assert budget.spent(args[0]) == cost_usd(args[1], args[2], args[3])
+        return call_id
 
     def handler(request):
         payload = json.loads(request.content)
@@ -230,9 +239,10 @@ def test_report_and_inspector_reserve_their_larger_output_limits(caps, bundle, m
             report.deterministic_report(facts) if is_writer else '{"verdict":"ok","issues":[]}'
         )
         assert payload["max_tokens"] == reservations[-1][1]
+        assert payload["reasoning_effort"] == "low"
         return httpx.Response(200, json=data)
 
     monkeypatch.setattr(budget, "reserve", guarded)
     sdk_client(monkeypatch, handler)
     assert report.write_report(facts, live=True)["verified"]
-    assert reservations == [("meta", 2048), ("fireworks", 1024)]
+    assert reservations == [("meta", 4096), ("fireworks", 2048)]

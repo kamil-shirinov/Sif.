@@ -150,7 +150,8 @@ def write_report(facts: dict, live: bool = False, *, model: str | None = None,
         response = llm.complete(
             [{"role": "system", "content": instructions},
              {"role": "user", "content": json.dumps(payload, allow_nan=False)}],
-            provider=provider, model=model, max_tokens=2048, purpose="storm-report", live=live,
+            provider=provider, model=model, max_tokens=4096, purpose="storm-report", live=live,
+            reasoning_effort="low",
         )
         total_cost += response["cost_usd"]
         text, selected = response["text"], response["model"]

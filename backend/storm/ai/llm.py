@@ -91,6 +91,22 @@ def estimate_input_tokens(messages: list[dict], tools: list[dict] | None = None)
 
 
 def _mock(messages: list[dict], purpose: str, tools: list[dict] | None) -> tuple[str, list, str]:
+    if purpose == "storm-navigator":
+        from .navigator import mock_completion
+        return mock_completion(messages)
+    if purpose == "navigator-answer":
+        from .navigator import deterministic_answer
+        return deterministic_answer(json.loads(messages[-1]["content"])["facts"]), [], "stop"
+    if purpose == "navigator-inspector":
+        from .navigator import deterministic_answer
+        from .verify import verify_numbers
+        payload = json.loads(messages[-1]["content"])
+        issues = []
+        if not verify_numbers(payload["text"], payload["facts"])["verified"]:
+            issues.append("Answer contains unsupported numbers")
+        if payload["text"] != deterministic_answer(payload["facts"]):
+            issues.append("Mock inspector only certifies the deterministic navigator template")
+        return json.dumps({"verdict": "flag" if issues else "ok", "issues": issues}), [], "stop"
     if messages[-1].get("role") == "tool":
         return str(messages[-1].get("content", "")), [], "stop"
     if tools:
