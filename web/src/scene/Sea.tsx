@@ -4,28 +4,64 @@ import { Color, PlaneGeometry, Vector3 } from "three";
 import { Water } from "three/examples/jsm/objects/Water.js";
 import { makeWaterNormals } from "./waterNormals";
 import { WAVE_GLSL, waveUniforms } from "./waves";
-import { vis } from "./vis";
+import { MOON_DIR, vis } from "./vis";
 
 const SEA_SIZE = 9000;
 
-/** Plane whose vertices are packed densely near the ships and sparsely toward the horizon. */
+const SEA_SEGMENTS = 480; // per side
+const SEA_NEAR_STEP = 0.7; // grid spacing around the ships, fine enough for the shortest wave (3.1 units)
+const SEA_NEAR_STEPS = 150; // steps of that size out from the centre: 105 units, the whole default view
+
+/**
+ * Plane whose grid is uniform and fine around the ships, then grows geometrically toward the horizon. (A power-law
+ * grid put 4-unit triangles under a 38-unit camera: storm waves came out as facets.)
+ */
 function makeSeaGeometry(): PlaneGeometry {
-  const g = new PlaneGeometry(2, 2, 320, 320);
-  const pos = g.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    pos.setXY(i, Math.sign(x) * Math.pow(Math.abs(x), 2.4) * (SEA_SIZE / 2), Math.sign(y) * Math.pow(Math.abs(y), 2.4) * (SEA_SIZE / 2));
+  const half = SEA_SEGMENTS / 2;
+  const far = half - SEA_NEAR_STEPS;
+  const reach = SEA_SIZE / 2 - SEA_NEAR_STEP * SEA_NEAR_STEPS;
+  // Growth factor g with sum_{k=1..far} step * g^k = reach (bisection).
+  let lo = 1;
+  let hi = 2;
+  for (let it = 0; it < 60; it++) {
+    const g = (lo + hi) / 2;
+    let sum = 0;
+    let st = SEA_NEAR_STEP;
+    for (let k = 0; k < far; k++) {
+      st *= g;
+      sum += st;
+    }
+    if (sum < reach) lo = g;
+    else hi = g;
   }
-  g.computeBoundingSphere();
-  g.computeBoundingBox();
-  return g;
+  const g = (lo + hi) / 2;
+  const coord = new Float64Array(half + 1);
+  let st = SEA_NEAR_STEP;
+  for (let k = 1; k <= half; k++) {
+    if (k > SEA_NEAR_STEPS) st *= g;
+    coord[k] = coord[k - 1] + st;
+  }
+  const at = (u: number) => {
+    const k = Math.round(Math.abs(u) * half);
+    return Math.sign(u) * coord[Math.min(half, k)];
+  };
+  const geo = new PlaneGeometry(2, 2, SEA_SEGMENTS, SEA_SEGMENTS);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) pos.setXY(i, at(pos.getX(i)), at(pos.getY(i)));
+  geo.computeBoundingSphere();
+  geo.computeBoundingBox();
+  return geo;
 }
 
-const CALM_WATER = new Color("#1d4f66");
-const STORM_WATER = new Color("#0b1a20");
-const SKY_CALM = new Color("#7d93a6");
-const SKY_STORM = new Color("#1a232c");
+const CALM_WATER = new Color("#1b4f66");
+const STORM_WATER = new Color("#2a4b54");
+// The designed colour of the sky as the sea sees it. The mirror reflection is pulled part of the way toward it
+// (REFLECT_SHARE), so the water keeps a sea colour whatever the sky shader does (a turbid storm sky is tan).
+const SKY_CALM = new Color("#8fa9bd");
+const SKY_STORM = new Color("#46565f");
+const SKY_NIGHT = new Color("#1c2b45");
+const REFLECT_SHARE = 0.7;
+const MOON_GLINT = new Color(0.34, 0.44, 0.6);
 
 // Generated once per page: the sea remounts on quality changes, the texture does not need to.
 let normalsCache: ReturnType<typeof makeWaterNormals> | null = null;
@@ -131,7 +167,7 @@ ${FOAM_GLSL}`,
   useEffect(() => {
     const original = water.onBeforeRender;
     if (!mirror) water.onBeforeRender = () => {};
-    water.material.uniforms.uReflect.value = mirror ? 1 : 0;
+    water.material.uniforms.uReflect.value = mirror ? REFLECT_SHARE : 0;
     return () => {
       water.onBeforeRender = original;
     };
@@ -148,12 +184,14 @@ ${FOAM_GLSL}`,
     u.time.value += vis.dt * (0.35 + 0.9 * vis.wind);
     u.size.value = 3.2 + vis.wave.chop * 2.5;
     u.distortionScale.value = 1.5 + vis.wave.chop * 4;
-    (u.sunDirection.value as Vector3).copy(vis.sunDir);
-    const light = vis.dayFactor * (1 - 0.8 * vis.risk) + vis.flash * 1.5;
-    (u.sunColor.value as Color).setScalar(Math.min(1.5, 0.05 + light));
+    // By day the glitter path is the sun's; at night (and while the market is closed) the moon's.
+    const night = 1 - vis.dayFactor;
+    (u.sunDirection.value as Vector3).copy(vis.sunDir).lerp(MOON_DIR, night).normalize();
+    const light = vis.dayFactor * (1 - 0.7 * vis.risk) + vis.flash * 1.5;
+    (u.sunColor.value as Color).setScalar(Math.min(1.5, 0.04 + light)).lerp(MOON_GLINT, night * (1 - 0.6 * vis.risk));
     (u.waterColor.value as Color).copy(CALM_WATER).lerp(STORM_WATER, vis.risk);
-    tmp.copy(SKY_CALM).lerp(SKY_STORM, vis.risk);
-    (u.uSkyTint.value as Color).copy(tmp).multiplyScalar(0.3 + 0.7 * vis.dayFactor);
+    tmp.copy(SKY_CALM).lerp(SKY_STORM, vis.risk).multiplyScalar(vis.dayFactor);
+    (u.uSkyTint.value as Color).copy(tmp).lerp(SKY_NIGHT, night);
     u.uFoam.value = foamFromRisk(vis.risk);
     u.uFoamLight.value = Math.min(1.6, 0.12 + 0.88 * vis.dayFactor * (1 - 0.55 * vis.risk) + vis.flash * 1.2 + 0.08 * vis.lantern);
   });

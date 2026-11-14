@@ -113,6 +113,23 @@ function riskColor(r: number): string {
 
 const bucketTime = (b: Bundle, i: number, size: number) => (b.t0 + Math.floor(i / size) * size * b.step_s) as UTCTimestamp;
 
+/** A marker's word, placed by us in chart-host pixels (centre x, top y). */
+interface MarkerLabel {
+  key: string;
+  text: string;
+  color: string;
+  x: number;
+  y: number;
+}
+const LABEL_LINE = 12; // px between stacked labels
+function sameLabels(a: MarkerLabel[], b: MarkerLabel[]): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].key !== b[i].key || Math.abs(a[i].x - b[i].x) > 0.5 || Math.abs(a[i].y - b[i].y) > 0.5) return false;
+  }
+  return true;
+}
+
 export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle; derived: Derived; large?: boolean }) {
   const el = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -123,6 +140,8 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
   const priceRange = useRef<{ lo: number; hi: number }>({ lo: 0, hi: 0 });
   const frame = useFrameIndex();
   const [hover, setHover] = useState<BucketAgg | null>(null);
+  const [labels, setLabels] = useState<MarkerLabel[]>([]);
+  const [layoutTick, setLayoutTick] = useState(0); // bumped when the chart is resized, so the labels are placed again
   const n = derived.n;
   const decimals = derived.priceDecimals;
   const closedAt = derived.closed;
@@ -141,14 +160,17 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
 
   // All markers, revealed as the playhead passes them.
   const allMarkers = useMemo(() => {
-    const out: { i: number; m: SeriesMarker<Time> }[] = [];
+    const out: { i: number; text: string; m: SeriesMarker<Time> }[] = [];
     out.push({
       i: bundle.storm.onset_i,
-      m: { time: bucketTime(bundle, bundle.storm.onset_i, B), position: "aboveBar", shape: "circle", color: "#e0e6ee", text: "Onset" },
+      text: "Onset",
+      m: { time: bucketTime(bundle, bundle.storm.onset_i, B), position: "aboveBar", shape: "circle", color: "#e0e6ee" },
     });
     const releases = new Set<number>();
+    // The chart draws only the shapes. The words are our own DOM labels (see `labels` below): the library centres
+    // every label on its marker, so two events in the same or neighbouring candles printed on top of each other.
     const mark = (i: number, position: "aboveBar" | "belowBar", shape: SeriesMarker<Time>["shape"], color: string, text: string) =>
-      out.push({ i, m: { time: bucketTime(bundle, i, B), position, shape, color, text } });
+      out.push({ i, text, m: { time: bucketTime(bundle, i, B), position, shape, color } });
     for (const e of bundle.events) {
       // In Survive the demo ships' trades are not the player's: the player's own are marked below.
       if (player && (e.type === "cut" || e.type === "restore" || e.type === "margin_call")) continue;
@@ -244,7 +266,10 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
     };
     chart.subscribeClick(onClick);
     chart.subscribeCrosshairMove(onMove);
+    const onSize = () => setLayoutTick((v) => v + 1);
+    chart.timeScale().subscribeSizeChange(onSize);
     return () => {
+      chart.timeScale().unsubscribeSizeChange(onSize);
       chart.unsubscribeClick(onClick);
       chart.unsubscribeCrosshairMove(onMove);
       chart.remove();
@@ -274,10 +299,72 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
     }
     c.setData(cd);
     r.setData(rd);
-    markers.current?.setMarkers(allMarkers.filter((m) => m.i <= frame).map((m) => m.m));
+    const shown = allMarkers.filter((m) => m.i <= frame);
+    markers.current?.setMarkers(shown.map((m) => m.m));
     // Keep the whole storm on the axis so candles draw in from left to right.
     chartRef.current?.timeScale().setVisibleLogicalRange({ from: -0.5, to: nBuckets - 0.5 });
-  }, [frame, bundle, n, nBuckets, B, allMarkers, px, live, closedAt]);
+
+    // Marker labels: each sits over (or under) its candle; one that would touch a label already placed on that side
+    // moves one line further out, so "Onset", "Squall" and "Alarm" in neighbouring candles stack instead of overlapping.
+    // Laid out on the next animation frame: the chart has applied the new data and range by then, so its
+    // coordinates are current (also on a paused first load, and after a resize: see layoutTick).
+    const place = () => {
+    const ts = chartRef.current?.timeScale();
+    const host = el.current;
+    const next: MarkerLabel[] = [];
+    if (ts && host && host.clientWidth > 0) {
+      const maxX = host.clientWidth - 62; // keep clear of the price axis
+      // How many shapes each candle carries on each side: the label goes beyond that stack (about 13 px a shape).
+      const perBar = new Map<string, number>();
+      for (const mk of shown) {
+        const key = `${Math.floor(mk.i / B)}${mk.m.position}`;
+        perBar.set(key, (perBar.get(key) ?? 0) + 1);
+      }
+      const items: { mk: (typeof shown)[number]; above: boolean; cx: number; y: number; w: number }[] = [];
+      for (const mk of shown) {
+        const above = mk.m.position === "aboveBar";
+        const bucket = Math.floor(mk.i / B);
+        const first = bucket * B;
+        const agg = aggregate(bundle, px, live, closedAt, first, Math.min(frame, first + B - 1, n - 1));
+        const x = ts.timeToCoordinate(mk.m.time);
+        const py = c.priceToCoordinate(above ? agg.high : agg.low);
+        if (x === null || py === null) continue;
+        const stack = perBar.get(`${bucket}${mk.m.position}`) ?? 1;
+        const y = above ? py - 22 - stack * 13 : py + 10 + stack * 13;
+        items.push({ mk, above, cx: x, y: Math.min(Math.max(y, 1), host.clientHeight - 72), w: mk.text.length * 6.1 + 6 });
+      }
+      items.sort((p, q) => p.cx - q.cx || p.mk.i - q.mk.i);
+      // Labels on the same line that would touch push each other apart sideways, half the overlap each, so
+      // "Onset", "Squall" and "Alarm" in the same or neighbouring candles read side by side around their markers.
+      const clampX = (q: { cx: number; w: number }) => {
+        q.cx = Math.min(Math.max(q.cx, q.w / 2 + 2), Math.max(q.w / 2 + 2, maxX - q.w / 2));
+      };
+      items.forEach(clampX);
+      for (let pass = 0; pass < 40; pass++) {
+        let moved = false;
+        for (let a = 0; a < items.length; a++) {
+          for (let b = a + 1; b < items.length; b++) {
+            const p = items[a];
+            const q = items[b];
+            if (p.above !== q.above || Math.abs(p.y - q.y) >= LABEL_LINE) continue;
+            const overlap = (p.w + q.w) / 2 + 3 - (q.cx - p.cx);
+            if (overlap <= 0.01) continue;
+            const dir = 1; // items are sorted by candle, then by time: the earlier event stays on the left
+            p.cx -= (dir * overlap) / 2;
+            q.cx += (dir * overlap) / 2;
+            moved = true;
+          }
+        }
+        items.forEach(clampX);
+        if (!moved) break;
+      }
+      for (const it of items) next.push({ key: `${it.mk.i}-${it.mk.text}`, text: it.mk.text, color: it.mk.m.color, x: it.cx, y: it.y });
+    }
+    setLabels((prev) => (sameLabels(prev, next) ? prev : next));
+    };
+    const raf = requestAnimationFrame(place);
+    return () => cancelAnimationFrame(raf);
+  }, [frame, bundle, n, nBuckets, B, allMarkers, px, live, closedAt, layoutTick]);
 
   // Survive: the margin-call line, a red dashed price line. Off the chart when the line is outside the storm's price range.
   useEffect(() => {
@@ -316,7 +403,16 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
           <span className="muted">{bundle.title}</span>
         )}
       </div>
-      <div className="chart-host" ref={el} />
+      <div className="chart-wrap">
+        <div className="chart-host" ref={el} />
+        <div className="chart-labels" aria-hidden="true">
+          {labels.map((l) => (
+            <span key={l.key} className="chart-label" style={{ left: l.x, top: l.y, color: l.color }}>
+              {l.text}
+            </span>
+          ))}
+        </div>
+      </div>
       <div className="chart-foot">
         <span className="risk-key">risk strip</span>
         {hover ? (

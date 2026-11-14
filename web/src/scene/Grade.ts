@@ -15,9 +15,11 @@ interface Look {
 }
 const CALM: Look = { lift: [0.0, 0.006, 0.014], gain: [1.03, 1.01, 0.97], sat: 1.06, contrast: 1.03, vignette: 0.22 };
 const WATCH: Look = { lift: [0.0, 0.01, 0.02], gain: [0.99, 0.99, 1.0], sat: 0.93, contrast: 1.06, vignette: 0.28 };
-const STORM: Look = { lift: [0.0, 0.014, 0.024], gain: [0.93, 0.98, 1.05], sat: 0.8, contrast: 1.12, vignette: 0.4 };
-const FAIR: Look = { lift: [0.012, 0.006, 0.0], gain: [1.1, 1.03, 0.9], sat: 1.12, contrast: 1.04, vignette: 0.2 };
-const NIGHT: Look = { lift: [0.0, 0.008, 0.03], gain: [0.86, 0.94, 1.12], sat: 0.78, contrast: 1.08, vignette: 0.38 };
+// Storm: cold and desaturated, with lifted shadows. (Extra contrast here crushed the dark sea to black.)
+const STORM: Look = { lift: [0.014, 0.024, 0.034], gain: [0.95, 0.99, 1.05], sat: 0.82, contrast: 1.02, vignette: 0.32 };
+// Fair wind is brighter and a touch warmer, never yellow: a strong warm gain turned the far sea tan.
+const FAIR: Look = { lift: [0.004, 0.004, 0.004], gain: [1.05, 1.03, 0.99], sat: 1.1, contrast: 1.04, vignette: 0.2 };
+const NIGHT: Look = { lift: [0.0, 0.01, 0.03], gain: [0.9, 0.97, 1.12], sat: 0.85, contrast: 1.05, vignette: 0.34 };
 
 const FRAG = /* glsl */ `
 uniform vec3 uLift;

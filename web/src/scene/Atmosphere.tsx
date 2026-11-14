@@ -2,25 +2,52 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
   BackSide,
+  CircleGeometry,
   Color,
   CylinderGeometry,
   DirectionalLight,
   FogExp2,
   HemisphereLight,
   Mesh,
+  MeshBasicMaterial,
   NormalBlending,
+  PMREMGenerator,
+  Scene,
   ShaderMaterial,
   SphereGeometry,
+  type WebGLRenderTarget,
 } from "three";
 import { Sky } from "three/examples/jsm/objects/Sky.js";
-import { vis } from "./vis";
+import { MOON_DIR, vis } from "./vis";
 
-const FOG_CALM = new Color("#9db2c2");
-const FOG_STORM = new Color("#1b232b");
+const FOG_CALM = new Color("#b3c6d4");
+const FOG_STORM = new Color("#39444e");
+const FOG_NIGHT = new Color("#111b2e");
+const DOME_TOP_STORM = new Color("#10161c");
+const DOME_HORIZON_STORM = new Color("#2f3a44");
+const DOME_TOP_NIGHT = new Color("#060a17");
+const DOME_HORIZON_NIGHT = new Color("#16243f");
+const COOL_WHITE = new Color("#e6eef5");
+/** The storm takes at most this share of the daylight: a North Sea storm at noon is slate grey, not black. */
+const STORM_DARK_MAX = 0.72;
+const HEMI_SKY_NIGHT = new Color("#6d8cc0");
+const HEMI_SEA_NIGHT = new Color("#1c2c42");
 const SUN_WARM = new Color("#ffb070");
 const SUN_WHITE = new Color("#fff4e6");
 /** Sky radiance scale: keeps the HDR sky under the bloom threshold so only lamp and lightning glow. */
 const SKY_BASE = 0.6;
+/** Environment map: cube face size, how often it may be re-baked, and its strength as fill light. */
+const ENV_SIZE = 64;
+const ENV_MIN_INTERVAL_S = 0.4;
+const ENV_INTENSITY = 1.35;
+const HEMI_SKY_CALM = new Color("#c4d8ea");
+const HEMI_SKY_STORM = new Color("#7f8b96");
+const HEMI_SEA_CALM = new Color("#2c4a58");
+const HEMI_SEA_STORM = new Color("#232b31");
+const ENV_SEA_CALM = new Color("#1c4254");
+const ENV_SEA_STORM = new Color("#101a20");
+/** Radius of the horizon haze band (inside the storm dome, beyond everything in the scene). */
+const HAZE_RADIUS = 3400;
 /** Sky size. The sky is a sphere of radius SKY_SCALE / 2 (225,000) that follows the camera; the far plane (Scene.tsx: CAMERA_FAR) is 2,000,000. */
 export const SKY_SCALE = 450_000;
 /** Radius of the sky sphere: the camera sits at its centre (it follows the camera), far inside CAMERA_FAR. */
@@ -79,7 +106,7 @@ function sanitizeSkyShader(src: string): string {
  * risk -> darkness, cloud cover, fog; state -> wind (cloud speed); time of day -> sun.
  */
 export function Atmosphere() {
-  const { scene, camera } = useThree();
+  const { scene, camera, gl } = useThree();
 
   const sky = useMemo(() => {
     const s = new Sky();
@@ -117,7 +144,7 @@ export function Atmosphere() {
   // Storm darkening dome: sits inside the sky box, alpha from risk (and night).
   const dome = useMemo(() => {
     const mat = new ShaderMaterial({
-      uniforms: { uDark: { value: 0 }, uTop: { value: new Color("#05080b") }, uHorizon: { value: new Color("#1a2128") } },
+      uniforms: { uDark: { value: 0 }, uTop: { value: new Color("#10161c") }, uHorizon: { value: new Color("#2f3a44") } },
       vertexShader: /* glsl */ `
         varying vec3 vDir;
         void main() {
@@ -145,34 +172,61 @@ export function Atmosphere() {
     return m;
   }, []);
 
-  // Horizon haze: blends the far sea into the sky so fog has no hard seam.
+  // Horizon haze: a band of the fog colour that is opaque at the horizon line and thins out upward, so the far sea
+  // (which the fog has already taken to the same colour) runs into the sky without an edge. It rides with the camera,
+  // so its y = 0 is always the horizon as seen from wherever the camera is.
   const haze = useMemo(() => {
     const mat = new ShaderMaterial({
-      uniforms: { uColor: { value: new Color() }, uAmount: { value: 0.3 } },
+      uniforms: { uColor: { value: new Color() }, uAmount: { value: 0.9 }, uScale: { value: 0.03 } },
       vertexShader: /* glsl */ `
-        varying float vY;
+        varying float vUp;
         void main() {
-          vY = position.y;
+          vUp = position.y / ${HAZE_RADIUS.toFixed(1)};
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }`,
       fragmentShader: /* glsl */ `
-        uniform vec3 uColor; uniform float uAmount;
-        varying float vY;
+        uniform vec3 uColor; uniform float uAmount; uniform float uScale;
+        varying float vUp;
         void main() {
-          float a = uAmount * (1.0 - smoothstep(-40.0, 420.0, vY));
-          gl_FragColor = vec4(uColor, a);
+          // vUp is the tangent of the elevation above the horizon; below it the band stays full.
+          float up = max(vUp, 0.0);
+          float a = uAmount * (0.7 * exp(-up / uScale) + 0.3 * exp(-up / (uScale * 4.0)));
+          gl_FragColor = vec4(uColor, clamp(a, 0.0, 1.0));
         }`,
       side: BackSide,
       transparent: true,
       depthWrite: false,
       fog: false,
     });
-    const m = new Mesh(new CylinderGeometry(3200, 3200, 1400, 48, 1, true), mat);
-    m.position.y = 0;
+    const m = new Mesh(new CylinderGeometry(HAZE_RADIUS, HAZE_RADIUS, 2400, 64, 24, true), mat);
     m.renderOrder = -1;
     m.frustumCulled = false;
     return m;
   }, []);
+
+  // Image-based fill light: the sky itself, prefiltered (PMREM) into scene.environment, so every PBR surface is lit
+  // and reflects the sky it stands under: blue and bright on a calm day, grey and dim in a storm, dark at night.
+  // The probe scene holds the same sky material (so it follows risk, sun and cloud) and a disc for the sea below.
+  const probe = useMemo(() => {
+    const s = new Scene();
+    const dome = new Mesh(new SphereGeometry(1, 32, 16), sky.material);
+    dome.scale.setScalar(900);
+    dome.frustumCulled = false;
+    const seaMat = new MeshBasicMaterial({ color: "#16323f" });
+    const sea = new Mesh(new CircleGeometry(880, 24), seaMat);
+    sea.rotation.x = -Math.PI / 2;
+    sea.position.y = -2;
+    s.add(dome, sea);
+    return { scene: s, seaMat, pmrem: new PMREMGenerator(gl), target: null as WebGLRenderTarget | null, key: "", last: -1e9 };
+  }, [sky, gl]);
+  useEffect(
+    () => () => {
+      scene.environment = null;
+      probe.target?.dispose();
+      probe.pmrem.dispose();
+    },
+    [scene, probe],
+  );
 
   const fog = useMemo(() => new FogExp2(FOG_CALM.getHex(), 0.0006), []);
   useEffect(() => {
@@ -184,6 +238,7 @@ export function Atmosphere() {
 
   const sunRef = useRef<DirectionalLight>(null);
   const hemiRef = useRef<HemisphereLight>(null);
+  const moonRef = useRef<DirectionalLight>(null);
   const tmp = useMemo(() => new Color(), []);
 
   useFrame(() => {
@@ -199,32 +254,72 @@ export function Atmosphere() {
     u.cloudCoverage.value = 0.18 + 0.8 * r;
     u.cloudDensity.value = 0.25 + 0.7 * r;
     u.cloudSpeed.value = 0.00002 + 0.00012 * vis.wind;
-    u.turbidity.value = 4 + 11 * r;
-    u.rayleigh.value = 2.2 + 0.8 * r;
+    // Turbidity stays modest: a very turbid Preetham sky is tan at the horizon, and the sea reflects it.
+    u.turbidity.value = 3.5 + 4 * r;
+    u.rayleigh.value = 2.2 + 0.4 * r;
     u.showSunDisc.value = r < 0.6 ? 1 : 0;
 
     const night = 1 - vis.dayFactor;
-    const dark = Math.min(0.96, 0.85 * r * r + 0.15 * r + 0.3 * night) * (1 - 0.85 * vis.flash);
+    const dark = Math.min(0.92, STORM_DARK_MAX * (0.85 * r * r + 0.15 * r) + 0.3 * night) * (1 - 0.85 * vis.flash);
     u.uDim.value = SKY_BASE * (Math.max(0.03, 1 - dark) + vis.flash * 0.6);
-    (dome.material as ShaderMaterial).uniforms.uDark.value = dark * 0.8;
+    // The dome is the storm's slate overcast by day and a deep blue sky at night (the sky shader is black once the
+    // sun is down), so the night has a horizon and the sea something to reflect.
+    const dm = (dome.material as ShaderMaterial).uniforms;
+    dm.uDark.value = Math.max(dark * 0.8, night * 0.9 * (1 - 0.85 * vis.flash));
+    dm.uTop.value.copy(DOME_TOP_STORM).lerp(DOME_TOP_NIGHT, night);
+    dm.uHorizon.value.copy(DOME_HORIZON_STORM).lerp(DOME_HORIZON_NIGHT, night);
 
-    fog.color.copy(FOG_CALM).lerp(FOG_STORM, Math.min(1, r * 1.1)).multiplyScalar(0.25 + 0.75 * vis.dayFactor);
-    fog.color.lerp(SUN_WHITE, vis.flash * 0.35 + fw * 0.12);
-    fog.density = 0.00035 + 0.0032 * r * r + 0.0006 * r;
+    fog.color.copy(FOG_CALM).lerp(FOG_STORM, Math.min(1, r * 1.1)).lerp(FOG_NIGHT, night);
+    fog.color.lerp(COOL_WHITE, vis.flash * 0.35 + fw * 0.1 * vis.dayFactor);
+    // Calm: clear around the ships, and the sea has reached the fog colour where it meets the haze band.
+    fog.density = 0.00055 + 0.0026 * r * r + 0.0006 * r;
+    haze.position.copy(camera.position);
     const hz = (haze.material as ShaderMaterial).uniforms;
     hz.uColor.value.copy(fog.color);
-    hz.uAmount.value = 0.2 + 0.75 * r;
+    hz.uAmount.value = 0.94;
+    hz.uScale.value = 0.022 + 0.06 * r;
 
     if (sunRef.current) {
       const s = sunRef.current;
       s.position.copy(vis.sunDir).multiplyScalar(120);
-      s.intensity = 2.4 * vis.dayFactor * (1 - 0.8 * r) + vis.flash * 5 + fw * 1.6 * Math.max(0.3, vis.dayFactor);
+      s.intensity = 2.4 * vis.dayFactor * (1 - 0.62 * r) + vis.flash * 5 + fw * 1.6 * Math.max(0.3, vis.dayFactor);
       tmp.copy(SUN_WARM).lerp(SUN_WHITE, Math.min(1, vis.sunDir.y * 3));
       s.color.copy(tmp);
     }
-    if (hemiRef.current) {
-      hemiRef.current.intensity = 0.25 + 0.75 * vis.dayFactor * (1 - 0.6 * r) + vis.flash * 2.5;
+    if (moonRef.current) {
+      // Moonlight at night (and while the market is closed): enough to read both ships, dimmed by storm cloud.
+      moonRef.current.position.copy(MOON_DIR).multiplyScalar(120);
+      moonRef.current.intensity = 1.5 * night * (1 - 0.6 * r);
     }
+    if (hemiRef.current) {
+      // Sky fill from above, sea bounce from below. The environment map carries the colour; this keeps a floor
+      // under it so shaded faces never go black, by day, in a storm or at night.
+      const h = hemiRef.current;
+      h.intensity = 0.34 + 0.75 * vis.dayFactor * (1 - 0.3 * r) + 0.7 * night + vis.flash * 2.5;
+      h.color.copy(HEMI_SKY_CALM).lerp(HEMI_SKY_STORM, r).lerp(HEMI_SKY_NIGHT, night);
+      h.groundColor.copy(HEMI_SEA_CALM).lerp(HEMI_SEA_STORM, r).lerp(HEMI_SEA_NIGHT, night);
+    }
+
+    // Re-bake the environment when the sky has changed enough to see (risk, sun, daylight, fair wind), at most
+    // every 0.4 s. Lightning does not re-bake: it is brief, and the sun light and the hemisphere carry the flash.
+    const key = `${Math.round(r * 24)}|${Math.round(vis.dayFactor * 16)}|${Math.round(vis.sunDir.x * 10)}|${Math.round(vis.sunDir.y * 12)}`;
+    if (key !== probe.key && vis.elapsed - probe.last > ENV_MIN_INTERVAL_S) {
+      probe.key = key;
+      probe.last = vis.elapsed;
+      const disc = u.showSunDisc.value;
+      const dim = u.uDim.value;
+      // No sun disc in the probe (the directional light is the sun), and no flash.
+      u.showSunDisc.value = 0;
+      u.uDim.value = SKY_BASE * Math.max(0.03, 1 - Math.min(0.92, STORM_DARK_MAX * (0.85 * r * r + 0.15 * r) + 0.3 * night));
+      probe.seaMat.color.copy(ENV_SEA_CALM).lerp(ENV_SEA_STORM, r).multiplyScalar(0.08 + 0.92 * vis.dayFactor);
+      const next = probe.pmrem.fromScene(probe.scene, 0, 1, 4000, { size: ENV_SIZE });
+      u.showSunDisc.value = disc;
+      u.uDim.value = dim;
+      scene.environment = next.texture;
+      probe.target?.dispose();
+      probe.target = next;
+    }
+    scene.environmentIntensity = ENV_INTENSITY * (1 + vis.flash * 1.5);
   });
 
   return (
@@ -233,6 +328,7 @@ export function Atmosphere() {
       <primitive object={dome} />
       <primitive object={haze} />
       <directionalLight ref={sunRef} intensity={2} />
+      <directionalLight ref={moonRef} intensity={0} color="#a9c0ea" />
       <hemisphereLight ref={hemiRef} args={["#b8cde0", "#1b2a33", 0.8]} />
     </>
   );

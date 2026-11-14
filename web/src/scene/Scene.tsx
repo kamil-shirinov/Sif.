@@ -26,6 +26,7 @@ import { Clouds } from "./Clouds";
 import { Stars } from "./Stars";
 import { Particles } from "./Particles";
 import { Stats, statsEnabled } from "./Stats";
+import { show } from "./debugFlags";
 
 /** Far plane well beyond the sky sphere (radius SKY_SCALE / 2), so nothing of the sky can be clipped. */
 const CAMERA_FAR = 2_000_000;
@@ -71,7 +72,7 @@ function Post({ tier }: { tier: number }) {
   useFrame(() => grade.updateFromVis());
   const t = TIERS[tier];
   return (
-    <EffectComposer key={`${t.msaa}-${t.bloom}`} multisampling={t.msaa}>
+    <EffectComposer key={`${OVERRIDE.msaa ?? t.msaa}-${t.bloom}`} multisampling={OVERRIDE.msaa ?? t.msaa}>
       <primitive object={guard} />
       {t.bloom ? <Bloom mipmapBlur luminanceThreshold={6} luminanceSmoothing={0.5} intensity={1.15} radius={0.75} /> : <></>}
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
@@ -87,13 +88,13 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
     <>
       <VisDriver bundle={bundle} derived={derived} />
       <Atmosphere />
-      <Clouds lowQuality={lowQuality} />
-      <Stars />
-      <Sea lowQuality={lowQuality} reflect={TIERS[tier].reflect} />
-      <StormFronts key={`f${seq}`} watches={derived.watches} />
-      <Lighthouse />
-      <SunBreak />
-      {derived.player ? (
+      {show("clouds") && <Clouds lowQuality={lowQuality} />}
+      {show("stars") && <Stars />}
+      {show("sea") && <Sea lowQuality={lowQuality} reflect={TIERS[tier].reflect} />}
+      {show("front") && <StormFronts key={`f${seq}`} watches={derived.watches} />}
+      {show("lighthouse") && <Lighthouse />}
+      {show("sunbreak") && <SunBreak />}
+      {!show("ships") ? null : derived.player ? (
         // Survive mode: one ship, the player's.
         <>
           <Ship key={`y${seq}`} shipKey="player" derived={derived} />
@@ -107,15 +108,27 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
           <Jettison key={`ju${seq}`} shipKey="unprepared" derived={derived} />
         </>
       )}
-      <Particles />
-      <Rain lowQuality={lowQuality} />
-      <Lightning />
+      {show("particles") && <Particles />}
+      {show("rain") && <Rain lowQuality={lowQuality} />}
+      {show("lightning") && <Lightning />}
       <CameraRig />
       {statsEnabled && <Stats quality={lowQuality ? "low" : `tier ${tier}`} />}
       {!lowQuality && COMPOSER_ON && <Post tier={tier} />}
     </>
   );
 }
+
+/** ?msaa=<samples> and ?dpr=<ratio> override the tier's values (for measuring what each costs on a real GPU). */
+const OVERRIDE = (() => {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const msaa = q.has("msaa") ? Number(q.get("msaa")) : NaN;
+    const dpr = q.has("dpr") ? Number(q.get("dpr")) : NaN;
+    return { msaa: Number.isFinite(msaa) && msaa >= 0 && msaa <= 8 ? Math.round(msaa) : null, dpr: Number.isFinite(dpr) && dpr >= 0.5 && dpr <= 3 ? dpr : null };
+  } catch {
+    return { msaa: null, dpr: null };
+  }
+})();
 
 /** ?tier=0..3 pins the quality tier (no adaptive changes), for measuring like with like. */
 const PINNED_TIER = (() => {
@@ -141,7 +154,7 @@ export function StormScene({
   onError: () => void;
 }) {
   const [tier, setTier] = useState(PINNED_TIER ?? 3);
-  const dpr = lowQuality ? 1 : Math.min(maxDpr(), TIERS[tier].dpr);
+  const dpr = lowQuality ? 1 : Math.min(OVERRIDE.dpr ?? maxDpr(), OVERRIDE.dpr ?? TIERS[tier].dpr);
   return (
     <Canvas
       className="scene-canvas"

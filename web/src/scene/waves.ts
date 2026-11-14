@@ -15,6 +15,12 @@ const TABLE: [number, number, number, number, number][] = [
   [-0.9, -0.2, 3.1, 0.0, 0.07],
 ];
 
+/**
+ * Waves fade out with distance so the far sea does not alias: the longest swell between these radii, shorter waves
+ * sooner (a wave of length L between about 10 L and 26 L), because the sea's grid coarsens away from the ships.
+ */
+export const WAVE_FADE_START = 260;
+export const WAVE_FADE_END = 900;
 const G = 9.8;
 interface Wave {
   dx: number;
@@ -23,16 +29,18 @@ interface Wave {
   w: number;
   swell: number;
   chop: number;
+  /** This wave fades out between these distances from the centre (short waves first: the far grid is coarse). */
+  f0: number;
+  f1: number;
 }
 export const WAVES: Wave[] = TABLE.map(([x, z, L, swell, chop]) => {
   const len = Math.hypot(x, z);
   const k = (2 * Math.PI) / L;
-  return { dx: x / len, dz: z / len, k, w: Math.sqrt(G * k) * 0.55, swell, chop };
+  const f0 = Math.min(WAVE_FADE_START, Math.max(75, L * 10));
+  const f1 = Math.min(WAVE_FADE_END, Math.max(190, L * 26));
+  return { dx: x / len, dz: z / len, k, w: Math.sqrt(G * k) * 0.55, swell, chop, f0, f1 };
 });
 
-/** Waves fade out beyond this radius so the far sea does not alias. */
-export const WAVE_FADE_START = 260;
-export const WAVE_FADE_END = 900;
 /** Per-wave sharpness (Q k A) never exceeds this, so the summed crests can never fold over (sum < 1). */
 const SHARP_CAP = 0.85 / WAVES.length;
 /** Converts steepness x k x A into sharpness: calm swell stays round, a storm sea runs into the cap. */
@@ -71,9 +79,9 @@ function gerstner(x: number, z: number, p: WaveParams) {
   let pyx = 0;
   let pyz = 0;
   let pzz = 1;
-  const att = (1 - smoothstep(WAVE_FADE_START, WAVE_FADE_END, Math.hypot(x, z))) * p.amp;
+  const dist = Math.hypot(x, z);
   for (const wv of WAVES) {
-    const a = (wv.swell + p.chop * wv.chop) * att;
+    const a = (wv.swell + p.chop * wv.chop) * p.amp * (1 - smoothstep(wv.f0, wv.f1, dist));
     if (a === 0) continue;
     const s = Math.min(SHARP_CAP, p.steep * SHARP_GAIN * wv.k * a); // Q k A
     const ph = (wv.dx * x + wv.dz * z) * wv.k + p.time * wv.w;
@@ -144,10 +152,10 @@ uniform float uWaveTime;
 vec3 waveDisp(vec2 p, out vec3 n, out float jac) {
   vec3 d = vec3(0.0);
   float pxx = 1.0, pxz = 0.0, pyx = 0.0, pyz = 0.0, pzz = 1.0;
-  float att = (1.0 - smoothstep(${f(WAVE_FADE_START)}, ${f(WAVE_FADE_END)}, length(p))) * uWaveAmp;
+  float dist = length(p);
   float a; float s; float ph; float sn; float cs; vec2 D;
 ${WAVES.map(
-  (w) => `  a = (${f(w.swell)} + uWaveChop * ${f(w.chop)}) * att;
+  (w) => `  a = (${f(w.swell)} + uWaveChop * ${f(w.chop)}) * uWaveAmp * (1.0 - smoothstep(${f(w.f0)}, ${f(w.f1)}, dist));
   s = min(${f(SHARP_CAP)}, uWaveSteep * ${f(SHARP_GAIN * w.k)} * a);
   D = vec2(${f(w.dx)}, ${f(w.dz)});
   ph = dot(D, p) * ${f(w.k)} + uWaveTime * ${f(w.w)};
