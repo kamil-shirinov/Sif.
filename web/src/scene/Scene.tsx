@@ -1,0 +1,76 @@
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Bloom, EffectComposer, ToneMapping } from "@react-three/postprocessing";
+import { ToneMappingMode } from "postprocessing";
+import { ACESFilmicToneMapping } from "three";
+import type { Bundle } from "../types/bundle";
+import type { Derived } from "../lib/derive";
+import { playhead } from "../state/timeline";
+import { updateVis } from "./vis";
+import { Sea } from "./Sea";
+import { Atmosphere } from "./Atmosphere";
+import { Rain } from "./Rain";
+import { Lightning } from "./Lightning";
+import { StormFronts } from "./StormFront";
+import { Lighthouse } from "./Lighthouse";
+import { Ship } from "./Ship";
+import { Jettison } from "./Jettison";
+import { CameraRig, HOME_POS } from "./CameraRig";
+
+function VisDriver({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
+  // Runs before every other useFrame: turns the playhead into shared visual state.
+  useFrame((_, dt) => updateVis(bundle, derived, playhead(), Math.min(dt, 0.1)), -1);
+  return null;
+}
+
+function World({ bundle, derived, lowQuality }: { bundle: Bundle; derived: Derived; lowQuality: boolean }) {
+  return (
+    <>
+      <VisDriver bundle={bundle} derived={derived} />
+      <Atmosphere />
+      <Sea lowQuality={lowQuality} />
+      <StormFronts watches={derived.watches} />
+      <Lighthouse />
+      <Ship shipKey="prepared" derived={derived} />
+      <Ship shipKey="unprepared" derived={derived} />
+      <Jettison shipKey="prepared" derived={derived} />
+      <Jettison shipKey="unprepared" derived={derived} />
+      <Rain lowQuality={lowQuality} />
+      <Lightning />
+      <CameraRig />
+      {!lowQuality && (
+        <EffectComposer multisampling={4}>
+          <Bloom mipmapBlur luminanceThreshold={6} luminanceSmoothing={0.5} intensity={1.15} radius={0.75} />
+          <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+        </EffectComposer>
+      )}
+    </>
+  );
+}
+
+export function StormScene({
+  bundle,
+  derived,
+  lowQuality,
+  onError,
+}: {
+  bundle: Bundle;
+  derived: Derived;
+  lowQuality: boolean;
+  onError: () => void;
+}) {
+  return (
+    <Canvas
+      className="scene-canvas"
+      dpr={lowQuality ? 1 : [1, 1.75]}
+      camera={{ position: HOME_POS.toArray(), fov: 50, near: 0.5, far: 14000 }}
+      gl={{ antialias: lowQuality ? false : true, powerPreference: "high-performance" }}
+      onCreated={({ gl }) => {
+        gl.toneMapping = ACESFilmicToneMapping;
+        gl.toneMappingExposure = 0.55;
+        gl.getContext().canvas.addEventListener("webglcontextlost", onError);
+      }}
+    >
+      <World bundle={bundle} derived={derived} lowQuality={lowQuality} />
+    </Canvas>
+  );
+}
