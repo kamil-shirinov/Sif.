@@ -1,6 +1,6 @@
 # StormScore web (lane CC-W)
 
-A 3D storm replay. It plays one replay bundle (`contracts/replay_bundle.md`, schema_version 1) as a live sea: the sky turns, the alarm fires, and two ships show what the warning saved. Every visual is driven by a bundle field; nothing is decoration.
+A 3D storm replay and a beginner's game. It plays one replay bundle (`contracts/replay_bundle.md`, schema_version 1) as a live sea: the sky turns, the alarm fires, and two ships show what the warning saved. Every visual is driven by a bundle field; nothing is decoration. A mode switch in the HUD (**Replay | Survive**) turns the same sea into "Survive the storm": you sail your own ship through the storm, with a leverage you choose (see "Survive the storm" below).
 
 ```bash
 cd web && npm install && npm run dev
@@ -8,7 +8,7 @@ cd web && npm install && npm run dev
 
 Open `http://localhost:5173/`. It opens on calm water and auto-plays after 2 seconds. There is no title screen.
 
-Which storm opens: `?storm=<storm_id>` if given; otherwise, when `public/bundles/index.json` exists, the storm with the largest move in it; otherwise `mock_storm`. With no server and no `index.json` it plays exactly the committed `mock_storm`, plus the storm picker and report panel.
+Which storm opens: `?storm=<storm_id>` if given; otherwise, when `public/bundles/index.json` exists, `usdjpy-2026-07-30` if it is listed, else the storm with the largest move in it; otherwise `mock_storm`. With no server and no `index.json` it plays exactly the committed `mock_storm`, plus the storm picker and report panel.
 
 | URL parameter | Effect |
 |---|---|
@@ -16,6 +16,8 @@ Which storm opens: `?storm=<storm_id>` if given; otherwise, when `public/bundles
 | `?at=<frame>` | start at a frame (handy for demos and screenshots) |
 | `?autoplay=0` | do not auto-play |
 | `?quality=low` | start in low quality (no reflections, no bloom) |
+| `?mode=survive` | open in Survive mode (setup for the chosen storm, paused) |
+| `?cam=<az>,<el>[,<dist>]` | put the camera at an azimuth (degrees around the ships, 0 = the home side) and elevation (degrees above the sea), optionally at a distance in scene units (8 to 320), and keep it there until the first drag. For screenshots and for checking the sky from every side |
 
 Scripts: `npm run dev`, `npm run typecheck` (`tsc --noEmit`), `npm run build`.
 
@@ -42,22 +44,23 @@ Interpolation: the scene samples every series at a fractional playhead and inter
 | Sun breaks through, sails fill | `events[type=fair_wind]` | for 34 frames after `i` (4 rising, 10 full): effective risk of the sky falls by 55% (cloud, darkness, fog), sun brighter, a shaft of light on the ships (`SunBreak.tsx`), both ships' sails fill and wakes show (`Ship.tsx`) |
 | Ship names (labels) | `ships.prepared.label`, `ships.unprepared.label` | DOM labels pinned above each ship, with equity and change |
 | Cargo crates on deck | `exposure.positions[].notional_usd` | one crate per $1M of notional, up to 24; above that each crate grows (edge ∝ cube root of notional per crate); colour per position |
-| Waterline (how high the ship rides) | ship equity series, book notional, the cut / restore schedule, `margin_call_i` | margin buffer = (equity − 2.5% × current notional) / equity; freeboard = 0.2 + 1.75 × buffer (`Ship.tsx`) |
+| Waterline (how high the ship rides) | ship equity series, book notional, the cut / restore schedule, `margin_call_i`, `asset_class` | margin buffer = (equity − maintenance × current notional) / equity, maintenance 2.5% for `fx` and 15% for every other asset class (equity); freeboard = 0.2 + 1.75 × buffer (`Ship.tsx`, `derive.ts: maintenanceFor`) |
 | Heel (list) | `series.*_equity`, `ships.*.start_equity_usd` | heel = (1 − equity / start_equity) × 60°, clamped 0..30° |
 | Crates thrown overboard, floating away | `events[type=cut]`, `ships.*.cut_fraction` (fallback `ships.*.cut_i`) | at each cut the ship throws round(cut_fraction × crates) over the side, top crate first, one every 0.4 frames (`Jettison.tsx`) |
 | Crates hoisted back aboard | `events[type=restore]` (fallback `ships.*.restore_i`) | at each restore the thrown crates rise from the water on a line from the mast head, swing over the rail and land in their places, lowest first, one every 0.4 frames, 3 frames each |
 | Ship sinks | `ships.*.margin_call_i` | sinks over 30 frames from `margin_call_i` |
 | Sails fill, wake appears | `series.*_equity` | while equity has risen over the last 3 frames (+0.25% of start equity in 3 min = full sail) |
-| Sun position and daylight | `t0 + i × step_s` (UTC time of day) | sun rises in the east at 06:00 UTC, highest at 12:00, sets at 18:00 |
+| Sun position and daylight | `t0 + i × step_s`, `asset_class`, `series.market_open` | the sun follows a solar clock: UTC for FX; exchange-local time (`America/New_York`, daylight saving included) for equity bundles (`asset_class` equity or source `yahoo`). It rises in the east at 06:00 on that clock, is highest at 12:00 and sets at 18:00. NVDA at 17:58 UTC is 12:58 in New York: noon, not dusk. While `market_open` is 0 it is night whatever the clock says: the sun sinks below the horizon (`vis.ts`) |
+| Night: lanterns, "market closed" | `series.market_open`, the solar clock | the ships' masthead, port (red) and starboard (green) lanterns and a point light come on as daylight fails (dusk, night, and every closed stretch). A "Market closed" badge in the HUD and a banner "trading resumes 09:00 UTC · 04:00 New York" show while `market_open` is 0. The closed stretch is fast-forwarded 8× so the replay does not sit through a flat night; the toasts "Market closed" and "Market open" (with the gap from the last price before the close) mark the edges. The first candle after reopening shows the gap |
 | HUD price, UTC time, state badge, risk gauge | `series.mid`, frame time, `series.state`, `series.risk` | values at the current frame |
 | HUD storm label | `storm.kind`, `storm.event`, `storm.label` | "Scheduled event · <event>" or "Unscheduled storm"; the move label is shown from `storm.onset_i` |
-| "synthetic data" / "what-if scenario" badge | `source` | `synthetic`, or `scenario` (a navigator scenario) |
+| "synthetic data" badge, "What if" chip | `source`, `title` | `synthetic` shows the badge. `scenario` (a navigator scenario) shows a **What if** chip carrying the bundle's title, a what-if clock instead of a calendar date, and is never presented as real history (the picker marks it too; Survive does not save its scores) |
 | Cargo manifest | `exposure.positions`, `exposure.leverage`, `exposure.net_usd_by_ccy`, `book_is_synthetic` | labelled "synthetic book" |
 | Manifest: equity and margin-buffer bars | ship equity series + the waterline rule above | per frame |
-| Market chart candles | `series.open/high/low/mid` | aggregated to 5-minute candles and revealed up to the playhead (lightweight-charts) |
+| Market chart candles | `series.open/high/low/mid` | aggregated to 5-minute candles and revealed up to the playhead (lightweight-charts). With a live server the candles come from `/api/candles` at whatever bar size it returns (see "Live server hooks") |
 | Chart markers | `storm.onset_i`, `events[alarm / squall / fair_wind / cut / restore / margin_call]`, release frame (`watch.at_i`, `storm.event_i`) | appear when the playhead passes them |
-| Chart risk strip | `series.risk` | max risk per 5-minute bucket, coloured green → amber → red |
-| Chart tooltip | `series.spread_bp`, `series.risk` | mean spread and max risk of the hovered candle |
+| Chart risk strip | `series.risk`, `series.market_open` | max risk per 5-minute bucket, coloured green → amber → red; grey while the market is closed |
+| Chart tooltip | `series.spread_bp`, `series.risk` | mean spread and max risk of the hovered candle. For source `yahoo` the spread is not shown: Yahoo has trades but no quotes, so `spread_bp` is 0, not a measured spread. A candle wholly inside a closed stretch says "market closed" |
 | Toasts | `events[].text`, `alarm.move_ahead_pct` | one toast per event as the playhead crosses it (a bundle with no cut events gets one toast from `cut_i`) |
 | Sound (CX's engine) | `series.risk`, `vol_ratio`, `state`, `mid`, heel, frame index | `update()` every animation frame; `trigger()` on jump, watch, alarm, cut, margin_call, all_clear. Squall, fair_wind and restore are silent: the engine's interface has no cue for them |
 | Storm picker | `index.json`: `storms[]` (`symbol`, `title`, `kind`, `move_bp`, `file`) | grouped scheduled vs unscheduled; choosing one loads it without a reload (`ui/StormPicker.tsx`, `lib/session.ts`). Without `index.json` it lists the synthetic example |
@@ -77,7 +80,8 @@ Everything below is optional and parsed leniently (`lib/loadBundle.ts`): a missi
 - Watch events may carry `event` (the release's name) and `at_i`.
 - `storm.event` and `storm.event_i` for `storm.kind: "scheduled"`.
 - `report.inspector` `{verdict, issues}` (the backend sends verdict `ok` or `flag`).
-- `source` may be `scenario`.
+- `source` may be `scenario` (a what-if) or `yahoo` (one-minute trade bars from Yahoo Finance; equities).
+- `series.market_open` (0 or 1 for every frame, length `n`): absent means always open. Anything that is not exactly that is dropped with a console warning, never fatal.
 
 Several cuts and restores per bundle are driven by the events: the cargo held at each frame is 1 (whole) or 1 − `cut_fraction` between a cut and the next restore (a cut while cut, or a restore while whole, changes nothing). Notional, margin buffer, waterline and crates follow it. A bundle with no cut or restore events falls back to `ships.*.cut_i` and `restore_i` (one cut, one restore), so `mock_storm.json` plays as before.
 
@@ -88,10 +92,38 @@ All optional. With no server running, each call fails quietly and the app plays 
 | Call | What the web expects | What it does |
 |---|---|---|
 | `GET /api/health` (once, on load) | `{"ok": true, "tiger": bool, "navigator": bool}` | `tiger` shows the "Live · Tiger Data" chip and fetches candles; `navigator` shows the navigator panel |
-| `GET /api/candles?symbol=USDJPY&from=2026-07-30T10:00:00Z&to=2026-07-30T16:00:00Z` | the bundle's window, ISO 8601 UTC, inclusive; one-minute bars: `{"candles": [{"time": <ISO string or epoch s/ms>, "open", "high", "low", "close"}], "query_ms": 12.3}`. A top-level array, `t/o/h/l/c` keys or `[t, o, h, l, c]` rows are accepted too | the chart draws these candles and shows `query_ms` ("Tiger Data · 12 ms"). If the server covers under 80% of the window, or fails, the chart keeps the bundle's own candles and the chip turns amber |
+| `GET /api/candles?symbol=USDJPY&from=2026-07-30T10:00:00Z&to=2026-07-30T16:00:00Z` | the bundle's window, ISO 8601 UTC, inclusive; bars of **any size**: `{"candles": [{"time": <ISO string or epoch s/ms>, "open", "high", "low", "close"}], "query_ms": 12.3}`. A top-level array, `t/o/h/l/c` keys or `[t, o, h, l, c]` rows are accepted too. The bar size is read from the response (`bucket_s`, `bucket_seconds`, `interval_s`, `step_s`, or `bucket` / `interval` / `resolution` / `timeframe` as `300`, `"5m"`, `"5 min"`, `"PT5M"`), else from the median spacing between bars | the chart draws these candles and shows `query_ms` ("Tiger Data · 12 ms"). One-minute (or finer) bars are laid onto the bundle's frames. Coarser bars (5 minutes, 15 minutes, ...) are used as they are: the chart's candle is the smallest whole number of server bars of at least 5 minutes, a bar counts only once the playhead has passed it whole (the bar in progress is drawn from the bundle's own minute bars, so the chart never shows prices from after the playhead), and frames the server did not cover keep the bundle's values. If the server covers under 80% of the window, or fails, the chart keeps the bundle's own candles and the chip turns amber. The request sends no bucket parameter: when `contracts/api.md` exists, add the parameter in `lib/api.ts: fetchCandles` |
 | `POST /api/navigator/ask` `{"question", "storm_id"}` | `{"answer": str, "verified": bool, "unverified_numbers": [], "inspector": {"verdict", "issues"}, "scenario": <bundle, source "scenario">}`; errors as `{"detail": str}` | shows the answer, the "numbers checked by code" badge when `verified`, the inspector's verdict; `scenario` (validated like any bundle) adds "Sail this scenario", which loads it into the scene. `storm_id` is the last storm loaded from a file, even while a scenario sails |
 
 Answers are shown as plain text; nothing from the server is rendered as HTML.
+
+## Survive the storm
+
+A playful way to learn how leverage works. Switch the HUD to **Survive**, pick a storm and a leverage from 1x to 30x, press **Sail**.
+
+- **Setup.** The panel shows the storm (from `index.json`, or the synthetic example), a leverage slider, the crates that leverage loads (one per $1M of cargo; 30x is 30 crates, the ship draws at most 24, bigger), and **where the margin-call line sits**: the price at which the broker closes you out, as a price and as a move from the entry price. The same price is drawn on the market chart as a red dashed line, and moves as you move the slider. The line is hidden when it lies outside the storm's price range (1x puts it far below).
+- **Sailing.** One ship, yours (gold funnel), replaces the two demo ships. Its equity is computed in the browser from the bundle's mid prices with the formula below. **Cut** throws 75% of the cargo overboard at the price on the HUD; **Restore** hoists it back. Keys: **C** cuts, **R** restores. The scrubber is locked (no rewinding a run), pause and speed work. While the market is closed you cannot trade. The bundle's alarm still fires: it is the warning you can follow. The demo ships' own cuts and margin calls do not play.
+- **Margin call.** If equity falls below maintenance the position is closed at that minute's price and the ship sinks (30 frames, slowed to 1x so it is seen, with the red vignette and the margin-call sound).
+- **End.** Score = final equity (never below $0; a margin call stops the loss). A card explains in plain words what happened, e.g. "At 20x, a 1% move changes your equity by about 20%. A 4.8% move against you wipes out your whole stake, and the broker closes you out earlier, at 2.4%", plus what holding everything, and cutting at the alarm, would have done. Every number on it is computed from the bundle by `lib/survive.ts`. **Try again** returns to the setup, keeping the leverage. Survival gets a cheerful toast; the card's confetti respects `prefers-reduced-motion`.
+- **Best scores.** The top 5 runs per storm are kept in `localStorage` (`stormscore.survive.best.v1`), every access wrapped in try/catch: with storage blocked the game plays on and the table lives for the page. What-if scenario runs are practice and are not saved.
+
+### The formula (the backend's)
+
+`lib/survive.ts` mirrors `backend/storm/exposure.py: simulate_book` (FX) and `backend/storm/equity.py: simulate_stock` (equity), minute for minute.
+
+- **Book.** Equity E = the bundle's `ships.prepared.start_equity_usd` ($1,000,000). Position notional N = leverage × E, opened at the first mid p0. FX: long USD against the other currency (USDJPY and USDSGD: long the pair; EURUSD: short EUR), the backend's book. Equity: long the symbol, priced in USD.
+- **Cash.** One balance per currency, marked at the spot mid p. If USD is the base (USDJPY): `equity = cash_base + cash_quote / p` and `gross = |qty|`. If USD is the quote (EURUSD, stocks): `equity = cash_base × p + cash_quote` and `gross = |qty| × p`. Trading q units at price p moves `cash_base += q` and `cash_quote -= q × p`. A cut or restore trades at that minute's mid, so realised P&L stays in the currency it was made in.
+- **Maintenance** m: 2.5% for `fx`, 15% for equity. Margin call at the first frame where `equity < m × gross`: the position is closed at that mid, all cash becomes USD, and equity stays flat afterwards.
+- **Cut** (only while the cargo is whole): sell 75% of the full position. **Restore** (only while cut): buy back the full position, refused when equity would then be below `m × gross` of the full position (the backend's "skipped if restoring would put the book straight into a margin call").
+- **Margin-call line.** Solving `equity = m × gross` gives the price `p* = cash_quote / (m × |qty| - cash_base)`, for both kinds of book. The price at which the whole stake is gone is `-cash_quote / cash_base`.
+- No spread, no slippage, no fees.
+- **Leverage cap.** 30x for FX. At 15% maintenance an equity book is already below the margin line on the first minute above 1 / 0.15 = 6.7x, so equity bundles top out at 6x.
+
+How it was checked: the browser simulation was run against the backend's `simulate_book` and `simulate_stock` on the same mid prices for USDJPY, EURUSD, USDSGD and a stock, at five leverages each, with no cuts, one cut, a cut and a restore, and two cuts. 80 cases, no difference in equity, notional or margin-call frame (largest difference 5e-9 USD), and every margin call fires exactly when the mid crosses the displayed line.
+
+## The sky
+
+The sea is surrounded by three.js's `Sky` box. It is 450,000 wide (`SKY_SCALE`, `scene/Atmosphere.tsx`); the camera's far plane is 2,000,000 (`CAMERA_FAR`, `scene/Scene.tsx`), so no orbit or pan reaches the box's corners (about 390,000 away) or the far plane, the sky is never frustum-culled, and the box rides with the camera (it is re-centred on the camera every frame), so no pan, orbit or zoom can bring a face or corner near the camera. `Sky`'s own vertex shader pins the box exactly on the far plane (`gl_Position.z = gl_Position.w`); it is moved just inside (× 0.99999) so rounding on the clip boundary cannot drop triangles. `?cam=` places the camera at any azimuth and elevation for checking this.
 
 ## Controls
 
@@ -102,7 +134,7 @@ Answers are shown as plain text; nothing from the server is rendered as HTML.
 - Sound starts on the first click or key press (browsers block audio before one); the cold open is silent until then. The speaker button turns sound on and off.
 - "Low quality" (HUD) turns off reflections and bloom and lowers resolution. It is remembered per browser.
 - If WebGL fails, the app shows the chart, HUD, panels and controls without the 3D view.
-- Left column: HUD, storm picker, evidence card. Right column: cargo manifest, storm report, navigator (when available). On short screens the columns scroll.
+- Left column: HUD (with the Replay | Survive switch), storm picker, evidence card. Right column: cargo manifest, storm report, navigator (when available). On short screens the columns scroll. In Survive the left column keeps only the HUD, the right column is the Survive panel, **Cut** and **Restore** sit above the playback controls and the end card opens in the middle.
 
 ## Layout
 
@@ -110,14 +142,17 @@ Answers are shown as plain text; nothing from the server is rendered as HTML.
 src/
   types/bundle.ts        contract types (schema_version 1)
   lib/loadBundle.ts      fetch + runtime checks (every series has length n, frames in range, ...)
-  lib/derive.ts          per-frame derived arrays: cut/restore schedule, held cargo, notional, margin buffer, heel, alarm window, crates and their trips, triggers
+  lib/derive.ts          per-frame derived arrays: cut/restore schedule, held cargo, notional, margin buffer (per-bundle maintenance), heel, alarm window, crates and their trips, triggers (incl. market close/open), solar clock offsets, the player's ship
+  lib/survive.ts         Survive: the backend's book accounting in the browser, the margin-call line, the run summary and the plain-words card text (pure)
+  lib/surviveGame.ts     Survive: mode switch, Sail, Cut / Restore, the margin call, the end of a run, C / R keys
   lib/session.ts         load a storm into the running app (picker, URL, navigator scenario)
   lib/api.ts             live server hooks: health, candles, navigator (all optional)
   lib/useReplayDriver.ts one rAF loop: advances the playhead, fires triggers, feeds audio
   state/timeline.ts      zustand: playhead, playing, speed, seek, per-frame selectors
-  state/app.ts           zustand: bundle, quality, sound, toasts
+  state/app.ts           zustand: mode, bundle, quality, sound, toasts
+  state/survive.ts       zustand: phase, leverage, the player's actions, simulation, result, best scores (localStorage, guarded)
   scene/                 three.js / react-three-fiber scene (sea, sky, rain, lightning, front, lighthouse, sun break, ships, crates in the water)
-  ui/                    HUD, toasts, manifest, chart, controls, ship and front labels, storm picker, evidence card, report panel, navigator panel
+  ui/                    HUD, toasts, market banner, manifest, chart, controls, ship and front labels, storm picker, evidence card, report panel, navigator panel, Survive panel / actions / card
   audio/                 owned by CX (lane/cx-audio); not edited here
 ```
 
