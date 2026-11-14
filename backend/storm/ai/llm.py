@@ -136,14 +136,13 @@ def _mock(messages: list[dict], purpose: str, tools: list[dict] | None) -> tuple
         return "", [{"id": "mock_call_1", "type": "function", "function": {
             "name": function["name"], "arguments": json.dumps(arguments, sort_keys=True)}}], "tool_calls"
     if purpose == "storm-report":
-        from .report import deterministic_report
-        return deterministic_report(json.loads(messages[-1]["content"])["facts"]), [], "stop"
+        return " ".join(json.loads(messages[-1]["content"])["facts"]["report_sentences"]), [], "stop"
     if purpose == "storm-inspector":
         from .report import deterministic_report
         from .verify import verify_numbers
         payload = json.loads(messages[-1]["content"])
         issues = []
-        if not verify_numbers(payload["text"], payload["facts"])["verified"]:
+        if not verify_numbers(payload["text"], payload["facts"], allow_direction_words=True)["verified"]:
             issues.append("Report contains unsupported numbers")
         if payload["text"] != deterministic_report(payload["facts"]):
             issues.append("Mock inspector only certifies the deterministic facts template")
