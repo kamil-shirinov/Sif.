@@ -115,7 +115,24 @@ scales are checked too. Percentage and basis-point conversions come from explici
 derived facts. Numeric verification does not imply semantic verification.
 
 The radio officer gets one correction attempt with the bad numbers, then uses a
-deterministic four-sentence template. The inspector's JSON verdict is retained;
+deterministic three-or-four-sentence template. Both paths use the same code-formatted
+move, alarm, synthetic-ship and context statements. The writer receives those
+statements instead of raw nested facts or duplicated market-hours notes. Times
+are formatted as `11 Nov, 21:57 UTC`, dollars use thousands separators, and equity
+durations say trading minutes when supplied by the exporter's market-hours facts.
+ISO timestamps, raw field names, repeated duration statements and old field-style
+alarm wording trigger correction or fallback. Each selected fact appears once
+in the template; the inspector also audits repetition, causes and advice.
+
+Formatted UTC dates are matched against complete source instants after timezone
+conversion; their day/month/clock components cannot pass as unrelated numbers.
+Verification accepts explicit direction wording for falls/rises, offsets before/after
+onset and an equity difference described as ahead/behind. Unsupported values,
+reversed signs and invented dates still fail. The original facts remain the source
+for code verification and the independent inspector.
+Callers that require literal signed tokens can pass `allow_direction_words=False`.
+
+The inspector's JSON verdict is retained;
 malformed verdicts count as flags. A flagged generated report also switches to the
 template and records both the original audit and the template audit. Budget or
 provider errors propagate rather than masquerading as a completed live audit.
@@ -168,7 +185,7 @@ Raw snake_case field dumps trigger the correction attempt and then the prose
 fallback. Navigator verification opts into explicit direction words: `3% fall`
 checks against a negative percentage and `cost ... $618,557` against negative P&L.
 It never accepts arbitrary absolute values: reversed rises/gains and invented
-amounts still fail. Signed numeric matching for radio-officer reports is unchanged;
+amounts still fail. Reports also accept explicit direction words in their formatted statements;
 the inspector continues checking associations, units and economic claims.
 `verified` means numeric verification, independently of the inspector verdict or
 tool execution success; failed calls retain an `error` result.

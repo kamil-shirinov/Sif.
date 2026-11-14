@@ -7,6 +7,28 @@ independent inspector checks associations, invented causes and other claims.
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP, localcontext
 import re
 
+from .presentation import MONTHS, utc_datetime
+
+HUMAN_UTC = re.compile(
+    r"\b(?P<day>\d{1,2})\s+(?P<month>" + "|".join(MONTHS) +
+    r"),\s+(?P<hour>\d{2}):(?P<minute>\d{2})(?::(?P<second>\d{2}))?\s+UTC\b", re.I)
+_ISO_TIME = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})")
+
+
+def _fact_times(value):
+    if isinstance(value, str) and _ISO_TIME.fullmatch(value):
+        try:
+            stamp = utc_datetime(value)
+        except ValueError:
+            return
+        yield stamp.month, stamp.day, stamp.hour, stamp.minute, stamp.second
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _fact_times(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from _fact_times(item)
+
 
 _DIGITS = re.compile(
     r"[+\-−]?(?:\$[+\-−]?)?(?:\d{1,3}(?:,\d{3})+|\d+|(?=\.\d))"
@@ -89,15 +111,19 @@ def _directional_number(number: Decimal, text: str, start: int, end: int, token:
     """Read explicit trader phrasing without accepting arbitrary absolute values."""
     before, after = text[max(0, start - 80):start], text[end:end + 40]
     direction = None
-    if re.match(r"\s*(?:%|percent)\s+(?:fall|drop|decline|decrease|loss)\b", after, re.I):
+    if re.match(r"\s*(?:%|percent|basis points?|bp)\s+(?:fall|drop|decline|decrease|loss)\b", after, re.I):
         direction = -1
-    elif re.match(r"\s*(?:%|percent)\s+(?:rise|gain|increase)\b", after, re.I):
+    elif re.match(r"\s*(?:%|percent|basis points?|bp)\s+(?:rise|gain|increase)\b", after, re.I):
         direction = 1
-    elif re.match(r"\s*(?:%|percent\b)", after, re.I):
-        if re.search(r"\b(?:falls?|drops?|declines?|decreases?)(?: of| by)?\s*$", before, re.I):
+    elif re.match(r"\s*(?:%|percent\b|basis points?\b|bp\b)", after, re.I):
+        if re.search(r"\b(?:fell|falls?|drops?|dropped|declines?|declined|decreases?|decreased)(?: of| by)?\s*$", before, re.I):
             direction = -1
-        elif re.search(r"\b(?:rises?|gains?|increases?)(?: of| by)?\s*$", before, re.I):
+        elif re.search(r"\b(?:rose|rises?|gains?|gained|increases?|increased)(?: of| by)?\s*$", before, re.I):
             direction = 1
+    if re.match(r"\s+minutes?\s+before (?:the )?(?:move (?:began|started)|onset)\b", after, re.I):
+        direction = -1
+    elif re.match(r"\s+minutes?\s+after (?:the )?(?:move (?:began|started)|onset)\b", after, re.I):
+        direction = 1
     if "$" in token:
         # Stop at another number, percentage, dollar amount or sentence so a
         # cost verb cannot silently reverse unrelated numbers later in prose.
@@ -105,15 +131,29 @@ def _directional_number(number: Decimal, text: str, start: int, end: int, token:
             direction = -1
         elif re.search(r"\b(?:gains?|gain of|profit of|earn|earned)\b[^\d.!?;$%]{0,60}$", before, re.I):
             direction = 1
+        elif re.match(r"\s+behind\b", after, re.I):
+            direction = -1
     if direction == 1 and number < 0:
         raise ValueError("A negative amount cannot describe a rise or gain")
     return -number if direction == -1 and number > 0 else number
 
 
-def verify_numbers(text: str, facts: dict, *, allow_direction_words: bool = False) -> dict:
+def verify_numbers(text: str, facts: dict, *, allow_direction_words: bool = True) -> dict:
     allowed = set(_fact_numbers(facts))
     bad = []
+    # A human timestamp must match a complete source instant. Matching its day,
+    # hour and minute as unrelated numbers would accept invented dates/times.
+    allowed_times = set(_fact_times(facts))
+    clock_spans = []
+    for stamp in HUMAN_UTC.finditer(text):
+        clock_spans.append(stamp.span())
+        key = (next(i for i, m in enumerate(MONTHS, 1) if m.lower() == stamp['month'].lower()),
+               int(stamp['day']), int(stamp['hour']), int(stamp['minute']), int(stamp['second'] or 0))
+        if key not in allowed_times and stamp.group() not in bad:
+            bad.append(stamp.group())
     for start, end, token in _number_spans(text):
+        if any(a <= start and end <= b for a, b in clock_spans):
+            continue
         try:
             number, quantum = _decimal(token)
             if allow_direction_words:

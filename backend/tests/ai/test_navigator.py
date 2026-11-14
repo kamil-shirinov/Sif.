@@ -182,11 +182,11 @@ def test_directional_prose_still_checks_each_number_and_sign(text, verified):
     assert verify_numbers(text, facts, allow_direction_words=True)["verified"] is verified
 
 
-def test_direction_words_are_opt_in_and_do_not_relax_report_checks():
+def test_direction_words_are_checked_by_default_and_literal_only_mode_remains():
     facts = {"move_pct": -3, "pnl_usd": -618557}
     text = "A 3% fall would cost this book $618,557."
-    assert not verify_numbers(text, facts)["verified"]
-    assert verify_numbers(text, facts, allow_direction_words=True)["verified"]
+    assert not verify_numbers(text, facts, allow_direction_words=False)["verified"]
+    assert verify_numbers(text, facts)["verified"]
 
 
 def test_navigator_rewrites_numeric_field_dump_in_plain_english(monkeypatch):

@@ -1,6 +1,8 @@
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing
+from pathlib import Path
 import sqlite3
+from unittest.mock import patch
 
 import pytest
 
@@ -50,22 +52,37 @@ def test_uncertain_attempt_keeps_reservation(caps):
         budget.settle(call, input_tokens=1, output_tokens=1)
 
 
-def _parallel_reserve(_):
-    try:
-        # Each process tries to hold $0.30. Only two fit below $0.90.
-        budget.reserve("meta", "unknown", 0, 20_000, "parallel-test")
-        return True
-    except budget.BudgetExceeded:
-        return False
+def _budget_worker_start(barrier):
+    global _reservation_barrier
+    _reservation_barrier = barrier
+
+
+def _parallel_reserve(test_home):
+    # Spawned processes do not inherit pytest monkeypatches. Use the explicit
+    # fixture path rather than depending on process environment or import order.
+    with patch.object(Path, "home", return_value=Path(test_home)):
+        _reservation_barrier.wait(timeout=30)
+        try:
+            # Each process tries to hold $0.30. Only two fit below $0.90.
+            budget.reserve("meta", "unknown", 0, 20_000, "parallel-test")
+            return True
+        except budget.BudgetExceeded:
+            return False
 
 
 def test_parallel_processes_share_atomic_reservations(caps):
-    with ProcessPoolExecutor(max_workers=4, mp_context=multiprocessing.get_context("spawn")) as pool:
-        results = list(pool.map(_parallel_reserve, range(8)))
+    # Exercise reservation contention separately from WAL/schema first-open
+    # setup (covered below), and release four real processes together per wave.
+    assert budget.spent("meta") == 0
+    context = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=4, mp_context=context,
+                             initializer=_budget_worker_start, initargs=(context.Barrier(4),)) as pool:
+        results = list(pool.map(_parallel_reserve, [str(caps.parent.parent)] * 8))
     assert sum(results) == 2
     assert budget.spent("meta") == pytest.approx(.6)
     with sqlite3.connect(caps.parent / "ledger.sqlite") as db:
         assert db.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
+        assert db.execute("SELECT COUNT(*) FROM ai_calls").fetchone()[0] == 2
 
 
 def test_every_ledger_connection_has_busy_timeout(caps, monkeypatch):
