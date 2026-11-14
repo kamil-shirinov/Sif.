@@ -85,17 +85,17 @@
           "pair": "EURUSD",
           "kind": "scheduled",
           "anchor_utc": "2026-07-02 12:30",
-          "normal_windows": 39,
+          "normal_windows": 40,
           "measures": {
             "volatility_bp": {
               "value": 0.8516,
-              "normal_median": 0.7956,
+              "normal_median": 0.7944,
               "ratio_to_normal_median": 1.07,
-              "percentile": 61.5
+              "percentile": 62.5
             },
             "spread_bp": {
               "value": 0.1033,
-              "normal_median": 0.0885,
+              "normal_median": 0.0884,
               "ratio_to_normal_median": 1.17,
               "percentile": 100.0
             },
@@ -103,19 +103,19 @@
               "value": 0.0088,
               "normal_median": 0.0,
               "ratio_to_normal_median": null,
-              "percentile": 92.3
+              "percentile": 92.5
             },
             "fwd_pts_1M_bp": {
               "value": 0.0175,
               "normal_median": 0.0087,
               "ratio_to_normal_median": 2.01,
-              "percentile": 74.4
+              "percentile": 75.0
             },
             "fwd_pts_3M_bp": {
               "value": 0.1842,
-              "normal_median": 0.0525,
-              "ratio_to_normal_median": 3.51,
-              "percentile": 92.3
+              "normal_median": 0.0481,
+              "ratio_to_normal_median": 3.83,
+              "percentile": 92.5
             }
           }
         },
@@ -124,37 +124,37 @@
           "pair": "EURUSD",
           "kind": "scheduled",
           "anchor_utc": "2026-07-14 12:16",
-          "normal_windows": 39,
+          "normal_windows": 41,
           "measures": {
             "volatility_bp": {
               "value": 0.7582,
               "normal_median": 0.7887,
               "ratio_to_normal_median": 0.96,
-              "percentile": 41.0
+              "percentile": 41.5
             },
             "spread_bp": {
               "value": 0.0887,
               "normal_median": 0.0876,
               "ratio_to_normal_median": 1.01,
-              "percentile": 82.1
+              "percentile": 82.9
             },
             "fwd_pts_1W_bp": {
               "value": 0.0088,
               "normal_median": 0.0,
               "ratio_to_normal_median": null,
-              "percentile": 89.7
+              "percentile": 90.2
             },
             "fwd_pts_1M_bp": {
               "value": 0.0351,
               "normal_median": 0.0087,
               "ratio_to_normal_median": 4.01,
-              "percentile": 89.7
+              "percentile": 90.2
             },
             "fwd_pts_3M_bp": {
               "value": 0.0351,
               "normal_median": 0.0525,
               "ratio_to_normal_median": 0.67,
-              "percentile": 46.2
+              "percentile": 46.3
             }
           }
         },
@@ -397,37 +397,37 @@
           "pair": "EURUSD",
           "kind": "scheduled",
           "anchor_utc": "2026-08-07 12:29",
-          "normal_windows": 39,
+          "normal_windows": 40,
           "measures": {
             "volatility_bp": {
               "value": 0.6254,
-              "normal_median": 0.7956,
+              "normal_median": 0.7948,
               "ratio_to_normal_median": 0.79,
-              "percentile": 10.3
+              "percentile": 12.5
             },
             "spread_bp": {
               "value": 0.0877,
               "normal_median": 0.0878,
               "ratio_to_normal_median": 1.0,
-              "percentile": 46.2
+              "percentile": 47.5
             },
             "fwd_pts_1W_bp": {
               "value": 0.0,
               "normal_median": 0.0,
               "ratio_to_normal_median": null,
-              "percentile": 28.2
+              "percentile": 28.8
             },
             "fwd_pts_1M_bp": {
               "value": 0.0,
               "normal_median": 0.0088,
               "ratio_to_normal_median": 0.0,
-              "percentile": 12.8
+              "percentile": 12.5
             },
             "fwd_pts_3M_bp": {
               "value": 0.0173,
               "normal_median": 0.0438,
               "ratio_to_normal_median": 0.4,
-              "percentile": 12.8
+              "percentile": 15.0
             }
           }
         },
@@ -530,19 +530,19 @@
             "storms_measured": 13,
             "median_percentile": 53.8,
             "above_50": 7,
-            "above_90": 3,
+            "above_90": 4,
             "above_95": 1
           },
           "fwd_pts_1M_bp": {
             "storms_measured": 13,
             "median_percentile": 56.4,
             "above_50": 7,
-            "above_90": 2,
+            "above_90": 3,
             "above_95": 2
           },
           "fwd_pts_3M_bp": {
             "storms_measured": 13,
-            "median_percentile": 46.2,
+            "median_percentile": 46.3,
             "above_50": 6,
             "above_90": 2,
             "above_95": 0
@@ -551,7 +551,7 @@
         "scheduled": {
           "volatility_bp": {
             "storms_measured": 9,
-            "median_percentile": 61.5,
+            "median_percentile": 62.5,
             "above_50": 5,
             "above_90": 0,
             "above_95": 0
@@ -567,19 +567,19 @@
             "storms_measured": 9,
             "median_percentile": 53.8,
             "above_50": 5,
-            "above_90": 2,
+            "above_90": 3,
             "above_95": 1
           },
           "fwd_pts_1M_bp": {
             "storms_measured": 9,
             "median_percentile": 35.7,
             "above_50": 4,
-            "above_90": 1,
+            "above_90": 2,
             "above_95": 1
           },
           "fwd_pts_3M_bp": {
             "storms_measured": 9,
-            "median_percentile": 46.2,
+            "median_percentile": 46.3,
             "above_50": 4,
             "above_90": 2,
             "above_95": 0
@@ -709,37 +709,37 @@
           "pair": "EURUSD",
           "kind": "scheduled",
           "anchor_utc": "2026-07-02 12:16",
-          "normal_windows": 39,
+          "normal_windows": 41,
           "measures": {
             "volatility_bp": {
               "value": 0.8335,
               "normal_median": 0.7887,
               "ratio_to_normal_median": 1.06,
-              "percentile": 61.5
+              "percentile": 61.0
             },
             "spread_bp": {
               "value": 0.0945,
               "normal_median": 0.0876,
               "ratio_to_normal_median": 1.08,
-              "percentile": 97.4
+              "percentile": 97.6
             },
             "fwd_pts_1W_bp": {
               "value": 0.0088,
               "normal_median": 0.0,
               "ratio_to_normal_median": null,
-              "percentile": 89.7
+              "percentile": 90.2
             },
             "fwd_pts_1M_bp": {
               "value": 0.0,
               "normal_median": 0.0087,
               "ratio_to_normal_median": 0.0,
-              "percentile": 15.4
+              "percentile": 14.6
             },
             "fwd_pts_3M_bp": {
               "value": 0.1842,
               "normal_median": 0.0525,
               "ratio_to_normal_median": 3.51,
-              "percentile": 94.9
+              "percentile": 95.1
             }
           }
         },
@@ -748,37 +748,37 @@
           "pair": "EURUSD",
           "kind": "scheduled",
           "anchor_utc": "2026-07-14 12:16",
-          "normal_windows": 39,
+          "normal_windows": 41,
           "measures": {
             "volatility_bp": {
               "value": 0.7582,
               "normal_median": 0.7887,
               "ratio_to_normal_median": 0.96,
-              "percentile": 41.0
+              "percentile": 41.5
             },
             "spread_bp": {
               "value": 0.0887,
               "normal_median": 0.0876,
               "ratio_to_normal_median": 1.01,
-              "percentile": 82.1
+              "percentile": 82.9
             },
             "fwd_pts_1W_bp": {
               "value": 0.0088,
               "normal_median": 0.0,
               "ratio_to_normal_median": null,
-              "percentile": 89.7
+              "percentile": 90.2
             },
             "fwd_pts_1M_bp": {
               "value": 0.0351,
               "normal_median": 0.0087,
               "ratio_to_normal_median": 4.01,
-              "percentile": 89.7
+              "percentile": 90.2
             },
             "fwd_pts_3M_bp": {
               "value": 0.0351,
               "normal_median": 0.0525,
               "ratio_to_normal_median": 0.67,
-              "percentile": 46.2
+              "percentile": 46.3
             }
           }
         },
@@ -826,37 +826,37 @@
           "pair": "USDJPY",
           "kind": "unscheduled",
           "anchor_utc": "2026-07-30 10:02",
-          "normal_windows": 39,
+          "normal_windows": 42,
           "measures": {
             "volatility_bp": {
               "value": 0.9698,
-              "normal_median": 0.6131,
-              "ratio_to_normal_median": 1.58,
-              "percentile": 87.2
+              "normal_median": 0.6172,
+              "ratio_to_normal_median": 1.57,
+              "percentile": 88.1
             },
             "spread_bp": {
               "value": 0.1203,
-              "normal_median": 0.1267,
-              "ratio_to_normal_median": 0.95,
+              "normal_median": 0.1278,
+              "ratio_to_normal_median": 0.94,
               "percentile": 33.3
             },
             "fwd_pts_1W_bp": {
               "value": 0.0,
               "normal_median": 0.0063,
               "ratio_to_normal_median": 0.0,
-              "percentile": 9.0
+              "percentile": 9.5
             },
             "fwd_pts_1M_bp": {
               "value": 0.0551,
               "normal_median": 0.0246,
               "ratio_to_normal_median": 2.24,
-              "percentile": 97.4
+              "percentile": 95.2
             },
             "fwd_pts_3M_bp": {
               "value": 0.2327,
-              "normal_median": 0.0565,
-              "ratio_to_normal_median": 4.12,
-              "percentile": 97.4
+              "normal_median": 0.0534,
+              "ratio_to_normal_median": 4.36,
+              "percentile": 95.2
             }
           }
         },
@@ -1021,37 +1021,37 @@
           "pair": "EURUSD",
           "kind": "scheduled",
           "anchor_utc": "2026-08-07 12:20",
-          "normal_windows": 39,
+          "normal_windows": 41,
           "measures": {
             "volatility_bp": {
               "value": 0.5997,
               "normal_median": 0.8014,
               "ratio_to_normal_median": 0.75,
-              "percentile": 10.3
+              "percentile": 12.2
             },
             "spread_bp": {
               "value": 0.0867,
-              "normal_median": 0.0878,
+              "normal_median": 0.0876,
               "ratio_to_normal_median": 0.99,
-              "percentile": 28.2
+              "percentile": 29.3
             },
             "fwd_pts_1W_bp": {
               "value": 0.0,
               "normal_median": 0.0,
               "ratio_to_normal_median": null,
-              "percentile": 25.6
+              "percentile": 26.8
             },
             "fwd_pts_1M_bp": {
               "value": 0.0,
               "normal_median": 0.0087,
               "ratio_to_normal_median": 0.0,
-              "percentile": 12.8
+              "percentile": 12.2
             },
             "fwd_pts_3M_bp": {
               "value": 0.0087,
               "normal_median": 0.0438,
               "ratio_to_normal_median": 0.2,
-              "percentile": 12.8
+              "percentile": 12.2
             }
           }
         },
@@ -1152,24 +1152,24 @@
           },
           "fwd_pts_1W_bp": {
             "storms_measured": 13,
-            "median_percentile": 26.2,
+            "median_percentile": 26.8,
             "above_50": 5,
-            "above_90": 0,
+            "above_90": 2,
             "above_95": 0
           },
           "fwd_pts_1M_bp": {
             "storms_measured": 13,
             "median_percentile": 43.6,
             "above_50": 6,
-            "above_90": 2,
+            "above_90": 3,
             "above_95": 2
           },
           "fwd_pts_3M_bp": {
             "storms_measured": 13,
-            "median_percentile": 46.2,
+            "median_percentile": 46.3,
             "above_50": 6,
             "above_90": 2,
-            "above_95": 1
+            "above_95": 2
           }
         },
         "scheduled": {
@@ -1191,28 +1191,28 @@
             "storms_measured": 9,
             "median_percentile": 53.8,
             "above_50": 5,
-            "above_90": 0,
+            "above_90": 2,
             "above_95": 0
           },
           "fwd_pts_1M_bp": {
             "storms_measured": 9,
             "median_percentile": 17.9,
             "above_50": 3,
-            "above_90": 0,
+            "above_90": 1,
             "above_95": 0
           },
           "fwd_pts_3M_bp": {
             "storms_measured": 9,
-            "median_percentile": 46.2,
+            "median_percentile": 46.3,
             "above_50": 4,
             "above_90": 1,
-            "above_95": 0
+            "above_95": 1
           }
         },
         "unscheduled": {
           "volatility_bp": {
             "storms_measured": 4,
-            "median_percentile": 82.1,
+            "median_percentile": 82.5,
             "above_50": 4,
             "above_90": 1,
             "above_95": 1
@@ -1233,7 +1233,7 @@
           },
           "fwd_pts_1M_bp": {
             "storms_measured": 4,
-            "median_percentile": 76.9,
+            "median_percentile": 75.8,
             "above_50": 3,
             "above_90": 2,
             "above_95": 2

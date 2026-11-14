@@ -20,12 +20,13 @@ restore fills at the open bid or ask of the bar after its signal (storm.exposure
 An alarm event's move_ahead_pct is set only when storm.evaluate.alarm_matches (the same
 matcher the evaluator uses) links it to the replay's storm: in [onset - 60 min, trough]
 and its episode still in force at onset. The stress menu is point in time
-(storm.exposure.stress_scenarios): only storms whose trough came before the exposure
-snapshot, which is often none.
+(storm.exposure.stress_menu): storms labelled on the bars up to the exposure snapshot
+(the bar before onset) whose trough came before it.
 
 index.json metrics come from data/processed/metrics.json, and only when its provenance
-(SHA-256 of the spot parquets, contracts/calendar.csv and detector_config.json, written by
-storm.backtest) matches the files on disk now; otherwise export refuses to run.
+(written by storm.backtest: SHA-256 of the spot parquets, contracts/calendar.csv and the
+calendar content in effect, detector_config.json, and the calculation code's fingerprint)
+matches the inputs and code now; otherwise export refuses to run.
 
 Each bundle carries a storm report from storm.ai.report (facts_from_bundle, then
 write_report): the deterministic mock by default (LLM_MODE is forced to mock), the real
@@ -37,6 +38,12 @@ Additions documented in contracts/replay_bundle.md (still schema_version 1, all 
   event types              squall, fair_wind, cut, restore (cut_i stays the first cut)
   watch events             add `event` (the calendar event's name)
   storm.event, event_i     for a scheduled storm: the calendar event and its frame
+  storm.first_onset_i      frame of the storm's first triggering window (<= onset_i; negative
+                           when it began before the replay window)
+  storm.alarm_i, alarm_minutes, alarm_minutes_first_onset, move_ahead_pct,
+  move_ahead_pct_first_onset
+                           the storm-level alarm storm.evaluate links to the storm (as scored
+                           in metrics.json) against onset and first_onset; null if none
   report.inspector         {verdict: ok | flag, issues: [...]}
   index storms[].source    the bundle's source (sgx, yahoo, scenario), so a reader can tell
                            market replays from navigator what-ifs; scenario bundles already in
@@ -58,9 +65,9 @@ from . import ingest
 from .ai.report import facts_from_bundle, write_report
 from .backtest import index_metrics, provenance, provenance_mismatches
 from .detector import load_calendar, load_config, run_detector
-from .evaluate import alarm_matches, move_ahead_pct
+from .evaluate import alarm_matches, link_alarm, move_ahead_pct, per_storm_row
 from .exposure import (Quotes, book_for, exposure_snapshot, leg_exposure, policy_actions, ships,
-                       stress_scenarios)
+                       stress_menu)
 from .features import PAIRS, build_features
 from .labels import label_all, print_storms, write_storms
 from .paths import BUNDLES_DIR, CALENDAR_CSV, PROCESSED_DIR, RAW_DIR
@@ -197,6 +204,7 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     onset_i, trough_i = frame_of(storm.onset_utc), frame_of(storm.trough_utc)
     if not (0 <= onset_i < n and 0 <= trough_i < n):
         raise ValueError(f"{storm.storm_id}: onset or trough outside the window")
+    first_onset_i = frame_of(storm.first_onset_utc)      # may be < 0: before the replay window
     scheduled = storm.kind == "scheduled"
     event_i = frame_of(storm.event_utc) if scheduled else None
     if scheduled and not 0 <= event_i < n:
@@ -254,6 +262,8 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
             "kind": "scheduled" if scheduled else "unscheduled",
             "label": _label(float(storm.move_bp), int(storm.duration_min)),
             **({"event": storm.event, "event_i": event_i} if scheduled else {}),
+            "first_onset_i": first_onset_i,
+            **storm_alarm_fields(storm, res.storm_alarms(), feat["mid"], frame_of),
         },
         "series": {
             "open": [_r(v, 5) for v in g["open"]],
@@ -281,7 +291,8 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
         },
         "events": events,
         "exposure": exposure_snapshot(paths["unprepared"], {pair: mid}, book, as_of_i),
-        "stress": stress_scenarios(ctx.storms, paths["unprepared"], {pair: quotes}, book, as_of_i, idx[as_of_i]),
+        "stress": stress_menu(ctx.feats, ctx.calendar, paths["unprepared"], {pair: quotes}, book, as_of_i,
+                              idx[as_of_i]),
         "report": None,
     }
     alarms = [(idx[ev["i"]], ev["move_ahead_pct"]) for ev in events if ev["type"] == "alarm"]
@@ -303,6 +314,19 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
                         for k, p in paths.items()},
     }
     return bundle, summary
+
+
+def storm_alarm_fields(storm, alarms: list, mid: pd.Series, frame_of) -> dict:
+    """The storm-level alarm that storm.evaluate links to this storm (direction-agnostic,
+    the one metrics.json scores), as frame, minutes after onset and after first_onset, and
+    share of the move still ahead against each. All null when no alarm matched."""
+    alarm = link_alarm(alarms, storm)
+    row = per_storm_row(storm, alarm, mid)
+    pct = lambda v: None if v is None else _r(v, 1)  # noqa: E731
+    return {"alarm_i": None if alarm is None else frame_of(alarm),
+            "alarm_minutes": row["minutes"], "alarm_minutes_first_onset": row["minutes_first_onset"],
+            "move_ahead_pct": pct(row["move_ahead_pct"]),
+            "move_ahead_pct_first_onset": pct(row["move_ahead_pct_first_onset"])}
 
 
 def trade_events(prep, symbol: str, cut_fraction: float) -> list[dict]:
@@ -416,18 +440,21 @@ class StaleMetrics(RuntimeError):
     """metrics.json was computed from other data, calendar or config than the files now on disk."""
 
 
-def load_index_metrics(processed: Path = PROCESSED_DIR, calendar_path: Path = CALENDAR_CSV) -> dict | None:
+def load_index_metrics(processed: Path = PROCESSED_DIR, calendar_path: Path = CALENDAR_CSV,
+                       calendar: pd.DataFrame | None = None) -> dict | None:
     """index.json metrics from metrics.json; refuses (StaleMetrics) unless its provenance
-    matches the spot data, calendar and detector config on disk."""
+    matches the spot data, calendar (file and the content in effect: `calendar`, default
+    loaded from `calendar_path`), detector config and calculation code now."""
     path = processed / "metrics.json"
     if not path.exists():
         return None
     metrics = json.loads(path.read_text())
-    now = provenance(processed, calendar_path, processed / "detector_config.json")
+    now = provenance(processed, calendar_path, processed / "detector_config.json", calendar)
     bad = provenance_mismatches(metrics.get("provenance"), now)
     if bad:
-        raise StaleMetrics(f"{path} does not match the files on disk ({'; '.join(bad)}); "
-                           "re-run `python -m storm.tune` if the data changed, then `python -m storm.backtest`")
+        raise StaleMetrics(f"{path} does not match the inputs or code now ({'; '.join(bad)}); "
+                           "re-run `python -m storm.tune` if the data or labels changed, then "
+                           "`python -m storm.backtest`")
     return index_metrics(metrics)
 
 
@@ -448,9 +475,16 @@ def scan_bundles(out_dir: Path) -> list[tuple[dict, str]]:
 
 def write_index(out_dir: Path, bundles: list[tuple[dict, str]] | None = None,
                 metrics: dict | None = None) -> Path:
-    """index.json lists `bundles` (bundle, file name), or else every non-synthetic bundle in out_dir."""
+    """index.json lists `bundles` (bundle, file name), or else every non-synthetic bundle in
+    out_dir, keeping the order of the index.json already there (new files go last)."""
     if bundles is None:
         bundles = scan_bundles(out_dir)
+        old = out_dir / "index.json"
+        try:
+            order = {e["file"]: k for k, e in enumerate(json.loads(old.read_text())["storms"])}
+        except (OSError, ValueError, KeyError, TypeError):
+            order = {}
+        bundles = sorted(bundles, key=lambda bn: order.get(bn[1], len(order)))
     index = {"schema_version": SCHEMA_VERSION,
              "storms": [_index_entry(b, name) for b, name in bundles],
              "metrics": metrics}
@@ -558,7 +592,7 @@ def main(argv: list[str] | None = None) -> None:
 
     ctx = load_context(args.processed, args.raw)
     try:
-        metrics = load_index_metrics(args.processed)
+        metrics = load_index_metrics(args.processed, CALENDAR_CSV, ctx.calendar)
     except StaleMetrics as e:
         raise SystemExit(f"refusing to export: {e}")
     if metrics is None:

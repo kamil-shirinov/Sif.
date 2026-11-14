@@ -41,10 +41,13 @@ Policy v1 (the prepared ship), per leg:
   fair wind                  no trade
 The unprepared ship holds throughout.
 
-Stress (stress_scenarios): the replay's own book as it stands at the exposure snapshot
-(the unprepared ship's cash and legs at as_of_i), shocked by each labelled storm whose
-trough came before the snapshot (point in time: nothing from the snapshot's future; an
-empty menu when none qualifies). A storm's USD move u (unrounded, from its onset and
+Stress (stress_menu, stress_scenarios): the replay's own book as it stands at the exposure
+snapshot (the unprepared ship's cash and legs at as_of_i), shocked by each storm whose
+trough came before the snapshot, with the storms labelled on the history available at the
+snapshot (storm.labels.label_as_of: bars stamped at or before it). Point in time on both
+counts: a later price can neither add a scenario nor remove one, even where the full-history
+labels would merge an earlier move into a later storm (6-hour merge). An empty menu when
+none qualifies. A storm's USD move u (unrounded, from its onset and
 trough mids) is applied to every leg (USDxxx mid x (1 + u), EURUSD mid / (1 + u)), and
 the book is revalued with the simulator's own valuation: equity at the shocked mids and
 the margin test against maintenance x gross at the shocked mids (marked notional, so a
@@ -59,6 +62,7 @@ import pandas as pd
 
 from .detector import load_calendar, run_detector
 from .features import usd_sign
+from .labels import label_as_of
 
 EQUITY_USD = 1_000_000.0
 MAINTENANCE = 0.025
@@ -394,10 +398,18 @@ def _shock(cash: dict, qty: dict, px: dict, mm: float, u: float) -> tuple[float,
     return eq1 - eq0, bool(g1 > 0 and eq1 < mm * g1)
 
 
+def stress_menu(feats: dict[str, pd.DataFrame], calendar: pd.DataFrame, path: BookPath, mids: dict,
+                book: dict, i: int, as_of: pd.Timestamp) -> list[dict]:
+    """The replay's stress menu (module doc): storms labelled on the bars up to `as_of`
+    (label_as_of), then stress_scenarios. This is the point-in-time entry point."""
+    return stress_scenarios(label_as_of(feats, as_of, calendar), path, mids, book, i, as_of)
+
+
 def stress_scenarios(storms: pd.DataFrame, path: BookPath, mids: dict, book: dict, i: int,
                      as_of: pd.Timestamp) -> list[dict]:
-    """The replay's stress menu (module doc): storms with trough < `as_of`, applied to the
-    holdings of `path` at frame i through the simulator's valuation and margin test."""
+    """Storms with trough < `as_of`, applied to the holdings of `path` at frame i through the
+    simulator's valuation and margin test. `storms` must be labelled on the history up to
+    `as_of` (stress_menu does that); full-history labels are not point in time."""
     legs = [leg["pair"] for leg in book["legs"]]
     px = {p: float(as_quotes(mids[p]).mid[i]) for p in legs}
     cash = {c: float(a[i]) for c, a in path.cash.items()}

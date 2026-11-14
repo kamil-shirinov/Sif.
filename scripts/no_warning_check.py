@@ -11,7 +11,9 @@ storm's onset, and before its first_onset, on three things:
 
 and asks where that window sits among "normal" windows of the same pair: the windows that
 end at the same clock time (UTC) on every other day of the data, and that do not touch any
-storm (from 60 minutes before an onset to 60 minutes after the end). The rank is a
+storm's exclusion span (storm_spans: from 60 minutes before its first onset, which is never
+later than its onset, to 60 minutes after its end). A 90-minute candidate window is
+excluded only when it overlaps that span (is_excluded). The rank is a
 percentile: 50 = typical, 95 = higher than 95% of normal windows. If prices warned, the
 percentiles of the pre-storm windows would pile up near 100. Chance alone puts about 10% of
 storms above 90 and 5% above 95.
@@ -107,14 +109,25 @@ def after_weekly_open(anchor: pd.Timestamp) -> bool:
     return anchor.dayofweek == 0 and anchor.hour < 6
 
 
+def storm_spans(storms: pd.DataFrame, pair: str) -> list[tuple[pd.Timestamp, pd.Timestamp]]:
+    """Per storm on `pair`: [first onset - EDGE, end + EDGE], where no window is normal."""
+    return [(min(r.onset_utc, r.first_onset_utc) - EDGE, r.end_utc + EDGE)
+            for r in storms[storms.pair == pair].itertuples()]
+
+
+def is_excluded(end: pd.Timestamp, spans: list[tuple[pd.Timestamp, pd.Timestamp]]) -> bool:
+    """The candidate window (end - PRE, end] overlaps a storm's span."""
+    return any(end > lo and end - PRE < hi for lo, hi in spans)
+
+
 def normal_windows(p: Pair, anchor: pd.Timestamp, storms: pd.DataFrame, days: pd.DatetimeIndex) -> list[dict]:
-    spans = [(r.onset_utc - PRE - EDGE, r.end_utc + EDGE) for r in storms[storms.pair == p.pair].itertuples()]
+    spans = storm_spans(storms, p.pair)
     out = []
     for d in days:
         end = d + (anchor - anchor.normalize())
         if d == anchor.normalize() or (after_weekly_open(anchor) and d.dayofweek != 0):
             continue
-        if any(lo <= end and end - PRE <= hi for lo, hi in spans):
+        if is_excluded(end, spans):
             continue
         m = p.measures(end)
         if m is not None:
@@ -196,8 +209,8 @@ def render(res: dict) -> str:
          "- **spread**: mean of (ask - bid) / mid, in bp;",
          "- **forward points** (1W, 1M, 3M): the absolute change in forward points over the 90 minutes, as bp of the spot mid.", "",
          "Each is ranked against **normal windows of the same pair**: the 90 minutes ending at the same "
-         "clock time (UTC) on every other day in the data, skipping any window within 60 minutes of a storm "
-         "(60 min before an onset to 60 min after the end) and any window missing more than 10 of its 90 "
+         "clock time (UTC) on every other day in the data, skipping any window that overlaps a storm's span "
+         "(60 min before its first onset to 60 min after its end) and any window missing more than 10 of its 90 "
          "returns. A storm in the first hours after the Sunday-evening open (before 06:00 UTC on a Monday) is "
          "compared with other Mondays only, since those hours are not like a mid-week night. The same time of day keeps the daily rhythm out of the comparison (US releases at 12:30 "
          "UTC are always busier than the small hours). The **percentile** is the share of normal windows "

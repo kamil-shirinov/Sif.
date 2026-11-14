@@ -36,7 +36,10 @@ No return spans a gap, and every missing minute counts, so a two-minute hole lea
 return undefined. SGX spot has about 40 such holes per pair (2 to 5 minutes) outside the
 weekend close. A label window needs at least 13 of its 15 minutes observed.
 
-Triggering windows on the same pair less than 6 hours apart form **one storm**.
+Triggering windows on the same pair 6 hours or less apart (from one triggering window's end
+to the next one's) form **one storm**. Labels use the whole history, so a later trigger can
+merge into an earlier episode and change its onset, trough and move; the bundles' stress menu
+therefore relabels on the bars up to its snapshot (`storm.labels.label_as_of`, section 8).
 Volatility windows count bars, not clock minutes, so a weekend never dilutes `sd_24h`.
 
 ## 2. Onset, first onset, trough, move_bp, duration (`storm.labels`)
@@ -293,10 +296,18 @@ gross(i)  = sum over legs of |qty| * usd_rate(base currency, mid)          (mark
 breach    = gross > 0 and equity < maintenance * gross
 ```
 
-**Stress menu (point in time).** A replay's `stress` rows use only labelled storms whose
-trough came before the exposure snapshot, which is the bar before onset. When none
-qualifies, the menu is empty. The 2 Jul FX bundles and the NVDA bundle have empty menus.
-NVDA's candidate moves are all on 12 Nov, in the snapshot's future. Each row applies the
+**Stress menu (point in time).** A replay's `stress` rows use only storms whose trough came
+before the exposure snapshot, which is the bar before onset, and those storms are labelled
+on the bars stamped at or before the snapshot (`storm.labels.label_as_of`, called by
+`storm.exposure.stress_menu`): the labels a trader could have computed then. Full-history
+labels would not do: the 6-hour merge can fold an earlier move into a storm whose trough
+is still in the future, so a later price would remove a scenario that was known at the
+snapshot (the audit's reproducer, `test_1_stress_menu_does_not_depend_on_prices_after_the_snapshot`).
+An episode still running at the snapshot appears as it stood then. When none qualifies,
+the menu is empty. The NVDA bundle's menu is empty: its candidate moves are all on 12 Nov,
+in the snapshot's future. Each 2 Jul FX bundle has one row, the USDJPY move that began at
+06:35 that morning: labelled on the history up to the snapshot it is a finished storm,
+while the full-history labels merge it into the 12:20 USDJPY storm. Each row applies the
 storm's **unrounded** USD move `u`, computed from its onset and trough mids with EURUSD
 inverted, to the snapshot's actual holdings: the unprepared ship's cash per currency and
 its legs at `as_of_i`. Every leg is shocked (`USDxxx mid * (1 + u)`, `EURUSD mid / (1 + u)`),
@@ -333,7 +344,11 @@ The policy backtest runs on the three-pair book from 2 Aug 19:01 to 31 Aug 23:59
 The strongest triggering window runs 13:29 to 13:44, with `move15 = -150.6 bp`. So:
 
 - onset = 13:29, with mid 162.7805. The first triggering window of the same storm starts
-  at 10:02 (first_onset), because it lies within 6 hours of the main move.
+  at 10:02 (first_onset, mid 163.2725), because it lies within 6 hours of the main move:
+  10:02 to 10:17 moved -41.6 bp against a 30 bp threshold. The detector alarmed on it at
+  10:18 and cleared at 11:44, before the onset, so the matcher does not credit that alarm
+  and July's score counts it as false. Against first_onset the credited 13:37 alarm is
+  +215 min with 80.6% of the move (163.2725 to 158.054) still ahead.
 - The last triggering window ends at 14:24. The lowest mid in 13:29 to 14:24 is 158.054, at 14:23 (the trough).
 - `move_bp = (158.054 / 162.7805 - 1) * 1e4 = -290.4`. Duration is 54 min. Label: `-2.9% in 54 min`.
 
@@ -375,9 +390,10 @@ close mid, 162.8335.
 
 The prepared ship ends **$372,233** ahead.
 
-The stress menu has 5 rows: the 2 Jul and 14 Jul storms, whose troughs came before the
-13:28 snapshot. A row for the 30 Jul storm itself would use the future, so it is not in
-the menu.
+The stress menu has 6 rows: the 2 Jul and 14 Jul storms, whose troughs came before the
+13:28 snapshot, and the 10:02 drop of this same morning (-42 bp, P&L -$83,535), which,
+labelled on the bars up to 13:28, is a storm that had already ended. A row for the main
+13:29 fall would use the future, so it is not in the menu.
 
 **Watch example (scheduled), USDJPY, 7 Aug 2026.** The release is US Employment
 Situation at 12:30. The onset is at 12:20, which is within 15 min, so the storm is
@@ -393,10 +409,19 @@ scheduled.
 - `python -m storm.tune` writes `data/processed/detector_config.json`.
 - `python -m storm.backtest` writes `data/processed/metrics.json`, with every figure above,
   the `definitions` block, and `provenance`: the SHA-256 of the three spot parquets,
-  `contracts/calendar.csv` and `detector_config.json` it was computed from.
-- `python -m storm.export --all` writes `index.json`. It **refuses to run** when
-  `metrics.json`'s provenance does not match those files on disk, because that would put
-  stale metrics on the evidence card. Its `metrics` hold `storms`, `alarmed`, `caught`,
-  `median_move_ahead_pct`, `median_minutes_to_alarm`, `false_alarms_per_day`,
-  `false_alarm_episodes_per_day`, `watch_precision` and
+  `contracts/calendar.csv`, the calendar content actually used (`calendar_content`: the
+  verified rows, which differ from the file when `run_backtest` is given a calendar),
+  `detector_config.json`, and `code`: a fingerprint per calculation module (`labels`,
+  `features`, `detector`, `detector_v0`, `evaluate`, `exposure`, `backtest`, `export`,
+  `equity`, `tune`) of its source file, its UPPERCASE constants as they are at run time and
+  any function or class bound in it from elsewhere, so a patched constant counts.
+- `python -m storm.export --all` writes `index.json`. It **refuses to run** when any part
+  of `metrics.json`'s provenance differs from the inputs and code now, because that would
+  put stale metrics on the evidence card. Its `metrics` hold `storms`, `alarmed`, `caught`,
+  `median_move_ahead_pct`, `median_minutes_to_alarm`, `caught_first_onset`,
+  `median_move_ahead_pct_first_onset`, `median_minutes_to_alarm_first_onset`,
+  `false_alarms_per_day`, `false_alarm_episodes_per_day`, `watch_precision` and
   `<prepared|unprepared>_max_drawdown_<usd|pct>`, all for August.
+- Every bundle's `storm` carries `first_onset_i` and the storm-level alarm the evaluator
+  links to it (`alarm_i`, `alarm_minutes`, `alarm_minutes_first_onset`, `move_ahead_pct`,
+  `move_ahead_pct_first_onset`); `contracts/replay_bundle.md` has the field definitions.

@@ -68,8 +68,8 @@ from .detector import load_calendar, load_config, run_detector
 from .evaluate import alarm_matches, move_ahead_pct
 from .exposure import BookPath, fill_frame, max_drawdown, policy_actions
 from .export import (SCHEMA_VERSION, SHIP_LABELS, EVENT_ORDER, STEP_S, StaleMetrics, _event_text, _grid, _r,
-                     _visible_events, attach_report, load_index_metrics, trade_events, write_bundle,
-                     write_index)
+                     _visible_events, attach_report, load_index_metrics, storm_alarm_fields, trade_events,
+                     write_bundle, write_index)
 from .features import add_comove, as_ns, bar_features
 from .paths import BUNDLES_DIR, PROCESSED_DIR
 
@@ -323,8 +323,10 @@ def build_bundle(run: EquityRun, start: pd.Timestamp = WINDOW_START,
         return int((t.floor("min") - idx[0]) / pd.Timedelta(seconds=STEP_S))
 
     m = close_to_low(bars, end)
-    storm = SimpleNamespace(onset_utc=m["close_utc"], trough_utc=m["low_utc"],
-                            onset_mid=m["close"], trough_mid=m["low"])
+    # One move, from the close to the low: no merged windows, so first_onset is the onset.
+    storm = SimpleNamespace(storm_id=STORM_ID, onset_utc=m["close_utc"], trough_utc=m["low_utc"],
+                            onset_mid=m["close"], trough_mid=m["low"],
+                            first_onset_utc=m["close_utc"], first_onset_mid=m["close"])
     onset_i, trough_i = frame_of(storm.onset_utc), frame_of(storm.trough_utc)
     if not (0 <= onset_i < trough_i < n):
         raise ValueError("onset or trough outside the window")
@@ -377,6 +379,8 @@ def build_bundle(run: EquityRun, start: pd.Timestamp = WINDOW_START,
             "move_bp": _r(m["move_bp"], 1),
             "kind": "unscheduled",
             "label": f"{move_pct:+.1f}% from the 11 Nov close to the 12 Nov low",
+            "first_onset_i": onset_i,
+            **storm_alarm_fields(storm, res.storm_alarms(), feat["mid"], frame_of),
         },
         "series": {
             "open": [_r(v, 5) for v in g["open"]],

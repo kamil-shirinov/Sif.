@@ -5,7 +5,7 @@
 A 15-minute window triggers when |move| >= max(30 bp, 8 x sd_24h x sqrt(15)), with
 sd_24h taken at the window's start (the calm level before the move), a bar at the
 window's start, and at least 13 of its 15 minutes observed (bars in (start, end]).
-Triggering windows less than 6 hours apart on the same pair are one storm. For each storm:
+Triggering windows 6 hours or less apart on the same pair are one storm. For each storm:
 
   onset    start of its strongest 15-minute window
   first_onset  start of its first triggering window (<= onset)
@@ -17,6 +17,11 @@ Triggering windows less than 6 hours apart on the same pair are one storm. For e
   kind     scheduled when the onset is within 15 minutes (either side) of an event in
            contracts/calendar.csv, else unscheduled; event = that event's name (the
            nearest one if several qualify), empty when unscheduled
+
+Labels use the whole history, so a later trigger within 6 hours can merge into an
+episode and change its onset, trough and move after the fact. Anything that must be point
+in time (the bundles' stress menu) uses label_as_of: the same rule run on the bars stamped
+at or before that moment only, i.e. the labels a trader could have computed then.
 """
 from __future__ import annotations
 
@@ -121,12 +126,21 @@ def label_all(feats: dict[str, pd.DataFrame], calendar: pd.DataFrame | None = No
         r["event"] = "" if ev is None else ev[0]
         r["event_utc"] = pd.NaT if ev is None else ev[1]
     df = pd.DataFrame(rows, columns=[c for c in STORM_COLUMNS if c != "storm_id"])
-    df["event_utc"] = pd.to_datetime(df["event_utc"], utc=True)
+    for col in TIME_COLUMNS:          # typed even when there is no storm (an early label_as_of)
+        df[col] = pd.to_datetime(df[col], utc=True)
     df = df.sort_values(["onset_utc", "pair"]).reset_index(drop=True)
     base = df["pair"].str.lower() + "-" + df["onset_utc"].dt.strftime("%Y-%m-%d")
     nth = base.groupby(base).cumcount()
     df.insert(0, "storm_id", np.where(nth == 0, base, base + "-" + (nth + 1).astype(str)))
     return df
+
+
+def label_as_of(feats: dict[str, pd.DataFrame], as_of: pd.Timestamp,
+                calendar: pd.DataFrame | None = None) -> pd.DataFrame:
+    """label_all on the history available at `as_of`: bars stamped at or before it only.
+    Features are trailing (storm.features), so cutting them equals recomputing them on the
+    cut data. An episode still running at `as_of` appears as it stood then."""
+    return label_all({p: f[f.index <= as_of] for p, f in feats.items()}, calendar)
 
 
 def write_storms(storms: pd.DataFrame, path: Path = PROCESSED_DIR / "storms.csv") -> Path:

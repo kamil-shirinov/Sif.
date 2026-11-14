@@ -6,12 +6,14 @@
 
 ## What the data showed
 
-Two months of SGX one-minute bars (1 July to 31 August 2026; EURUSD, USDJPY, USDSGD) hold 13 storms, defined in [docs/metrics.md](docs/metrics.md). **Storms arrive without warning in prices.** `scripts/no_warning_check.py` measures volatility, spread and forward points in the 90 minutes before each storm and ranks them against normal windows of the same pair at the same time of day (full method and per-storm table in [docs/no_warning_check.md](docs/no_warning_check.md)):
+Two months of SGX one-minute bars (1 July to 31 August 2026; EURUSD, USDJPY, USDSGD) hold 13 storms, defined in [docs/metrics.md](docs/metrics.md). **We found little advance warning in prices.** `scripts/no_warning_check.py` measures volatility, spread and forward points in the 90 minutes before each storm and ranks them against normal windows of the same pair at the same time of day, leaving out any window that overlaps a storm, from 60 minutes before its first onset to 60 minutes after its end (full method and per-storm table in [docs/no_warning_check.md](docs/no_warning_check.md)):
 
 - **Volatility** in the 90 minutes before onset was above the 95th percentile of normal for **1 of 13** storms (chance alone gives about 0.65 of 13); the median storm sat at the 66.7th percentile. The one exception is the 3 August USDJPY storm, which began in the first hours after the Sunday-evening open.
 - **Spread** was above the 95th percentile for **3 of 13**: that same storm, and the EURUSD and USDSGD storms of 2 July, whose pre-window leads into the 12:30 US payrolls release. Spreads widen ahead of a release that is already on the calendar. That is the calendar's warning, not a price signal.
-- **Forward points** (1W, 1M, 3M) were above the 95th percentile for 1, 2 and 0 of 13 storms.
-- Measured from `first_onset` instead (the stricter test: the 90 minutes before it hold none of the storm), volatility is again above the 95th percentile for 1 of 13.
+- **Forward points** (1W, 1M, 3M) were above the 95th percentile for 1, 2 and 0 of 13 storms (and above the 90th for 4, 3 and 2).
+- Measured from `first_onset` instead (the stricter test: the 90 minutes before it hold none of the storm), volatility is again above the 95th percentile for 1 of 13, and 3M forward points for 2 of 13.
+
+Thirteen storms ranked against about 40 days each is a small test; "little" is what it can say, not "none".
 
 Whether a storm was **scheduled** is a different question, and the answer is mostly yes. A storm is scheduled when its onset is within 15 minutes of a release in [contracts/calendar.csv](contracts/calendar.csv):
 
@@ -51,7 +53,7 @@ The alarm was tuned on July only. August, 6 storms, is the test split. Every met
 | `false_alarm_episodes` | 7 | 0 | the same alarms, grouped when within 15 min of an episode's first |
 | `false_alarm_episodes_per_day` | 0.33 | 0.0 | distinct alert episodes per observed day |
 
-The naive baseline has no false alarms because it can only fire once a storm is already there; it is a ruler for lateness, not a competitor. Onset is the start of the storm's strongest 15-minute window, which is known only in hindsight, so `first_onset` is reported next to it.
+The naive baseline had no false alarms in August. That is what August's data showed, not a property of the rule: it fires when a 15-minute window crosses the storm threshold, and a crossing that the 6-hour merge later folds into a bigger storm, hours before that storm's onset, is a false alarm (a two-drop synthetic series gives one, `test_5_naive_baseline_false_alarms_on_the_two_drop_toy` in [backend/tests/test_audit2.py](backend/tests/test_audit2.py)). It is a ruler for lateness, not a competitor. Onset is the start of the storm's strongest 15-minute window, which is known only in hindsight, so `first_onset` is reported next to it.
 
 **Watch and coverage** (the calendar defence):
 
@@ -97,6 +99,8 @@ USDJPY fell 2.9% in 54 minutes (13:29 to 14:23 UTC) with no scheduled release ne
 | Followed the alarm | $843,814 | lost $156,186, not zero: a defence, not a profit |
 | Ignored it | $471,581 | margin call at 14:16 |
 
+**The earlier move, and why the alarm is +8 minutes from onset but +215 from first onset.** The storm label joins triggering windows 6 hours or less apart, so this storm's `first_onset` is 10:02, three and a half hours before the main fall. From 10:02 USDJPY dropped 0.4% in 15 minutes (163.27 to 162.59 at 10:17; the window's 41.6 bp crossed the 30 bp storm threshold), then steadied. The detector did raise its storm alarm for that drop, at 10:18, and gave the all-clear at 11:44 after 20 calm minutes. That alarm had already cleared when the main fall began at 13:29, so it is not credited to this storm, and July's scoring counts it as a false alarm. The 13:37 alarm is the one that caught the fall: 8 minutes after the onset with 89.0% of the move still ahead, or 215 minutes after the first onset with 80.6% ahead measured from there. The replay starts at 10:29 (onset minus 3 hours), so it opens in storm state from the 10:18 alarm and shows the 11:44 all-clear; both ships start there at full size, and the bundle's `storm.first_onset_i` is -27, before its first frame.
+
 The prepared ship ended $372,233 ahead. The figure above is drawn by `scripts/make_figure.py` from the bundle; the minute-by-minute working is in [docs/metrics.md](docs/metrics.md) section 9.
 
 ## The replay
@@ -118,7 +122,7 @@ The 3D scene is driven by bundle fields, nothing is decoration; [web/README.md](
 | Night lanterns, "market closed" badge | the NVDA replay's closed hours |
 | Calm, tense, stormy music bed, and a soft note per market minute | state, and the price: higher price, higher pitch |
 
-**Survive the storm** is for beginners: choose a storm and a leverage from 1x to 30x, see where the margin-call line sits on the chart, press Sail, and cut (C) or restore (R) as the same alarm sounds. A margin call sinks the ship. The end card explains in plain words what a 1% move does to your equity at that leverage, and what holding, or cutting at the alarm, would have done. Its equity uses the same book accounting as the backend, checked against it in 80 cases with no difference in equity, notional or margin-call frame.
+**Survive the storm** is for beginners: choose a storm and a leverage from 1x to 30x, see where the margin-call line sits on the chart, press Sail, and cut (C) or restore (R) as the same alarm sounds. A margin call sinks the ship. The end card explains in plain words what a 1% move does to your equity at that leverage, and what holding, or cutting at the alarm, would have done. How its equity is computed, and how it is checked against the backend, is in [web/README.md](web/README.md).
 
 ## The AI crew
 
@@ -178,7 +182,7 @@ The web app works without it; with it, the HUD shows "Live · Tiger Data" and th
 - **Onset is defined in hindsight** (the strongest 15-minute window), so `first_onset` is reported next to it everywhere.
 - **July is in-sample.** The detector was tuned on July; only August is a test, and six storms is small.
 - **The NVDA case** (11 to 12 November) uses Yahoo Finance one-minute trade bars, which have trades but no quotes, so no spread is measured. Its report states market facts only: a fall of 14.4% from the 11 November close to the 12 November low, over 572 trading minutes, and it names no cause.
-- **An independent review by another model family found 15 issues** in the backend (execution timing, margin order, causality of bad prints, calendar rules, stress tests, rounding, false-alarm counting, provenance). All 15 are fixed, each with tests, in [backend/tests/test_audit.py](backend/tests/test_audit.py).
+- **An independent review by another model family found 15 issues** in the backend (execution timing, margin order, causality of bad prints, calendar rules, stress tests, rounding, false-alarm counting, provenance). Each fix has tests: most are in [backend/tests/test_audit.py](backend/tests/test_audit.py); finding 13's (drawdown) are in [backend/tests/test_exposure.py](backend/tests/test_exposure.py), and part of finding 10 (a watch hidden at its start by a storm) is in [backend/tests/test_detector.py](backend/tests/test_detector.py). **A second independent review** rated 12 of the 15 fixed and 3 partly fixed (the stress menu was not yet point in time, provenance did not cover the code or the calendar in effect, and `first_onset` was missing from the bundles), and found new issues in the no-warning check and in this README. Those are fixed, with tests in [backend/tests/test_audit2.py](backend/tests/test_audit2.py).
 - **Never a price prediction.** The detector says a storm is under way, and the calendar says one may be near.
 
 ## How to run
