@@ -7,11 +7,16 @@ types, enum values, index ranges, and that every series has length n.
 
 Also accepts the optional additions (still schema_version 1): ships.<name>.restore_i
 (int or null); event types squall, fair_wind, cut and restore; watch events' `event`;
-storm.event and storm.event_i (scheduled storms only, both or neither); and
+storm.event and storm.event_i (scheduled storms only, both or neither); storm.first_onset_i
+(int <= onset_i, negative when before the window) and the storm-level alarm fields alarm_i,
+alarm_minutes, alarm_minutes_first_onset (int or null), move_ahead_pct and
+move_ahead_pct_first_onset (0..100 or null; all null together with alarm_i); and
 report.inspector {verdict: ok | flag, issues: [str]}; source values scenario (a what-if
 bundle resized from a real storm) and yahoo (Yahoo Finance bars); series market_open (int
 0 or 1 per frame); and index metrics watch_precision (0..1 or null), alarmed (int or
-null), median_minutes_to_alarm, false_alarm_episodes_per_day and
+null), median_minutes_to_alarm, caught_first_onset (int or null, 0..storms),
+median_move_ahead_pct_first_onset, median_minutes_to_alarm_first_onset,
+false_alarm_episodes_per_day and
 <prepared|unprepared>_max_drawdown_<usd|pct> (number or null); index storms[].source
 (one of the bundle sources).
 """
@@ -34,7 +39,11 @@ INT_SERIES = {"state": {0, 1, 2}, "jump": {0, 1}}
 OPTIONAL_INT_SERIES = {"market_open": {0, 1}}
 SOURCES = ("sgx", "synthetic", "scenario", "yahoo")
 STORM_KEYS = {"onset_i": int, "trough_i": int, "move_bp": "num", "kind": str, "label": str}
-STORM_OPTIONAL = {"event": "str", "event_i": "int"}
+STORM_OPTIONAL = {"event": "str", "event_i": "int", "first_onset_i": "int", "alarm_i": "int?",
+                  "alarm_minutes": "int?", "alarm_minutes_first_onset": "int?", "move_ahead_pct": "num?",
+                  "move_ahead_pct_first_onset": "num?"}
+STORM_ALARM_KEYS = ("alarm_i", "alarm_minutes", "alarm_minutes_first_onset", "move_ahead_pct",
+                    "move_ahead_pct_first_onset")
 SHIP_KEYS = {"label": str, "start_equity_usd": "num", "margin_call_i": "int?", "cut_i": "int?",
              "cut_fraction": "num"}
 SHIP_OPTIONAL = {"restore_i": "int?"}
@@ -52,6 +61,8 @@ INDEX_STORM_KEYS = {"storm_id": str, "title": str, "symbol": str, "asset_class":
 METRIC_KEYS = {"split": str, "storms": int, "caught": int, "median_move_ahead_pct": "num?",
                "false_alarms_per_day": "num?"}
 METRIC_OPTIONAL = {"watch_precision": "num?", "alarmed": "int?", "median_minutes_to_alarm": "num?",
+                   "caught_first_onset": "int?", "median_move_ahead_pct_first_onset": "num?",
+                   "median_minutes_to_alarm_first_onset": "num?",
                    "false_alarm_episodes_per_day": "num?",
                    "prepared_max_drawdown_usd": "num?", "unprepared_max_drawdown_usd": "num?",
                    "prepared_max_drawdown_pct": "num?", "unprepared_max_drawdown_pct": "num?"}
@@ -164,6 +175,21 @@ def validate_bundle(b: dict) -> list[str]:
             errors.append("storm.event and storm.event_i: give both or neither")
         if "event" in storm and storm.get("kind") != "scheduled":
             errors.append("storm.event: only a scheduled storm has an event")
+        fo, on = storm.get("first_onset_i"), storm.get("onset_i")
+        if _is_int(fo) and _is_int(on) and fo > on:
+            errors.append("storm.first_onset_i: must not come after onset_i")
+        _check_i(storm.get("alarm_i"), n, "storm.alarm_i", errors)
+        present = [k for k in STORM_ALARM_KEYS if k in storm]
+        if present and len(present) != len(STORM_ALARM_KEYS):
+            errors.append(f"storm: give all of {', '.join(STORM_ALARM_KEYS)} or none")
+        elif present and storm.get("alarm_i") is None and any(storm.get(k) is not None for k in present):
+            errors.append("storm: alarm fields must be null when alarm_i is null")
+        elif present and storm.get("alarm_i") is not None and storm.get("alarm_minutes") is None:
+            errors.append("storm.alarm_minutes: required when alarm_i is set")
+        for k in ("move_ahead_pct", "move_ahead_pct_first_onset"):
+            v = storm.get(k)
+            if _is_num(v) and not 0 <= v <= 100:
+                errors.append(f"storm.{k}: outside 0..100")
 
     ships = b.get("ships")
     if isinstance(ships, dict):
@@ -241,9 +267,11 @@ def validate_index(ix: dict) -> list[str]:
             dd = ix["metrics"].get(f"{ship}_max_drawdown_pct")
             if _is_num(dd) and not 0 <= dd <= 100:
                 errors.append(f"metrics.{ship}_max_drawdown_pct: outside 0..100")
-        al, st = ix["metrics"].get("alarmed"), ix["metrics"].get("storms")
-        if _is_int(al) and _is_int(st) and not 0 <= al <= st:
-            errors.append("metrics.alarmed: must be between 0 and storms")
+        st = ix["metrics"].get("storms")
+        for k in ("alarmed", "caught_first_onset"):
+            v = ix["metrics"].get(k)
+            if _is_int(v) and _is_int(st) and not 0 <= v <= st:
+                errors.append(f"metrics.{k}: must be between 0 and storms")
     return errors
 
 

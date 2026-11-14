@@ -10,7 +10,7 @@ For each storm, take the 90 minutes up to and including the onset bar, and measu
 - **spread**: mean of (ask - bid) / mid, in bp;
 - **forward points** (1W, 1M, 3M): the absolute change in forward points over the 90 minutes, as bp of the spot mid.
 
-Each is ranked against **normal windows of the same pair**: the 90 minutes ending at the same clock time (UTC) on every other day in the data, skipping any window within 60 minutes of a storm (60 min before an onset to 60 min after the end) and any window missing more than 10 of its 90 returns. A storm in the first hours after the Sunday-evening open (before 06:00 UTC on a Monday) is compared with other Mondays only, since those hours are not like a mid-week night. The same time of day keeps the daily rhythm out of the comparison (US releases at 12:30 UTC are always busier than the small hours). The **percentile** is the share of normal windows below the pre-storm window: 50 is typical, 95 is higher than 95% of normal windows. If prices warned, the percentiles would pile up near 100. Chance alone puts about 10% of storms above 90 and 5% above 95. Each storm is ranked against about 40 other days, and the 13 storms are not independent (the three pairs often shock together on one release).
+Each is ranked against **normal windows of the same pair**: the 90 minutes ending at the same clock time (UTC) on every other day in the data, skipping any window that overlaps a storm's span (60 min before its first onset to 60 min after its end) and any window missing more than 10 of its 90 returns. A storm in the first hours after the Sunday-evening open (before 06:00 UTC on a Monday) is compared with other Mondays only, since those hours are not like a mid-week night. The same time of day keeps the daily rhythm out of the comparison (US releases at 12:30 UTC are always busier than the small hours). The **percentile** is the share of normal windows below the pre-storm window: 50 is typical, 95 is higher than 95% of normal windows. If prices warned, the percentiles would pile up near 100. Chance alone puts about 10% of storms above 90 and 5% above 95. Each storm is ranked against about 40 other days, and the 13 storms are not independent (the three pairs often shock together on one release).
 
 Two anchors: the storm's `onset` (the start of its strongest 15-minute window), and its `first_onset` (the start of its first triggering window, which can be hours earlier). `first_onset` is the stricter test, because the 90 minutes before it contain none of the storm.
 
@@ -20,14 +20,14 @@ Two anchors: the storm's `onset` (the start of its strongest 15-minute window), 
 |---|---|---|---|---|---|---|
 | all | volatility | 13 | 66.7 | 9 | 1 | 1 |
 | all | spread | 13 | 82.1 | 10 | 3 | 3 |
-| all | fwd points 1W | 13 | 53.8 | 7 | 3 | 1 |
-| all | fwd points 1M | 13 | 56.4 | 7 | 2 | 2 |
-| all | fwd points 3M | 13 | 46.2 | 6 | 2 | 0 |
-| scheduled | volatility | 9 | 61.5 | 5 | 0 | 0 |
+| all | fwd points 1W | 13 | 53.8 | 7 | 4 | 1 |
+| all | fwd points 1M | 13 | 56.4 | 7 | 3 | 2 |
+| all | fwd points 3M | 13 | 46.3 | 6 | 2 | 0 |
+| scheduled | volatility | 9 | 62.5 | 5 | 0 | 0 |
 | scheduled | spread | 9 | 82.1 | 7 | 2 | 2 |
-| scheduled | fwd points 1W | 9 | 53.8 | 5 | 2 | 1 |
-| scheduled | fwd points 1M | 9 | 35.7 | 4 | 1 | 1 |
-| scheduled | fwd points 3M | 9 | 46.2 | 4 | 2 | 0 |
+| scheduled | fwd points 1W | 9 | 53.8 | 5 | 3 | 1 |
+| scheduled | fwd points 1M | 9 | 35.7 | 4 | 2 | 1 |
+| scheduled | fwd points 3M | 9 | 46.3 | 4 | 2 | 0 |
 | unscheduled | volatility | 4 | 80.8 | 4 | 1 | 1 |
 | unscheduled | spread | 4 | 71.8 | 3 | 1 | 1 |
 | unscheduled | fwd points 1W | 4 | 46.5 | 2 | 1 | 0 |
@@ -40,15 +40,15 @@ Per storm: the window's value as a multiple of the normal median, and its percen
 |---|---|---|---|---|---|---|---|---|
 | usdjpy-2026-07-02 | 2026-07-02 12:20 | scheduled | 39 | 1.81x, p80 | 1.21x, p87 | 2.51x, p97 | 3.28x, p97 | 2.89x, p92 |
 | usdsgd-2026-07-02 | 2026-07-02 12:26 | scheduled | 42 | 1.19x, p71 | 1.17x, p100 | p27 | 0.49x, p36 | 0.0x, p20 |
-| eurusd-2026-07-02 | 2026-07-02 12:30 | scheduled | 39 | 1.07x, p62 | 1.17x, p100 | p92 | 2.01x, p74 | 3.51x, p92 |
-| eurusd-2026-07-14 | 2026-07-14 12:16 | scheduled | 39 | 0.96x, p41 | 1.01x, p82 | p90 | 4.01x, p90 | 0.67x, p46 |
+| eurusd-2026-07-02 | 2026-07-02 12:30 | scheduled | 40 | 1.07x, p62 | 1.17x, p100 | p92 | 2.01x, p75 | 3.83x, p92 |
+| eurusd-2026-07-14 | 2026-07-14 12:16 | scheduled | 41 | 0.96x, p42 | 1.01x, p83 | p90 | 4.01x, p90 | 0.67x, p46 |
 | usdjpy-2026-07-14 | 2026-07-14 12:16 | scheduled | 39 | 0.79x, p18 | 1.02x, p54 | 1.0x, p54 | 0.48x, p18 | 1.73x, p82 |
 | usdjpy-2026-07-30 | 2026-07-30 13:29 | unscheduled | 39 | 2.09x, p85 | 1.29x, p82 | 2.99x, p95 | 2.28x, p85 | 2.4x, p82 |
 | eurusd-2026-07-31 | 2026-07-31 13:25 | unscheduled | 39 | 1.18x, p77 | 1.01x, p62 | 0.0x, p18 | 0.99x, p44 | 0.14x, p10 |
 | usdjpy-2026-08-03 | 2026-08-03 00:27 | unscheduled | 8 | 4.26x, p100 | 1.66x, p100 | 1.02x, p75 | 3.42x, p100 | 0.87x, p38 |
 | usdjpy-2026-08-07 | 2026-08-07 12:20 | scheduled | 39 | 1.24x, p64 | 1.05x, p64 | 1.02x, p69 | 0.33x, p28 | 0.08x, p10 |
 | usdsgd-2026-08-07 | 2026-08-07 12:28 | scheduled | 42 | 0.82x, p12 | 0.92x, p24 | p27 | 0.0x, p18 | 0.29x, p33 |
-| eurusd-2026-08-07 | 2026-08-07 12:29 | scheduled | 39 | 0.79x, p10 | 1.0x, p46 | p28 | 0.0x, p13 | 0.4x, p13 |
+| eurusd-2026-08-07 | 2026-08-07 12:29 | scheduled | 40 | 0.79x, p12 | 1.0x, p48 | p29 | 0.0x, p12 | 0.4x, p15 |
 | usdjpy-2026-08-19 | 2026-08-19 12:25 | unscheduled | 39 | 1.3x, p67 | 0.77x, p3 | 0.0x, p15 | 1.02x, p56 | 1.2x, p54 |
 | eurusd-2026-08-28 | 2026-08-28 14:01 | scheduled | 39 | 1.37x, p90 | 1.03x, p82 | p26 | 3.92x, p87 | 1.99x, p82 |
 
@@ -58,18 +58,18 @@ Per storm: the window's value as a multiple of the normal median, and its percen
 |---|---|---|---|---|---|---|
 | all | volatility | 13 | 64.1 | 9 | 1 | 1 |
 | all | spread | 13 | 65.1 | 9 | 3 | 3 |
-| all | fwd points 1W | 13 | 26.2 | 5 | 0 | 0 |
-| all | fwd points 1M | 13 | 43.6 | 6 | 2 | 2 |
-| all | fwd points 3M | 13 | 46.2 | 6 | 2 | 1 |
+| all | fwd points 1W | 13 | 26.8 | 5 | 2 | 0 |
+| all | fwd points 1M | 13 | 43.6 | 6 | 3 | 2 |
+| all | fwd points 3M | 13 | 46.3 | 6 | 2 | 2 |
 | scheduled | volatility | 9 | 59.0 | 5 | 0 | 0 |
 | scheduled | spread | 9 | 66.7 | 7 | 2 | 2 |
-| scheduled | fwd points 1W | 9 | 53.8 | 5 | 0 | 0 |
-| scheduled | fwd points 1M | 9 | 17.9 | 3 | 0 | 0 |
-| scheduled | fwd points 3M | 9 | 46.2 | 4 | 1 | 0 |
-| unscheduled | volatility | 4 | 82.1 | 4 | 1 | 1 |
+| scheduled | fwd points 1W | 9 | 53.8 | 5 | 2 | 0 |
+| scheduled | fwd points 1M | 9 | 17.9 | 3 | 1 | 0 |
+| scheduled | fwd points 3M | 9 | 46.3 | 4 | 1 | 1 |
+| unscheduled | volatility | 4 | 82.5 | 4 | 1 | 1 |
 | unscheduled | spread | 4 | 47.4 | 2 | 1 | 1 |
 | unscheduled | fwd points 1W | 4 | 15.2 | 0 | 0 | 0 |
-| unscheduled | fwd points 1M | 4 | 76.9 | 3 | 2 | 2 |
+| unscheduled | fwd points 1M | 4 | 75.8 | 3 | 2 | 2 |
 | unscheduled | fwd points 3M | 4 | 66.8 | 2 | 1 | 1 |
 
 Per storm: the window's value as a multiple of the normal median, and its percentile (p95 = higher than 95% of normal windows). Where the normal median is 0 (forward points rarely move) only the percentile is shown.
@@ -78,15 +78,15 @@ Per storm: the window's value as a multiple of the normal median, and its percen
 |---|---|---|---|---|---|---|---|---|
 | usdjpy-2026-07-02 | 2026-07-02 06:35 | scheduled | 43 | 1.45x, p72 | 1.05x, p65 | 1.96x, p67 | 2.25x, p88 | 2.44x, p86 |
 | usdsgd-2026-07-02 | 2026-07-02 12:22 | scheduled | 42 | 1.24x, p71 | 1.18x, p100 | p26 | 0.49x, p36 | 0.0x, p19 |
-| eurusd-2026-07-02 | 2026-07-02 12:16 | scheduled | 39 | 1.06x, p62 | 1.08x, p97 | p90 | 0.0x, p15 | 3.51x, p95 |
-| eurusd-2026-07-14 | 2026-07-14 12:16 | scheduled | 39 | 0.96x, p41 | 1.01x, p82 | p90 | 4.01x, p90 | 0.67x, p46 |
+| eurusd-2026-07-02 | 2026-07-02 12:16 | scheduled | 41 | 1.06x, p61 | 1.08x, p98 | p90 | 0.0x, p15 | 3.51x, p95 |
+| eurusd-2026-07-14 | 2026-07-14 12:16 | scheduled | 41 | 0.96x, p42 | 1.01x, p83 | p90 | 4.01x, p90 | 0.67x, p46 |
 | usdjpy-2026-07-14 | 2026-07-14 12:16 | scheduled | 39 | 0.79x, p18 | 1.02x, p54 | 1.0x, p54 | 0.48x, p18 | 1.73x, p82 |
-| usdjpy-2026-07-30 | 2026-07-30 10:02 | unscheduled | 39 | 1.58x, p87 | 0.95x, p33 | 0.0x, p9 | 2.24x, p97 | 4.12x, p97 |
+| usdjpy-2026-07-30 | 2026-07-30 10:02 | unscheduled | 42 | 1.57x, p88 | 0.94x, p33 | 0.0x, p10 | 2.24x, p95 | 4.36x, p95 |
 | eurusd-2026-07-31 | 2026-07-31 13:25 | unscheduled | 39 | 1.18x, p77 | 1.01x, p62 | 0.0x, p18 | 0.99x, p44 | 0.14x, p10 |
 | usdjpy-2026-08-03 | 2026-08-03 00:26 | unscheduled | 8 | 4.29x, p100 | 1.65x, p100 | 0.0x, p12 | 2.93x, p100 | 1.53x, p88 |
 | usdjpy-2026-08-07 | 2026-08-07 12:16 | scheduled | 39 | 1.14x, p59 | 1.08x, p67 | 1.03x, p72 | 0.0x, p8 | 0.08x, p10 |
 | usdsgd-2026-08-07 | 2026-08-07 12:26 | scheduled | 42 | 0.81x, p14 | 0.92x, p17 | p27 | 0.0x, p18 | 0.4x, p45 |
-| eurusd-2026-08-07 | 2026-08-07 12:20 | scheduled | 39 | 0.75x, p10 | 0.99x, p28 | p26 | 0.0x, p13 | 0.2x, p13 |
+| eurusd-2026-08-07 | 2026-08-07 12:20 | scheduled | 41 | 0.75x, p12 | 0.99x, p29 | p27 | 0.0x, p12 | 0.2x, p12 |
 | usdjpy-2026-08-19 | 2026-08-19 12:23 | unscheduled | 39 | 1.29x, p64 | 0.77x, p0 | 0.0x, p22 | 1.02x, p56 | 0.72x, p46 |
 | eurusd-2026-08-28 | 2026-08-28 14:01 | scheduled | 39 | 1.37x, p90 | 1.03x, p82 | p26 | 3.92x, p87 | 1.99x, p82 |
 

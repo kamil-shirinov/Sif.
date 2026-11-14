@@ -36,9 +36,13 @@ Watch precision (the honest side of the watch: how often a watch was for nothing
 Storm-state share: v1's storm-state minutes (state 2) in August over the pair-minutes
 actually observed (each pair's own bars in August), not days x 1,440 x pairs.
 
-Provenance: metrics.json records the SHA-256 of the three spot parquets, the calendar and
-data/processed/detector_config.json it was computed from; storm.export refuses metrics
-whose provenance does not match the files on disk.
+Provenance: metrics.json records the SHA-256 of the three spot parquets, the calendar file,
+the effective calendar content (the verified rows actually used, which can differ from the
+file when run_backtest is given a calendar), data/processed/detector_config.json, and a
+fingerprint of the calculation code (code_fingerprint: per module, its source file, its
+UPPERCASE constants as they are at run time and any function or class bound in it from
+elsewhere, so a patched constant or function counts as a code change). storm.export
+refuses metrics whose provenance does not match in any of these.
 
 Every figure is computed unrounded; metrics.json and the printed tables are rounded by
 storm.evaluate.for_display.
@@ -46,6 +50,8 @@ storm.evaluate.for_display.
 from __future__ import annotations
 
 import hashlib
+import importlib
+import inspect
 import json
 from pathlib import Path
 
@@ -78,20 +84,78 @@ def _sha256(path: Path) -> str | None:
     return h.hexdigest()
 
 
+# Every module whose code can change a number in metrics.json or a bundle.
+CODE_MODULES = ("labels", "features", "detector", "detector_v0", "evaluate", "exposure", "backtest",
+                "export", "equity", "tune")
+_PLAIN = (int, float, str, bool, type(None), pd.Timedelta, pd.Timestamp)
+
+
+def _canon(v) -> str | None:
+    """A process-independent text for a constant, or None for a value that is not plain data
+    (paths, which differ between checkouts, and objects are left out)."""
+    if isinstance(v, _PLAIN):
+        return repr(v)
+    if isinstance(v, (list, tuple)):
+        parts = [_canon(x) for x in v]
+        return None if None in parts else f"{type(v).__name__}[{', '.join(parts)}]"
+    if isinstance(v, (set, frozenset)):
+        parts = [_canon(x) for x in v]
+        return None if None in parts else f"set[{', '.join(sorted(parts))}]"
+    if isinstance(v, dict):
+        parts = [(_canon(k), _canon(x)) for k, x in v.items()]
+        return None if any(None in kv for kv in parts) else "{" + ", ".join(f"{k}: {x}" for k, x in parts) + "}"
+    return None
+
+
+def _module_fingerprint(mod) -> str:
+    h = hashlib.sha256(Path(mod.__file__).read_bytes())
+    for name, v in sorted(vars(mod).items()):
+        if name.startswith("__") or inspect.ismodule(v):
+            continue
+        if inspect.isfunction(v) or inspect.isclass(v) or inspect.isbuiltin(v):
+            owner = getattr(v, "__module__", None)
+            if owner != mod.__name__:           # imported, or patched in from elsewhere
+                h.update(f"{name}={owner}.{getattr(v, '__qualname__', name)}\n".encode())
+            elif getattr(getattr(v, "__code__", None), "co_filename", mod.__file__) != mod.__file__:
+                h.update(f"{name}=redefined\n".encode())
+        elif name.lstrip("_").isupper() and (c := _canon(v)) is not None:
+            h.update(f"{name}={c}\n".encode())
+    return h.hexdigest()
+
+
+def code_fingerprint() -> dict:
+    """SHA-256 per calculation module of its source and its run-time constants and bindings."""
+    pkg = __package__ or "storm"
+    return {name: _module_fingerprint(importlib.import_module(f"{pkg}.{name}")) for name in CODE_MODULES}
+
+
+def calendar_fingerprint(calendar: pd.DataFrame) -> str:
+    """SHA-256 of the calendar rows in effect (after load_calendar's filtering)."""
+    text = calendar.to_csv(index=False, date_format="%Y-%m-%dT%H:%M:%SZ", lineterminator="\n")
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
 def provenance(processed: Path = PROCESSED_DIR, calendar_path: Path = CALENDAR_CSV,
-               config_path: Path = CONFIG_PATH) -> dict:
-    """SHA-256 of every input the metrics depend on: spot data, calendar, detector config."""
+               config_path: Path = CONFIG_PATH, calendar: pd.DataFrame | None = None) -> dict:
+    """SHA-256 of every input the metrics depend on: spot data, the calendar file and the
+    calendar content in effect (`calendar`, default: load_calendar(calendar_path)), the
+    detector config, and the calculation code (code_fingerprint)."""
+    calendar = load_calendar(calendar_path) if calendar is None else calendar
     return {"data": {f"{p}_SPOT.parquet": _sha256(processed / f"{p}_SPOT.parquet") for p in PAIRS},
-            "calendar": _sha256(calendar_path), "config": _sha256(config_path)}
+            "calendar": _sha256(calendar_path), "calendar_content": calendar_fingerprint(calendar),
+            "config": _sha256(config_path), "code": code_fingerprint()}
 
 
 def provenance_mismatches(recorded: dict | None, current: dict) -> list[str]:
-    """What differs between a metrics.json provenance and the files now (empty: they match)."""
+    """What differs between a metrics.json provenance and the inputs now (empty: they match).
+    A key missing from the recorded provenance (an older metrics.json) is a mismatch."""
     if not recorded:
         return ["metrics.json has no provenance"]
     bad = [f"data {k}" for k in sorted(set(recorded.get("data", {})) | set(current["data"]))
            if recorded.get("data", {}).get(k) != current["data"].get(k)]
-    bad += [k for k in ("calendar", "config") if recorded.get(k) != current[k]]
+    bad += [k for k in ("calendar", "calendar_content", "config") if recorded.get(k) != current[k]]
+    code = recorded.get("code") or {}
+    bad += [f"code {k}" for k in sorted(set(code) | set(current["code"])) if code.get(k) != current["code"].get(k)]
     return bad
 
 
@@ -276,7 +340,7 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
     saved = json.loads(config_path.read_text()) if config_path.exists() else {}
     return {
         "split": SPLIT,
-        "provenance": provenance(processed, calendar_path, config_path),
+        "provenance": provenance(processed, calendar_path, config_path, calendar),
         "tuned_on": saved.get("tuned_on", "untuned DEFAULT_CONFIG"),
         "config": cfg,
         "definitions": {
@@ -318,8 +382,8 @@ def run_backtest(processed: Path = PROCESSED_DIR, calendar: pd.DataFrame | None 
 
 def index_metrics(metrics: dict) -> dict:
     """The contract's index.json `metrics` object, from v1, plus the optional evidence-card
-    figures (alarmed, median minutes to alarm, de-duplicated false alarms, watch precision and
-    the policy backtest's max drawdown per ship)."""
+    figures (alarmed, median minutes to alarm, the three first_onset figures, de-duplicated
+    false alarms, watch precision and the policy backtest's max drawdown per ship)."""
     v1 = metrics["methods"]["v1"]
     pol = metrics.get("policy") or {}
     out = {"split": metrics["split"], "storms": v1["storms"], "caught": v1["caught"],
@@ -327,6 +391,9 @@ def index_metrics(metrics: dict) -> dict:
            "false_alarms_per_day": v1["false_alarms_per_day"],
            "alarmed": v1.get("alarmed"),
            "median_minutes_to_alarm": v1.get("median_minutes_to_alarm"),
+           "caught_first_onset": v1.get("caught_first_onset"),
+           "median_move_ahead_pct_first_onset": v1.get("median_move_ahead_pct_first_onset"),
+           "median_minutes_to_alarm_first_onset": v1.get("median_minutes_to_alarm_first_onset"),
            "false_alarm_episodes_per_day": v1.get("false_alarm_episodes_per_day"),
            "watch_precision": metrics.get("watch_precision")}
     for ship in ("prepared", "unprepared"):

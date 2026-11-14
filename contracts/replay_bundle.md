@@ -69,6 +69,11 @@ A reader built against the tables above keeps working: every addition is optiona
 | storm | kind | string | `scheduled` when the onset is within 15 minutes (either side) of a calendar event, else `unscheduled` |
 | storm | event | string | scheduled storms only: the calendar event's name |
 | storm | event_i | int | scheduled storms only: the calendar event's frame |
+| storm | first_onset_i | int | frame where the storm's first triggering 15-minute window starts (`first_onset`, never after `onset_i`). The label merges triggers 6 hours or less apart, so this can be hours before the onset, and **negative** when it is before the replay's first frame (its time is still `t0 + first_onset_i * step_s`). An equity storm is one move, so it equals `onset_i` |
+| storm | alarm_i | int or null | frame of the storm-level alarm the evaluator links to this storm (direction-agnostic: the alarm `metrics.json` scores, which for a move in the book's favour shows as a `fair_wind` event); null when no alarm matched |
+| storm | alarm_minutes | int or null | `alarm_i` minus `onset_i`, in minutes (negative: the alarm came first); null with `alarm_i` |
+| storm | alarm_minutes_first_onset | int or null | `alarm_i` minus `first_onset_i`, in minutes; null with `alarm_i` |
+| storm | move_ahead_pct, move_ahead_pct_first_onset | float 0 to 100 or null | share of the move to the trough still ahead at `alarm_i`, measured from the onset and from the first onset; null with `alarm_i` |
 | report | inspector | object | `{verdict: "ok" or "flag", issues: [strings]}` from the independent inspector model |
 
 | top level | source `scenario` | string value | a what-if bundle: the navigator (`storm.ai`) resized a real storm; prices are not market data |
@@ -77,6 +82,9 @@ A reader built against the tables above keeps working: every addition is optiona
 | index.json metrics | watch_precision | float 0 to 1 or null | scheduled releases whose watch window held a storm onset, divided by all scheduled releases (the test split) |
 | index.json metrics | alarmed | int or null | test-split storms with a matching storm-level alarm by the trough (0 to `storms`) |
 | index.json metrics | median_minutes_to_alarm | float or null | median of alarm minus onset, in minutes, over alarmed storms (negative: the alarm came first) |
+| index.json metrics | caught_first_onset | int or null | `caught`, with the share of the move ahead measured from `first_onset` (0 to `storms`) |
+| index.json metrics | median_move_ahead_pct_first_onset | float or null | median share of the move still ahead at the alarm, measured from `first_onset`, over alarmed storms |
+| index.json metrics | median_minutes_to_alarm_first_onset | float or null | median of alarm minus `first_onset`, in minutes, over alarmed storms |
 | index.json metrics | false_alarm_episodes_per_day | float or null | distinct alert episodes per observed day: false alarms on different pairs within 15 minutes of an episode's first alarm count as one |
 | index.json metrics | prepared_max_drawdown_usd, unprepared_max_drawdown_usd | number or null | each ship's largest fall from a running equity peak in the policy backtest, in USD |
 | index.json metrics | prepared_max_drawdown_pct, unprepared_max_drawdown_pct | number 0 to 100 or null | each ship's largest percentage fall from a running peak; maximised on its own, so it can come from a different peak than the USD figure |
@@ -84,7 +92,7 @@ A reader built against the tables above keeps working: every addition is optiona
 
 In index.json metrics, `false_alarms_per_day` is **pair alarms per observed day**: each pair's false alarm counts on its own. An observed day is 1,440 minutes with a bar on any pair. docs/metrics.md has every definition.
 
-`storm.event` and `storm.event_i` appear together or not at all.
+`storm.event` and `storm.event_i` appear together or not at all. The five storm-level alarm keys (`alarm_i`, `alarm_minutes`, `alarm_minutes_first_onset`, `move_ahead_pct`, `move_ahead_pct_first_onset`) also appear together or not at all, and are all null when `alarm_i` is null. `first_onset_i` is the one frame index in a bundle that may lie outside `0..n-1`: check it before indexing a series with it.
 
 While `market_open` is 0 every series holds its value from the last trading minute (flat candles at the last price, `jump` 0, no equity change), and no return or move is measured across the closed stretch. `source: yahoo` has trades but no quotes, so `spread_bp` is 0 throughout and is not a measured spread: hide it for that source. For an equity storm, `storm.label` and the move may span a closed night (e.g. `-14.4% from the 11 Nov close to the 12 Nov low`), and `move_bp` runs from the onset frame's close to the trough frame's low. A scheduled storm states timing only: the move began near a scheduled release, never what caused it. The watch state (`state` = 1) runs from 30 minutes before each calendar event until 15 minutes after it, unless a storm is active.
 
