@@ -1,0 +1,5 @@
+{
+  "_note": "Copy to ~/.stormscore/caps.json. Only Kamil edits it. Balances as of Sat 14 Nov 2026. Modal bills GPU time, so guard it with Modal's own workspace budget instead.",
+  "meta": {"start_usd": 140.29, "warn_at": 0.75, "stop_at": 0.90},
+  "fireworks": {"start_usd": 97.89, "warn_at": 0.75, "stop_at": 0.90}
+}

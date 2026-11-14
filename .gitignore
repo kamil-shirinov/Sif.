@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+data/raw/
+data/processed/
+web/public/bundles/*
+!web/public/bundles/mock_storm.json
+node_modules/
+web/dist/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.parquet
+.DS_Store
