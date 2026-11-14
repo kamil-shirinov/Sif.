@@ -1,22 +1,29 @@
 // Survive mode: the player's ship. Pure code, no stores.
 //
-// The player's equity is computed here, in the browser, from the bundle's mid prices with the same book
-// accounting as the backend (backend/storm/exposure.py `simulate_book` for FX, backend/storm/equity.py
+// The player's equity is computed here, in the browser, from the bundle's prices with the backend's own book
+// accounting and execution (backend/storm/exposure.py `simulate_book` for FX, backend/storm/equity.py
 // `simulate_stock` for equities). Written out in web/README.md.
 //
-//   book         $1,000,000 equity (the bundle's start_equity_usd) and a position of `leverage` x equity, opened at the
-//                first mid. FX: long USD against the other currency (USDJPY, USDSGD: long the pair; EURUSD: short EUR),
-//                the backend's book. Equity and anything else: long the symbol, priced in USD.
-//   cash         one balance per currency, marked at spot mid. A cut's realised P&L stays in the currency it was made in.
+//   book         $1,000,000 equity (the bundle's start_equity_usd) and a position of `leverage` x equity, booked at
+//                frame 0's close mid (a starting position, not a trade). FX: long USD against the other currency
+//                (USDJPY, USDSGD: long the pair; EURUSD: short EUR), the backend's book. Equity and anything else:
+//                long the symbol, priced in USD.
+//   cash         one balance per currency, marked at mid. A trade's realised P&L stays in the currency it was made in.
 //                  USD is the base (USDJPY):   equity = cash_base + cash_quote / mid,   gross = |qty|
 //                  USD is the quote (EURUSD, stocks): equity = cash_base x mid + cash_quote,   gross = |qty| x mid
-//   maintenance  2.5% of the open notional for FX, 15% for equity. Equity below maintenance x gross is a margin call:
-//                the position is closed at that minute's mid and equity stays flat afterwards.
-//   cut          the player throws 75% of the cargo overboard (only while the cargo is whole) at that minute's mid.
-//   restore      the full position again at that minute's mid, refused when equity would be below maintenance on it.
-//   no spread, no slippage, no fees.
-//
-// A player's cut or restore fills at the mid of the frame the HUD is showing when the button is pressed.
+//   execution    a press on frame t is a signal at bar t's close: it fills at the open of the next traded bar (t + 1
+//                unless the market is closed then), side-correct: buying the base pays the ask, selling it gets the
+//                bid (a USDJPY cut sells at the bid; a EURUSD cut buys EUR back at the ask).
+//   each minute  1. mark at the bar's open mid and test maintenance, before any trade: a breach is a margin call at
+//                   the open; 2. fill the trades due this minute; 3. mark at the close mid and test again.
+//   maintenance  2.5% of the open notional for FX, 15% for equity. A margin call closes the position side-correct at
+//                that point's bid or ask, converts everything to USD at mid, and equity stays flat afterwards.
+//   cut          75% of the cargo overboard (only while the cargo is whole).
+//   restore      the full position again, refused when, spread included, equity would be below maintenance on it.
+//   quotes       the bundle carries mid OHLC and spread_bp (the close spread), not the bid and ask themselves:
+//                close bid / ask = mid -/+ half the bar's spread_bp; open bid / ask = open mid -/+ half the previous
+//                bar's spread_bp (the open of bar t + 1 is the next tick after the close of bar t). Yahoo bundles
+//                (no quotes, spread_bp 0) fill at the open with no spread, as the backend does.
 
 import type { Bundle } from "../types/bundle";
 import { maintenanceFor } from "./derive";
@@ -53,7 +60,10 @@ export function legFor(b: Pick<Bundle, "symbol" | "asset_class">): Leg {
 }
 
 export interface PlayerAction {
-  /** Frame whose mid the trade fills at. */
+  /**
+   * In: the frame the button was pressed on (the signal bar); the trade fills at the next traded bar's open.
+   * In SimResult.applied: the frame it filled on.
+   */
   i: number;
   /** The fractional playhead when the button was pressed (drives the crates' flight), else `i`. */
   at?: number;
@@ -74,7 +84,7 @@ export interface SimResult {
   held: Float64Array;
   /** Price at which the margin call would hit given the book at frame i; NaN when nothing is open. */
   liq: Float64Array;
-  /** 1 where a restore pressed at frame i is accepted (cut and enough margin to take the cargo back). */
+  /** 1 where a restore pressed at frame i looks acceptable (cut, and enough margin at this close to take the cargo back); the fill decides. */
   restorable: Uint8Array;
   marginCallI: number | null;
   /** Cuts and restores that changed the book, in order. */
@@ -138,22 +148,78 @@ function zeroEquityPrice(k: Book): number {
   return p > 0 && Number.isFinite(p) ? p : NaN;
 }
 
-export function simulate(b: Bundle, leverage: number, actions: readonly PlayerAction[]): SimResult {
+/** Bid, ask and mid of every bar at its open and its close, as the backend's Quotes holds them. */
+export interface BarQuotes {
+  openMid: Float64Array;
+  openBid: Float64Array;
+  openAsk: Float64Array;
+  mid: Float64Array;
+  closeBid: Float64Array;
+  closeAsk: Float64Array;
+  /** 1 where the bar trades (fills only happen on one): series.market_open, else every frame. */
+  traded: Uint8Array;
+}
+
+/**
+ * The bundle's quotes. Close bid and ask are mid -/+ half the bar's spread_bp (ask minus bid in bp of mid); the open's
+ * are the open mid -/+ half the previous bar's spread_bp (the bundle has no open quotes: the previous close is the
+ * nearest quote to the next open). A bar that does not trade opens at its (held) close, as
+ * backend/storm/exposure.py Quotes.from_frame does. Yahoo: no spread.
+ */
+export function quotesOf(b: Bundle): BarQuotes {
+  const n = b.n;
+  const s = b.series;
+  const noQuotes = b.source === "yahoo";
+  const q: BarQuotes = {
+    openMid: new Float64Array(n),
+    openBid: new Float64Array(n),
+    openAsk: new Float64Array(n),
+    mid: Float64Array.from(s.mid),
+    closeBid: new Float64Array(n),
+    closeAsk: new Float64Array(n),
+    traded: new Uint8Array(n),
+  };
+  for (let i = 0; i < n; i++) {
+    const traded = s.market_open ? s.market_open[i] === 1 : true;
+    const half = noQuotes ? 0 : Math.max(0, s.spread_bp[i]) / 2e4;
+    const openHalf = noQuotes ? 0 : Math.max(0, s.spread_bp[Math.max(0, i - 1)]) / 2e4;
+    q.traded[i] = traded ? 1 : 0;
+    q.closeBid[i] = s.mid[i] * (1 - half);
+    q.closeAsk[i] = s.mid[i] * (1 + half);
+    const om = traded ? s.open[i] : s.mid[i];
+    q.openMid[i] = om;
+    q.openBid[i] = traded ? om * (1 - openHalf) : q.closeBid[i];
+    q.openAsk[i] = traded ? om * (1 + openHalf) : q.closeAsk[i];
+  }
+  return q;
+}
+
+/** First traded frame from `earliest` on, or null (backend fill_frame). */
+function fillFrame(traded: Uint8Array, earliest: number): number | null {
+  for (let i = Math.max(1, earliest); i < traded.length; i++) if (traded[i] === 1) return i;
+  return null;
+}
+
+export function simulate(b: Bundle, leverage: number, actions: readonly PlayerAction[], quotes: BarQuotes = quotesOf(b)): SimResult {
   const leg = legFor(b);
-  const mid = b.series.mid;
   const n = b.n;
   const mm = maintenanceFor(b);
   const e0 = startEquityOf(b);
   const L = clampLeverage(leverage, maxLeverageFor(b));
-  const p0 = mid[0];
+  const q = quotes;
+  const p0 = q.mid[0];
   const full = fullQty(leg, L * e0, p0);
   const k = openBook(leg, e0, full, p0);
 
-  const byFrame = new Map<number, PlayerAction[]>();
-  for (const a of actions) {
-    const list = byFrame.get(a.i);
+  // A press on frame t fills on the first traded frame from t + 1 (sorted like the backend: by signal, then kind).
+  const sorted = [...actions].sort((x, y) => x.i - y.i || (x.kind < y.kind ? -1 : x.kind > y.kind ? 1 : 0));
+  const byFill = new Map<number, PlayerAction[]>();
+  for (const a of sorted) {
+    const f = fillFrame(q.traded, a.i + 1);
+    if (f === null) continue;
+    const list = byFill.get(f);
     if (list) list.push(a);
-    else byFrame.set(a.i, [a]);
+    else byFill.set(f, [a]);
   }
 
   const equity = new Float64Array(n);
@@ -164,37 +230,51 @@ export function simulate(b: Bundle, leverage: number, actions: readonly PlayerAc
   const applied: PlayerAction[] = [];
   let marginCallI: number | null = null;
 
+  const side = (dq: number, bid: number, ask: number) => (dq > 0 ? ask : bid);
+  const breached = (p: number) => {
+    const g = grossUsd(leg, k.qty, p);
+    return g > 0 && usdValue(leg, k, p) < mm * g;
+  };
+  const marginCall = (i: number, bid: number, ask: number, mid: number) => {
+    trade(k, 0, side(-k.qty, bid, ask));
+    const eq = usdValue(leg, k, mid);
+    if (leg.kind === "usd-base") {
+      k.cashBase = eq;
+      k.cashQuote = 0;
+    } else {
+      k.cashBase = 0;
+      k.cashQuote = eq;
+    }
+    marginCallI = i;
+  };
+
   for (let i = 0; i < n; i++) {
-    const p = mid[i];
-    if (marginCallI === null) {
-      for (const a of byFrame.get(i) ?? []) {
-        if (a.kind === "cut" && k.qty === full) {
-          trade(k, full * (1 - CUT_FRACTION), p);
-          applied.push(a);
-        } else if (a.kind === "restore" && k.qty !== full && usdValue(leg, k, p) >= mm * grossUsd(leg, full, p)) {
-          trade(k, full, p);
-          applied.push(a);
+    if (marginCallI === null && i > 0) {
+      const om = q.openMid[i];
+      if (breached(om)) {
+        marginCall(i, q.openBid[i], q.openAsk[i], om);
+      } else {
+        for (const a of byFill.get(i) ?? []) {
+          if (a.kind === "cut" && k.qty === full) {
+            const target = full * (1 - CUT_FRACTION);
+            trade(k, target, side(target - k.qty, q.openBid[i], q.openAsk[i]));
+            applied.push({ i, at: Math.max(i, a.at ?? i), kind: "cut" });
+          } else if (a.kind === "restore" && k.qty !== full) {
+            const trial = { ...k };
+            trade(trial, full, side(full - k.qty, q.openBid[i], q.openAsk[i]));
+            if (usdValue(leg, trial, om) >= mm * grossUsd(leg, full, om)) {
+              trade(k, full, side(full - k.qty, q.openBid[i], q.openAsk[i]));
+              applied.push({ i, at: Math.max(i, a.at ?? i), kind: "restore" });
+            }
+          }
         }
       }
     }
-    let eq = usdValue(leg, k, p);
-    let g = grossUsd(leg, k.qty, p);
-    if (marginCallI === null && g > 0 && eq < mm * g) {
-      // Margin call: the position is closed at this minute's mid; equity stays flat afterwards.
-      trade(k, 0, p);
-      eq = usdValue(leg, k, p);
-      if (leg.kind === "usd-base") {
-        k.cashBase = eq;
-        k.cashQuote = 0;
-      } else {
-        k.cashBase = 0;
-        k.cashQuote = eq;
-      }
-      marginCallI = i;
-      g = 0;
-    }
+    const p = q.mid[i];
+    if (marginCallI === null && breached(p)) marginCall(i, q.closeBid[i], q.closeAsk[i], p);
+    const eq = usdValue(leg, k, p);
     equity[i] = eq;
-    notional[i] = g;
+    notional[i] = grossUsd(leg, k.qty, p);
     held[i] = full === 0 ? 0 : k.qty / full;
     liq[i] = liquidationPrice(k, mm);
     restorable[i] = marginCallI === null && k.qty !== full && eq >= mm * grossUsd(leg, full, p) ? 1 : 0;
@@ -265,7 +345,8 @@ export interface RunResult {
   line: MarginLine;
   /** The same bundle with no cut at all, and with policy v1 (cut at the alarm, restore at the all-clear). */
   held: Outcome;
-  followed: (Outcome & { cutI: number }) | null;
+  /** cutI: the frame the alarm's cut filled on (one bar after the alarm), null when a margin call came first. */
+  followed: (Outcome & { cutI: number | null }) | null;
   alarmI: number | null;
   /** The player's own run is a re-run of a what-if scenario, not real history. */
   scenario: boolean;
@@ -307,9 +388,12 @@ export function summarize(b: Bundle, sim: SimResult): RunResult {
   const win = alarmWindow(b);
   let followed: RunResult["followed"] = null;
   if (win) {
+    // Policy v1 as the backend runs it: the alarm bar's close is the signal, the cut fills at the next bar's open
+    // (side-correct); the all-clear restores the same way. A margin call at the alarm bar's close comes first.
     const acts: PlayerAction[] = [{ i: win.alarmI, kind: "cut" }];
     if (win.clearI !== null) acts.push({ i: win.clearI, kind: "restore" });
-    followed = { ...outcomeOf(simulate(b, sim.leverage, acts)), cutI: win.alarmI };
+    const run = simulate(b, sim.leverage, acts);
+    followed = { ...outcomeOf(run), cutI: run.applied.find((a) => a.kind === "cut")?.i ?? null };
   }
   return {
     leverage: sim.leverage,
@@ -378,8 +462,10 @@ export function explain(b: Bundle, r: RunResult): string[] {
   if (r.followed && r.cuts === 0 && r.alarmI !== null) {
     out.push(
       r.followed.sunk
-        ? `StormScore's alarm fired at ${clock(b, r.followed.cutI)}. Even cutting then would not have saved this ship at ${L}x.`
-        : `StormScore's alarm fired at ${clock(b, r.followed.cutI)}. Cutting ${Math.round(CUT_FRACTION * 100)}% then would have left you with ${fmtUsd(r.followed.equity)}.`,
+        ? r.followed.cutI === null
+          ? `StormScore's alarm fired at ${clock(b, r.alarmI)}. At ${L}x the margin call came before a cut could fill at the next minute's open.`
+          : `StormScore's alarm fired at ${clock(b, r.alarmI)}. Even cutting at the next minute's open would not have saved this ship at ${L}x.`
+        : `StormScore's alarm fired at ${clock(b, r.alarmI)}. Cutting ${Math.round(CUT_FRACTION * 100)}% at the next minute's open would have left you with ${fmtUsd(r.followed.equity)}.`,
     );
   }
   if (r.scenario) out.push("This was a what-if scenario, not real history.");

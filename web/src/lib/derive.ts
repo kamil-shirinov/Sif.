@@ -379,14 +379,14 @@ export function shipOf(d: Derived, key: SceneShip): ShipDerived {
   return d.ships[key];
 }
 
-function decimalsOf(values: number[]): number {
-  let d = 0;
-  for (let i = 0; i < values.length; i += Math.max(1, Math.floor(values.length / 200))) {
-    const s = String(values[i]);
-    const dot = s.indexOf(".");
-    if (dot >= 0) d = Math.max(d, s.length - dot - 1);
-  }
-  return clamp(d, 2, 5);
+/**
+ * Price decimals shown everywhere (HUD, chart axis, tooltips, toasts): 2 for equities (anything that is not FX),
+ * 3 for yen pairs (USDJPY), 5 for other FX pairs (EURUSD, USDSGD).
+ */
+export function priceDecimalsFor(b: Pick<Bundle, "asset_class" | "source" | "symbol">): number {
+  const fx = b.asset_class === "fx" && b.source !== "yahoo";
+  if (!fx) return 2;
+  return /JPY/i.test(b.symbol) ? 3 : 5;
 }
 
 export function derive(b: Bundle): Derived {
@@ -467,7 +467,7 @@ export function derive(b: Bundle): Derived {
     squalls,
     fairWinds,
     crates,
-    priceDecimals: decimalsOf(b.series.mid),
+    priceDecimals: priceDecimalsFor(b),
     triggers,
   };
 }

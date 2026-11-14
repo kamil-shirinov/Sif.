@@ -29,8 +29,27 @@ export function EvidenceCard() {
       hint: v >= 0 ? "Minutes after the storm began" : "Minutes before the storm began",
     });
   }
-  if (m.false_alarms_per_day !== null) rows.push({ label: "False alarms per day", value: m.false_alarms_per_day.toFixed(2) });
-  if (rows.length === 0) return null;
+  // Labelled exactly as metrics.json defines them: alert episodes per observed day is the main figure,
+  // the per-pair rate sits beside it (docs/metrics.md, section 6).
+  const ep = m.false_alarm_episodes_per_day;
+  const pair = m.false_alarms_per_day;
+  const falseRow =
+    ep !== null || pair !== null ? (
+      <div
+        className="evidence-row evidence-false"
+        title="False alarm: a storm alarm outside [onset - 60 min, end + 60 min] of every storm on its pair. Per observed day: 1,440 minutes with a bar on any pair."
+      >
+        <span>
+          False alarms
+          <small>{ep !== null ? "distinct alert episodes per observed day" : "pair alarms per observed day"}</small>
+        </span>
+        <span className="num">
+          {(ep ?? pair)!.toFixed(2)}
+          {ep !== null && pair !== null && <small title="pair alarms per observed day: each pair's false alarm counts on its own">{pair.toFixed(2)} pair alarms per observed day</small>}
+        </span>
+      </div>
+    ) : null;
+  if (rows.length === 0 && !falseRow) return null;
 
   // "measured on August": the month comes from the backtest's own split label when it names one.
   const month = m.split ? MONTH_RE.exec(m.split)?.[1] : undefined;
@@ -47,6 +66,7 @@ export function EvidenceCard() {
           <span className="num">{r.value}</span>
         </div>
       ))}
+      {falseRow}
       <div className="evidence-note">{label}</div>
     </div>
   );

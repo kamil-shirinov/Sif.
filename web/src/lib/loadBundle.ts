@@ -299,6 +299,7 @@ function parseMetrics(raw: unknown): IndexMetrics | null {
     median_move_ahead_pct: numOrNull(raw.median_move_ahead_pct),
     median_minutes_to_alarm: numOrNull(raw.median_minutes_to_alarm),
     false_alarms_per_day: numOrNull(raw.false_alarms_per_day),
+    false_alarm_episodes_per_day: numOrNull(raw.false_alarm_episodes_per_day),
   };
   return m;
 }
