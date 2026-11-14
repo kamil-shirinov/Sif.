@@ -146,3 +146,93 @@ def test_discovery_is_offline_by_default_and_uses_gateway(monkeypatch):
         "object": "list", "data": [{"id": "model-b", "object": "model", "created": 0, "owned_by": "test"},
                                     {"id": "model-a", "object": "model", "created": 0, "owned_by": "test"}]}))
     assert llm.list_models("fireworks", live=True) == ["model-a", "model-b"]
+
+
+@pytest.mark.parametrize("content", ["", "   "])
+def test_mock_empty_content_at_length_limit_is_a_clear_error(monkeypatch, content):
+    monkeypatch.setattr(llm, "_mock", lambda *args: (content, [], "length"))
+    with pytest.raises(llm.GatewayError, match="max_tokens was used up by reasoning") as error:
+        llm.complete(MESSAGES, provider="mock", max_tokens=1024, purpose="smoke")
+    assert error.value.diagnostics["finish_reason"] == "length"
+    assert error.value.diagnostics["usage"]["completion_tokens"] == 1024
+    assert len(error.value.diagnostics["raw_message"]) <= 200
+    assert not (Path.home() / ".stormscore").exists()
+
+
+def test_reasoning_only_response_is_charged_and_diagnostics_are_bounded(caps, monkeypatch):
+    secret = "offline-secret-placeholder"
+    monkeypatch.setenv("META_API_KEY", secret)
+    data = response()
+    data["choices"][0]["finish_reason"] = "length"
+    data["choices"][0]["message"] = {
+        "role": "assistant", "content": None,
+        "reasoning_content": secret + " thinking" * 100,
+        "headers": {"Authorization": "private-header-must-never-appear"},
+    }
+    data["usage"]["completion_tokens_details"] = {"reasoning_tokens": 4}
+    sdk_client(monkeypatch, lambda request: httpx.Response(200, json=data))
+    with pytest.raises(llm.GatewayError, match="reasoning") as error:
+        llm.complete(MESSAGES, provider="meta", max_tokens=1024, purpose="smoke", live=True)
+    assert budget.spent("meta") == cost_usd("muse-spark-1.1", 10, 4)
+    diagnostics = error.value.diagnostics
+    assert diagnostics["usage"]["reasoning_tokens"] == 4
+    assert len(diagnostics["raw_message"]) == 200
+    assert "[redacted]" in diagnostics["raw_message"]
+    assert secret not in str(error.value) + json.dumps(diagnostics)
+    assert "private-header" not in json.dumps(diagnostics)
+    assert "Authorization" not in json.dumps(diagnostics)
+
+
+def test_rejected_reasoning_effort_retries_without_it_under_budget_guard(caps, monkeypatch):
+    requests, reservations = [], []
+    reserve = budget.reserve
+
+    def guarded(*args):
+        reservations.append(args[3])
+        return reserve(*args)
+
+    def handler(request):
+        requests.append(json.loads(request.content))
+        assert len(reservations) == len(requests)
+        if "reasoning_effort" in requests[-1]:
+            return httpx.Response(400, json={"error": {
+                "message": "Unsupported parameter: reasoning_effort", "param": "reasoning_effort"}})
+        return httpx.Response(200, json=response())
+
+    monkeypatch.setattr(budget, "reserve", guarded)
+    sdk_client(monkeypatch, handler)
+    result = llm.complete(MESSAGES, provider="meta", max_tokens=1024, purpose="smoke", live=True,
+                          reasoning_effort="minimal")
+    assert requests[0]["reasoning_effort"] == "minimal"
+    assert "reasoning_effort" not in requests[1]
+    assert reservations == [1024, 1024]
+    assert result["text"] == "OK"
+    assert budget.spent("meta") == cost_usd("muse-spark-1.1", 10, 4)
+
+
+def test_report_and_inspector_reserve_their_larger_output_limits(caps, bundle, monkeypatch):
+    from storm.ai import report
+
+    facts = report.facts_from_bundle(bundle)
+    monkeypatch.setenv("FIREWORKS_MODEL_CHECKER", "accounts/fireworks/models/kimi-k3p1-pro")
+    reserve = budget.reserve
+    reservations = []
+
+    def guarded(*args):
+        reservations.append((args[0], args[3]))
+        return reserve(*args)
+
+    def handler(request):
+        payload = json.loads(request.content)
+        data = response()
+        is_writer = payload["model"].startswith("muse")
+        data["choices"][0]["message"]["content"] = (
+            report.deterministic_report(facts) if is_writer else '{"verdict":"ok","issues":[]}'
+        )
+        assert payload["max_tokens"] == reservations[-1][1]
+        return httpx.Response(200, json=data)
+
+    monkeypatch.setattr(budget, "reserve", guarded)
+    sdk_client(monkeypatch, handler)
+    assert report.write_report(facts, live=True)["verified"]
+    assert reservations == [("meta", 2048), ("fireworks", 1024)]

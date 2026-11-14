@@ -18,7 +18,10 @@ Live commands are for Kamil's laptop only. The gateway loads environment setting
 through python-dotenv at use time, searching upward from the working directory.
 In an isolated worktree, configure the environment there or launch with settings
 already exported. Credentials and provider responses are never printed by the
-gateway. The smoke command prints model IDs, timing, and costs only.
+gateway. Smoke prints model IDs, timing, and costs. Failed calls additionally
+print the finish reason, token usage (including reasoning tokens when available),
+and up to 200 characters of assistant message data; HTTP metadata is excluded and
+configured API credentials are redacted.
 
 ```sh
 python -m storm.ai.smoke --live
@@ -32,6 +35,11 @@ Meta uses `META_API_KEY`, `META_BASE_URL`, and `META_MODEL`. Fireworks uses
 model is passed explicitly. Modal support is available through `MODAL_API_KEY`,
 `MODAL_BASE_URL`, and `MODAL_MODEL`; smoke skips it when its base URL is absent.
 Smoke can select the first discovered model when no default is configured.
+It asks for one word with a 1,024-token limit and requests `minimal` reasoning
+from Meta or `low` from Fireworks. A provider rejection of `reasoning_effort`
+retries without the field, within the gateway's existing three-attempt limit.
+These settings follow the [Meta reasoning guide](https://dev.meta.ai/docs/reasoning)
+and [Fireworks reasoning guide](https://docs.fireworks.ai/guides/reasoning).
 The inspector must use a different model family from the writer, including during
 bakeoffs; reports preflight that configuration before the writer request. Numeric
 membership alone cannot verify which subject a number describes.
@@ -52,6 +60,11 @@ rejected 4xx attempts release their charge, except uncertain 408 timeouts. Never
 clear ledger rows to bypass the guard. Returned gateway costs include any prior
 uncertain retry attempts. The SDK's internal retries are disabled; the gateway
 allows at most two retries with backoff.
+
+Reports allow 2,048 output tokens and inspector audits allow 1,024, including
+reasoning tokens. Each attempt reserves its full current output limit. An empty
+answer with `finish_reason="length"` raises a clear reasoning-budget exhaustion
+error after accounting for usage; a valid tool-only response remains supported.
 
 The input guard uses UTF-8 byte counts plus framing as a conservative token upper
 bound, including tools and assistant tool-call arguments. It rejects estimates

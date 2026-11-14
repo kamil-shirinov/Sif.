@@ -1,6 +1,7 @@
 """List provider model IDs and make one tiny, budget-guarded call each."""
 
 import argparse
+import json
 import os
 import time
 
@@ -28,15 +29,21 @@ def main(argv=None) -> int:
                     raise
                 selected = ids[0]
             started = time.perf_counter()
-            result = llm.complete([{"role": "user", "content": "Reply OK."}], provider=provider,
-                                  model=selected, max_tokens=8, purpose="smoke", live=args.live)
+            effort = {"meta": "minimal", "fireworks": "low"}.get(provider)
+            result = llm.complete([{"role": "user", "content": "Reply with exactly one word: OK"}], provider=provider,
+                                  model=selected, max_tokens=1024, purpose="smoke", live=args.live,
+                                  reasoning_effort=effort)
             elapsed = time.perf_counter() - started
-            if not result["text"].strip() or result["tool_calls"]:
-                raise llm.GatewayError("Empty or unexpected smoke response")
+            if not result["text"].strip():
+                raise llm.GatewayError("Empty smoke response", diagnostics=result)
             print(f"{provider}: ok model={result['model']} latency_s={elapsed:.3f} cost_usd={result['cost_usd']:.8f}")
         except (llm.GatewayError, budget.BudgetError) as error:
             # These are gateway-owned, sanitized messages; never render SDK errors.
             print(f"{provider}: failed ({error})")
+            diagnostics = getattr(error, "diagnostics", {})
+            print(json.dumps({"finish_reason": diagnostics.get("finish_reason"),
+                              "usage": diagnostics.get("usage", {}),
+                              "raw_message": diagnostics.get("raw_message", "")[:200]}))
             errors += 1
     return int(bool(errors))
 

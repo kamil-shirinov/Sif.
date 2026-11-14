@@ -18,6 +18,35 @@ MAX_INPUT_TOKENS = 60_000
 class GatewayError(RuntimeError):
     """Sanitized error: SDK errors may contain request bodies or credentials."""
 
+    def __init__(self, message: str, *, diagnostics: dict | None = None):
+        super().__init__(message)
+        self.diagnostics = diagnostics or {}
+
+
+def _result(*, text: str, calls: list, provider: str, model: str,
+            incoming: int, outgoing: int, charged: float, finish_reason: str,
+            message: dict, usage: dict | None = None) -> dict:
+    # Whitelist assistant fields; never include HTTP metadata or arbitrary SDK
+    # extras. Redact configured credentials before taking a diagnostic preview.
+    preview = json.dumps({key: message[key] for key in
+                          ("role", "content", "refusal", "reasoning_content") if key in message},
+                         ensure_ascii=False)
+    for prefix in ("META", "FIREWORKS", "MODAL", "OPENAI"):
+        secret = os.getenv(f"{prefix}_API_KEY")
+        if secret:
+            preview = preview.replace(secret, "[redacted]")
+    diagnostics = {"finish_reason": finish_reason,
+                   "usage": usage or {"prompt_tokens": incoming, "completion_tokens": outgoing,
+                                      "total_tokens": incoming + outgoing},
+                   "raw_message": preview[:200]}
+    if finish_reason == "length" and not text.strip() and not calls:
+        raise GatewayError(
+            f"{provider} max_tokens was used up by reasoning before producing text; increase max_tokens",
+            diagnostics=diagnostics,
+        )
+    return {"text": text, "tool_calls": calls, "provider": provider, "model": model,
+            "input_tokens": incoming, "output_tokens": outgoing, "cost_usd": charged, **diagnostics}
+
 
 def load_environment() -> None:
     # Called at use time, not at import, and never renders environment values.
@@ -61,19 +90,19 @@ def estimate_input_tokens(messages: list[dict], tools: list[dict] | None = None)
     return len(payload.encode("utf-8")) + 32 * len(messages) + 256
 
 
-def _mock(messages: list[dict], purpose: str, tools: list[dict] | None) -> tuple[str, list]:
+def _mock(messages: list[dict], purpose: str, tools: list[dict] | None) -> tuple[str, list, str]:
     if messages[-1].get("role") == "tool":
-        return str(messages[-1].get("content", "")), []
+        return str(messages[-1].get("content", "")), [], "stop"
     if tools:
         function = tools[0]["function"]
         # A caller may supply mock_arguments to exercise a deterministic tool
         # invocation; never execute a tool in the gateway itself.
         arguments = function.get("mock_arguments", {})
         return "", [{"id": "mock_call_1", "type": "function", "function": {
-            "name": function["name"], "arguments": json.dumps(arguments, sort_keys=True)}}]
+            "name": function["name"], "arguments": json.dumps(arguments, sort_keys=True)}}], "tool_calls"
     if purpose == "storm-report":
         from .report import deterministic_report
-        return deterministic_report(json.loads(messages[-1]["content"])["facts"]), []
+        return deterministic_report(json.loads(messages[-1]["content"])["facts"]), [], "stop"
     if purpose == "storm-inspector":
         from .report import deterministic_report
         from .verify import verify_numbers
@@ -83,16 +112,18 @@ def _mock(messages: list[dict], purpose: str, tools: list[dict] | None) -> tuple
             issues.append("Report contains unsupported numbers")
         if payload["text"] != deterministic_report(payload["facts"]):
             issues.append("Mock inspector only certifies the deterministic facts template")
-        return json.dumps({"verdict": "flag" if issues else "ok", "issues": issues}), []
-    return "Mock response.", []
+        return json.dumps({"verdict": "flag" if issues else "ok", "issues": issues}), [], "stop"
+    return "Mock response.", [], "stop"
 
 
 def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
-             live=False, tools=None) -> dict:
+             live=False, tools=None, reasoning_effort=None) -> dict:
     if provider not in PROVIDERS:
         raise ValueError("Unsupported provider")
     if type(max_tokens) is not int or max_tokens <= 0:
         raise ValueError("An explicit positive max_tokens is required")
+    if reasoning_effort is not None and reasoning_effort not in {"none", "minimal", "low", "medium", "high", "xhigh", "max"}:
+        raise ValueError("Unsupported reasoning_effort")
     if not isinstance(purpose, str) or not purpose.strip() or len(purpose) > 128:
         raise ValueError("Provide a short purpose label")
     if not isinstance(messages, list) or not messages:
@@ -107,9 +138,11 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
         raise ValueError("Input exceeds the conservative 60,000 token limit")
     load_environment()
     if provider == "mock" or not live_enabled(live):
-        text, calls = _mock(messages, purpose, tools)
-        return {"text": text, "tool_calls": calls, "provider": "mock", "model": "mock",
-                "input_tokens": estimated, "output_tokens": len(text.encode("utf-8")), "cost_usd": 0.0}
+        text, calls, finish_reason = _mock(messages, purpose, tools)
+        return _result(text=text, calls=calls, provider="mock", model="mock", incoming=estimated,
+                       outgoing=max_tokens if finish_reason == "length" else len(text.encode("utf-8")),
+                       charged=0.0, finish_reason=finish_reason,
+                       message={"role": "assistant", "content": text})
 
     selected = resolve_model(provider, model)
     previous_cost = 0.0
@@ -119,6 +152,10 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
             kwargs = {"model": selected, "messages": messages, "max_tokens": max_tokens}
             if tools is not None:
                 kwargs["tools"] = tools
+            if reasoning_effort is not None:
+                # extra_body also works with SDK versions predating the named
+                # reasoning_effort argument while using the same API field.
+                kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
             try:
                 response = client.chat.completions.create(**kwargs)
             except Exception as error:
@@ -127,6 +164,10 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
                 budget.failed(call_id, definitely_unbilled=unbilled)
                 if not unbilled:
                     previous_cost += cost_usd(selected, estimated, max_tokens)
+                if (reasoning_effort is not None and status in (400, 422) and attempt < 2
+                        and "reasoning_effort" in str(getattr(error, "body", ""))):
+                    reasoning_effort = None
+                    continue
                 retryable = isinstance(error, APIConnectionError) or status in (408, 409, 429) or (
                     status is not None and status >= 500)
                 if retryable and attempt < 2:
@@ -144,11 +185,23 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
                 message = response.choices[0].message
                 calls = [call.model_dump(exclude_none=True) for call in (message.tool_calls or [])]
                 text = message.content or ""
+                finish_reason = response.choices[0].finish_reason
+                raw_message = message.model_dump(exclude_none=True)
             except Exception:
                 raise GatewayError(f"{provider} returned an invalid completion") from None
-            return {"text": text, "tool_calls": calls, "provider": provider, "model": selected,
-                    "input_tokens": incoming, "output_tokens": outgoing,
-                    "cost_usd": charged + previous_cost}
+            numbers = {"prompt_tokens": incoming, "completion_tokens": outgoing}
+            for field in ("total_tokens", "reasoning_tokens"):
+                value = getattr(usage, field, None)
+                if type(value) is int:
+                    numbers[field] = value
+            details = getattr(usage, "completion_tokens_details", None)
+            reasoning_tokens = getattr(details, "reasoning_tokens", None)
+            if type(reasoning_tokens) is int:
+                numbers["reasoning_tokens"] = reasoning_tokens
+            numbers.setdefault("total_tokens", incoming + outgoing)
+            return _result(text=text, calls=calls, provider=provider, model=selected, incoming=incoming,
+                           outgoing=outgoing, charged=charged + previous_cost, finish_reason=finish_reason,
+                           message=raw_message, usage=numbers)
     raise GatewayError("Completion failed")
 
 
