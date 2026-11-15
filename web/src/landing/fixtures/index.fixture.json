@@ -1,0 +1,42 @@
+{
+ "schema_version": 1,
+ "storms": [
+  {
+   "storm_id": "usdjpy-2026-07-30",
+   "title": "USDJPY, 30 July 2026",
+   "symbol": "USDJPY",
+   "asset_class": "fx",
+   "kind": "unscheduled",
+   "move_bp": -123.4,
+   "file": "usdjpy-2026-07-30.json"
+  },
+  {
+   "storm_id": "eurusd-2026-08-07",
+   "title": "EURUSD, 7 August 2026",
+   "symbol": "EURUSD",
+   "asset_class": "fx",
+   "kind": "scheduled",
+   "move_bp": 47.0,
+   "file": "eurusd-2026-08-07.json"
+  },
+  {
+   "storm_id": "nvda-2026-11-12",
+   "title": "NVDA, 12 November 2026",
+   "symbol": "NVDA",
+   "asset_class": "equity",
+   "kind": "unscheduled",
+   "move_bp": -1440.0,
+   "file": "nvda-2026-11-12.json"
+  }
+ ],
+ "metrics": {
+  "split": "test: August 2026",
+  "storms": 7,
+  "alarmed": 5,
+  "caught": 3,
+  "caught_first_onset": 2,
+  "median_move_ahead_pct": 41.2,
+  "false_alarms_per_day": 0.4,
+  "false_alarm_episodes_per_day": 0.25
+ }
+}
