@@ -1,0 +1,2072 @@
+{
+  "cache_tag": "067dca7ea5f4b47c8b988bf1430d78bc6079b8e3ea429bae151124bd4e5aac1c",
+  "result": {
+    "dataset": "oos_round1",
+    "unit": "snb-2015",
+    "stock": false,
+    "group": "events",
+    "start": "2015-01-13 00:00:00+00:00",
+    "end": "2015-01-17 00:00:00+00:00",
+    "pairs": [
+      "EURCHF",
+      "USDCHF"
+    ],
+    "published_detection_check": {
+      "checked_fields": [
+        "storms",
+        "alarmed",
+        "caught",
+        "caught_first_onset",
+        "median_move_ahead_pct",
+        "median_minutes_to_alarm",
+        "storm_alarms",
+        "false_alarms",
+        "false_alarm_episodes",
+        "false_alarm_episodes_per_day",
+        "days"
+      ],
+      "differences": [],
+      "passed": true
+    },
+    "published_policy": {
+      "status": "supported",
+      "pairs": [
+        "USDCHF"
+      ],
+      "excluded_pairs": [
+        "EURCHF"
+      ],
+      "result": {
+        "book": {
+          "synthetic": true,
+          "legs": [
+            "long USD 20,000,000 via USDCHF"
+          ],
+          "equity_usd": 1000000.0,
+          "maintenance_margin": 0.025,
+          "cut_fraction": 0.75,
+          "from_utc": "2015-01-13 00:00",
+          "to_utc": "2015-01-16 21:59",
+          "execution": "signal at bar t's close, fill at the next bar's open, bid or ask (side-correct)"
+        },
+        "alerts": {
+          "danger_alarms": 2,
+          "squalls": 2,
+          "fair_winds": 1,
+          "all_clears": 2
+        },
+        "prepared": {
+          "final_equity_usd": 346121.2431919429,
+          "max_drawdown_usd": 827331.5016782131,
+          "max_drawdown_pct": 70.50403224969732,
+          "margin_calls": 1,
+          "margin_call_utc": "2015-01-15 09:30",
+          "cuts": 1,
+          "restores": 1,
+          "fills": 3,
+          "spread_cost_usd": 28893.273848994708
+        },
+        "unprepared": {
+          "final_equity_usd": 363480.8562045427,
+          "max_drawdown_usd": 809971.8886656134,
+          "max_drawdown_pct": 69.02467033346433,
+          "margin_calls": 1,
+          "margin_call_utc": "2015-01-15 09:30",
+          "cuts": 0,
+          "restores": 0,
+          "fills": 1,
+          "spread_cost_usd": 27714.469897313313
+        },
+        "trades": [
+          {
+            "utc": "2015-01-14 13:32",
+            "signal_utc": "2015-01-14 13:31",
+            "pair": "USDCHF",
+            "action": "cut",
+            "side": "sell",
+            "at": "open",
+            "fill_price": 1.01735,
+            "mid_price": 1.017385,
+            "cost_usd": 516.0288386403463
+          },
+          {
+            "utc": "2015-01-14 15:34",
+            "signal_utc": "2015-01-14 15:33",
+            "pair": "USDCHF",
+            "action": "restore",
+            "side": "buy",
+            "at": "open",
+            "fill_price": 1.01849,
+            "mid_price": 1.0184449999999998,
+            "cost_usd": 662.7751130410494
+          },
+          {
+            "utc": "2015-01-15 09:30",
+            "signal_utc": "2015-01-15 09:30",
+            "pair": "USDCHF",
+            "action": "margin_call",
+            "side": "sell",
+            "at": "close",
+            "fill_price": 0.98368,
+            "mid_price": 0.985045,
+            "cost_usd": 27714.469897313313
+          }
+        ]
+      }
+    },
+    "descriptive_splits": null,
+    "coverage": {},
+    "methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 100.0,
+        "median_minutes_to_alarm": -2.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 84.88756228428113,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 3,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.2554097197587797,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.2554097197587797,
+        "squalls_per_day": null,
+        "days": 3.915277777777778,
+        "per_storm": [
+          {
+            "storm_id": "usdchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -2,
+            "caught": true,
+            "move_ahead_pct_first_onset": 85.79782192736184,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "USDCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:33:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:49:00+00:00",
+            "end_utc": "2015-01-15T10:07:00+00:00",
+            "move_bp": -2431.8370718623637,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          },
+          {
+            "storm_id": "eurchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -3,
+            "caught": true,
+            "move_ahead_pct_first_onset": 83.97730264120044,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "EURCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:34:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:48:00+00:00",
+            "end_utc": "2015-01-15T10:05:00+00:00",
+            "move_bp": -2568.4144964770917,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-13",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-14",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-15",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-16",
+            "observed_minutes": 1320,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 100.0,
+        "median_minutes_to_alarm": -3.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 86.79159868118487,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 3.915277777777778,
+        "per_storm": [
+          {
+            "storm_id": "usdchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:30",
+            "move_ahead_pct": 100.0,
+            "minutes": -3,
+            "caught": true,
+            "move_ahead_pct_first_onset": 86.88864648343201,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "USDCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:33:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:49:00+00:00",
+            "end_utc": "2015-01-15T10:07:00+00:00",
+            "move_bp": -2431.8370718623637,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          },
+          {
+            "storm_id": "eurchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:30",
+            "move_ahead_pct": 100.0,
+            "minutes": -4,
+            "caught": true,
+            "move_ahead_pct_first_onset": 86.69455087893773,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "EURCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:34:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:48:00+00:00",
+            "end_utc": "2015-01-15T10:05:00+00:00",
+            "move_bp": -2568.4144964770917,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-13",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-14",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-15",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-16",
+            "observed_minutes": 1320,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 100.0,
+        "median_minutes_to_alarm": -2.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 84.88756228428113,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 7,
+        "false_alarms": 5,
+        "false_alarms_per_day": 1.2770485987938984,
+        "false_alarm_episodes": 4,
+        "false_alarm_episodes_per_day": 1.0216388790351187,
+        "squalls_per_day": null,
+        "days": 3.915277777777778,
+        "per_storm": [
+          {
+            "storm_id": "usdchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -2,
+            "caught": true,
+            "move_ahead_pct_first_onset": 85.79782192736184,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "USDCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:33:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:49:00+00:00",
+            "end_utc": "2015-01-15T10:07:00+00:00",
+            "move_bp": -2431.8370718623637,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          },
+          {
+            "storm_id": "eurchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -3,
+            "caught": true,
+            "move_ahead_pct_first_onset": 83.97730264120044,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "EURCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:34:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:48:00+00:00",
+            "end_utc": "2015-01-15T10:05:00+00:00",
+            "move_bp": -2568.4144964770917,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-13",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-14",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-15",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-16",
+            "observed_minutes": 1320,
+            "episodes": 1
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooled_methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 100.0,
+        "median_minutes_to_alarm": -2.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 84.88756228428113,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 3,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.2554097197587797,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.2554097197587797,
+        "squalls_per_day": null,
+        "days": 3.915277777777778,
+        "per_storm": [
+          {
+            "storm_id": "usdchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -2,
+            "caught": true,
+            "move_ahead_pct_first_onset": 85.79782192736184,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "USDCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:33:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:49:00+00:00",
+            "end_utc": "2015-01-15T10:07:00+00:00",
+            "move_bp": -2431.8370718623637,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          },
+          {
+            "storm_id": "eurchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -3,
+            "caught": true,
+            "move_ahead_pct_first_onset": 83.97730264120044,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "EURCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:34:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:48:00+00:00",
+            "end_utc": "2015-01-15T10:05:00+00:00",
+            "move_bp": -2568.4144964770917,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-13",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-14",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-15",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-16",
+            "observed_minutes": 1320,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 100.0,
+        "median_minutes_to_alarm": -3.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 86.79159868118487,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 3.915277777777778,
+        "per_storm": [
+          {
+            "storm_id": "usdchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:30",
+            "move_ahead_pct": 100.0,
+            "minutes": -3,
+            "caught": true,
+            "move_ahead_pct_first_onset": 86.88864648343201,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "USDCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:33:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:49:00+00:00",
+            "end_utc": "2015-01-15T10:07:00+00:00",
+            "move_bp": -2431.8370718623637,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          },
+          {
+            "storm_id": "eurchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:30",
+            "move_ahead_pct": 100.0,
+            "minutes": -4,
+            "caught": true,
+            "move_ahead_pct_first_onset": 86.69455087893773,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "EURCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:34:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:48:00+00:00",
+            "end_utc": "2015-01-15T10:05:00+00:00",
+            "move_bp": -2568.4144964770917,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-13",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-14",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-15",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-16",
+            "observed_minutes": 1320,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 100.0,
+        "median_minutes_to_alarm": -2.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 84.88756228428113,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 7,
+        "false_alarms": 5,
+        "false_alarms_per_day": 1.2770485987938984,
+        "false_alarm_episodes": 4,
+        "false_alarm_episodes_per_day": 1.0216388790351187,
+        "squalls_per_day": null,
+        "days": 3.915277777777778,
+        "per_storm": [
+          {
+            "storm_id": "usdchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -2,
+            "caught": true,
+            "move_ahead_pct_first_onset": 85.79782192736184,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "USDCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:33:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:49:00+00:00",
+            "end_utc": "2015-01-15T10:07:00+00:00",
+            "move_bp": -2431.8370718623637,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          },
+          {
+            "storm_id": "eurchf-2015-01-15",
+            "alarm_utc": "2015-01-15 09:31",
+            "move_ahead_pct": 100.0,
+            "minutes": -3,
+            "caught": true,
+            "move_ahead_pct_first_onset": 83.97730264120044,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "EURCHF",
+            "kind": "unscheduled",
+            "onset_utc": "2015-01-15T09:34:00+00:00",
+            "first_onset_utc": "2015-01-15T09:15:00+00:00",
+            "trough_utc": "2015-01-15T09:48:00+00:00",
+            "end_utc": "2015-01-15T10:05:00+00:00",
+            "move_bp": -2568.4144964770917,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "block": "2015-01-15"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-13",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-14",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-15",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "snb-2015",
+            "date": "2015-01-16",
+            "observed_minutes": 1320,
+            "episodes": 1
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURCHF": 0,
+        "USDCHF": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "policy": {
+      "independent_reset_books": 1,
+      "synthetic": true,
+      "prepared_minus_unprepared_usd": -17359.613012603484,
+      "prepared": {
+        "margin_calls": 1,
+        "cuts": 1,
+        "restores": 1,
+        "fills": 3,
+        "spread_cost_usd": 28893.273848994708,
+        "pnl_usd": -653878.7568080608,
+        "max_book_drawdown_usd": 827331.5016782176,
+        "median_book_drawdown_usd": 827331.5016782176
+      },
+      "unprepared": {
+        "margin_calls": 1,
+        "cuts": 0,
+        "restores": 0,
+        "fills": 1,
+        "spread_cost_usd": 27714.469897313313,
+        "pnl_usd": -636519.1437954573,
+        "max_book_drawdown_usd": 809971.8886656141,
+        "median_book_drawdown_usd": 809971.8886656141
+      }
+    },
+    "policy_books": [
+      {
+        "name": "snb-2015",
+        "pairs": [
+          "USDCHF"
+        ],
+        "start": "2015-01-13 00:00:00+00:00",
+        "end": "2015-01-17 00:00:00+00:00",
+        "include_in_pooled": true,
+        "prepared": {
+          "final_equity_usd": 346121.2431919392,
+          "max_drawdown_usd": 827331.5016782176,
+          "max_drawdown_pct": 70.50403224969764,
+          "margin_calls": 1,
+          "cuts": 1,
+          "restores": 1,
+          "spread_cost_usd": 28893.273848994708,
+          "fills": 3
+        },
+        "unprepared": {
+          "final_equity_usd": 363480.8562045427,
+          "max_drawdown_usd": 809971.8886656141,
+          "max_drawdown_pct": 69.02467033346434,
+          "margin_calls": 1,
+          "cuts": 0,
+          "restores": 0,
+          "spread_cost_usd": 27714.469897313313,
+          "fills": 1
+        }
+      }
+    ],
+    "sensitivity": [
+      {
+        "factor": "spread_multiplier",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -17359.613012603484,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 28893.273848994708,
+            "pnl_usd": -653878.7568080608,
+            "max_book_drawdown_usd": 827331.5016782176,
+            "median_book_drawdown_usd": 827331.5016782176
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 346121.2431919392,
+              "max_drawdown_usd": 827331.5016782176,
+              "max_drawdown_pct": 70.50403224969764,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 28893.273848994708,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -18577.83146962832,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 57786.547697989416,
+            "pnl_usd": -682811.445162399,
+            "max_book_drawdown_usd": 856264.1900325557,
+            "median_book_drawdown_usd": 856264.1900325557
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 55428.939794626625,
+            "pnl_usd": -664233.6136927707,
+            "max_book_drawdown_usd": 837686.3585629275,
+            "median_book_drawdown_usd": 837686.3585629275
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 317188.55483760097,
+              "max_drawdown_usd": 856264.1900325557,
+              "max_drawdown_pct": 72.96963544341975,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 57786.547697989416,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 335766.3863072293,
+              "max_drawdown_usd": 837686.3585629275,
+              "max_drawdown_pct": 71.38645865587182,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 55428.939794626625,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 3,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -19796.049926653097,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 86679.82154698412,
+            "pnl_usd": -711744.133516737,
+            "max_book_drawdown_usd": 885196.8783868938,
+            "median_book_drawdown_usd": 885196.8783868938
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 83143.40969193993,
+            "pnl_usd": -691948.083590084,
+            "max_book_drawdown_usd": 865400.8284602407,
+            "median_book_drawdown_usd": 865400.8284602407
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 288255.8664832629,
+              "max_drawdown_usd": 885196.8783868938,
+              "max_drawdown_pct": 75.43523863714182,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 86679.82154698412,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 308051.916409916,
+              "max_drawdown_usd": 865400.8284602407,
+              "max_drawdown_pct": 73.74824697827928,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 83143.40969193993,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -17359.613012603484,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 28893.273848994708,
+            "pnl_usd": -653878.7568080608,
+            "max_book_drawdown_usd": 827331.5016782176,
+            "median_book_drawdown_usd": 827331.5016782176
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 346121.2431919392,
+              "max_drawdown_usd": 827331.5016782176,
+              "max_drawdown_pct": 70.50403224969764,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 28893.273848994708,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -14923.176098553871,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 29187.788379756843,
+            "pnl_usd": -651442.3198940111,
+            "max_book_drawdown_usd": 824895.0647641679,
+            "median_book_drawdown_usd": 824895.0647641679
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 348557.6801059888,
+              "max_drawdown_usd": 824895.0647641679,
+              "max_drawdown_pct": 70.29640250706841,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 29187.788379756843,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -31673.679882641183,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 29115.042502177414,
+            "pnl_usd": -668192.8236780985,
+            "max_book_drawdown_usd": 841645.5685482553,
+            "median_book_drawdown_usd": 841645.5685482553
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 331807.1763219015,
+              "max_drawdown_usd": 841645.5685482553,
+              "max_drawdown_pct": 71.72385698764408,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 29115.042502177414,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -11573.075341735675,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 28500.339198434245,
+            "pnl_usd": -648092.2191371929,
+            "max_book_drawdown_usd": 821544.9640073497,
+            "median_book_drawdown_usd": 821544.9640073497
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 351907.780862807,
+              "max_drawdown_usd": 821544.9640073497,
+              "max_drawdown_pct": 70.0109116109532,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 28500.339198434245,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.75,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -17359.613012603484,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 28893.273848994708,
+            "pnl_usd": -653878.7568080608,
+            "max_book_drawdown_usd": 827331.5016782176,
+            "median_book_drawdown_usd": 827331.5016782176
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 346121.2431919392,
+              "max_drawdown_usd": 827331.5016782176,
+              "max_drawdown_pct": 70.50403224969764,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 28893.273848994708,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 1.0,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -23146.15068347135,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 29286.208499555174,
+            "pnl_usd": -659665.2944789287,
+            "max_book_drawdown_usd": 833118.0393490854,
+            "median_book_drawdown_usd": 833118.0393490854
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 340334.70552107133,
+              "max_drawdown_usd": 833118.0393490854,
+              "max_drawdown_pct": 70.99715288844209,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 29286.208499555174,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 10,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 286998.8019386796,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 2,
+            "restores": 1,
+            "fills": 4,
+            "spread_cost_usd": 23557.66827591798,
+            "pnl_usd": -987776.1725658189,
+            "max_book_drawdown_usd": 1074502.545000897,
+            "median_book_drawdown_usd": 1074502.545000897
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 23167.649536647412,
+            "pnl_usd": -1274774.9745044983,
+            "max_book_drawdown_usd": 1361501.3469395768,
+            "median_book_drawdown_usd": 1361501.3469395768
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 12223.827434181174,
+              "max_drawdown_usd": 1074502.545000897,
+              "max_drawdown_pct": 98.87516970745904,
+              "margin_calls": 1,
+              "cuts": 2,
+              "restores": 1,
+              "spread_cost_usd": 23557.66827591798,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": -274774.9745044984,
+              "max_drawdown_usd": 1361501.3469395768,
+              "max_drawdown_pct": 125.28465135973441,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 23167.649536647412,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 20,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -17359.613012603484,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 28893.273848994708,
+            "pnl_usd": -653878.7568080608,
+            "max_book_drawdown_usd": 827331.5016782176,
+            "median_book_drawdown_usd": 827331.5016782176
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 346121.2431919392,
+              "max_drawdown_usd": 827331.5016782176,
+              "max_drawdown_pct": 70.50403224969764,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 28893.273848994708,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 30,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -26039.419518905226,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 43339.91077349206,
+            "pnl_usd": -980818.1352120931,
+            "max_book_drawdown_usd": 1240997.2525173263,
+            "median_book_drawdown_usd": 1240997.2525173263
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 41571.704845969965,
+            "pnl_usd": -954778.7156931879,
+            "max_book_drawdown_usd": 1214957.832998421,
+            "median_book_drawdown_usd": 1214957.832998421
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 19181.864787906867,
+              "max_drawdown_usd": 1240997.2525173263,
+              "max_drawdown_pct": 98.4778461629387,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 43339.91077349206,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 45221.28430681209,
+              "max_drawdown_usd": 1214957.832998421,
+              "max_drawdown_pct": 96.41151930818269,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 41571.704845969965,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.7,
+        "status": "invalid",
+        "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.8,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -17359.613012603484,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 28893.273848994708,
+            "pnl_usd": -653878.7568080608,
+            "max_book_drawdown_usd": 827331.5016782176,
+            "median_book_drawdown_usd": 827331.5016782176
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 346121.2431919392,
+              "max_drawdown_usd": 827331.5016782176,
+              "max_drawdown_pct": 70.50403224969764,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 28893.273848994708,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.2554097197587797
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.9,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 0.0,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 27714.469897313313,
+            "pnl_usd": -636519.1437954573,
+            "max_book_drawdown_usd": 809971.8886656141,
+            "median_book_drawdown_usd": 809971.8886656141
+          }
+        },
+        "books": [
+          {
+            "name": "snb-2015",
+            "pairs": [
+              "USDCHF"
+            ],
+            "start": "2015-01-13 00:00:00+00:00",
+            "end": "2015-01-17 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            },
+            "unprepared": {
+              "final_equity_usd": 363480.8562045427,
+              "max_drawdown_usd": 809971.8886656141,
+              "max_drawdown_pct": 69.02467033346434,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 27714.469897313313,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 100.0,
+          "median_minutes_to_alarm": -2.5,
+          "median_share_ahead_pct_first_onset": 84.88756228428113,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.915277777777778,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      }
+    ],
+    "oracle_checks": [
+      {
+        "book": "snb-2015",
+        "checked_trials": [
+          0,
+          1,
+          501,
+          1001
+        ],
+        "rtol": 1e-09,
+        "atol_usd": 1e-05,
+        "passed": true
+      }
+    ],
+    "elapsed_seconds": 0.39553062499908265
+  }
+}

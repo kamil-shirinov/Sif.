@@ -1,0 +1,1889 @@
+{
+  "cache_tag": "067dca7ea5f4b47c8b988bf1430d78bc6079b8e3ea429bae151124bd4e5aac1c",
+  "result": {
+    "dataset": "oos_round1",
+    "unit": "gbp-flash-2016",
+    "stock": false,
+    "group": "events",
+    "start": "2016-10-05 00:00:00+00:00",
+    "end": "2016-10-09 00:00:00+00:00",
+    "pairs": [
+      "GBPUSD"
+    ],
+    "published_detection_check": {
+      "checked_fields": [
+        "storms",
+        "alarmed",
+        "caught",
+        "caught_first_onset",
+        "median_move_ahead_pct",
+        "median_minutes_to_alarm",
+        "storm_alarms",
+        "false_alarms",
+        "false_alarm_episodes",
+        "false_alarm_episodes_per_day",
+        "days"
+      ],
+      "differences": [],
+      "passed": true
+    },
+    "published_policy": {
+      "status": "supported",
+      "pairs": [
+        "GBPUSD"
+      ],
+      "excluded_pairs": [],
+      "result": {
+        "book": {
+          "synthetic": true,
+          "legs": [
+            "long USD 20,000,000 via GBPUSD"
+          ],
+          "equity_usd": 1000000.0,
+          "maintenance_margin": 0.025,
+          "cut_fraction": 0.75,
+          "from_utc": "2016-10-05 00:00",
+          "to_utc": "2016-10-07 20:59",
+          "execution": "signal at bar t's close, fill at the next bar's open, bid or ask (side-correct)"
+        },
+        "alerts": {
+          "danger_alarms": 1,
+          "squalls": 1,
+          "fair_winds": 1,
+          "all_clears": 1
+        },
+        "prepared": {
+          "final_equity_usd": 1541563.048781924,
+          "max_drawdown_usd": 759602.5787594132,
+          "max_drawdown_pct": 34.053622787659314,
+          "margin_calls": 0,
+          "margin_call_utc": null,
+          "cuts": 1,
+          "restores": 1,
+          "fills": 2,
+          "spread_cost_usd": 6128.6786804466155
+        },
+        "unprepared": {
+          "final_equity_usd": 1461772.3667307012,
+          "max_drawdown_usd": 839393.260810636,
+          "max_drawdown_pct": 37.63070620538557,
+          "margin_calls": 0,
+          "margin_call_utc": null,
+          "cuts": 0,
+          "restores": 0,
+          "fills": 0,
+          "spread_cost_usd": 0.0
+        },
+        "trades": [
+          {
+            "utc": "2016-10-06 23:18",
+            "signal_utc": "2016-10-06 23:17",
+            "pair": "GBPUSD",
+            "action": "cut",
+            "side": "buy",
+            "at": "open",
+            "fill_price": 1.2355,
+            "mid_price": 1.2352150000000002,
+            "cost_usd": 3358.9873537057138
+          },
+          {
+            "utc": "2016-10-06 23:46",
+            "signal_utc": "2016-10-06 23:45",
+            "pair": "GBPUSD",
+            "action": "restore",
+            "side": "sell",
+            "at": "open",
+            "fill_price": 1.24227,
+            "mid_price": 1.242505,
+            "cost_usd": 2769.6913267409013
+          }
+        ]
+      }
+    },
+    "descriptive_splits": null,
+    "coverage": {},
+    "methods": {
+      "v1": {
+        "storms": 1,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 17.1858619140331,
+        "median_minutes_to_alarm": 14.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 17.137096774193424,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 1,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 2.875,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2016-10-06",
+            "alarm_utc": "2016-10-06 23:08",
+            "move_ahead_pct": 17.1858619140331,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 17.137096774193424,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2016-10-06T22:54:00+00:00",
+            "first_onset_utc": "2016-10-06T22:52:00+00:00",
+            "trough_utc": "2016-10-06T23:09:00+00:00",
+            "end_utc": "2016-10-06T23:24:00+00:00",
+            "move_bp": -529.4311212252168,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "block": "2016-10-06"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-06",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-07",
+            "observed_minutes": 1260,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 1,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 38.54275872397793,
+        "median_minutes_to_alarm": 13.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 38.43339307048999,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 1,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 2.875,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2016-10-06",
+            "alarm_utc": "2016-10-06 23:07",
+            "move_ahead_pct": 38.54275872397793,
+            "minutes": 13,
+            "caught": false,
+            "move_ahead_pct_first_onset": 38.43339307048999,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2016-10-06T22:54:00+00:00",
+            "first_onset_utc": "2016-10-06T22:52:00+00:00",
+            "trough_utc": "2016-10-06T23:09:00+00:00",
+            "end_utc": "2016-10-06T23:24:00+00:00",
+            "move_bp": -529.4311212252168,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "block": "2016-10-06"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-06",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-07",
+            "observed_minutes": 1260,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 1,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 17.1858619140331,
+        "median_minutes_to_alarm": 14.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 17.137096774193424,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 2,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.34782608695652173,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.34782608695652173,
+        "squalls_per_day": null,
+        "days": 2.875,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2016-10-06",
+            "alarm_utc": "2016-10-06 23:08",
+            "move_ahead_pct": 17.1858619140331,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 17.137096774193424,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2016-10-06T22:54:00+00:00",
+            "first_onset_utc": "2016-10-06T22:52:00+00:00",
+            "trough_utc": "2016-10-06T23:09:00+00:00",
+            "end_utc": "2016-10-06T23:24:00+00:00",
+            "move_bp": -529.4311212252168,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "block": "2016-10-06"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-06",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-07",
+            "observed_minutes": 1260,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooled_methods": {
+      "v1": {
+        "storms": 1,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 17.1858619140331,
+        "median_minutes_to_alarm": 14.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 17.137096774193424,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 1,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 2.875,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2016-10-06",
+            "alarm_utc": "2016-10-06 23:08",
+            "move_ahead_pct": 17.1858619140331,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 17.137096774193424,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2016-10-06T22:54:00+00:00",
+            "first_onset_utc": "2016-10-06T22:52:00+00:00",
+            "trough_utc": "2016-10-06T23:09:00+00:00",
+            "end_utc": "2016-10-06T23:24:00+00:00",
+            "move_bp": -529.4311212252168,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "block": "2016-10-06"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-06",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-07",
+            "observed_minutes": 1260,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 1,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 38.54275872397793,
+        "median_minutes_to_alarm": 13.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 38.43339307048999,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 1,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 2.875,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2016-10-06",
+            "alarm_utc": "2016-10-06 23:07",
+            "move_ahead_pct": 38.54275872397793,
+            "minutes": 13,
+            "caught": false,
+            "move_ahead_pct_first_onset": 38.43339307048999,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2016-10-06T22:54:00+00:00",
+            "first_onset_utc": "2016-10-06T22:52:00+00:00",
+            "trough_utc": "2016-10-06T23:09:00+00:00",
+            "end_utc": "2016-10-06T23:24:00+00:00",
+            "move_bp": -529.4311212252168,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "block": "2016-10-06"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-06",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-07",
+            "observed_minutes": 1260,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 1,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 17.1858619140331,
+        "median_minutes_to_alarm": 14.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 17.137096774193424,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 2,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.34782608695652173,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.34782608695652173,
+        "squalls_per_day": null,
+        "days": 2.875,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2016-10-06",
+            "alarm_utc": "2016-10-06 23:08",
+            "move_ahead_pct": 17.1858619140331,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 17.137096774193424,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2016-10-06T22:54:00+00:00",
+            "first_onset_utc": "2016-10-06T22:52:00+00:00",
+            "trough_utc": "2016-10-06T23:09:00+00:00",
+            "end_utc": "2016-10-06T23:24:00+00:00",
+            "move_bp": -529.4311212252168,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "block": "2016-10-06"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-06",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "gbp-flash-2016",
+            "date": "2016-10-07",
+            "observed_minutes": 1260,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "GBPUSD": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "policy": {
+      "independent_reset_books": 1,
+      "synthetic": true,
+      "prepared_minus_unprepared_usd": 79790.68205122277,
+      "prepared": {
+        "margin_calls": 0,
+        "cuts": 1,
+        "restores": 1,
+        "fills": 2,
+        "spread_cost_usd": 6128.6786804466155,
+        "pnl_usd": 541563.0487819251,
+        "max_book_drawdown_usd": 759602.5787594127,
+        "median_book_drawdown_usd": 759602.5787594127
+      },
+      "unprepared": {
+        "margin_calls": 0,
+        "cuts": 0,
+        "restores": 0,
+        "fills": 0,
+        "spread_cost_usd": 0.0,
+        "pnl_usd": 461772.36673070234,
+        "max_book_drawdown_usd": 839393.2608106355,
+        "median_book_drawdown_usd": 839393.2608106355
+      }
+    },
+    "policy_books": [
+      {
+        "name": "gbp-flash-2016",
+        "pairs": [
+          "GBPUSD"
+        ],
+        "start": "2016-10-05 00:00:00+00:00",
+        "end": "2016-10-09 00:00:00+00:00",
+        "include_in_pooled": true,
+        "prepared": {
+          "final_equity_usd": 1541563.048781925,
+          "max_drawdown_usd": 759602.5787594127,
+          "max_drawdown_pct": 34.053622787659314,
+          "margin_calls": 0,
+          "cuts": 1,
+          "restores": 1,
+          "spread_cost_usd": 6128.6786804466155,
+          "fills": 2
+        },
+        "unprepared": {
+          "final_equity_usd": 1461772.3667307023,
+          "max_drawdown_usd": 839393.2608106355,
+          "max_drawdown_pct": 37.63070620538557,
+          "margin_calls": 0,
+          "cuts": 0,
+          "restores": 0,
+          "spread_cost_usd": 0.0,
+          "fills": 0
+        }
+      }
+    ],
+    "sensitivity": [
+      {
+        "factor": "spread_multiplier",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 79790.68205122277,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 6128.6786804466155,
+            "pnl_usd": 541563.0487819251,
+            "max_book_drawdown_usd": 759602.5787594127,
+            "median_book_drawdown_usd": 759602.5787594127
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1541563.048781925,
+              "max_drawdown_usd": 759602.5787594127,
+              "max_drawdown_pct": 34.053622787659314,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 6128.6786804466155,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 73662.00337077305,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 12257.357360893231,
+            "pnl_usd": 535434.3701014754,
+            "max_book_drawdown_usd": 765731.2574398625,
+            "median_book_drawdown_usd": 765731.2574398625
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1535434.3701014754,
+              "max_drawdown_usd": 765731.2574398625,
+              "max_drawdown_pct": 34.32837660999581,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 12257.357360893231,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 3,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 67533.32469032705,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 18386.036041339845,
+            "pnl_usd": 529305.6914210294,
+            "max_book_drawdown_usd": 771859.9361203085,
+            "median_book_drawdown_usd": 771859.9361203085
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1529305.6914210294,
+              "max_drawdown_usd": 771859.9361203085,
+              "max_drawdown_pct": 34.60313043233214,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 18386.036041339845,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 79790.68205122277,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 6128.6786804466155,
+            "pnl_usd": 541563.0487819251,
+            "max_book_drawdown_usd": 759602.5787594127,
+            "median_book_drawdown_usd": 759602.5787594127
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1541563.048781925,
+              "max_drawdown_usd": 759602.5787594127,
+              "max_drawdown_pct": 34.053622787659314,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 6128.6786804466155,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 120452.10791188851,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 3358.987353705714,
+            "pnl_usd": 582224.4746425909,
+            "max_book_drawdown_usd": 718941.152898747,
+            "median_book_drawdown_usd": 718941.152898747
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1582224.4746425909,
+              "max_drawdown_usd": 718941.152898747,
+              "max_drawdown_pct": 32.23073685100421,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 3358.987353705714,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 118094.9238040261,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 1767.8880808996723,
+            "pnl_usd": 579867.2905347284,
+            "max_book_drawdown_usd": 721298.3370066094,
+            "median_book_drawdown_usd": 721298.3370066094
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1579867.2905347284,
+              "max_drawdown_usd": 721298.3370066094,
+              "max_drawdown_pct": 32.33641139805658,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1767.8880808996723,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 53193.788034148514,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 4085.7857869644104,
+            "pnl_usd": 514966.15476485086,
+            "max_book_drawdown_usd": 786199.472776487,
+            "median_book_drawdown_usd": 786199.472776487
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1514966.1547648509,
+              "max_drawdown_usd": 786199.472776487,
+              "max_drawdown_pct": 35.2459839269014,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 4085.7857869644104,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.75,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 79790.68205122277,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 6128.6786804466155,
+            "pnl_usd": 541563.0487819251,
+            "max_book_drawdown_usd": 759602.5787594127,
+            "median_book_drawdown_usd": 759602.5787594127
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1541563.048781925,
+              "max_drawdown_usd": 759602.5787594127,
+              "max_drawdown_pct": 34.053622787659314,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 6128.6786804466155,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 1.0,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 106387.5760682933,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 8171.571573928821,
+            "pnl_usd": 568159.9427989956,
+            "max_book_drawdown_usd": 733005.6847423422,
+            "median_book_drawdown_usd": 733005.6847423422
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1568159.9427989956,
+              "max_drawdown_usd": 733005.6847423422,
+              "max_drawdown_pct": 32.8612616484174,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 8171.571573928821,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 10,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 39895.341025611386,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 3064.3393402233078,
+            "pnl_usd": 270781.52439096244,
+            "max_book_drawdown_usd": 379801.2893797064,
+            "median_book_drawdown_usd": 379801.2893797064
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 230886.18336535105,
+            "max_book_drawdown_usd": 419696.63040531776,
+            "median_book_drawdown_usd": 419696.63040531776
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1270781.5243909624,
+              "max_drawdown_usd": 379801.2893797064,
+              "max_drawdown_pct": 23.51268724416954,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 3064.3393402233078,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1230886.183365351,
+              "max_drawdown_usd": 419696.63040531776,
+              "max_drawdown_pct": 25.982522661439216,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 20,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 79790.68205122277,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 6128.6786804466155,
+            "pnl_usd": 541563.0487819251,
+            "max_book_drawdown_usd": 759602.5787594127,
+            "median_book_drawdown_usd": 759602.5787594127
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1541563.048781925,
+              "max_drawdown_usd": 759602.5787594127,
+              "max_drawdown_pct": 34.053622787659314,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 6128.6786804466155,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 30,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 119686.0230768323,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 9193.018020669922,
+            "pnl_usd": 812344.5731728857,
+            "max_book_drawdown_usd": 1139403.868139121,
+            "median_book_drawdown_usd": 1139403.868139121
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 692658.5500960534,
+            "max_book_drawdown_usd": 1259089.8912159533,
+            "median_book_drawdown_usd": 1259089.8912159533
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1812344.5731728857,
+              "max_drawdown_usd": 1139403.868139121,
+              "max_drawdown_pct": 40.036526730360734,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 9193.018020669922,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1692658.5500960534,
+              "max_drawdown_usd": 1259089.8912159533,
+              "max_drawdown_pct": 44.24207034501615,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.7,
+        "status": "invalid",
+        "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.8,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 79790.68205122277,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 6128.6786804466155,
+            "pnl_usd": 541563.0487819251,
+            "max_book_drawdown_usd": 759602.5787594127,
+            "median_book_drawdown_usd": 759602.5787594127
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1541563.048781925,
+              "max_drawdown_usd": 759602.5787594127,
+              "max_drawdown_pct": 34.053622787659314,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 6128.6786804466155,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.9,
+        "status": "evaluated",
+        "detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 0.0,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": 461772.36673070234,
+            "max_book_drawdown_usd": 839393.2608106355,
+            "median_book_drawdown_usd": 839393.2608106355
+          }
+        },
+        "books": [
+          {
+            "name": "gbp-flash-2016",
+            "pairs": [
+              "GBPUSD"
+            ],
+            "start": "2016-10-05 00:00:00+00:00",
+            "end": "2016-10-09 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            },
+            "unprepared": {
+              "final_equity_usd": 1461772.3667307023,
+              "max_drawdown_usd": 839393.2608106355,
+              "max_drawdown_pct": 37.63070620538557,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 1,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 1.0,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 17.1858619140331,
+          "median_minutes_to_alarm": 14.0,
+          "median_share_ahead_pct_first_onset": 17.137096774193424,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 2.875,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      }
+    ],
+    "oracle_checks": [
+      {
+        "book": "gbp-flash-2016",
+        "checked_trials": [
+          0,
+          1,
+          501,
+          1001
+        ],
+        "rtol": 1e-09,
+        "atol_usd": 1e-05,
+        "passed": true
+      }
+    ],
+    "elapsed_seconds": 0.24208625000028405
+  }
+}
