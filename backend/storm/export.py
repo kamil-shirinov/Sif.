@@ -7,9 +7,16 @@
 Runs ingest first if data/processed is missing, then features -> labels (rewrites
 storms.csv) -> detector v1 (data/processed/detector_config.json) -> policy v1 ships ->
 bundles. --all writes one bundle per storm in storms.csv, each from 3 hours before onset
-to 3 hours after (trimmed to the bars that exist), and an index.json listing exactly
+to 3 hours after (trimmed to the bars that exist; see the next paragraph), and an index.json listing exactly
 those bundles plus any Yahoo equity bundle already in the folder (storm.equity), whose
 report is rewritten by the same writer. Times are UTC; the window is inclusive.
+
+No replay opens inside an alarm. If a danger alarm raised before the 3-hour window is still in
+force at its first bar, the policy would already have cut there, so the window starts 10
+minutes before that alarm instead (storm_window, exposure.cut_since): the replay shows the
+alarm, the cut and the restore at the all-clear, and both ships start at full size on calm
+water. build_bundle refuses a window (for instance one set with --from) that opens inside an
+alarm.
 
 Each bundle's ship trades the storm's pair: a SYNTHETIC book long USD 20,000,000 against
 the pair's other currency (short EUR for EURUSD), $1,000,000 equity, 2.5% maintenance.
@@ -66,8 +73,8 @@ from .ai.report import facts_from_bundle, write_report
 from .backtest import index_metrics, provenance, provenance_mismatches
 from .detector import load_calendar, load_config, run_detector
 from .evaluate import alarm_matches, link_alarm, move_ahead_pct, per_storm_row
-from .exposure import (Quotes, book_for, exposure_snapshot, leg_exposure, policy_actions, ships,
-                       stress_menu)
+from .exposure import (Quotes, book_for, cut_since, exposure_snapshot, leg_exposure, policy_actions,
+                       ships, stress_menu)
 from .features import PAIRS, build_features
 from .labels import label_all, print_storms, write_storms
 from .paths import BUNDLES_DIR, CALENDAR_CSV, PROCESSED_DIR, RAW_DIR
@@ -77,6 +84,7 @@ STEP_S = 60
 MAX_FILL_MINUTES = 5          # a longer hole inside the window is an error, not a fill
 WINDOW_BEFORE = pd.Timedelta(hours=3)
 WINDOW_AFTER = pd.Timedelta(hours=3)
+WINDOW_LEAD = pd.Timedelta(minutes=10)   # calm minutes shown before an earlier alarm the window must include
 SHIP_LABELS = {"prepared": "Followed the alarm", "unprepared": "Ignored it"}
 EVENT_ORDER = {t: k for k, t in enumerate(
     ["watch", "squall", "alarm", "fair_wind", "cut", "margin_call", "all_clear", "restore"])}
@@ -141,11 +149,27 @@ def _grid(feat: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp,
     return g, int(hole.sum()), (~missing).to_numpy()
 
 
-def default_window(feat: pd.DataFrame, storm) -> tuple[pd.Timestamp, pd.Timestamp]:
-    """onset - 3 h .. onset + 3 h, trimmed to the first and last bars inside it."""
+def default_window(feat: pd.DataFrame, storm, events: list[dict] | None = None
+                   ) -> tuple[pd.Timestamp, pd.Timestamp]:
+    """onset - 3 h .. onset + 3 h, trimmed to the first and last bars inside it.
+
+    Given the detector's `events`, the start moves earlier until the replay no longer opens
+    inside a danger alarm raised before it (exposure.cut_since): the window then begins
+    WINDOW_LEAD before that alarm, so the replay shows the alarm, the cut and the restore at
+    the all-clear, and both ships start at full size on calm water."""
     lo, hi = storm.onset_utc - WINDOW_BEFORE, storm.onset_utc + WINDOW_AFTER
     bars = feat.index[(feat.index >= lo) & (feat.index <= hi)]
-    return bars[0], bars[-1]
+    start, end = bars[0], bars[-1]
+    while events is not None and (since := cut_since(events, start)) is not None:
+        start = feat.index[feat.index >= since - WINDOW_LEAD][0]
+    return start, end
+
+
+def storm_window(ctx: Context, storm) -> tuple[pd.Timestamp, pd.Timestamp]:
+    """The storm's replay window: default_window, widened by the detector's events (above)."""
+    feat = ctx.feats[storm.pair]
+    res = run_detector(feat, ctx.calendar, ctx.cfg, exposure=leg_exposure(storm.pair))
+    return default_window(feat, storm, res.events)
 
 
 def _label(move_bp: float, minutes: int) -> str:
@@ -210,6 +234,10 @@ def build_bundle(ctx: Context, storm, start: pd.Timestamp, end: pd.Timestamp) ->
     if scheduled and not 0 <= event_i < n:
         raise ValueError(f"{storm.storm_id}: scheduled event outside the window")
 
+    if (since := cut_since(res.events, idx[0])) is not None:
+        raise ValueError(f"{storm.storm_id}: the window starts at {idx[0]:%Y-%m-%d %H:%M} UTC inside the danger "
+                         f"alarm raised at {since:%Y-%m-%d %H:%M} UTC; the prepared ship would hold cargo the "
+                         "policy cut. Start before the alarm (export.default_window does)")
     win = _visible_events([e for e in res.events if idx[0] <= e["time"] <= idx[-1]], g["state"], frame_of)
     mid = g["mid"].to_numpy(dtype=float)
     quotes = Quotes.from_frame(g, traded)
@@ -400,6 +428,12 @@ def report_facts(bundle: dict) -> dict:
     and, for a market with closed hours, trading minutes instead of clock minutes."""
     facts = facts_from_bundle(bundle)
     st = bundle["storm"]
+    if st.get("alarm_i") is not None:
+        # An earlier alarm in the window (an earlier move's, linked to no storm) is not this
+        # storm's warning: the report states the timing of the alarm the evaluator links.
+        first = (st["alarm_i"] - st["onset_i"]) * bundle["step_s"] / 60
+        facts["alarm_events"] = [e for e in facts["alarm_events"]
+                                 if e["type"] != "alarm" or e["minutes_from_onset"] >= first]
     hours = market_hours_facts(bundle)
     if hours is not None:
         facts["storm"]["duration_minutes"] = hours["trading_minutes"]
@@ -504,7 +538,7 @@ def export_all(ctx: Context, out_dir: Path, metrics: dict | None, live: bool = F
                model: str | None = None, provider: str = "meta") -> tuple[list[Path], Path, list[dict]]:
     written, summaries = [], []
     for st in ctx.storms.itertuples():
-        start, end = default_window(ctx.feats[st.pair], st)
+        start, end = storm_window(ctx, st)
         bundle, s = build_bundle(ctx, st, start, end)
         r = attach_report(bundle, live, model, provider)
         path = write_bundle(bundle, out_dir)
@@ -623,7 +657,7 @@ def main(argv: list[str] | None = None) -> None:
     if rows.empty:
         raise SystemExit(f"{args.storm} is not in storms.csv")
     st = next(rows.itertuples())
-    start, end = default_window(ctx.feats[st.pair], st)
+    start, end = storm_window(ctx, st)
     if args.start:
         start = pd.Timestamp(args.start, tz="UTC")
     if args.end:

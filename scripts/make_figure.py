@@ -51,10 +51,17 @@ def main() -> None:
     x = [frame_time(b, i) for i in range(b["n"])]
     onset_i, trough_i = st["onset_i"], st["trough_i"]
 
-    alarm = first(ev, "alarm")["i"]
-    cut = first(ev, "cut")["i"]
+    # The storm's own alarm is the one the evaluator links (storm.alarm_i); any alarm before it,
+    # a replay can now open on, belongs to an earlier move and is drawn as a band, not a mark.
+    alarm = st["alarm_i"] if st.get("alarm_i") is not None else first(ev, "alarm")["i"]
+    cut = min(e["i"] for e in ev if e["type"] == "cut" and e["i"] > alarm)
+    earlier = []
+    for a in (e["i"] for e in ev if e["type"] == "alarm" and e["i"] < alarm):
+        end = min((e["i"] for e in ev if e["type"] == "all_clear" and e["i"] > a), default=None)
+        if end is not None and end < alarm and not (earlier and earlier[-1][1] >= a):
+            earlier.append((a, end))
     margin = first(ev, "margin_call", ship="unprepared")["i"]
-    clear = max(e["i"] for e in ev if e["type"] == "all_clear")  # the all-clear after the storm
+    clear = min(e["i"] for e in ev if e["type"] == "all_clear" and e["i"] > alarm)  # the storm's all-clear
     if not (alarm < cut < margin < clear):
         raise SystemExit("events are not in the expected order")
 
@@ -70,6 +77,8 @@ def main() -> None:
         for side in ("top", "right"):
             ax.spines[side].set_visible(False)
         ax.axvspan(x[onset_i], x[trough_i], color="#efeeea", zorder=0, lw=0)  # onset to trough
+        for a, end in earlier:                                                 # an earlier alarm's span
+            ax.axvspan(x[a], x[end], color="#f6e7d8", zorder=0, lw=0)
 
     # Price
     ax1.plot(x, s["mid"], color=INK, linewidth=1.6)
@@ -87,14 +96,14 @@ def main() -> None:
     ax2.set_xlim(x[0], x[-1] + (x[-1] - x[0]) * 0.17)  # room for the direct labels
     ax2.text(x[-1], pe[-1], f"  followed the alarm\n  ${pe[-1]:,.0f}", color=INK, va="center", fontsize=10)
     ax2.text(x[-1], ue[-1], f"  ignored it\n  ${ue[-1]:,.0f}", color=INK, va="center", fontsize=10)
-    ax2.text(0.015, 0.06, "the two ships are identical until the cut", transform=ax2.transAxes, color=INK2, fontsize=9.5)
+    ax2.text(0.015, 0.06, "the two ships are identical until the first cut", transform=ax2.transAxes, color=INK2, fontsize=9.5)
     for xy, c in ((pe[-1], PREPARED), (ue[-1], UNPREPARED)):
         ax2.plot([x[-1]], [xy], marker="o", markersize=7, color=c, markeredgecolor=SURFACE, markeredgewidth=1.5)
 
     # Marks: alarm and cut are one minute apart, so one label leans left and the other right
     marks = [
         (alarm, "alarm", "right"),
-        (cut, "cut fills", "left"),
+        (cut, "cut", "left"),
         (margin, "margin call", "left"),
         (clear, "all-clear", "left"),
     ]
@@ -106,6 +115,9 @@ def main() -> None:
         text = "\n".join((gap + t) if ha == "left" else (t + gap) for t in lines)
         ax1.text(x[i], 1.015, text, transform=ax1.get_xaxis_transform(), ha=ha, va="bottom",
                  color=INK, fontsize=9.5, linespacing=1.15)
+    for a, end in earlier:
+        ax1.text(x[a], 0.04, f"  earlier alarm {x[a]:%H:%M} to {x[end]:%H:%M}\n  (the prepared ship cut, then restored)",
+                 transform=ax1.get_xaxis_transform(), ha="left", va="bottom", color=INK2, fontsize=9)
     # The storm's facts, in the empty right-hand part of the price panel
     ax1.text(0.985, 0.93, f"storm {st['label']}\nonset {x[onset_i]:%H:%M}, trough {x[trough_i]:%H:%M}",
              transform=ax1.transAxes, ha="right", va="top", color=INK2, fontsize=10, linespacing=1.3)

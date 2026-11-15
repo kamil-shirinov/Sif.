@@ -5,7 +5,7 @@ Read this first in every session. Kamil keeps it short and updates it after each
 ## What we're building
 A storm defence for FX traders, shown as a live 3D sea. One flow: replay a real storm from SGX's data; the sea and sky turn; the alarm fires; two ships (one followed the alarm, one ignored it) show what the warning saved; a short storm report whose every number is checked by code.
 
-Honest framing, from SGX's data: storms arrive with no warning in prices. So we (1) warn ahead for scheduled events from a calendar, (2) raise the alarm in the first minutes of unscheduled ones, (3) prepare the book with exposure and stress tests. Never claim to predict prices.
+Honest framing, from SGX's data: we found little advance warning in prices. So we (1) warn ahead for scheduled events from a calendar, (2) raise the alarm in the first minutes of unscheduled ones, (3) prepare the book with exposure and stress tests. Never claim to predict prices.
 
 ## Layout and ownership
 No lane edits another lane's files. Shared files change only through Kamil.

@@ -372,26 +372,29 @@ episode is still open at the onset, so the matcher credits it.
 - `move_ahead_pct = (162.261 - 158.054) / (162.7805 - 158.054) * 100 = 4.207 / 4.7265 * 100 = 89.0`.
 - 89.0 >= 50, so the storm is **caught**. This is July, so the result is in-sample for the alarm.
 
-**Ships.** The replay runs from 10:29 to 16:29 (onset ± 3 h). Both books start at 10:29's
-close mid, 162.8335.
+**Ships.** The replay runs from 10:08 to 16:29. Its default window is onset ± 3 h, 10:29 to
+16:29, but a replay may not open inside a danger alarm: the 10:18 alarm is still in force
+at 10:29, so the window starts 10 minutes before that alarm instead (`export.storm_window`).
+Both books start at 10:08's close mid, 163.2685.
 
-- **Prepared ship.** The alarm is read at the 13:37 close (162.261). The cut fills at the
-  **13:38 open bid, 162.263**: it sells 15,000,000 USD, against a mid of 162.2645, a cost
-  of $139. The all-clear comes at 15:03. The restore fills at the **15:04 open ask,
-  159.379**: it buys 15,000,000 USD, against a mid of 159.3765, a cost of $235. The ship
-  ends at **$843,814**.
+- **Prepared ship.** The 10:18 alarm is read at its close; the cut fills at the **10:19 open
+  bid, 162.734**: it sells 15,000,000 USD, against a mid of 162.736, a cost of $184. The
+  all-clear comes at 11:44 and the restore fills at the **11:45 open ask, 163.014**, a cost of
+  $92. The 13:37 alarm is read at the 13:37 close (162.261); its cut fills at the **13:38
+  open bid, 162.263**, a cost of $139. The all-clear comes at 15:03 and the restore fills at
+  the **15:04 open ask, 159.379**, a cost of $235. The ship ends at **$762,899**.
 - **Unprepared ship.** It holds. `gross` stays at $20,000,000, so maintenance is $500,000.
-  Equity at mid is `21,000,000 - 20,000,000 * 162.8335 / mid`:
-  - At the 14:15 close, mid 158.878 gives equity $502,071, which is at least $500,000.
-  - At the 14:16 open, mid 158.878 gives the same: no breach.
-  - At the 14:16 close, mid 158.643 gives equity $471,707, which is below $500,000. That is
-    the **margin call**. The position sells at the 14:16 close bid, 158.642, and equity
-    stays at **$471,581**.
+  Equity at mid is `21,000,000 - 20,000,000 * 163.2685 / mid`:
+  - At the 14:04 close, mid 159.37 gives equity $510,761, which is at least $500,000.
+  - At the 14:05 open, mid 159.371 gives about the same: no breach.
+  - At the 14:05 close, mid 159.2445 gives equity $494,614, which is below $500,000. That is
+    the **margin call**. The position sells at the 14:05 close bid, 159.244, and equity
+    stays at **$494,551**.
 
-The prepared ship ends **$372,233** ahead.
+The prepared ship ends **$268,348** ahead.
 
 The stress menu has 6 rows: the 2 Jul and 14 Jul storms, whose troughs came before the
-13:28 snapshot, and the 10:02 drop of this same morning (-42 bp, P&L -$83,535), which,
+13:28 snapshot, and the 10:02 drop of this same morning (-42 bp, P&L -$83,758), which,
 labelled on the bars up to 13:28, is a storm that had already ended. A row for the main
 13:29 fall would use the future, so it is not in the menu.
 

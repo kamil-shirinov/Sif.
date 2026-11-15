@@ -2,7 +2,7 @@
 
 **A storm defence for FX traders, shown as a live 3D sea.** StormScore replays a real storm from SGX's one-minute FX data: the sea and sky turn, an alarm fires, and two ships (one followed the alarm, one ignored it) show what the warning saved, followed by a short storm report whose every number is checked by code. It is built for SGX FX's **Challenge 1, "Cloudy with a chance of margin calls"**: warn a trader before leverage turns a fast move into a margin call. It also answers **Challenge 2, "Every trader needs to start somewhere"**: *Survive the storm* is a game where a beginner picks a leverage and sails the same storm, and learns where the margin-call line sits.
 
-![USDJPY on 30 July 2026: price on top, the two ships' equity below, with the alarm, the cut fill, the margin call and the all-clear marked](docs/img/usdjpy-2026-07-30.png)
+![USDJPY on 30 July 2026: price on top, the two ships' equity below, with the alarm, the cut, the margin call and the all-clear marked, and the earlier false alarm shaded](docs/img/usdjpy-2026-07-30.png)
 
 ## What the data showed
 
@@ -92,16 +92,16 @@ The defence costs spread and shows up as a shallower drawdown, not as a margin c
 
 ### The 30 July case (July: the tuning month, so in-sample)
 
-USDJPY fell 2.9% in 54 minutes (13:29 to 14:23 UTC) with no scheduled release nearby (the FOMC decision was 19 hours earlier). The alarm fired at 13:37, 8 minutes after onset, with 89.0% of the move still ahead. The prepared ship's cut filled at the 13:38 open bid, 162.263, and its restore at the 15:04 open ask, 159.379. The ship that ignored the alarm was closed out at 14:16.
+USDJPY fell 2.9% in 54 minutes (13:29 to 14:23 UTC) with no scheduled release nearby (the FOMC decision was 19 hours earlier). The alarm fired at 13:37, 8 minutes after onset, with 89.0% of the move still ahead. The prepared ship's cut filled at the 13:38 open bid, 162.263, and its restore at the 15:04 open ask, 159.379. The ship that ignored the alarm was closed out at 14:05.
 
 | | Final equity | |
 |---|---|---|
-| Followed the alarm | $843,814 | lost $156,186, not zero: a defence, not a profit |
-| Ignored it | $471,581 | margin call at 14:16 |
+| Followed the alarm | $762,899 | lost $237,101, not zero: a defence, not a profit |
+| Ignored it | $494,551 | margin call at 14:05 |
 
-**The earlier move, and why the alarm is +8 minutes from onset but +215 from first onset.** The storm label joins triggering windows 6 hours or less apart, so this storm's `first_onset` is 10:02, three and a half hours before the main fall. From 10:02 USDJPY dropped 0.4% in 15 minutes (163.27 to 162.59 at 10:17; the window's 41.6 bp crossed the 30 bp storm threshold), then steadied. The detector did raise its storm alarm for that drop, at 10:18, and gave the all-clear at 11:44 after 20 calm minutes. That alarm had already cleared when the main fall began at 13:29, so it is not credited to this storm, and July's scoring counts it as a false alarm. The 13:37 alarm is the one that caught the fall: 8 minutes after the onset with 89.0% of the move still ahead, or 215 minutes after the first onset with 80.6% ahead measured from there. The replay starts at 10:29 (onset minus 3 hours), so it opens in storm state from the 10:18 alarm and shows the 11:44 all-clear; both ships start there at full size, and the bundle's `storm.first_onset_i` is -27, before its first frame.
+**The earlier move, and why the alarm is +8 minutes from onset but +215 from first onset.** The storm label joins triggering windows 6 hours or less apart, so this storm's `first_onset` is 10:02, three and a half hours before the main fall. From 10:02 USDJPY dropped 0.4% in 15 minutes (163.27 to 162.59 at 10:17; the window's 41.6 bp crossed the 30 bp storm threshold), then steadied. The detector did raise its storm alarm for that drop, at 10:18, and gave the all-clear at 11:44 after 20 calm minutes. That alarm had already cleared when the main fall began at 13:29, so it is not credited to this storm, and July's scoring counts it as a false alarm. The 13:37 alarm is the one that caught the fall: 8 minutes after the onset with 89.0% of the move still ahead, or 215 minutes after the first onset with 80.6% ahead measured from there. The replay therefore starts at 10:08, ten minutes before that alarm, instead of at onset minus 3 hours (10:29): a replay that opened at 10:29 would have opened inside the alarm, in storm state, with the prepared ship still at full size when the policy had already cut. No replay may open inside an alarm, so the window widens until it does not. Both ships start at full size at 10:08 (mid 163.2685), the prepared ship cuts 75% at the 10:19 open bid, 162.734, and restores at the 11:45 open ask, 163.014, then cuts again at 13:38. The bundle's `storm.first_onset_i` is -6, still before its first frame.
 
-The prepared ship ended $372,233 ahead. The figure above is drawn by `scripts/make_figure.py` from the bundle; the minute-by-minute working is in [docs/metrics.md](docs/metrics.md) section 9.
+The prepared ship ended $268,348 ahead. The figure above is drawn by `scripts/make_figure.py` from the bundle; the minute-by-minute working is in [docs/metrics.md](docs/metrics.md) section 9.
 
 ## The replay
 
