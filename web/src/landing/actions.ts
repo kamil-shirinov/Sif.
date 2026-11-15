@@ -1,39 +1,148 @@
 // What the landing's buttons and the presenter keys do to the running app. The canvas, the audio engine and the camera
-// stay; only the overlay, the mode and the loaded storm change.
+// stay; only the overlay, the mode and the loaded storm change. Between the landing page and the replay the change is
+// one piece of motion (transition.ts), never a cut.
 
 import { useApp, type Mode } from "../state/app";
 import { useTimeline } from "../state/timeline";
 import { applyBundle, HEADLINE_STORM_ID, openStorm } from "../lib/session";
+import { BundleError, loadBundle } from "../lib/loadBundle";
 import { setLandingUrl } from "./route";
 import { NVDA_STORM_ID } from "./facts";
+import { runClosing, runOpening, settleFrames, useTransition } from "./transition";
 
 const AUTOPLAY_MS = 700;
+const busy = () => useTransition.getState().phase !== "idle";
+let opening = 0; // a newer open (a second key press while a storm loads) wins
 
-/** Back to the landing page: the replay rewinds to its calm first minute and waits, paused, in replay mode. */
+/**
+ * Back to the landing page: the HUD leaves, the camera flies back to the wide shot while the replay rewinds to its calm
+ * first minute, and the text rises in. The replay waits there, paused, in replay mode.
+ */
 export function showLanding() {
   const app = useApp.getState();
-  if (app.landing) return;
+  if (app.landing || busy()) return;
+  opening++;
   useTimeline.getState().pause();
-  if (app.mode !== "replay") app.setMode("replay");
-  if (app.bundle) applyBundle(app.bundle, { autoplayMs: null });
-  useApp.getState().setLanding(true);
-  document.title = "StormScore";
-  setLandingUrl({ storm: null, mode: null });
+  void runClosing(
+    () => {
+      useApp.getState().setLanding(true);
+      document.title = "StormScore";
+      setLandingUrl({ storm: null, mode: null });
+    },
+    (ms) => {
+      // Replay mode: rewind alongside the flight, so the sea calms as the camera pulls back. (Survive's ship is the
+      // player's: it is swapped for the two demo ships once the page covers the scene, below.)
+      if (useApp.getState().mode === "replay") rewind(ms * 0.92);
+    },
+    () => {
+      const st = useApp.getState();
+      if (st.mode !== "replay") {
+        st.setMode("replay");
+        if (st.bundle) applyBundle(st.bundle, { autoplayMs: null });
+      } else {
+        useTimeline.getState().seek(0);
+      }
+    },
+  );
 }
 
-/** Close the overlay over whatever is loaded, paused where it is. */
+/** Run the playhead back to frame 0 over `ms`, eased: the sea, sky and ships calm down as time runs backwards. */
+function rewind(ms: number) {
+  const tl = useTimeline.getState();
+  const from = tl.t;
+  if (from <= 0 || ms <= 1) {
+    tl.seek(0);
+    return;
+  }
+  const start = performance.now();
+  const seq = useTransition.getState().seq;
+  const step = (now: number) => {
+    if (useTransition.getState().seq !== seq) return;
+    const u = Math.min(1, (now - start) / ms);
+    const e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+    useTimeline.getState().seek(from * (1 - e));
+    if (u < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/** Close the overlay over whatever is loaded, paused where it is (Esc, "Open the replay"). */
 export function closeLanding() {
   const app = useApp.getState();
-  if (!app.landing) return;
-  app.setLanding(false);
-  if (app.bundle) document.title = `StormScore · ${app.bundle.title}`;
-  if (app.baseStormId) setLandingUrl({ storm: app.baseStormId });
+  if (!app.landing || busy()) return;
+  opening++;
+  void runOpening(enterReplay, () => {});
 }
 
-/** Open a storm in a mode. A storm already loaded restarts from calm water instead of being fetched again. */
-export function openFromLanding(id: string, mode: Mode = "replay") {
+function enterReplay() {
   const app = useApp.getState();
   app.setLanding(false);
+  if (app.bundle) document.title = `StormScore · ${app.bundle.title}`;
+  setLandingUrl({ storm: app.baseStormId ?? app.bundle?.storm_id ?? null, mode: app.mode === "survive" ? "survive" : null });
+}
+
+/**
+ * Open a storm in a mode. From the landing page: the storm and mode are made ready behind the page (fetched if it is
+ * not the one loaded), then the page gives way to the replay in one move, and a replay starts playing when the camera
+ * settles. A storm already loaded restarts from calm water instead of being fetched again.
+ * From the replay itself (1, 2, 3 pressed there) the switch is in place, as before: the camera is already home.
+ */
+export function openFromLanding(id: string, mode: Mode = "replay") {
+  const app = useApp.getState();
+  if (busy()) return;
+  if (!app.landing) {
+    switchInPlace(id, mode);
+    return;
+  }
+  const token = ++opening;
+  void (async () => {
+    const changed = await prepare(id, mode);
+    if (token !== opening || changed === null) return;
+    // A rebuilt scene (new storm, new mode) is drawn once offscreen first: start the flight on steady frames.
+    if (changed) await settleFrames(5);
+    if (token !== opening) return;
+    await runOpening(enterReplay, () => {
+      if (useApp.getState().mode === "replay" && !useApp.getState().landing) useTimeline.getState().play();
+    });
+  })();
+}
+
+/**
+ * Behind the landing page: load the storm and set the mode, paused at calm water. Returns whether the scene was rebuilt
+ * (so the caller lets it settle), or null when loading failed (the page stays, with the reason in the console and the
+ * picker's error line).
+ */
+async function prepare(id: string, mode: Mode): Promise<boolean | null> {
+  const app = useApp.getState();
+  useTimeline.getState().pause();
+  const loaded = app.bundle !== null && app.bundle.storm_id === id && app.bundle.source !== "scenario";
+  let changed = false;
+  if (app.mode !== mode) {
+    app.setMode(mode);
+    changed = true;
+  }
+  if (!loaded) {
+    try {
+      const file = app.index?.storms.find((s) => s.storm_id === id)?.file;
+      const b = await loadBundle(id, file);
+      applyBundle(b, { autoplayMs: null });
+      useApp.getState().setBaseStormId(b.storm_id);
+      return true;
+    } catch (e) {
+      const why = e instanceof BundleError ? e.message : String(e);
+      console.warn(`Could not open ${id}: ${why}`);
+      useApp.getState().setLoadError(`Could not open ${id}: ${why}`);
+      return null;
+    }
+  }
+  if (changed) applyBundle(app.bundle!, { autoplayMs: null });
+  else useTimeline.getState().seek(0);
+  return changed;
+}
+
+/** 1, 2, 3 pressed in the replay: load and switch where the camera is (no landing page to leave). */
+function switchInPlace(id: string, mode: Mode) {
+  const app = useApp.getState();
   setLandingUrl({ mode: mode === "survive" ? "survive" : null });
   const file = app.index?.storms.find((s) => s.storm_id === id)?.file;
   const loaded = app.bundle !== null && app.bundle.storm_id === id && app.bundle.source !== "scenario";

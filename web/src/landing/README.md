@@ -20,7 +20,7 @@ The app's opening screen, for presenting StormScore to judges live. It opens whe
 
 | Key | Does |
 |---|---|
-| L | Back to the landing page from anywhere: replay mode, the loaded storm rewound to calm and paused, `?storm`/`?mode` dropped from the URL |
+| L | Back to the landing page from anywhere, as one move (below): replay mode, the loaded storm rewound to calm and paused, `?storm`/`?mode` dropped from the URL |
 | 1 | Opens 30 July (`usdjpy-2026-07-30`), auto-playing |
 | 2 | Opens Survive on 30 July (or on the loaded storm when the index does not list 30 July) |
 | 3 | Opens NVDA (`nvda-2026-11-12`) |
@@ -39,11 +39,25 @@ landing/
   actions.ts           showLanding, closeLanding, openFromLanding, openSurvive, openHeadline, openNvda
   useLandingData.ts    fetches index.json and the headline bundle
   route.ts             landingFromUrl, setLandingUrl
+  transition.ts        the landing <-> replay move: phase store, runOpening, runClosing
+  transition.css       its fades, slides and the HUD's staggered arrival
   landing.test.mjs     tests (fixtures/ holds a synthetic index.json and bundle)
 ../landing.css         styles: the HUD's fonts and colour tokens, sized from the viewport
 ```
 
 There are two hooks outside this folder. `state/app.ts` has `landing` and `setLanding`, initialised from the URL. `App.tsx` renders `<Landing />` instead of the HUD overlay while `landing` is true, skips the cold-open autoplay, and calls `usePresenterKeys()`.
+
+## Landing to replay, and back
+
+One move, never a cut (`transition.ts`, `transition.css`, the camera in `../scene/cameraDirector.ts` and `../scene/CameraRig.tsx`):
+
+- **Opening** (Watch, Survive, a storm in "Other storms", Open the replay, 1, 2, 3, Esc). The storm and mode are made ready behind the page first: a storm that is not loaded is fetched, a mode switch rebuilds the ships, and the scene gets five frames to settle (its warm-up draw). Then, together: the text accelerates away to the left (650 ms), the scrim lifts (1.1 s), the camera flies from the page's wide shot to the replay's view (1.5 s, cubic ease in and out, on an arc), and the HUD panels arrive one after another (from 620 ms, 90 ms apart: left column, chart, right column, playback bar; inside a column, top to bottom). A replay starts playing when the camera settles; Survive and Esc stay paused.
+- **Closing** (L). The panels leave in reverse (380 ms), the camera flies back to the wide shot while the replay rewinds to its calm first minute (eased, alongside the flight), and the text rises in again. Survive's ship is swapped for the two demo ships at the end, under the page.
+- The landing page holds its wide shot with a slow sway (46 s period, a few degrees) instead of the replay's idle orbit, so the ships stay in the open right-hand part of the screen.
+- The HUD stays mounted, hidden and inert, under the page: opening only starts its arrival (mounting it then cost a 60 ms frame).
+- No reload, no URL navigation: the address bar follows with `replaceState`.
+- Under `prefers-reduced-motion` there is no flight, and the fades are 160 ms.
+- 1, 2 and 3 pressed in the replay itself switch in place, as before (there is no page to leave).
 
 ## Design
 

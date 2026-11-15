@@ -24,6 +24,7 @@ import { ReportPanel } from "./ui/ReportPanel";
 import { NavigatorPanel } from "./ui/NavigatorPanel";
 import { Landing } from "./landing/Landing";
 import { usePresenterKeys } from "./landing/usePresenterKeys";
+import { useTransition } from "./landing/transition";
 
 const StormScene = lazy(() => import("./scene/Scene").then((m) => ({ default: m.StormScene })));
 
@@ -65,6 +66,13 @@ export function App() {
   const mode = useApp((s) => s.mode);
   const sunkAnnounced = useSurvive((s) => s.phase === "sailing" && s.sunkAnnounced);
   const landing = useApp((s) => s.landing);
+  // Landing <-> replay is one move (landing/transition.ts): while it runs, the page and the HUD are both mounted, one
+  // leaving and the other arriving.
+  const phase = useTransition((s) => s.phase);
+  const showLandingPage = landing || phase === "opening";
+  // The HUD stays mounted under the landing page (hidden and inert), so opening the replay only starts its arrival:
+  // mounting it then (the chart, the panels) cost a 60 ms frame at take-off.
+  const hudClass = phase === "opening" ? "hud-arrive" : phase === "closing" ? "hud-leave" : landing ? "hud-hidden" : "";
 
   // Start: read index.json and ask the server for its health (both optional), then load the storm
   // named by ?storm=, else the largest move in the index, else mock_storm.
@@ -211,10 +219,9 @@ export function App() {
       ) : (
         <div className="no-webgl-note">3D view unavailable (WebGL failed). Showing the market chart and HUD.</div>
       )}
-      {landing ? (
-        <Landing />
-      ) : (
-      <div className="overlay">
+      {showLandingPage && <Landing motion={phase === "opening" ? "leave" : phase === "closing" ? "enter" : null} />}
+      {(
+      <div className={`overlay ${hudClass}`} inert={hudClass === "hud-hidden"} aria-hidden={hudClass === "hud-hidden" || undefined}>
         {webglOk && <ShipLabels bundle={bundle} derived={derived} />}
         {webglOk && <FrontLabels bundle={bundle} derived={derived} />}
         <div className="stack stack-left">
