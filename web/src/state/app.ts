@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Bundle, BundleEventType, StormIndex } from "../types/bundle";
 import type { Derived } from "../lib/derive";
 import { landingFromUrl } from "../landing/route";
+import { dropToastQ, emptyToasts, pushToastQ, tickToastQ, type ToastQueueState } from "../ui/toastQueue";
 
 export interface Toast {
   id: number;
@@ -66,7 +67,9 @@ export interface AppState {
   soundOn: boolean;
   audioStarted: boolean;
   webglOk: boolean;
+  /** Toasts on screen (at most two, oldest first); the throttle's state is `toastQ` (ui/toastQueue.ts). */
   toasts: Toast[];
+  toastQ: ToastQueueState<Toast>;
   /** index.json: null while loading or when it is missing. */
   index: StormIndex | null;
   /** The storm the picker is loading, if any. */
@@ -96,6 +99,8 @@ export interface AppState {
   setLive(live: LiveCandles | null, status: LiveStatus): void;
   pushToast(t: Omit<Toast, "id">): void;
   dropToast(id: number): void;
+  /** Show waiting toasts whose turn has come (Toasts.tsx calls it while any wait). */
+  tickToasts(): void;
   clearToasts(): void;
 }
 
@@ -112,7 +117,11 @@ function initialLowQuality(): boolean {
   }
 }
 
-export const useApp = create<AppState>((set, get) => ({
+export const useApp = create<AppState>((set, get) => {
+  const setToastQ = (toastQ: ToastQueueState<Toast>) => {
+    if (toastQ !== get().toastQ) set({ toastQ, toasts: toastQ.visible.map((v) => v.toast) });
+  };
+  return {
   mode: "replay",
   landing: landingFromUrl(),
   bundle: null,
@@ -124,6 +133,7 @@ export const useApp = create<AppState>((set, get) => ({
   audioStarted: false,
   webglOk: true,
   toasts: [],
+  toastQ: emptyToasts<Toast>(),
   index: null,
   loadingStorm: null,
   loadError: null,
@@ -135,7 +145,7 @@ export const useApp = create<AppState>((set, get) => ({
   setLanding: (landing) => set({ landing }),
   setDerived: (derived) => set({ derived }),
   setBundle: (bundle, derived) =>
-    set({ bundle, derived, error: null, bundleSeq: get().bundleSeq + 1, toasts: [], live: null, liveStatus: "idle", loadError: null }),
+    set({ bundle, derived, error: null, bundleSeq: get().bundleSeq + 1, toasts: [], toastQ: emptyToasts<Toast>(), live: null, liveStatus: "idle", loadError: null }),
   setError: (error) => set({ error }),
   setLowQuality: (lowQuality) => {
     try {
@@ -154,10 +164,9 @@ export const useApp = create<AppState>((set, get) => ({
   setBaseStormId: (baseStormId) => set({ baseStormId }),
   setHealth: (health) => set({ health }),
   setLive: (live, liveStatus) => set({ live, liveStatus }),
-  pushToast: (t) => {
-    const toast: Toast = { ...t, id: toastId++ };
-    set({ toasts: [...get().toasts.slice(-3), toast] });
-  },
-  dropToast: (id) => set({ toasts: get().toasts.filter((t) => t.id !== id) }),
-  clearToasts: () => set({ toasts: [] }),
-}));
+  pushToast: (t) => setToastQ(pushToastQ(get().toastQ, { ...t, id: toastId++ }, Date.now())),
+  dropToast: (id) => setToastQ(dropToastQ(get().toastQ, id, Date.now())),
+  tickToasts: () => setToastQ(tickToastQ(get().toastQ, Date.now())),
+  clearToasts: () => setToastQ(emptyToasts<Toast>()),
+};
+});

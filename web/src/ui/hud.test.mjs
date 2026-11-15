@@ -215,5 +215,51 @@ test("chart: both ships margin-called on the same minute get unique keys and one
   for (const m of chart.chartMarkers(a, derive(a), null, 1)) assert.equal(m.key, `${m.i}-${m.text}`);
 });
 
+// ---------- toasts: at most two, throttled ----------
+
+const tq = await load(new URL("./toastQueue.ts", import.meta.url));
+
+test("toasts: a 16x burst shows at most two, keeps the most important waiting, and rotates no faster than the minimum", () => {
+  let s = tq.emptyToasts();
+  let id = 0;
+  const push = (kind, now) => (s = tq.pushToastQ(s, { id: id++, kind }, now));
+  // Story A's events at 16x (4 frames a second x 16 = 64 frames a second): watch, squall, alarm, cut, margin call,
+  // fair wind, all clear, restore arrive within about 0.4 s.
+  const kinds = ["watch", "squall", "alarm", "cut", "margin_call", "fair_wind", "all_clear", "restore"];
+  kinds.forEach((k, j) => {
+    push(k, j * 50);
+    assert.ok(s.visible.length <= tq.MAX_VISIBLE, "never more than two on screen");
+    assert.ok(s.queue.length <= tq.QUEUE_MAX);
+  });
+  assert.deepEqual(s.visible.map((v) => v.toast.kind), ["watch", "squall"]);
+  // The queue kept the two most important that arrived: the margin call and the all-clear.
+  assert.deepEqual(s.queue.map((t) => t.kind).sort(), ["all_clear", "margin_call"]);
+  // Before the oldest has been up the minimum, nothing rotates.
+  s = tq.tickToastQ(s, tq.MIN_SHOW_MS - 1);
+  assert.deepEqual(s.visible.map((v) => v.toast.kind), ["watch", "squall"]);
+  // Then the margin call replaces the oldest, and the all-clear waits for the next turn.
+  s = tq.tickToastQ(s, tq.MIN_SHOW_MS);
+  assert.deepEqual(s.visible.map((v) => v.toast.kind), ["squall", "margin_call"]);
+  assert.deepEqual(s.queue.map((t) => t.kind), ["all_clear"]);
+  s = tq.tickToastQ(s, tq.MIN_SHOW_MS + 100); // the squall went up at 50 ms: its turn ends at 1650
+  assert.deepEqual(s.visible.map((v) => v.toast.kind), ["margin_call", "all_clear"]);
+  assert.equal(s.queue.length, 0);
+});
+
+test("toasts: at 1x every toast shows, and a dropped toast frees its slot at once", () => {
+  let s = tq.emptyToasts();
+  s = tq.pushToastQ(s, { id: 1, kind: "alarm" }, 0);
+  s = tq.pushToastQ(s, { id: 2, kind: "cut" }, 4000);
+  assert.deepEqual(s.visible.map((v) => v.toast.id), [1, 2]);
+  s = tq.pushToastQ(s, { id: 3, kind: "margin_call" }, 5000); // the alarm has been up 5 s: it makes way
+  assert.deepEqual(s.visible.map((v) => v.toast.id), [2, 3]);
+  s = tq.pushToastQ(s, { id: 4, kind: "fair_wind" }, 5100); // the cut has been up 1.1 s only: it waits
+  assert.deepEqual(s.queue.map((t) => t.id), [4]);
+  s = tq.dropToastQ(s, 2, 5200); // the cut's lifetime ends: the fair wind takes the slot
+  assert.deepEqual(s.visible.map((v) => v.toast.id), [3, 4]);
+  assert.equal(s.queue.length, 0);
+  assert.equal(tq.tickToastQ(s, 9999), s, "nothing waiting: the same state, no re-render");
+});
+
 // Survive for beginners (tutorial, difficulty, coach, end card): src/ui/survive/survive.test.mjs, run with these.
 await import("./survive/survive.test.mjs");
