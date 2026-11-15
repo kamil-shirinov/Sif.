@@ -2,6 +2,10 @@
 
 **A storm defence for FX traders, shown as a live 3D sea.** Sif sounds the alarm in the first minutes of a fast move, and two ships show what heeding it saved.
 
+**▶ Watch it here:** [narrated demo on YouTube (2:17)](https://youtu.be/97NzAPgNpU0)
+
+[![Sif demo video](https://img.youtube.com/vi/97NzAPgNpU0/hqdefault.jpg)](https://youtu.be/97NzAPgNpU0)
+
 ![From the landing page into the Explorer of every dataset we tested](docs/img/hero-flight.gif)
 
 **Why Sif.** In Norse myth Sif is Thor's wife, tied to the harvest; farmers prayed to Thor for weather kind to their crops. Sif watches the market's weather so that a trader's book makes it through the storm.
