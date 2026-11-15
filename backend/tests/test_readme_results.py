@@ -1,4 +1,4 @@
-"""Every number in README.md's results tables equals metrics.json.
+"""Every number in the results tables of README.md and docs/results.md equals its result file.
 
 The tables are parsed by scripts/readme_results.py (see its docstring for the format).
 data/processed/metrics.json is the reference whenever it exists; docs/results_snapshot.json is a
@@ -17,6 +17,15 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import readme_results as rr  # noqa: E402
 
 README = ROOT / "README.md"
+
+
+def docs_text() -> str:
+    """README.md and docs/results.md together: the long tables moved from the README to docs/results.md."""
+    return "\n".join(text for _, text in rr.docs())
+
+
+def cited() -> list[str]:
+    return [p for p, *_ in rr.all_cells()]
 needs_readme = pytest.mark.skipif(not README.exists(), reason="README.md not in this checkout")
 needs_metrics = pytest.mark.skipif(not rr.METRICS.exists(), reason="data/processed/metrics.json not present (SGX data is not committed)")
 
@@ -78,21 +87,21 @@ def test_readme_has_results_tables_and_links_the_definitions():
 @needs_readme
 @needs_metrics
 def test_readme_numbers_equal_metrics_json():
-    problems = rr.check(README.read_text(), json.loads(rr.METRICS.read_text()), extra=rr.load_extra())
+    problems = rr.check_all(json.loads(rr.METRICS.read_text()), extra=rr.load_extra())
     assert not problems, "\n".join(problems)
 
 
 @needs_readme
 def test_readme_numbers_equal_the_committed_snapshot():
     assert rr.SNAPSHOT.exists(), "docs/results_snapshot.json missing: run scripts/readme_results.py --write-snapshot"
-    problems = rr.check(README.read_text(), json.loads(rr.SNAPSHOT.read_text()), flat=True)
+    problems = rr.check_all(json.loads(rr.SNAPSHOT.read_text()), flat=True)
     assert not problems, "\n".join(problems)
 
 
 @needs_readme
 @needs_metrics
 def test_snapshot_is_current_with_metrics_json():
-    want = rr.snapshot_from(json.loads(rr.METRICS.read_text()), README.read_text(), rr.load_extra())
+    want = rr.snapshot_from(json.loads(rr.METRICS.read_text()), None, rr.load_extra())
     assert json.loads(rr.SNAPSHOT.read_text()) == want, "stale: run scripts/readme_results.py --write-snapshot"
 
 
@@ -116,14 +125,14 @@ def test_lookup_indexes_lists_and_scales_percent_shares():
 def test_readme_stats_tables_are_checked_against_docs_stats_results():
     """The statistics section's tables (against-chance p-values, intervals, five-bar fills) cite docs/stats/results.json."""
     assert "stats" in rr.EXTRA_SOURCES and rr.EXTRA_SOURCES["stats"].exists(), "docs/stats/results.json missing"
-    cited = [p for p, *_ in rr.parse_tables(README.read_text()) if p.startswith("stats::")]
-    assert len(cited) >= 60, "the README's statistics tables are missing or were shortened"
+    cited_stats = [p for p in cited() if p.startswith("stats::")]
+    assert len(cited_stats) >= 60, "the statistics tables are missing or were shortened"
     for group in ("sgx_august", "oos_round1", "oos_round2", "chips_new"):  # every dataset, round 2 included
-        assert any(f"groups.{group}." in p for p in cited), group
+        assert any(f"groups.{group}." in p for p in cited_stats), group
     for needle in ("chance.caught_storms.p_value", "chance.policy_difference_usd.holm_p_value",
                    "intervals.caught_share.ci95.0@pct", "sensitivity.5.policy.prepared_minus_unprepared_usd"):
-        assert any(needle in p for p in cited), needle
-    problems = rr.check(README.read_text(), {}, extra={"stats": json.loads(rr.EXTRA_SOURCES["stats"].read_text())})
+        assert any(needle in p for p in cited_stats), needle
+    problems = rr.check_all({}, extra={"stats": json.loads(rr.EXTRA_SOURCES["stats"].read_text())})
     problems = [m for m in problems if "stats::" in m]
     assert not problems, "\n".join(problems)
 
@@ -132,15 +141,50 @@ def test_readme_stats_tables_are_checked_against_docs_stats_results():
 def test_readme_round_2_tables_equal_results_2_json_and_state_the_prefix():
     """Round 2 (January to July 2025) is cited from docs/oos/results-2.json, and the README says it is a prefix."""
     assert rr.EXTRA_SOURCES["oos2"].exists(), "docs/oos/results-2.json missing"
-    text = README.read_text()
-    cited = [p for p, *_ in rr.parse_tables(text) if p.startswith("oos2::")]
+    text = docs_text()
+    cited_oos2 = [p for p in cited() if p.startswith("oos2::")]
     for needle in ("display.metrics.caught", "display.metrics.false_alarm_episodes_per_day",
                    "display.policy.helped", "display.policy.hurt", "display.policy.ties", "display.policy.total_difference_usd",
                    "display.policy.margin_calls_avoided"):
-        assert any(p.endswith(needle) for p in cited), needle
-    problems = rr.check(text, {}, extra={"oos2": json.loads(rr.EXTRA_SOURCES["oos2"].read_text())})
+        assert any(p.endswith(needle) for p in cited_oos2), needle
+    problems = rr.check_all({}, extra={"oos2": json.loads(rr.EXTRA_SOURCES["oos2"].read_text())})
     problems = [m for m in problems if "oos2::" in m]
     assert not problems, "\n".join(problems)
     results = json.loads(rr.EXTRA_SOURCES["oos2"].read_text())["display"]
     assert results["status"] == "chronological_prefix" and f"{results['usable_pair_months']} of {results['planned_pair_months']}" in text
     assert "not better than random timing" in text and "p=0.37" in text  # the unflattering reading stays in the README
+
+
+def test_cells_marker_names_each_cell_and_skips_dashes():
+    text = "\n".join([
+        "<!-- metrics-cells",
+        "a.storms | - | stats::g.p",
+        "b.storms | b.caught | -",
+        "-->",
+        "| Dataset | Storms | Verdict or caught | p |",
+        "|---|---|---|---|",
+        "| **July** | 7 | in-sample | 0.0006 |",
+        "| August | 6 | 4 | words |",
+    ])
+    cells = [(p, n) for p, _, _, n in rr.parse_tables(text)]
+    assert cells == [("a.storms", 7.0), ("stats::g.p", 0.0006), ("b.storms", 6.0), ("b.caught", 4.0)]
+    ref, extra = {"a": {"storms": 7}, "b": {"storms": 6, "caught": 4}}, {"stats": {"g": {"p": 0.00061}}}
+    assert rr.check(text, ref, extra=extra) == []
+    assert len(rr.check(text.replace("| 6 |", "| 5 |"), ref, extra=extra)) == 1
+    with pytest.raises(ValueError):
+        rr.parse_tables(text.replace("a.storms | - | stats::g.p", "a.storms | -"))   # a row of the wrong width
+    with pytest.raises(ValueError):
+        rr.parse_tables(text + "\n| September | 1 | 2 | 3 |")                      # more table rows than marker rows
+
+
+@needs_readme
+def test_readme_what_we_tested_table_covers_every_dataset_and_is_checked():
+    """The compact table in the README: July (from evidence.json), August, rounds 1 and 2 and the chips."""
+    text = README.read_text()
+    assert "## What we tested" in text and "docs/results.md" in text
+    readme_cells = [p for p, *_ in rr.parse_tables(text)]
+    assert any(p.startswith("evidence::datasets.0.headline.") for p in readme_cells)
+    for group in ("sgx_august", "oos_round1", "oos_round2", "chips_new"):
+        assert any(p.startswith(f"stats::groups.{group}.chance.caught_storms.p_value") for p in readme_cells), group
+    assert json.loads(rr.EXTRA_SOURCES["evidence"].read_text())["datasets"][0]["id"] == "sgx-july"
+    assert rr.check(text, {}, extra=rr.load_extra()) == []
