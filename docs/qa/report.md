@@ -62,6 +62,18 @@ Max frame is the longest single frame in that step.
 
 Second pass (no stats badge, no `?debug=nan`; used only for the committed screenshots): 13 of 13 pass again, no page errors. Survive's final equity depends on the exact minute the key is pressed (the first full run ended at $836,452, the next at $831,889): that is the game working, not noise.
 
+## Sharper and larger screens
+
+A second pass on the 30 July storm at 16x, headed Chrome on the same machine, at other sizes and pixel ratios (the app caps its own pixel ratio at 1.6; `quality` read `tier 3` each time). A Retina laptop or a 1080p projector costs more per frame, and still stays above 30 fps. The first row is the same size as the table above but with a pixel ratio of 2.
+
+| viewport (CSS px) | pixel ratio asked / used | median fps | lowest fps | p95 frame ms | longest frame ms | frames over 50 ms |
+|---|---|---|---|---|---|---|
+| 1440 x 810 | 2 / 1.6 | 65 | 63 | 18.0 | 25.4 | 0 |
+| 1920 x 1080 | 1 / 1 | 80 | 78 | 15.2 | 24.1 | 0 |
+| 1920 x 1080 | 2 / 1.6 | 45 | 44 | 24.4 | 33.5 | 0 |
+
+Three more storms at 1440 x 810 and a pixel ratio of 2 (`eurusd-2026-07-02`, `nvda-2026-11-12`, `intc-2026-10-29`) played to the end with median fps 68 to 72, lowest 63, worst p95 18.4 ms, no page errors and no NaN or blown-out pixels. The 2560 x 1440 layout was not run.
+
 ## Worst frames
 
 | where | frame | note |
@@ -93,7 +105,7 @@ Four or five toasts stack at the top centre and cover the ship labels (`docs/qa/
 On `nvda-2026-11-12` (see `docs/qa/06-nvda.jpg`) the left card still shows the SGX August figures (6 of 6 alarmed, 0.33 false episodes a day). It is correct for the detector, but a judge may read it as NVDA's own record. Hiding the card for non-SGX storms, or retitling it, would avoid the question.
 
 **5. Not tested here.**
-Audio output (Chrome logged "The AudioContext was not allowed to start" before the first keypress, which is the browser's rule; the keys count as the gesture afterwards, but nothing here listens to the sound). The live Tiger Data API. Retina (device pixel ratio 2) frame times: these runs are at ratio 1, so a projector or a Retina display will cost more per frame; the `Low quality` checkbox and the adaptive tiers exist for that. Other browsers and other GPUs. The 1920 x 1080 and 2560 x 1440 layouts.
+Audio output (Chrome logged "The AudioContext was not allowed to start" before the first keypress, which is the browser's rule; the keys count as the gesture afterwards, but nothing here listens to the sound). The live Tiger Data API. Other browsers and other GPUs; an external projector's real resolution and refresh rate; the 2560 x 1440 layout. The main tables are at a pixel ratio of 1: the section above has Retina and 1080p.
 
 ## Screenshots
 
