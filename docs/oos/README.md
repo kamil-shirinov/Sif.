@@ -11,10 +11,13 @@ Read the protocol for precise endpoints and limitations.
 [Validation](validation.md) records the whole-suite and recomputation results and the
 isolated Python dependency snapshot used for the passing checks.
 
-Use this branch's frozen core revision. `storm.backtest.code_fingerprint()` includes
-all ten calculation/provenance modules, not just the detector; verification intentionally
-refuses any changed source or runtime constant, including a later backend fix. Keep
-this checkout to reproduce the original result when other lanes move ahead.
+The [historical verification amendment](amendment-2026-11-15-verification.md) allows
+verification from later main revisions. It rebuilds the registered `base_commit`
+`6e61ee4` in a disposable local checkout and restores the exact original OOS runner
+from the recorded execution commit `d1c4865`. Its original provenance checks still
+cover all ten calculation modules, the original metric definitions and calendar,
+all original runner sources, data hashes and every result. Current main's code is
+free to change; it is never substituted into this historical calculation.
 
 ## Local verification
 
@@ -32,6 +35,18 @@ compressed-feed and parquet hashes, recomputes every metric and policy result, a
 compares exact JSON values as well as deterministic Markdown. A missing or changed
 artifact fails verification. Tests require no external data or network; the Markdown
 test checks the entire JSON through its rendered content digest, including provenance.
+
+The local Git object database must contain both recorded revisions and the registration
+history (retain the OOS branch/history when cloning). Missing history is an error, with
+no fallback to current main. The temporary checkout is removed afterwards and does
+not change the caller's files, index, refs or worktree registration. Later amendments
+are not inserted retroactively into the original results' provenance.
+
+From another checkout, point at the existing original acquisition directory:
+
+```sh
+python -m storm.oos.run --verify --data-dir /path/to/original/data/external
+```
 
 `results.json` holds exact and display-rounded results. `results.md` is generated from
 that JSON and may not be manually edited. The marker `run_started.json` prevents an

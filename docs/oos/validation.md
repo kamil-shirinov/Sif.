@@ -35,8 +35,33 @@ outputs, are hashed. Raw data remain local under `data/external/` and are not tr
 The local exclude file handles this directory; the shared `.gitignore` is unchanged.
 
 The frozen code fingerprint deliberately covers all ten core provenance modules.
-Reproduce from this frozen checkout: later changes to the backend or metric definitions
-must not be presented as this same registered evaluation. The branch has not been
-rebased onto concurrent backend fixes. The unchanged USD policy engine cannot value
+The original run used this frozen checkout, before concurrent backend fixes. The
+[historical verification amendment](amendment-2026-11-15-verification.md) subsequently
+allows the command to rebuild that exact checkout when called from newer main, instead
+of requiring current main to retain its old source or metric definitions. The original
+results and registration remain unchanged. The unchanged USD policy engine cannot value
 EURCHF or AUDJPY without extra conversion data, so their policy results are explicitly
 unsupported while all their price-only detection metrics remain included.
+
+## Verification after the window-fix merge
+
+The historical verifier was subsequently tested in a disposable integration checkout
+combining the OOS branch with main `5c4154625a7c3885ba7f2754c8eb3eaa5b1bd540`
+(CC-L window-fix merge). Its `exposure.py`, `export.py`, `equity.py` and metric definitions
+came from that newer main, while the verifier rebuilt the registered base for computation.
+
+```text
+python -m pytest -q
+312 passed, 6 skipped, 1 warning
+
+python -m storm.oos.run --verify --data-dir /path/to/original/data/external
+Rebuilt registered base 6e61ee4311d4c18c19def5d8b573d0fb67791ee0 with recorded runner d1c486559d5a8547d1e46ba4b9d66b63e85a6267
+Verified: all results, data hashes, frozen config/code and Markdown match.
+```
+
+The OOS-only tests also passed (26 tests). They check immutable published artifacts,
+the rebuilt core and runner hashes, rejection of patched historical constants,
+missing original data, and temporary-checkout cleanup. Their registration guard no
+longer requires the caller's current core or metric definitions to equal the old ones.
+No new primary run was performed. `preregistration.md`, `results.json`, `results.md`
+and `run_started.json` are byte-for-byte identical to the published `9b34226` artifacts.

@@ -2,6 +2,9 @@
 import copy
 import hashlib
 import json
+import os
+import subprocess
+import sys
 
 import numpy as np
 import pandas as pd
@@ -11,10 +14,11 @@ from storm.detector import load_calendar, run_detector
 from storm.evaluate import for_display, score
 from storm.features import pair_features
 from storm.oos.acquire import convert
-from storm.oos.protocol import DOCS, REGISTRATION, canonical, check_frozen, registration, sha256
+from storm.oos.protocol import DOCS, REGISTRATION, canonical, check_registration, registration, sha256
 from storm.oos.report import render
 from storm.oos.run import (first_difference, load_window_features, policy_totals,
                            window_labels, evaluate, file_inventory)
+from storm.oos.verify import frozen_checkout
 
 
 def spot():
@@ -29,8 +33,8 @@ def spot():
     return frame
 
 
-def test_registration_really_freezes_current_code():
-    spec = check_frozen()
+def test_registration_remains_immutable_without_pinning_current_main():
+    spec = check_registration()
     assert spec["config"]["w_comove"] == 0
     assert spec["config"]["storm_minutes"] == 2
     assert spec["config_sha256"] == hashlib.sha256(canonical(spec["config"]).encode()).hexdigest()
@@ -38,11 +42,31 @@ def test_registration_really_freezes_current_code():
     assert sum(len(w["pairs"]) for w in spec["windows"]) == 14
 
 
-def test_core_constant_change_is_refused(monkeypatch):
-    import storm.labels
-    monkeypatch.setattr(storm.labels, "MIN_MOVE_BP", 31.0)
-    with pytest.raises(ValueError, match="code fingerprint"):
-        check_frozen()
+@pytest.fixture(scope="module")
+def registered_checkout():
+    with frozen_checkout() as root:
+        yield root
+
+
+def snapshot_python(root, code):
+    env = dict(os.environ)
+    env.pop("PYTHONPATH", None)
+    return subprocess.run([sys.executable, "-c", code], cwd=root / "backend", env=env,
+                          capture_output=True, text=True)
+
+
+def test_registered_core_and_original_wrapper_still_match(registered_checkout):
+    result = snapshot_python(registered_checkout,
+                             "from storm.oos.protocol import check_frozen; check_frozen()")
+    assert result.returncode == 0, result.stderr
+
+
+def test_core_constant_change_in_registered_core_is_refused(registered_checkout):
+    result = snapshot_python(registered_checkout,
+                             "import storm.labels; storm.labels.MIN_MOVE_BP = 31.0; "
+                             "from storm.oos.protocol import check_frozen; check_frozen()")
+    assert result.returncode != 0
+    assert "frozen core code fingerprint mismatch" in result.stderr
 
 
 def test_cross_adapter_preserves_price_labels_and_alarm_timing(tmp_path, monkeypatch):

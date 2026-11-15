@@ -38,17 +38,11 @@ def registration_commit() -> str:
     ).strip()
 
 
-def check_frozen() -> dict:
+def check_registration() -> dict:
+    """Validate the immutable protocol without requiring today's core to be frozen."""
     spec = registration()
-    checks = [
-        (hashlib.sha256(canonical(spec["config"]).encode()).hexdigest() == spec["config_sha256"], "config hash mismatch"),
-        (code_fingerprint() == spec["code_fingerprint"], "frozen core code fingerprint mismatch"),
-        (calendar_fingerprint(load_calendar()) == spec["calendar_content_sha256"], "frozen calendar mismatch"),
-        (sha256(REPO_ROOT / "docs" / "metrics.md") == spec["metrics_document_sha256"], "frozen metrics definitions mismatch"),
-    ]
-    for ok, reason in checks:
-        if not ok:
-            raise ValueError(reason)
+    if hashlib.sha256(canonical(spec["config"]).encode()).hexdigest() != spec["config_sha256"]:
+        raise ValueError("config hash mismatch")
     commit = registration_commit()
     if not commit:
         raise ValueError("preregistration must be committed first")
@@ -57,4 +51,18 @@ def check_frozen() -> dict:
     )
     if hashlib.sha256(original).hexdigest() != sha256(REGISTRATION):
         raise ValueError("preregistration was edited after its first commit")
+    return spec
+
+
+def check_frozen() -> dict:
+    """Primary runs still refuse drift; historical verification rebuilds the old core."""
+    spec = check_registration()
+    checks = [
+        (code_fingerprint() == spec["code_fingerprint"], "frozen core code fingerprint mismatch"),
+        (calendar_fingerprint(load_calendar()) == spec["calendar_content_sha256"], "frozen calendar mismatch"),
+        (sha256(REPO_ROOT / "docs" / "metrics.md") == spec["metrics_document_sha256"], "frozen metrics definitions mismatch"),
+    ]
+    for ok, reason in checks:
+        if not ok:
+            raise ValueError(reason)
     return spec

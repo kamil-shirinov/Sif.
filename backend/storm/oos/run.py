@@ -256,18 +256,14 @@ def main() -> None:
     from .report import render
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--verify", action="store_true")
+    ap.add_argument("--data-dir", type=Path, default=DATA,
+                    help="original acquisition artifacts for historical --verify")
     args = ap.parse_args()
     if not args.verify and (RESULTS.exists() or (DOCS / "run_started.json").exists()):
         raise SystemExit("results/one-shot marker exists; use --verify; refusing another evaluation")
     if args.verify:
-        saved = json.loads(RESULTS.read_text())
-        current = recompute()
-        expected = {k: saved[k] for k in current}
-        if diff := first_difference(expected, current):
-            raise SystemExit("Verification failed: " + diff)
-        if (DOCS / "results.md").read_text() != render(saved):
-            raise SystemExit("Verification failed: results.md differs from results.json")
-        print("Verified: all results, data hashes, frozen config/code and Markdown match.")
+        from .verify import verify_saved
+        verify_saved(args.data_dir)
     else:
         # Check provenance and local acquisition integrity before claiming a run.
         check_frozen()
