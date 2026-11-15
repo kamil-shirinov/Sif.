@@ -96,11 +96,10 @@ def render2(result):
                         if d["registration1_overlap"]["month_in_selected_prefix"] else
                         "The planned June 2025 EURUSD, USDJPY and GBPUSD series overlap registration 1, but June lies outside this completed prefix and was not scored. ")
     lines += ["## Strengths and limits", "",
-              detection_sentence +
-              f"It produced {m['false_alarm_episodes']} false alert episodes over {m['days']} observed days, and every labelled miss remains listed; missing source intervals can conceal unlabelled storms. "
-              + policy_sentence +
-              + overlap_sentence +
-              "This frozen historical evaluation measures detection and synthetic book outcomes, not prospective prediction of unscheduled prices.", "",
+              "".join((detection_sentence,
+              f"It produced {m['false_alarm_episodes']} false alert episodes over {m['days']} observed days, and every labelled miss remains listed; missing source intervals can conceal unlabelled storms. ",
+              policy_sentence, overlap_sentence,
+              "This frozen historical evaluation measures detection and synthetic book outcomes, not prospective prediction of unscheduled prices.")), "",
               "Full exact results, every labelled storm/false alarm, every weekly fill, and raw/parquet/source hashes are in `results-2.json`. "
               "Recompute both registrations with `cd backend && python -m storm.oos.run --verify`, using the recorded runtime and local acquisition directories.", ""]
     return "\n".join(lines)
