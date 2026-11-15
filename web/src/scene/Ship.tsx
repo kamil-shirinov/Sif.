@@ -1,18 +1,20 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import {
-  BoxGeometry,
+  CanvasTexture,
   Color,
   DoubleSide,
-  ExtrudeGeometry,
+  DynamicDrawUsage,
   Group,
+  InstancedMesh,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
   PointLight,
   ShaderMaterial,
-  Shape,
+  SRGBColorSpace,
   Vector3,
 } from "three";
 import type { CrateSpec, Derived, SceneShip, ShipDerived } from "../lib/derive";
@@ -20,7 +22,29 @@ import { HOIST_FRAMES, SINK_FRAMES, sampleAt, shipOf } from "../lib/derive";
 import { WAVE_GLSL, waveAt, waveUniforms, type WaveSample } from "./waves";
 import { vis } from "./vis";
 import { placeLabel } from "./labels";
-import { PK, rnd, spawnDebris, spawnParticle, splash } from "./Particles";
+import { rnd, spawnParticle, splash, PK } from "./Particles";
+import { foamLight } from "./foam";
+import { Wreck } from "./Wreck";
+import {
+  bridgeTextures,
+  containerColor,
+  containerDims,
+  containerGeometry,
+  containerMaterial,
+  DECK,
+  HULL_L,
+  makeDeckGeometry,
+  makeDetailGeometry,
+  makeHullGeometry,
+  makeHullMaterial,
+  makeRigGeometry,
+  makeSailGeometry,
+  MAST_TOP,
+  MAST_X,
+  shapeSail,
+  windowTextures,
+  YARD_Y,
+} from "./shipModel";
 
 // ---------- layout ----------
 export const SHIP_LAYOUT: Record<SceneShip, { x: number; z: number; heading: number }> = {
@@ -29,81 +53,67 @@ export const SHIP_LAYOUT: Record<SceneShip, { x: number; z: number; heading: num
   // Survive mode: one ship, mid-frame.
   player: { x: 0, z: 0, heading: 0.14 },
 };
-const FUNNEL_COLORS: Record<SceneShip, string> = { prepared: "#2c8a6a", unprepared: "#b3402c", player: "#d9a21b" };
+/** Each ship's livery: topsides and funnel. Green followed the alarm, red ignored it, gold is the player's. */
+const LIVERY: Record<SceneShip, { hull: string; funnel: string }> = {
+  prepared: { hull: "#22706a", funnel: "#2fa57f" },
+  unprepared: { hull: "#a04233", funnel: "#d04a32" },
+  player: { hull: "#27405e", funnel: "#e0a81c" },
+};
 
-const L = 14; // hull length
-const B = 4.4; // beam
-const H = 2.6; // hull depth (deck at y = 0, keel at y = -H)
-const PAINT_LINE = -1.3; // design waterline paint (red below)
 const FREEBOARD_MAX = 1.95; // deck height above water with a full margin buffer (riding high)
 const FREEBOARD_MIN = 0.2; // no margin buffer left: deck nearly awash
-const DECK = { x0: -1.0, x1: 5.6, z0: -1.75, z1: 1.75 };
 // Lanterns: masthead (white), port (red, left) and starboard (green, right) lights. Lit as daylight fails
 // (vis.lantern: dusk, night, and any stretch where the market is closed). HDR colours so the bloom picks them up.
 const LAMP_OFF = new Color("#4a463c");
 const LAMP_MAST_ON = new Color(9, 6.8, 3.2);
 const LAMP_PORT_ON = new Color(8, 0.5, 0.4);
 const LAMP_STARBOARD_ON = new Color(0.5, 7, 1.6);
-const LANTERN_LIGHT = 95; // candela of the masthead point light at full lantern
-const CRATE_COLORS = ["#c47f36", "#3f7fc4", "#5aa168", "#c14b4b", "#8b6cc4", "#c4b13f"];
+const LANTERN_LIGHT = 60; // candela of the masthead point light at full lantern
+const WINDOW_GLOW = 2.4; // emissive strength of the lit windows at night (under the bloom threshold)
 
-// ---------- geometry ----------
-function makeHullGeometry(): ExtrudeGeometry {
-  const s = new Shape();
-  const hb = B / 2;
-  s.moveTo(-L / 2, -hb + 0.5);
-  s.quadraticCurveTo(-L / 2, -hb, -L / 2 + 0.6, -hb);
-  s.lineTo(L / 2 - 4.5, -hb);
-  s.quadraticCurveTo(L / 2 - 0.8, -hb + 0.2, L / 2, 0);
-  s.quadraticCurveTo(L / 2 - 0.8, hb - 0.2, L / 2 - 4.5, hb);
-  s.lineTo(-L / 2 + 0.6, hb);
-  s.quadraticCurveTo(-L / 2, hb, -L / 2, hb - 0.5);
-  s.closePath();
-  const g = new ExtrudeGeometry(s, { depth: H, steps: 8, bevelEnabled: false, curveSegments: 10 });
-  g.rotateX(Math.PI / 2); // shape y -> z (beam), extrusion -> -y (down)
-  const p = g.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const y = p.getY(i);
-    const f = Math.min(1, Math.max(0, -y / H));
-    const x = p.getX(i);
-    p.setZ(i, p.getZ(i) * (1 - 0.42 * f * f));
-    // bow rake: keel shorter than deck at the bow
-    if (x > 0) p.setX(i, x * (1 - 0.12 * f));
+// ---------- shared geometry and materials (built once, used by every ship) ----------
+let shared: ReturnType<typeof buildShared> | null = null;
+function buildShared() {
+  const win = windowTextures();
+  const br = bridgeTextures();
+  const white = new MeshStandardMaterial({ color: "#e9e7e1", roughness: 0.55, metalness: 0.02 });
+  const house = new MeshStandardMaterial({ map: win.map, emissiveMap: win.glow, emissive: new Color(1, 1, 1), emissiveIntensity: 0, roughness: 0.55, metalness: 0.02 });
+  const wheel = new MeshStandardMaterial({ map: br.map, emissiveMap: br.glow, emissive: new Color(1, 1, 1), emissiveIntensity: 0, roughness: 0.45, metalness: 0.05 });
+  // Sail cloth: canvas with sewn panels.
+  const c = document.createElement("canvas");
+  c.width = 128;
+  c.height = 128;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#efe7d4";
+  g.fillRect(0, 0, 128, 128);
+  g.strokeStyle = "rgba(120,100,70,0.35)";
+  g.lineWidth = 1;
+  for (let k = 1; k < 7; k++) {
+    g.beginPath();
+    g.moveTo((k * 128) / 7, 0);
+    g.lineTo((k * 128) / 7, 128);
+    g.stroke();
   }
-  g.computeVertexNormals();
-  return g;
-}
-
-function makeHullMaterial(): MeshStandardMaterial {
-  const m = new MeshStandardMaterial({ roughness: 0.65, metalness: 0.15 });
-  m.onBeforeCompile = (shader) => {
-    shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying float vLocalY;\nvarying float vUp;")
-      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvLocalY = position.y;\nvUp = normal.y;");
-    shader.fragmentShader = shader.fragmentShader
-      .replace("#include <common>", "#include <common>\nvarying float vLocalY;\nvarying float vUp;")
-      .replace(
-        "vec4 diffuseColor = vec4( diffuse, opacity );",
-        `vec3 hullC = vLocalY > ${(PAINT_LINE + 0.18).toFixed(2)} ? vec3(0.06, 0.09, 0.14)
-                    : vLocalY > ${PAINT_LINE.toFixed(2)} ? vec3(0.85, 0.85, 0.82) : vec3(0.48, 0.07, 0.06);
-         if (vUp > 0.8 && vLocalY > -0.05) hullC = vec3(0.45, 0.36, 0.25);
-         vec4 diffuseColor = vec4( hullC, opacity );`,
-      );
+  g.fillStyle = "rgba(130,105,70,0.16)";
+  g.fillRect(0, 0, 128, 6);
+  g.fillRect(0, 120, 128, 8);
+  const cloth = new CanvasTexture(c);
+  cloth.colorSpace = SRGBColorSpace;
+  return {
+    hull: makeHullGeometry(),
+    deck: makeDeckGeometry(),
+    rig: makeRigGeometry(),
+    detail: makeDetailGeometry(),
+    white,
+    // BoxGeometry faces: +x, -x, +y, -y, +z, -z. Windows on the four walls, plain plating on roof and floor.
+    houseMats: [house, house, white, white, house, house],
+    wheelMats: [wheel, wheel, white, white, wheel, wheel],
+    glow: [house, wheel],
+    deckMat: new MeshStandardMaterial({ color: "#5d6f62", roughness: 0.85, metalness: 0.0 }),
+    rigMat: new MeshStandardMaterial({ color: "#3b3f44", roughness: 0.6, metalness: 0.3 }),
+    darkMat: new MeshStandardMaterial({ color: "#1b1f24", roughness: 0.6, metalness: 0.2 }),
+    sailMat: new MeshStandardMaterial({ map: cloth, roughness: 0.95, metalness: 0, side: DoubleSide }),
   };
-  return m;
-}
-
-function makeSailGeometry(): PlaneGeometry {
-  const g = new PlaneGeometry(4.2, 4.6, 10, 10);
-  const p = g.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const u = p.getX(i) / 2.1;
-    const v = p.getY(i) / 2.3;
-    p.setZ(i, (1 - u * u) * (1 - v * v) * 1.3);
-  }
-  g.rotateY(Math.PI / 2); // plane across the beam, bulge forward (+x)
-  g.computeVertexNormals();
-  return g;
 }
 
 function makeWake(): Mesh {
@@ -140,7 +150,7 @@ function makeWake(): Mesh {
     depthWrite: false,
   });
   const m = new Mesh(g, mat);
-  m.position.set(-L / 2 + 0.3, 0, 0);
+  m.position.set(-HULL_L / 2 + 0.6, 0, 0);
   m.frustumCulled = false;
   return m;
 }
@@ -150,25 +160,27 @@ export interface CrateSlot {
   spec: CrateSpec;
   local: Vector3; // centre on deck, hull-local
   color: Color;
+  /** Container length (along the hull), height and width in scene units. */
+  dims: { len: number; h: number; w: number };
 }
 
+/** Containers stowed on the hatch: rows across the beam, bays along the hull, tiers on top of each other. */
 export function crateSlots(crates: CrateSpec[]): CrateSlot[] {
   if (crates.length === 0) return [];
-  const size = crates[0].size;
-  const w = DECK.x1 - DECK.x0;
-  const d = DECK.z1 - DECK.z0;
-  const cols = Math.max(1, Math.floor(w / size));
-  const rows = Math.max(1, Math.floor(d / size));
-  const per = cols * rows;
+  const dims = containerDims(crates[0].size);
+  const gapL = dims.len * 1.035;
+  const gapW = dims.w * 1.05;
+  const bays = Math.max(1, Math.floor((DECK.x1 - DECK.x0) / gapL));
+  const rows = Math.max(1, Math.floor((DECK.z1 - DECK.z0) / gapW));
+  const per = bays * rows;
+  const cx = (DECK.x0 + DECK.x1) / 2;
   return crates.map((spec, k) => {
-    const layer = Math.floor(k / per);
+    const tier = Math.floor(k / per);
     const r = k % per;
-    const col = r % cols;
-    const row = Math.floor(r / cols);
-    const local = new Vector3(DECK.x0 + (col + 0.5) * (w / cols), size / 2 + layer * size * 1.01, DECK.z0 + (row + 0.5) * (d / rows));
-    const c = new Color(CRATE_COLORS[spec.positionIndex % CRATE_COLORS.length]);
-    c.offsetHSL(0, 0, ((k * 37) % 7) / 70 - 0.04);
-    return { spec, local, color: c };
+    const bay = Math.floor(r / rows);
+    const row = r % rows;
+    const local = new Vector3(cx + (bay - (bays - 1) / 2) * gapL, 0.16 + dims.h / 2 + tier * dims.h * 1.01, (row - (rows - 1) / 2) * gapW);
+    return { spec, local, color: containerColor(spec.positionIndex, k), dims };
   });
 }
 
@@ -200,25 +212,45 @@ export function sinkProgress(ship: ShipDerived, t: number): number {
   return s * s * (3 - 2 * s);
 }
 
+
 const _w: WaveSample = { h: 0, dhdx: 0, dhdz: 0 };
+const _m = new Matrix4();
+const ZERO = new Matrix4().makeScale(0, 0, 0);
 
 // ---------- component ----------
 export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derived }) {
   const ship = shipOf(derived, shipKey);
   const lay = SHIP_LAYOUT[shipKey];
-  const hullGeo = useMemo(makeHullGeometry, []);
-  const hullMat = useMemo(makeHullMaterial, []);
+  const S = (shared ??= buildShared());
+  const hullMat = useMemo(() => makeHullMaterial(LIVERY[shipKey].hull), [shipKey]);
   const sailGeo = useMemo(makeSailGeometry, []);
   const wake = useMemo(makeWake, []);
   const slots = useMemo(() => crateSlots(derived.crates), [derived.crates]);
-  const crateGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
-  const crateMats = useMemo(() => slots.map((s) => new MeshStandardMaterial({ color: s.color, roughness: 0.8 })), [slots]);
+  // Cargo: one instanced draw for all containers on deck.
+  const cargo = useMemo(() => {
+    const im = new InstancedMesh(containerGeometry(), containerMaterial(), Math.max(1, slots.length));
+    im.instanceMatrix.setUsage(DynamicDrawUsage);
+    im.count = slots.length;
+    slots.forEach((s, i) => {
+      im.setMatrixAt(i, _m.makeScale(s.dims.len, s.dims.h, s.dims.w).setPosition(s.local));
+      im.setColorAt(i, s.color);
+    });
+    if (im.instanceColor) im.instanceColor.needsUpdate = true;
+    im.frustumCulled = false;
+    return im;
+  }, [slots]);
+  useEffect(
+    () => () => {
+      hullMat.dispose();
+      sailGeo.dispose();
+      cargo.dispose();
+    },
+    [hullMat, sailGeo, cargo],
+  );
 
   const outer = useRef<Group>(null);
   const pitchG = useRef<Group>(null);
   const rollG = useRef<Group>(null);
-  const sail = useRef<Mesh>(null);
-  const crateRefs = useRef<(Mesh | null)[]>([]);
   const lanternLight = useRef<PointLight>(null);
   const lamps = useMemo(
     () => ({
@@ -228,28 +260,12 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     }),
     [],
   );
-  const smooth = useRef({ rising: 0, heel: 0, freeboard: 1 });
+  const smooth = useRef({ rising: 0, heel: 0, freeboard: 1, aboard: "" });
 
   const anchor = useMemo(() => new Vector3(), []);
   const prevT = useRef(vis.t);
   useFrame(({ camera, size }) => {
     const t = vis.t;
-    // Sinking (from margin_call_i): a boil of foam around the hull while she goes down, planks surfacing after.
-    const pt = prevT.current;
-    prevT.current = t;
-    const mc = ship.marginCallI;
-    if (mc !== null && t > pt && t - pt < 3) {
-      if (pt < mc && t >= mc) splash(lay.x, 0, lay.z, 1.4);
-      if (pt < mc + SINK_FRAMES * 0.6 && t >= mc + SINK_FRAMES * 0.6) spawnDebris(lay.x, lay.z, 12);
-      const sk = sinkProgress(ship, t);
-      if (sk > 0 && sk < 1) {
-        for (let k = 0; k < 3; k++) {
-          const a = rnd() * Math.PI * 2;
-          const r = rnd() * 6;
-          spawnParticle(PK.Boil, lay.x + Math.cos(a) * r, 0, lay.z + Math.sin(a) * r * 0.5, Math.cos(a) * 0.6, 0, Math.sin(a) * 0.6, 1.5 + rnd(), 0.8 + rnd() * 0.8);
-        }
-      }
-    }
     const sm = smooth.current;
     const k = 1 - Math.exp(-vis.dt * 3);
     const sink = sinkProgress(ship, t);
@@ -266,110 +282,123 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     const slopeF = _w.dhdx * fx + _w.dhdz * fz;
     const slopeS = _w.dhdx * -fz + _w.dhdz * fx; // local +z in world = (sin h, cos h) = (-fz, fx)
     if (outer.current) {
-      outer.current.position.set(lay.x, _w.h + sm.freeboard - sink * 11, lay.z);
+      outer.current.position.set(lay.x, _w.h + sm.freeboard - sink * 13, lay.z);
       shipPose[shipKey].y = outer.current.position.y;
       outer.current.visible = sink < 0.999;
-      anchor.set(lay.x, Math.max(outer.current.position.y, 0) + 9, lay.z);
+      anchor.set(lay.x, Math.max(outer.current.position.y, 0) + MAST_TOP + 0.9, lay.z);
       placeLabel(`ship-${shipKey}`, anchor, camera, size.width, size.height);
     }
-    // Spray at the bow in heavy seas: rate from chop (vol_ratio); none in a calm sea or once she is sinking.
-    const sprayRate = Math.max(0, vis.wave.chop - 0.45) * 55 * (1 - sink);
-    let nSpray = Math.floor(sprayRate * vis.dt + rnd());
-    while (nSpray-- > 0) {
-      const bx = lay.x + fx * (L / 2 - 0.5);
-      const bz = lay.z + fz * (L / 2 - 0.5);
-      const sideways = (rnd() - 0.5) * 2;
-      spawnParticle(PK.Spray, bx - fz * sideways * 1.6, _w.h + 0.3, bz + fx * sideways * 1.6,
-        fx * (1.5 + rnd() * 2) - fz * sideways * 2.5, 2.5 + rnd() * 3 + vis.wave.chop * 1.5, fz * (1.5 + rnd() * 2) + fx * sideways * 2.5,
-        0.8 + rnd() * 0.5, 0.2 + rnd() * 0.25);
-    }
-    if (pitchG.current) pitchG.current.rotation.z = Math.atan(slopeF) * 0.75 + sink * 0.6;
+    // Going down by the stern: the bow lifts as she sinks.
+    if (pitchG.current) pitchG.current.rotation.z = Math.atan(slopeF) * 0.75 + sink * 0.75;
     if (rollG.current) {
       const flutter = Math.sin(vis.elapsed * 1.7 + lay.x) * 0.015 * (0.3 + vis.wind);
       rollG.current.rotation.x = (sm.heel * Math.PI) / 180 - Math.atan(slopeS) * 0.75 + flutter + sink * 0.35;
     }
-    if (sail.current) {
-      const luff = (1 - sm.rising) * Math.sin(vis.elapsed * (4 + 6 * vis.wind)) * 0.06 * (0.3 + vis.wind);
-      sail.current.scale.x = 0.08 + 0.92 * sm.rising + luff;
-    }
+    shapeSail(sailGeo, sm.rising, vis.wind, vis.elapsed + lay.x);
     const wm = wake.material as ShaderMaterial;
     wm.uniforms.uOpacity.value = sm.rising * 0.85;
     wm.uniforms.uTime.value = vis.elapsed;
-    wm.uniforms.uLight.value = 0.3 + 0.7 * vis.dayFactor * (1 - 0.6 * vis.risk) + vis.flash;
+    wm.uniforms.uLight.value = foamLight(vis.dayFactor, vis.risk, vis.flash, vis.lantern);
     wake.visible = sm.rising > 0.01;
 
-    for (let i = 0; i < slots.length; i++) {
-      const m = crateRefs.current[i];
-      if (m) m.visible = crateAboard(ship, i, t);
+    // Containers on deck: only rewrite the instance matrices when one leaves or comes back.
+    let sig = "";
+    for (let i = 0; i < slots.length; i++) sig += crateAboard(ship, i, t) ? "1" : "0";
+    if (sig !== sm.aboard) {
+      sm.aboard = sig;
+      for (let i = 0; i < slots.length; i++) {
+        const s = slots[i];
+        cargo.setMatrixAt(i, sig[i] === "1" ? _m.makeScale(s.dims.len, s.dims.h, s.dims.w).setPosition(s.local) : ZERO);
+      }
+      cargo.instanceMatrix.needsUpdate = true;
     }
 
-    // Lanterns follow the light: on at dusk, at night and while the market is closed, off in daylight.
+    // Lanterns and cabin windows follow the light: on at dusk, at night and while the market is closed.
     const lit = vis.lantern * (1 - sink);
     lamps.mast.color.copy(LAMP_OFF).lerp(LAMP_MAST_ON, lit);
     lamps.port.color.copy(LAMP_OFF).lerp(LAMP_PORT_ON, lit);
     lamps.starboard.color.copy(LAMP_OFF).lerp(LAMP_STARBOARD_ON, lit);
     if (lanternLight.current) lanternLight.current.intensity = lit * LANTERN_LIGHT;
+    for (const m of S.glow) m.emissiveIntensity = vis.lantern * WINDOW_GLOW;
+
+    // Going under (from margin_call_i): a burst of spray as she founders. The foam and planks are <Wreck/>.
+    const pt = prevT.current;
+    prevT.current = t;
+    const mc = ship.marginCallI;
+    if (mc !== null && t > pt && t - pt < 3 && pt < mc && t >= mc) splash(lay.x, 0, lay.z, 1.4);
+    // Spray at the bow in heavy seas: rate from chop (vol_ratio); none in a calm sea or once she is sinking.
+    const sprayRate = Math.max(0, vis.wave.chop - 0.45) * 55 * (1 - sink);
+    let nSpray = Math.floor(sprayRate * vis.dt + rnd());
+    while (nSpray-- > 0) {
+      const bx = lay.x + fx * (HULL_L / 2 - 0.8);
+      const bz = lay.z + fz * (HULL_L / 2 - 0.8);
+      const sideways = (rnd() - 0.5) * 2;
+      spawnParticle(PK.Spray, bx - fz * sideways * 1.2, _w.h + 0.3, bz + fx * sideways * 1.2,
+        fx * (1.5 + rnd() * 2) - fz * sideways * 2.5, 2.5 + rnd() * 3 + vis.wave.chop * 1.5, fz * (1.5 + rnd() * 2) + fx * sideways * 2.5,
+        0.8 + rnd() * 0.5, 0.2 + rnd() * 0.25);
+    }
   });
 
+  const funnel = LIVERY[shipKey].funnel;
   return (
     <>
       <group ref={outer} rotation={[0, lay.heading, 0]}>
         <group ref={pitchG}>
           <group ref={rollG}>
-            <mesh geometry={hullGeo} material={hullMat} />
-            {/* bridge + funnel at the stern */}
-            <mesh position={[-5.1, 1.3, 0]}>
-              <boxGeometry args={[2.6, 2.6, 3.4]} />
-              <meshStandardMaterial color="#e9e6df" roughness={0.6} />
+            <mesh geometry={S.hull} material={hullMat} />
+            <mesh geometry={S.deck} material={S.deckMat} />
+            <mesh geometry={S.detail} material={S.darkMat} />
+            {/* accommodation block and wheelhouse at the stern */}
+            <mesh position={[-5.45, 1.15, 0]} material={S.houseMats}>
+              <boxGeometry args={[2.9, 2.3, 3.5]} />
             </mesh>
-            <mesh position={[-4.15, 2.1, 0]}>
-              <boxGeometry args={[0.7, 0.5, 3.45]} />
-              <meshStandardMaterial color="#1a2633" roughness={0.2} metalness={0.5} />
+            <mesh position={[-5.05, 2.86, 0]} material={S.wheelMats}>
+              <boxGeometry args={[1.9, 1.1, 4.3]} />
             </mesh>
-            <mesh position={[-5.6, 3.4, 0]}>
-              <cylinderGeometry args={[0.45, 0.55, 1.8, 12]} />
-              <meshStandardMaterial color={FUNNEL_COLORS[shipKey]} roughness={0.5} />
+            <mesh position={[-5.1, 3.46, 0]} material={S.white}>
+              <boxGeometry args={[2.3, 0.1, 4.5]} />
             </mesh>
-            {/* mast, yard and sail */}
-            <mesh position={[-2.4, 4.2, 0]}>
-              <cylinderGeometry args={[0.12, 0.16, 8.4, 8]} />
-              <meshStandardMaterial color="#5a4632" />
+            {/* funnel in the ship's colour, black top */}
+            <group position={[-6.35, 2.3, 0]} rotation={[0, 0, 0.1]}>
+              <mesh position={[0, 0.95, 0]}>
+                <cylinderGeometry args={[0.48, 0.58, 1.9, 16]} />
+                <meshStandardMaterial color={funnel} roughness={0.5} metalness={0.1} />
+              </mesh>
+              <mesh position={[0, 1.78, 0]} material={S.darkMat}>
+                <cylinderGeometry args={[0.5, 0.49, 0.42, 16]} />
+              </mesh>
+              <mesh position={[0, 1.2, 0]} material={S.white}>
+                <cylinderGeometry args={[0.515, 0.535, 0.22, 16]} />
+              </mesh>
+            </group>
+            {/* radar mast on the wheelhouse */}
+            <mesh position={[-4.9, 4.2, 0]} material={S.rigMat}>
+              <cylinderGeometry args={[0.05, 0.07, 1.4, 6]} />
             </mesh>
-            <mesh position={[-2.4, 6.9, 0]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.08, 0.08, 4.6, 6]} />
-              <meshStandardMaterial color="#5a4632" />
+            <mesh position={[-4.9, 4.75, 0]} material={S.rigMat}>
+              <boxGeometry args={[0.12, 0.1, 1.3]} />
             </mesh>
-            <mesh ref={sail} geometry={sailGeo} position={[-2.25, 4.55, 0]}>
-              <meshStandardMaterial color="#ece4d2" roughness={0.9} side={DoubleSide} />
-            </mesh>
+            {/* mast, yard and standing rigging; the sail hangs from the yard */}
+            <mesh geometry={S.rig} material={S.rigMat} />
+            <mesh geometry={sailGeo} material={S.sailMat} position={[MAST_X + 0.2, YARD_Y, 0]} />
             {/* lanterns: masthead, port (red) and starboard (green) */}
-            <mesh position={[-2.4, 8.75, 0]} material={lamps.mast}>
-              <sphereGeometry args={[0.22, 10, 8]} />
+            <mesh position={[MAST_X, MAST_TOP + 0.2, 0]} material={lamps.mast}>
+              <sphereGeometry args={[0.2, 10, 8]} />
             </mesh>
-            <mesh position={[-3.7, 1.9, -1.78]} material={lamps.port}>
-              <sphereGeometry args={[0.16, 8, 6]} />
+            <mesh position={[-4.6, 2.95, -2.22]} material={lamps.port}>
+              <sphereGeometry args={[0.15, 8, 6]} />
             </mesh>
-            <mesh position={[-3.7, 1.9, 1.78]} material={lamps.starboard}>
-              <sphereGeometry args={[0.16, 8, 6]} />
+            <mesh position={[-4.6, 2.95, 2.22]} material={lamps.starboard}>
+              <sphereGeometry args={[0.15, 8, 6]} />
             </mesh>
-            <pointLight ref={lanternLight} position={[-2.4, 8.2, 0]} intensity={0} distance={38} decay={1.5} color="#ffd9a0" />
-            {/* cargo: one crate per USD_PER_CRATE of notional from exposure.positions */}
-            {slots.map((s, i) => (
-              <mesh
-                key={i}
-                ref={(m) => {
-                  crateRefs.current[i] = m;
-                }}
-                geometry={crateGeo}
-                material={crateMats[i]}
-                position={s.local}
-                scale={s.spec.size * 0.94}
-              />
-            ))}
+            <pointLight ref={lanternLight} position={[MAST_X + 0.6, MAST_TOP - 0.6, 0]} intensity={0} distance={38} decay={1.5} color="#ffd9a0" />
+            {/* cargo: one container per USD_PER_CRATE of notional from exposure.positions */}
+            <primitive object={cargo} />
           </group>
         </group>
         <primitive object={wake} />
       </group>
+      <Wreck shipKey={shipKey} derived={derived} />
     </>
   );
 }

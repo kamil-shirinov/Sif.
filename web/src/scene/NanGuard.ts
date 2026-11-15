@@ -14,22 +14,28 @@ export const DEBUG_NAN = param("debug") === "nan";
 /** ?bloom=0: no EffectComposer at all (the renderer tone-maps directly, as in low quality). */
 export const COMPOSER_ON = param("bloom") !== "0";
 
+/** Brightest radiance the guard lets through. Lamps and lightning peak near 25; the bloom threshold is 6. */
+const MAX_RADIANCE = 48;
+
 const FRAG = /* glsl */ `
 uniform float uDebug;
-bool bad(float x) { return isnan(x) || isinf(x) || !(abs(x) < 1e30); }
+// Metal compiles shaders with fast math, which may assume there is no NaN or Inf and drop isnan() / isinf() and
+// comparisons written to catch them. The bit pattern cannot be optimised away: exponent all ones is NaN or Inf.
+bool bad(float x) { return (floatBitsToUint(x) & 0x7F800000u) == 0x7F800000u || abs(x) > 1.0e6; }
+float clean(float x) { return bad(x) ? 0.0 : clamp(x, 0.0, ${MAX_RADIANCE.toFixed(1)}); }
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   vec4 c = inputColor;
   bool b = bad(c.r) || bad(c.g) || bad(c.b) || bad(c.a);
   if (uDebug > 0.5) {
-    outputColor = b ? vec4(1.0, 0.0, 1.0, 1.0) : c;
+    // Magenta: NaN or Inf. Yellow: finite but far too bright (it would overflow the bloom's half-float buffers).
+    bool hot = max(c.r, max(c.g, c.b)) > ${MAX_RADIANCE.toFixed(1)};
+    outputColor = b ? vec4(1.0, 0.0, 1.0, 1.0) : hot ? vec4(1.0, 1.0, 0.0, 1.0) : c;
     return;
   }
-  // Any NaN or Inf channel becomes 0; negative colour (no physical meaning, NaN in a later pow) becomes 0 too.
-  c.r = bad(c.r) ? 0.0 : max(c.r, 0.0);
-  c.g = bad(c.g) ? 0.0 : max(c.g, 0.0);
-  c.b = bad(c.b) ? 0.0 : max(c.b, 0.0);
-  c.a = bad(c.a) ? 1.0 : c.a;
-  outputColor = c;
+  // Any NaN or Inf channel becomes 0, negative colour (no physical meaning, NaN in a later pow) becomes 0, and
+  // radiance is capped: a specular glint of 1e5 fits this pass but overflows to Inf in the bloom's half-float
+  // mips, and tone mapping turns Inf into NaN, which is black.
+  outputColor = vec4(clean(c.r), clean(c.g), clean(c.b), bad(c.a) ? 1.0 : c.a);
 }`;
 
 /**

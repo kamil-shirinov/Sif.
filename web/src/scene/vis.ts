@@ -53,6 +53,9 @@ export const vis: Vis = {
   dt: 0.016,
 };
 
+/** Where the moon stands at night: behind the ships and to the left, so they are rim-lit and the sea glitters toward the camera. */
+export const MOON_DIR = new Vector3(-0.5, 0.58, -0.64).normalize();
+
 export const WIND_BY_STATE = [0.15, 0.55, 1.0];
 
 /** Wave amplitude (scene units) from vol_ratio. 1 = gentle swell, 7+ = heavy sea. */

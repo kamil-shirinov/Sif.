@@ -1,26 +1,13 @@
 import { useEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import {
-  BoxGeometry,
-  BufferAttribute,
-  BufferGeometry,
-  DynamicDrawUsage,
-  InstancedMesh,
-  Matrix4,
-  MeshStandardMaterial,
-  Points,
-  Quaternion,
-  ShaderMaterial,
-  Vector3,
-  Euler,
-} from "three";
-import { WAVE_GLSL, waveAt, waveUniforms, type WaveSample } from "./waves";
+import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial } from "three";
+import { WAVE_GLSL, waveUniforms } from "./waves";
 import { vis } from "./vis";
 
 // One pool of GPU particles for everything the sea throws up: spray at the bows in heavy seas, the splash of a
 // crate going over the side, the boil of a sinking ship. CPU work is only the spawn (a few attribute writes);
-// the motion is computed in the vertex shader from the birth time. One draw call. Debris planks are a separate
-// instanced mesh that rides the waves on the CPU (at most a few dozen).
+// the motion is computed in the vertex shader from the birth time. One draw call. (The foam on the water and the
+// planks of a wreck are not particles: see Jettison.tsx and Wreck.tsx.)
 
 const POOL = 3072;
 export const enum PK {
@@ -60,7 +47,7 @@ export function rnd(): number {
   return (seed - 1) / 2147483646;
 }
 
-/** A crate (or anything) hitting the water: a crown of droplets and a ring of foam. `power` ~ 1 for a crate. */
+/** A crate (or anything) hitting the water: a crown of droplets. The ring of foam is drawn on the sea by Jettison.tsx. `power` ~ 1 for a crate. */
 export function splash(x: number, y: number, z: number, power = 1) {
   const n = Math.round(26 * power);
   for (let k = 0; k < n; k++) {
@@ -68,56 +55,14 @@ export function splash(x: number, y: number, z: number, power = 1) {
     const r = 1.2 + rnd() * 2.2;
     spawnParticle(PK.Spray, x, y + 0.1, z, Math.cos(a) * r * power, (4 + rnd() * 4.5) * Math.sqrt(power), Math.sin(a) * r * power, 0.9 + rnd() * 0.6, 0.18 + rnd() * 0.22);
   }
-  for (let k = 0; k < 6; k++) {
-    const a = rnd() * Math.PI * 2;
-    spawnParticle(PK.Boil, x + Math.cos(a) * 0.6, y, z + Math.sin(a) * 0.6, Math.cos(a) * 1.4, 0, Math.sin(a) * 1.4, 1.8 + rnd(), 1.2 * power);
-  }
 }
 
-// ---- debris (planks from a sinking ship) ----
-const MAX_DEBRIS = 32;
-interface Plank {
-  x: number;
-  z: number;
-  vx: number;
-  vz: number;
-  spin: number;
-  born: number;
-  alive: boolean;
-}
-const planks: Plank[] = Array.from({ length: MAX_DEBRIS }, () => ({ x: 0, z: 0, vx: 0, vz: 0, spin: 0, born: 0, alive: false }));
-let plankHead = 0;
-export function spawnDebris(x: number, z: number, count: number) {
-  for (let k = 0; k < count; k++) {
-    const p = planks[plankHead];
-    plankHead = (plankHead + 1) % MAX_DEBRIS;
-    const a = rnd() * Math.PI * 2;
-    const r = rnd() * 3;
-    p.x = x + Math.cos(a) * r;
-    p.z = z + Math.sin(a) * r;
-    p.vx = Math.cos(a) * (0.3 + rnd() * 0.6);
-    p.vz = Math.sin(a) * (0.3 + rnd() * 0.6);
-    p.spin = (rnd() - 0.5) * 2;
-    p.born = vis.elapsed;
-    p.alive = true;
-  }
-}
-/** Drop every particle and plank (a new bundle, a seek). */
+/** Drop every particle (a new bundle, a seek). */
 export function clearParticles() {
   for (let i = 0; i < POOL; i++) meta[i * 4 + 1] = 0;
   dirtyLo = 0;
   dirtyHi = POOL - 1;
-  for (const p of planks) p.alive = false;
 }
-
-const DEBRIS_LIFE = 90; // seconds a plank floats before it is gone
-const _m = new Matrix4();
-const _q = new Quaternion();
-const _e = new Euler();
-const _v = new Vector3();
-const _s = new Vector3();
-const _w: WaveSample = { h: 0, dhdx: 0, dhdz: 0 };
-const ZERO = new Matrix4().makeScale(0, 0, 0);
 
 export function Particles() {
   const size = useThree((s) => s.size);
@@ -184,25 +129,13 @@ export function Particles() {
     return pts;
   }, []);
 
-  const debris = useMemo(() => {
-    const geo = new BoxGeometry(1.6, 0.14, 0.38);
-    const mat = new MeshStandardMaterial({ color: "#5d4630", roughness: 0.9 });
-    const im = new InstancedMesh(geo, mat, MAX_DEBRIS);
-    im.instanceMatrix.setUsage(DynamicDrawUsage);
-    for (let i = 0; i < MAX_DEBRIS; i++) im.setMatrixAt(i, ZERO);
-    im.frustumCulled = false;
-    return im;
-  }, []);
-
   useEffect(() => {
     clearParticles();
     return () => {
       points.geometry.dispose();
       (points.material as ShaderMaterial).dispose();
-      debris.geometry.dispose();
-      (debris.material as MeshStandardMaterial).dispose();
     };
-  }, [points, debris]);
+  }, [points]);
 
   useFrame(({ camera, gl }) => {
     const m = points.material as ShaderMaterial;
@@ -221,38 +154,7 @@ export function Particles() {
       dirtyLo = Infinity;
       dirtyHi = -1;
     }
-
-    let any = false;
-    for (let i = 0; i < MAX_DEBRIS; i++) {
-      const p = planks[i];
-      if (!p.alive) continue;
-      const age = vis.elapsed - p.born;
-      if (age > DEBRIS_LIFE) {
-        p.alive = false;
-        debris.setMatrixAt(i, ZERO);
-        any = true;
-        continue;
-      }
-      const drag = Math.min(age, 6);
-      const x = p.x + p.vx * drag + p.vx * 0.08 * age;
-      const z = p.z + p.vz * drag + p.vz * 0.08 * age;
-      waveAt(x, z, vis.wave, _w);
-      _e.set(-Math.atan(_w.dhdz), p.spin + age * 0.03 * p.spin, Math.atan(_w.dhdx));
-      _q.setFromEuler(_e);
-      const rise = Math.min(1, age / 1.5); // planks surface from below
-      _v.set(x, _w.h - 0.05 - (1 - rise) * 1.2, z);
-      _s.setScalar(1);
-      _m.compose(_v, _q, _s);
-      debris.setMatrixAt(i, _m);
-      any = true;
-    }
-    if (any) debris.instanceMatrix.needsUpdate = true;
   });
 
-  return (
-    <>
-      <primitive object={points} />
-      <primitive object={debris} />
-    </>
-  );
+  return <primitive object={points} />;
 }

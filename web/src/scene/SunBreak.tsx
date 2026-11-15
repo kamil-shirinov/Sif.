@@ -8,7 +8,7 @@ const HEIGHT = 420;
 const UP = new Vector3(0, 1, 0);
 const _dir = new Vector3();
 
-const SUN = new Color(2.6, 2.1, 1.1); // HDR: brighter than the thinned sky, so the column reads
+const SUN = new Color(2.3, 2.1, 1.6); // HDR: brighter than the thinned sky, so the column reads
 const MOON = new Color(1.0, 1.25, 1.9);
 
 /**
@@ -66,7 +66,7 @@ export function SunBreak() {
     const cz = (SHIP_LAYOUT.prepared.z + SHIP_LAYOUT.unprepared.z) / 2;
     shaft.position.set(cx, 0, cz);
     const u = (shaft.material as ShaderMaterial).uniforms;
-    u.uOpacity.value = fw * (0.22 + 0.3 * day);
+    u.uOpacity.value = fw * (0.16 + 0.18 * day);
     u.uTint.value.copy(MOON).lerp(SUN, day);
   });
 
