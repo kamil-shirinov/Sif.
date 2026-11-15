@@ -1,0 +1,2 @@
+{"models": ["openai/gpt-oss-120b"], "first_start_s": 69.73916220800311}
+{"text": "OK", "model": "openai/gpt-oss-120b", "input_tokens": 76, "output_tokens": 20, "cost_usd": 0.0}

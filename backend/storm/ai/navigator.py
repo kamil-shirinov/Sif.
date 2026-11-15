@@ -138,8 +138,10 @@ def ask(question: str, storm_id: str | None = None, live: bool = False, *,
                                 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,159}", storm_id)):
         raise ValueError("Invalid storm_id")
     llm.load_environment()
-    provider = provider or os.getenv("NAVIGATOR_PROVIDER", "meta")
-    model = model or os.getenv("NAVIGATOR_MODEL") or ("muse-spark-1.3" if provider == "meta" else None)
+    provider = provider or os.getenv("NAVIGATOR_PROVIDER", "fireworks")
+    model = model or os.getenv("NAVIGATOR_MODEL") or {
+        "meta": "muse-spark-1.3", "fireworks": "accounts/fireworks/models/qwen3p8-max",
+    }.get(provider)
     if llm.live_enabled(live):
         validate_model_families(model, provider)
     messages = [{"role": "system", "content": SYSTEM},

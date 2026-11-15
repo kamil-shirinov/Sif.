@@ -33,7 +33,8 @@ def test_mock_tool_round_trip_creates_verified_scenario(exported, monkeypatch):
     assert 'error' not in result['tool_calls'][0]['result']
     assert 'hypothetical' in result['answer'] and 'synthetic' in result['answer']
     assert len(calls) == 3  # Tool call, prose, independent inspector.
-    assert calls[0][1]['provider'] == 'meta'
+    assert calls[0][1]['provider'] == 'fireworks'
+    assert calls[0][1]['model'] == 'accounts/fireworks/models/qwen3p8-max'
     assert calls[0][1]['tools'] == tools.TOOL_SCHEMAS
     assert calls[1][0][-1]['role'] == 'tool'
     assert calls[1][0][-1]['tool_call_id'] == result['tool_calls'][0]['id']
@@ -131,7 +132,7 @@ def test_schemas_and_dispatch_reject_unregistered_calls():
 
 
 def test_live_configuration_preflight_happens_before_writer(exported, monkeypatch):
-    monkeypatch.setenv('FIREWORKS_MODEL_CHECKER', 'muse-spark-1.1')
+    monkeypatch.setenv('FIREWORKS_MODEL_CHECKER', 'accounts/fireworks/models/qwen3p8-max')
     monkeypatch.setattr(llm, 'complete', lambda *a, **k: pytest.fail('No inference before preflight'))
     with pytest.raises(llm.GatewayError, match='different model family'):
         navigator.ask('exposure?', 'fixture', live=True)

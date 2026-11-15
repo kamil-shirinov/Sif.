@@ -1,0 +1,23 @@
+{
+  "task_id": "cx-models-20261115",
+  "token_spend_usd": {
+    "meta": 1.481810499999999,
+    "fireworks": 1.2413016000000001,
+    "modal": 0.0
+  },
+  "ceilings_usd": {
+    "meta": 20,
+    "fireworks": 20,
+    "modal": 25
+  },
+  "warn_fraction": 0.75,
+  "stop_fraction": 0.9,
+  "modal_runtime": {
+    "since_utc": "2026-11-15T01:15:00+00:00",
+    "until_utc": "2026-11-15T02:24:47+00:00",
+    "elapsed_seconds": 4187.0,
+    "conservative_configured_resource_usd_per_second": 0.002,
+    "continuous_single_container_estimate_upper_usd": 8.374,
+    "note": "Configured-resource wall-time estimate, not an invoice. Assumes one H100 or cheaper, four vCPUs and at most 64 GiB RAM throughout, even while stopped or building. Includes baseline/failed startup/idle time. The stopped first app metrics API was unavailable; task-gpu-usage.json covers only the second app and has missing buckets."
+  }
+}

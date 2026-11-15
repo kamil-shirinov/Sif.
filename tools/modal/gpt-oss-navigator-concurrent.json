@@ -1,0 +1,1 @@
+{"verified": true, "inspector": {"verdict": "ok", "issues": [], "model": "openai/gpt-oss-120b", "cost_usd": 0.0}, "tools": [{"name": "stress_test", "arguments": {"symbol": "USDJPY", "move_pct": -3, "minutes": 30}, "error": null}], "latency_s": 18.9302770409995}
