@@ -100,14 +100,14 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
         // Survive mode: one ship, the player's.
         <>
           <Ship key={`y${seq}`} shipKey="player" derived={derived} />
-          <Jettison key={`jy${seq}`} shipKey="player" derived={derived} />
+          <Jettison key={`jy${seq}`} bundle={bundle} shipKey="player" derived={derived} />
         </>
       ) : (
         <>
           <Ship key={`p${seq}`} shipKey="prepared" derived={derived} />
           <Ship key={`u${seq}`} shipKey="unprepared" derived={derived} />
-          <Jettison key={`jp${seq}`} shipKey="prepared" derived={derived} />
-          <Jettison key={`ju${seq}`} shipKey="unprepared" derived={derived} />
+          <Jettison key={`jp${seq}`} bundle={bundle} shipKey="prepared" derived={derived} />
+          <Jettison key={`ju${seq}`} bundle={bundle} shipKey="unprepared" derived={derived} />
         </>
       )}
       {show("particles") && <Particles />}

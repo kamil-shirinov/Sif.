@@ -245,6 +245,10 @@ export function shipBuffer(ship: ShipDerived, t: number): number {
   if (mc !== null && t >= mc - 1) return ship.buffer[Math.max(0, mc - 1)];
   return sampleAt(ship.buffer, t);
 }
+/** Deck height above calm water at playhead t (the waterline rule: margin buffer to freeboard), without the waves. */
+export function freeboardAt(ship: ShipDerived, t: number): number {
+  return FREEBOARD_MIN + (FREEBOARD_MAX - FREEBOARD_MIN) * shipBuffer(ship, t);
+}
 export function sinkProgress(ship: ShipDerived, t: number): number {
   if (ship.marginCallI === null || t < ship.marginCallI) return 0;
   const s = Math.min(1, (t - ship.marginCallI) / SINK_FRAMES);
