@@ -116,7 +116,7 @@ flowchart LR
 
 ## What we tested
 
-Every number below is checked against the result files by `scripts/readme_results.py`. *Caught* means the alarm fired with at least half of the move still ahead. *p* compares the real alarms with the same alarms moved to random minutes (10,000 draws). *Book* is the prepared minus the unprepared synthetic book, in USD, with fills at the next bar.
+Every number in this table is checked against the result files by `scripts/readme_results.py`, as are the full tables in [docs/results.md](docs/results.md). *Caught* means the alarm fired with at least half of the move still ahead. *p* compares the real alarms with the same alarms moved to random minutes (10,000 draws). *Book* is the prepared minus the unprepared synthetic book, in USD, with fills at the next bar.
 
 <!-- metrics-cells
 evidence::datasets.0.headline.storms | evidence::datasets.0.headline.alarmed | evidence::datasets.0.headline.caught | - | - | - | -
