@@ -202,6 +202,9 @@ export interface EndFacts {
   diff: number;
   /** "Following the alarm kept $353,377 more", from the sign of diff. */
   verdict: string;
+  /** The verdict split for display: "Following the alarm kept" and "$353,377 more" ("" when level). */
+  lead: string;
+  amount: string;
 }
 
 /** The last frame's equities from the bundle's series, each ship's margin call (ships.*.margin_call_i, else its event). */
@@ -224,13 +227,10 @@ export function endFacts(b: Bundle): EndFacts {
   const p = ship("prepared");
   const u = ship("unprepared");
   const diff = p.final - u.final;
-  const verdict =
-    Math.round(diff) === 0
-      ? "Both ships ended level"
-      : diff > 0
-        ? `Following the alarm kept ${fmtUsd(diff)} more`
-        : `Ignoring the alarm kept ${fmtUsd(-diff)} more`;
-  return { ships: [p, u], diff, verdict };
+  const level = Math.round(diff) === 0;
+  const lead = level ? "Both ships ended level" : diff > 0 ? "Following the alarm kept" : "Ignoring the alarm kept";
+  const amount = level ? "" : `${fmtUsd(Math.abs(diff))} more`;
+  return { ships: [p, u], diff, verdict: amount ? `${lead} ${amount}` : lead, lead, amount };
 }
 
 // ---------- presenter clean view: H ----------

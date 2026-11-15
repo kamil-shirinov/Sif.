@@ -3,17 +3,69 @@ import { createPortal } from "react-dom";
 import type { Bundle } from "../types/bundle";
 import type { Derived } from "../lib/derive";
 import { useApp } from "../state/app";
-import { useTimeline } from "../state/timeline";
-import { crossed, frameClock, STORY_COLORS, type StoryEvent, type StoryKind } from "./story";
+import { useFrameIndex, useTimeline } from "../state/timeline";
+import { fmtPct, fmtUsd } from "../lib/format";
+import { showLanding } from "../landing/actions";
+import { crossed, endFacts, frameClock, STORY_COLORS, type StoryEvent, type StoryKind } from "./story";
 
 /**
  * What the presenter sees on top of the replay, mounted from Controls (always on screen with the overlay) and portalled
- * to <body>, so it can sit anywhere without App.tsx changing: the captions at the bottom centre.
+ * to <body>, so it can sit anywhere without App.tsx changing: the captions at the bottom centre and, at the replay's
+ * last frame, the end card.
  */
 export function PresenterLayer({ bundle, events }: { bundle: Bundle; derived: Derived; events: StoryEvent[] }) {
   const replay = useApp((s) => s.mode === "replay");
   if (typeof document === "undefined") return null;
-  return createPortal(<>{replay && <Captions bundle={bundle} events={events} />}</>, document.body);
+  return createPortal(
+    <>
+      {replay && <Captions bundle={bundle} events={events} />}
+      {replay && <EndCard bundle={bundle} />}
+    </>,
+    document.body,
+  );
+}
+
+/**
+ * At the replay's last frame: both ships' final equity, the difference and any margin call with its time, all read
+ * from the bundle (ui/story.ts: endFacts). Gone again as soon as the playhead leaves the last frame.
+ */
+function EndCard({ bundle }: { bundle: Bundle }) {
+  const i = useFrameIndex();
+  if (bundle.n < 2 || i < bundle.n - 1) return null;
+  const f = endFacts(bundle);
+  const replay = () => {
+    const tl = useTimeline.getState();
+    tl.seek(0);
+    tl.play();
+  };
+  return (
+    <div className="end-card" role="dialog" aria-label="End of the replay">
+      <div className="end-title">End of the replay</div>
+      <div className="end-ships">
+        {f.ships.map((s) => (
+          <div key={s.key} className={`end-ship ${s.key}`}>
+            <div className="end-name">{s.label}</div>
+            <div className="end-eq">
+              <span className="num">{fmtUsd(s.final)}</span> <span className={`num ${s.changePct >= 0 ? "up" : "down"}`}>{fmtPct(s.changePct)}</span>
+            </div>
+            <div className={s.marginCall ? "end-mc" : "end-afloat"}>{s.marginCall ? `Margin call ${s.marginCall.time}` : "Afloat"}</div>
+          </div>
+        ))}
+      </div>
+      <div className="end-diff">
+        <span>{f.lead}</span>
+        {f.amount && <span className="num">{f.amount}</span>}
+      </div>
+      <div className="end-actions">
+        <button className="sail-btn" onClick={replay}>
+          Replay
+        </button>
+        <button className="ghost-btn" onClick={showLanding}>
+          Back to landing <kbd>L</kbd>
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /** A caption shows at least this long before the next one in the queue replaces it. */
