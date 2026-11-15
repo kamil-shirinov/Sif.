@@ -114,6 +114,9 @@ export function makeHullGeometry(): BufferGeometry {
     tp.push(v.x, v.y, v.z);
   }
   for (let j = 1; j < per; j++) ti.push(0, j, j + 1);
+  // Close the fan across the top (starboard rail back to port rail). Without this triangle the upper middle of the
+  // transom was open: from astern one looked through the stern into the hull and out through the single-sided deck.
+  ti.push(0, per, 1);
   const transom = new BufferGeometry();
   transom.setAttribute("position", new BufferAttribute(new Float32Array(tp), 3));
   transom.setIndex(ti);
@@ -418,6 +421,7 @@ export function makeSailGeometry(): BufferGeometry {
   const g = new BufferGeometry();
   g.setAttribute("position", new BufferAttribute(pos, 3));
   g.setAttribute("uv", new BufferAttribute(uv, 2));
+  g.setAttribute("normal", new BufferAttribute(new Float32Array(n * n * 3), 3));
   g.setIndex(idx);
   return g;
 }
@@ -451,5 +455,29 @@ export function shapeSail(g: BufferGeometry, fill: number, wind: number, time: n
     }
   }
   p.needsUpdate = true;
-  g.computeVertexNormals();
+  // Normals from the grid's own neighbours (central differences), written in place: computeVertexNormals() allocates
+  // on every call, and this runs every frame for every ship.
+  const nrm = g.attributes.normal as BufferAttribute;
+  const nn = nrm.array as Float32Array;
+  for (let j = 0; j < n; j++) {
+    const j0 = Math.max(0, j - 1);
+    const j1 = Math.min(n - 1, j + 1);
+    for (let i = 0; i < n; i++) {
+      const i0 = Math.max(0, i - 1);
+      const i1 = Math.min(n - 1, i + 1);
+      const ka = (j * n + i0) * 3;
+      const kb = (j * n + i1) * 3;
+      const kc = (j0 * n + i) * 3;
+      const kd = (j1 * n + i) * 3;
+      const ux = a[kb] - a[ka], uy = a[kb + 1] - a[ka + 1], uz = a[kb + 2] - a[ka + 2];
+      const vx = a[kd] - a[kc], vy = a[kd + 1] - a[kc + 1], vz = a[kd + 2] - a[kc + 2];
+      // across (+z) x down (-y) points forward (+x), the side the sail bellies toward
+      let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      const len = Math.hypot(nx, ny, nz) || 1;
+      nx /= len; ny /= len; nz /= len;
+      const k = (j * n + i) * 3;
+      nn[k] = nx; nn[k + 1] = ny; nn[k + 2] = nz;
+    }
+  }
+  nrm.needsUpdate = true;
 }

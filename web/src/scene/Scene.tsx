@@ -26,6 +26,7 @@ import { Stars } from "./Stars";
 import { Particles } from "./Particles";
 import { Stats, statsEnabled } from "./Stats";
 import { show } from "./debugFlags";
+import { Warmup } from "./Warmup";
 
 /** Far plane well beyond the sky sphere (radius SKY_SCALE / 2), so nothing of the sky can be clipped. */
 const CAMERA_FAR = 2_000_000;
@@ -113,6 +114,8 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
       <CameraRig />
       {statsEnabled && <Stats quality={lowQuality ? "low" : `tier ${tier}`} />}
       {!lowQuality && COMPOSER_ON && <Post tier={tier} />}
+      {/* Last on purpose: see Warmup. */}
+      <Warmup stamp={`${seq}-${tier}-${derived.player ? "p" : "r"}`} throughComposer={!lowQuality && COMPOSER_ON} />
     </>
   );
 }

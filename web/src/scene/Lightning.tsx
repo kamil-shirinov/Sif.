@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { CatmullRomCurve3, Color, Group, Mesh, MeshBasicMaterial, PointLight, TubeGeometry, Vector3 } from "three";
+import { CatmullRomCurve3, Color, Mesh, MeshBasicMaterial, PointLight, TubeGeometry, Vector3 } from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { onJump } from "../lib/bus";
 import { vis } from "./vis";
 
@@ -25,45 +26,81 @@ function boltGeometries(start: Vector3, end: Vector3, rand: () => number): TubeG
   return out;
 }
 
+const BOLT_VARIANTS = 6;
+const BOLT_HEIGHT = 230;
+const _fwd = new Vector3();
+const _up = new Vector3(0, 1, 0);
+
+/**
+ * Where the next bolt should strike, if something else decides (the storm cell): set by StormCell, read here.
+ * `active` false: the bolt falls somewhere in front of the camera, as before.
+ */
+export const strikeZone = { active: false, x: 0, z: 0, radius: 60, top: BOLT_HEIGHT };
+
 /** Lightning on frames where series.jump = 1 (announced by the replay driver). */
 export function Lightning() {
   const camera = useThree((s) => s.camera);
-  const group = useRef<Group>(null);
   const light = useRef<PointLight>(null);
-  const strike = useRef({ age: 99, strength: 1, seq: 0 });
+  const strike = useRef({ age: 99, strength: 1, which: 0 });
   const mat = useMemo(() => new MeshBasicMaterial({ color: new Color(16, 17, 24), toneMapped: false, fog: false, transparent: true }), []);
+  // A fixed set of bolts built once (each: a jagged main channel and three branches, merged). A strike picks one,
+  // moves, turns and stretches it: nothing is built or uploaded while playing, and the material compiles at load.
+  const bolts = useMemo(() => {
+    return Array.from({ length: BOLT_VARIANTS }, (_, v) => {
+      let s = (v * 9301 + 49297) % 233280;
+      const rand = () => {
+        s = (s * 9301 + 49297) % 233280;
+        return s / 233280;
+      };
+      const top = new Vector3((rand() - 0.5) * 60, BOLT_HEIGHT, (rand() - 0.5) * 60);
+      const geo = mergeGeometries(boltGeometries(top, new Vector3(0, 0, 0), rand).map((g) => (g.index ? g.toNonIndexed() : g)))!;
+      const m = new Mesh(geo, mat);
+      m.visible = false;
+      m.frustumCulled = false;
+      return m;
+    });
+  }, [mat]);
+  useEffect(
+    () => () => {
+      bolts.forEach((b) => b.geometry.dispose());
+      mat.dispose();
+    },
+    [bolts, mat],
+  );
 
   useEffect(
     () =>
       onJump(({ frame, strength }) => {
-        const g = group.current;
-        if (!g) return;
         let s = (frame * 9301 + 49297) % 233280;
         const rand = () => {
           s = (s * 9301 + 49297) % 233280;
           return s / 233280;
         };
-        // Strike somewhere in front of the camera, out over the sea.
-        const fwd = new Vector3();
-        camera.getWorldDirection(fwd);
-        fwd.y = 0;
-        fwd.normalize();
-        const ang = (rand() - 0.5) * 1.6;
-        const dist = 160 + rand() * 260;
-        const dir = fwd.applyAxisAngle(new Vector3(0, 1, 0), ang);
-        const ground = new Vector3(camera.position.x, 0, camera.position.z).addScaledVector(dir, dist);
-        const top = ground.clone().add(new Vector3((rand() - 0.5) * 60, 230, (rand() - 0.5) * 60));
-        for (const c of [...g.children]) {
-          const m = c as Mesh;
-          m.geometry.dispose();
-          g.remove(m);
+        const which = frame % BOLT_VARIANTS;
+        const b = bolts[which];
+        let height = BOLT_HEIGHT;
+        if (strikeZone.active) {
+          // Inside the storm cell: under its base, anywhere within its rain.
+          const a = rand() * Math.PI * 2;
+          const r = Math.sqrt(rand()) * strikeZone.radius;
+          b.position.set(strikeZone.x + Math.cos(a) * r, 0, strikeZone.z + Math.sin(a) * r);
+          height = strikeZone.top;
+        } else {
+          // Somewhere in front of the camera, out over the sea.
+          camera.getWorldDirection(_fwd);
+          _fwd.y = 0;
+          _fwd.normalize().applyAxisAngle(_up, (rand() - 0.5) * 1.6);
+          b.position.set(camera.position.x, 0, camera.position.z).addScaledVector(_fwd, 160 + rand() * 260);
         }
-        for (const geo of boltGeometries(top, ground, rand)) g.add(new Mesh(geo, mat));
-        if (light.current) light.current.position.copy(top).lerp(ground, 0.4);
-        vis.flashPos.copy(top);
-        strike.current = { age: 0, strength, seq: strike.current.seq + 1 };
+        b.rotation.y = rand() * Math.PI * 2;
+        b.scale.set(1, height / BOLT_HEIGHT, 1);
+        if (light.current) light.current.position.set(b.position.x, height * 0.6, b.position.z);
+        vis.flashPos.set(b.position.x, height, b.position.z);
+        strike.current.age = 0;
+        strike.current.strength = strength;
+        strike.current.which = which;
       }),
-    [camera, mat],
+    [camera, bolts],
   );
 
   useFrame((_, dt) => {
@@ -75,13 +112,15 @@ export function Lightning() {
     const k = pulse * (0.6 + 0.4 * st.strength);
     vis.flash = Math.max(vis.flash, k * 0.9);
     mat.opacity = Math.min(1, k * 1.4);
-    if (group.current) group.current.visible = k > 0.02;
+    for (let i = 0; i < bolts.length; i++) bolts[i].visible = i === st.which && k > 0.02;
     if (light.current) light.current.intensity = k * 60000;
   });
 
   return (
     <>
-      <group ref={group} />
+      {bolts.map((b, i) => (
+        <primitive key={i} object={b} />
+      ))}
       <pointLight ref={light} intensity={0} distance={900} decay={1.6} color="#cfdcff" />
     </>
   );

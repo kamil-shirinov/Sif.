@@ -4,9 +4,11 @@ import {
   BackSide,
   CircleGeometry,
   Color,
+  CubeCamera,
   CylinderGeometry,
   DirectionalLight,
   FogExp2,
+  HalfFloatType,
   HemisphereLight,
   Mesh,
   MeshBasicMaterial,
@@ -15,6 +17,7 @@ import {
   Scene,
   ShaderMaterial,
   SphereGeometry,
+  WebGLCubeRenderTarget,
   type WebGLRenderTarget,
 } from "three";
 import { Sky } from "three/examples/jsm/objects/Sky.js";
@@ -38,7 +41,7 @@ const SUN_WHITE = new Color("#fff4e6");
 const SKY_BASE = 0.6;
 /** Environment map: cube face size, how often it may be re-baked, and its strength as fill light. */
 const ENV_SIZE = 64;
-const ENV_MIN_INTERVAL_S = 0.4;
+const ENV_MIN_INTERVAL_S = 2.5;
 const ENV_INTENSITY = 1.35;
 const HEMI_SKY_CALM = new Color("#c4d8ea");
 const HEMI_SKY_STORM = new Color("#7f8b96");
@@ -217,12 +220,18 @@ export function Atmosphere() {
     sea.rotation.x = -Math.PI / 2;
     sea.position.y = -2;
     s.add(dome, sea);
-    return { scene: s, seaMat, pmrem: new PMREMGenerator(gl), target: null as WebGLRenderTarget | null, key: "", last: -1e9 };
+    // Persistent targets: the sky is drawn into this small cube map and prefiltered into one PMREM target that is
+    // reused for every bake. (PMREMGenerator.fromScene allocates a cube map and a PMREM target on every call; at 4x
+    // that was a fresh pair of render targets every 0.4 s.)
+    const cube = new WebGLCubeRenderTarget(ENV_SIZE, { type: HalfFloatType });
+    const cubeCam = new CubeCamera(1, 4000, cube);
+    return { scene: s, seaMat, pmrem: new PMREMGenerator(gl), cube, cubeCam, target: null as WebGLRenderTarget | null, key: -1, last: -1e9, bakedDim: 1 };
   }, [sky, gl]);
   useEffect(
     () => () => {
       scene.environment = null;
       probe.target?.dispose();
+      probe.cube.dispose();
       probe.pmrem.dispose();
     },
     [scene, probe],
@@ -300,26 +309,31 @@ export function Atmosphere() {
       h.groundColor.copy(HEMI_SEA_CALM).lerp(HEMI_SEA_STORM, r).lerp(HEMI_SEA_NIGHT, night);
     }
 
-    // Re-bake the environment when the sky has changed enough to see (risk, sun, daylight, fair wind), at most
-    // every 0.4 s. Lightning does not re-bake: it is brief, and the sun light and the hemisphere carry the flash.
-    const key = `${Math.round(r * 24)}|${Math.round(vis.dayFactor * 16)}|${Math.round(vis.sunDir.x * 10)}|${Math.round(vis.sunDir.y * 12)}`;
+    // Re-bake the environment only when the sky has changed in kind (risk, daylight or the sun's place, in coarse
+    // steps), at most every ENV_MIN_INTERVAL_S, into the same targets: no allocation, no new texture, no material
+    // recompile. Between bakes its strength follows the sky's brightness, so the fill light still moves smoothly.
+    // Lightning does not re-bake: it is brief, and the sun light and the hemisphere carry the flash.
+    const probeDim = SKY_BASE * Math.max(0.03, 1 - Math.min(0.92, STORM_DARK_MAX * (0.85 * r * r + 0.15 * r) + 0.3 * night));
+    const key = Math.round(r * 5) * 1000 + Math.round(vis.dayFactor * 5) * 100 + Math.round(vis.sunDir.x * 3 + 3) * 10 + Math.round(vis.sunDir.y * 4 + 4);
     if (key !== probe.key && vis.elapsed - probe.last > ENV_MIN_INTERVAL_S) {
       probe.key = key;
       probe.last = vis.elapsed;
+      probe.bakedDim = probeDim;
       const disc = u.showSunDisc.value;
       const dim = u.uDim.value;
       // No sun disc in the probe (the directional light is the sun), and no flash.
       u.showSunDisc.value = 0;
-      u.uDim.value = SKY_BASE * Math.max(0.03, 1 - Math.min(0.92, STORM_DARK_MAX * (0.85 * r * r + 0.15 * r) + 0.3 * night));
+      u.uDim.value = probeDim;
       probe.seaMat.color.copy(ENV_SEA_CALM).lerp(ENV_SEA_STORM, r).multiplyScalar(0.08 + 0.92 * vis.dayFactor);
-      const next = probe.pmrem.fromScene(probe.scene, 0, 1, 4000, { size: ENV_SIZE });
+      probe.cubeCam.update(gl, probe.scene);
+      // (three's types call the reusable target a cube target; it is the PMREM target the first call returned.)
+      probe.target = probe.pmrem.fromCubemap(probe.cube.texture, probe.target as never);
       u.showSunDisc.value = disc;
       u.uDim.value = dim;
-      scene.environment = next.texture;
-      probe.target?.dispose();
-      probe.target = next;
+      if (scene.environment !== probe.target.texture) scene.environment = probe.target.texture;
     }
-    scene.environmentIntensity = ENV_INTENSITY * (1 + vis.flash * 1.5);
+    const follow = Math.min(2.5, Math.max(0.35, probeDim / probe.bakedDim));
+    scene.environmentIntensity = ENV_INTENSITY * follow * (1 + vis.flash * 1.5);
   });
 
   return (

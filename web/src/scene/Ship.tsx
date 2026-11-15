@@ -109,8 +109,10 @@ function buildShared() {
     houseMats: [house, house, white, white, house, house],
     wheelMats: [wheel, wheel, white, white, wheel, wheel],
     glow: [house, wheel],
-    deckMat: new MeshStandardMaterial({ color: "#5d6f62", roughness: 0.85, metalness: 0.0 }),
-    rigMat: new MeshStandardMaterial({ color: "#3b3f44", roughness: 0.6, metalness: 0.3 }),
+    // Double-sided, like the hull: no face of the ship is see-through from any angle (under the deck, inside the
+    // crow's nest, along the open-ended stays).
+    deckMat: new MeshStandardMaterial({ color: "#5d6f62", roughness: 0.85, metalness: 0.0, side: DoubleSide }),
+    rigMat: new MeshStandardMaterial({ color: "#3b3f44", roughness: 0.6, metalness: 0.3, side: DoubleSide }),
     darkMat: new MeshStandardMaterial({ color: "#1b1f24", roughness: 0.6, metalness: 0.2 }),
     sailMat: new MeshStandardMaterial({ map: cloth, roughness: 0.95, metalness: 0, side: DoubleSide }),
   };
@@ -260,7 +262,7 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     }),
     [],
   );
-  const smooth = useRef({ rising: 0, heel: 0, freeboard: 1, aboard: "" });
+  const smooth = useRef({ rising: 0, heel: 0, freeboard: 1, aboard: -1 });
 
   const anchor = useMemo(() => new Vector3(), []);
   const prevT = useRef(vis.t);
@@ -284,7 +286,9 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     if (outer.current) {
       outer.current.position.set(lay.x, _w.h + sm.freeboard - sink * 13, lay.z);
       shipPose[shipKey].y = outer.current.position.y;
-      outer.current.visible = sink < 0.999;
+      // Hide the hull group, never the group that holds the lantern: a light that disappears changes the scene's light
+      // count, and three recompiles every lit material when that changes (a 130 to 150 ms frame as she went under).
+      if (pitchG.current) pitchG.current.visible = sink < 0.999;
       anchor.set(lay.x, Math.max(outer.current.position.y, 0) + MAST_TOP + 0.9, lay.z);
       placeLabel(`ship-${shipKey}`, anchor, camera, size.width, size.height);
     }
@@ -302,13 +306,13 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     wake.visible = sm.rising > 0.01;
 
     // Containers on deck: only rewrite the instance matrices when one leaves or comes back.
-    let sig = "";
-    for (let i = 0; i < slots.length; i++) sig += crateAboard(ship, i, t) ? "1" : "0";
+    let sig = 0; // one bit per container (at most MAX_CRATES = 24)
+    for (let i = 0; i < slots.length; i++) if (crateAboard(ship, i, t)) sig |= 1 << i;
     if (sig !== sm.aboard) {
       sm.aboard = sig;
       for (let i = 0; i < slots.length; i++) {
         const s = slots[i];
-        cargo.setMatrixAt(i, sig[i] === "1" ? _m.makeScale(s.dims.len, s.dims.h, s.dims.w).setPosition(s.local) : ZERO);
+        cargo.setMatrixAt(i, sig & (1 << i) ? _m.makeScale(s.dims.len, s.dims.h, s.dims.w).setPosition(s.local) : ZERO);
       }
       cargo.instanceMatrix.needsUpdate = true;
     }
@@ -391,12 +395,13 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
             <mesh position={[-4.6, 2.95, 2.22]} material={lamps.starboard}>
               <sphereGeometry args={[0.15, 8, 6]} />
             </mesh>
-            <pointLight ref={lanternLight} position={[MAST_X + 0.6, MAST_TOP - 0.6, 0]} intensity={0} distance={38} decay={1.5} color="#ffd9a0" />
             {/* cargo: one container per USD_PER_CRATE of notional from exposure.positions */}
             <primitive object={cargo} />
           </group>
         </group>
         <primitive object={wake} />
+        {/* Outside the hull group, which is hidden once she has sunk: the light count must not change. */}
+        <pointLight ref={lanternLight} position={[MAST_X + 0.6, MAST_TOP - 0.6, 0]} intensity={0} distance={38} decay={1.5} color="#ffd9a0" />
       </group>
       <Wreck shipKey={shipKey} derived={derived} />
     </>
