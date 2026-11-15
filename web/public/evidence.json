@@ -1,0 +1,1558 @@
+{
+ "schema_version": 1,
+ "generated_by": "scripts/build_evidence.py",
+ "book": "The trading book in every replay is synthetic: $1M equity, labelled as such.",
+ "sources": {
+  "index": {
+   "path": "web/public/bundles/index.json",
+   "sha256": "cd7a58eb2b81b6eedae0d2fbac409852f507098ae53cc85aaebbad21d34533cf"
+  },
+  "snapshot": {
+   "path": "docs/results_snapshot.json",
+   "sha256": "ae03960f0d87e90f8ac9632aaad5e11c2523734cd7d51a10c1c426bf42f17fcb"
+  },
+  "sgx_august": {
+   "path": "docs/stats/units/sgx-august.json",
+   "sha256": "2a8d475dc395802bfafa9dd4122d302ff0bc73348e61edaacc571b2ea8562805"
+  },
+  "oos_round1": {
+   "path": "docs/oos/results.json",
+   "sha256": "70746e0f36e60663f0d934b703ef5ea2b3687b32bf9f847fe65f3ef45d9e489d"
+  },
+  "oos_round2": {
+   "path": "docs/oos/results-2.json",
+   "sha256": "e0707f8dcd355110319a332e7669297592f7c481bc35a80678f251c1fca48828"
+  },
+  "chips": {
+   "path": "docs/chips/results.json",
+   "sha256": "f4135e49aa7fd63fcd82fdfeb694b94638ec20a8b7052bed3a98a8f9dd24793e"
+  },
+  "stats": {
+   "path": "docs/stats/results.json",
+   "sha256": "7459b05dd38cb55a0ee532710f579d000d982d3f42e5a6fd2d0c47ff5a89706b"
+  }
+ },
+ "datasets": [
+  {
+   "id": "sgx-july",
+   "title": "SGX FX, July 2026",
+   "period": "1 to 31 July 2026",
+   "labels": [
+    "tuning month",
+    "in-sample"
+   ],
+   "note": "The detector was tuned on July. These storms are the replays we show; they are not evidence that it works.",
+   "headline": {
+    "storms": 7,
+    "alarmed": 5,
+    "caught": 3,
+    "median_move_ahead_pct": 50.5,
+    "median_minutes_to_alarm": null,
+    "false_alarm_episodes_per_day": null,
+    "days": null
+   },
+   "headline_note": "Counted over the July replay bundles (caught: at least half the move ahead).",
+   "storms": [
+    {
+     "id": "usdjpy-2026-07-02",
+     "date": "2026-07-02 12:20",
+     "instrument": "USDJPY",
+     "kind": "scheduled",
+     "move_bp": -58.4,
+     "alarmed": true,
+     "share_ahead_pct": 50.5,
+     "caught": true,
+     "group": null,
+     "in_sample": true,
+     "bundle": "usdjpy-2026-07-02.json"
+    },
+    {
+     "id": "usdsgd-2026-07-02",
+     "date": "2026-07-02 12:26",
+     "instrument": "USDSGD",
+     "kind": "scheduled",
+     "move_bp": -38.4,
+     "alarmed": true,
+     "share_ahead_pct": 44.1,
+     "caught": false,
+     "group": null,
+     "in_sample": true,
+     "bundle": "usdsgd-2026-07-02.json"
+    },
+    {
+     "id": "eurusd-2026-07-02",
+     "date": "2026-07-02 12:30",
+     "instrument": "EURUSD",
+     "kind": "scheduled",
+     "move_bp": 63.1,
+     "alarmed": true,
+     "share_ahead_pct": 53.2,
+     "caught": true,
+     "group": null,
+     "in_sample": true,
+     "bundle": "eurusd-2026-07-02.json"
+    },
+    {
+     "id": "eurusd-2026-07-14",
+     "date": "2026-07-14 12:16",
+     "instrument": "EURUSD",
+     "kind": "scheduled",
+     "move_bp": 46.2,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": true,
+     "bundle": "eurusd-2026-07-14.json"
+    },
+    {
+     "id": "usdjpy-2026-07-14",
+     "date": "2026-07-14 12:16",
+     "instrument": "USDJPY",
+     "kind": "scheduled",
+     "move_bp": -34.0,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": true,
+     "bundle": "usdjpy-2026-07-14.json"
+    },
+    {
+     "id": "usdjpy-2026-07-30",
+     "date": "2026-07-30 13:29",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -290.4,
+     "alarmed": true,
+     "share_ahead_pct": 89.0,
+     "caught": true,
+     "group": null,
+     "in_sample": true,
+     "bundle": "usdjpy-2026-07-30.json"
+    },
+    {
+     "id": "eurusd-2026-07-31",
+     "date": "2026-07-31 13:25",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -38.9,
+     "alarmed": true,
+     "share_ahead_pct": 0.0,
+     "caught": false,
+     "group": null,
+     "in_sample": true,
+     "bundle": "eurusd-2026-07-31.json"
+    }
+   ]
+  },
+  {
+   "id": "sgx-august",
+   "title": "SGX FX, August 2026",
+   "period": "1 to 31 August 2026",
+   "labels": [
+    "test month",
+    "never seen in tuning"
+   ],
+   "note": "Held out while tuning. 13 storms over July and August in all.",
+   "headline": {
+    "storms": 6,
+    "alarmed": 6,
+    "caught": 4,
+    "median_move_ahead_pct": 57.4,
+    "median_minutes_to_alarm": 3.5,
+    "false_alarm_episodes_per_day": 0.33,
+    "days": 21.5
+   },
+   "headline_note": null,
+   "storms": [
+    {
+     "id": "usdjpy-2026-08-03",
+     "date": "2026-08-03 00:27",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -135.5,
+     "alarmed": true,
+     "share_ahead_pct": 55.5,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": "usdjpy-2026-08-03.json"
+    },
+    {
+     "id": "usdjpy-2026-08-07",
+     "date": "2026-08-07 12:20",
+     "instrument": "USDJPY",
+     "kind": "scheduled",
+     "move_bp": -95.4,
+     "alarmed": true,
+     "share_ahead_pct": 59.3,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": "usdjpy-2026-08-07.json"
+    },
+    {
+     "id": "usdsgd-2026-08-07",
+     "date": "2026-08-07 12:28",
+     "instrument": "USDSGD",
+     "kind": "scheduled",
+     "move_bp": -32.0,
+     "alarmed": true,
+     "share_ahead_pct": 34.6,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": "usdsgd-2026-08-07.json"
+    },
+    {
+     "id": "eurusd-2026-08-07",
+     "date": "2026-08-07 12:29",
+     "instrument": "EURUSD",
+     "kind": "scheduled",
+     "move_bp": 40.8,
+     "alarmed": true,
+     "share_ahead_pct": 29.4,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": "eurusd-2026-08-07.json"
+    },
+    {
+     "id": "usdjpy-2026-08-19",
+     "date": "2026-08-19 12:25",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -44.8,
+     "alarmed": true,
+     "share_ahead_pct": 60.5,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": "usdjpy-2026-08-19.json"
+    },
+    {
+     "id": "eurusd-2026-08-28",
+     "date": "2026-08-28 14:01",
+     "instrument": "EURUSD",
+     "kind": "scheduled",
+     "move_bp": -33.1,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": "eurusd-2026-08-28.json"
+    }
+   ]
+  },
+  {
+   "id": "oos-round1",
+   "title": "Crisis events 2015 to 2024, and ordinary months",
+   "period": "6 event windows and 2 ordinary months",
+   "labels": [
+    "round 1",
+    "pre-registered",
+    "out of sample"
+   ],
+   "note": "Rules and thresholds frozen and registered before the data was downloaded (docs/oos/preregistration.md).",
+   "headline": {
+    "storms": 23,
+    "alarmed": 19,
+    "caught": 9,
+    "median_move_ahead_pct": 43.4,
+    "median_minutes_to_alarm": 5.0,
+    "false_alarm_episodes_per_day": 0.22,
+    "days": 64.8
+   },
+   "headline_note": null,
+   "storms": [
+    {
+     "id": "usdchf-2015-01-15",
+     "date": "2015-01-15 09:33",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": -2431.8,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": "SNB floor removal",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurchf-2015-01-15",
+     "date": "2015-01-15 09:34",
+     "instrument": "EURCHF",
+     "kind": "unscheduled",
+     "move_bp": -2568.4,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": "SNB floor removal",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "gbpusd-2016-10-06",
+     "date": "2016-10-06 22:54",
+     "instrument": "GBPUSD",
+     "kind": "unscheduled",
+     "move_bp": -529.4,
+     "alarmed": true,
+     "share_ahead_pct": 17.2,
+     "caught": false,
+     "group": "Sterling flash crash",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2019-01-02",
+     "date": "2019-01-02 22:23",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -333.3,
+     "alarmed": true,
+     "share_ahead_pct": 57.3,
+     "caught": true,
+     "group": "Yen flash crash",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "audjpy-2019-01-02",
+     "date": "2019-01-02 22:24",
+     "instrument": "AUDJPY",
+     "kind": "unscheduled",
+     "move_bp": -659.8,
+     "alarmed": true,
+     "share_ahead_pct": 69.6,
+     "caught": true,
+     "group": "Yen flash crash",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2022-09-21",
+     "date": "2022-09-21 18:31",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -61.5,
+     "alarmed": true,
+     "share_ahead_pct": 35.7,
+     "caught": false,
+     "group": "September intervention",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2022-09-22",
+     "date": "2022-09-22 08:02",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -337.9,
+     "alarmed": true,
+     "share_ahead_pct": 68.8,
+     "caught": true,
+     "group": "September intervention",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2022-10-21",
+     "date": "2022-10-21 15:06",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -225.8,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": "October interventions",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2022-10-23",
+     "date": "2022-10-23 23:28",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -260.3,
+     "alarmed": true,
+     "share_ahead_pct": 35.2,
+     "caught": false,
+     "group": "October interventions",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "gbpusd-2024-03-08",
+     "date": "2024-03-08 13:16",
+     "instrument": "GBPUSD",
+     "kind": "unscheduled",
+     "move_bp": 30.9,
+     "alarmed": true,
+     "share_ahead_pct": 0.0,
+     "caught": false,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2024-03-08",
+     "date": "2024-03-08 13:27",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": 31.0,
+     "alarmed": true,
+     "share_ahead_pct": 33.6,
+     "caught": false,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2024-03-12",
+     "date": "2024-03-12 12:30",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -40.6,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2024-03-19",
+     "date": "2024-03-19 03:25",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": 38.8,
+     "alarmed": true,
+     "share_ahead_pct": 90.9,
+     "caught": true,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2024-03-20",
+     "date": "2024-03-20 18:32",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -57.9,
+     "alarmed": true,
+     "share_ahead_pct": 64.2,
+     "caught": true,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2024-03-20",
+     "date": "2024-03-20 18:34",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": 45.5,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "gbpusd-2024-03-20",
+     "date": "2024-03-20 18:34",
+     "instrument": "GBPUSD",
+     "kind": "unscheduled",
+     "move_bp": 40.8,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2024-03-27",
+     "date": "2024-03-27 09:00",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -34.3,
+     "alarmed": true,
+     "share_ahead_pct": 35.9,
+     "caught": false,
+     "group": "Ordinary March 2024",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2024-08-02",
+     "date": "2024-08-02 12:26",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -129.5,
+     "alarmed": true,
+     "share_ahead_pct": 25.0,
+     "caught": false,
+     "group": "Carry-trade unwind",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2024-08-07",
+     "date": "2024-08-07 01:31",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": 161.7,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": "Carry-trade unwind",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-06-05",
+     "date": "2025-06-05 13:07",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": 47.9,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": "Ordinary June 2025",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-06-11",
+     "date": "2025-06-11 12:21",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": 45.8,
+     "alarmed": true,
+     "share_ahead_pct": 42.1,
+     "caught": false,
+     "group": "Ordinary June 2025",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "gbpusd-2025-06-11",
+     "date": "2025-06-11 12:21",
+     "instrument": "GBPUSD",
+     "kind": "unscheduled",
+     "move_bp": 39.7,
+     "alarmed": true,
+     "share_ahead_pct": 33.4,
+     "caught": false,
+     "group": "Ordinary June 2025",
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-06-11",
+     "date": "2025-06-11 12:21",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -60.0,
+     "alarmed": true,
+     "share_ahead_pct": 43.4,
+     "caught": false,
+     "group": "Ordinary June 2025",
+     "in_sample": false,
+     "bundle": null
+    }
+   ]
+  },
+  {
+   "id": "oos-round2",
+   "title": "January to July 2025",
+   "period": "2025-01 to 2025-07",
+   "labels": [
+    "round 2",
+    "pre-registered",
+    "partial"
+   ],
+   "note": "Partial: 24 of 72 planned pair-months could be used (docs/oos/results-2.md).",
+   "headline": {
+    "storms": 38,
+    "alarmed": 32,
+    "caught": 10,
+    "median_move_ahead_pct": 29.3,
+    "median_minutes_to_alarm": 6.0,
+    "false_alarm_episodes_per_day": 0.34,
+    "days": 146.1
+   },
+   "headline_note": null,
+   "storms": [
+    {
+     "id": "usdsgd-2025-01-06",
+     "date": "2025-01-06 11:18",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": -50.3,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-01-06",
+     "date": "2025-01-06 14:05",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": 53.1,
+     "alarmed": true,
+     "share_ahead_pct": 0.0,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-01-10",
+     "date": "2025-01-10 13:19",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": 54.1,
+     "alarmed": true,
+     "share_ahead_pct": 15.9,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-01-15",
+     "date": "2025-01-15 13:17",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": -38.2,
+     "alarmed": true,
+     "share_ahead_pct": 13.9,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-01-20",
+     "date": "2025-01-20 13:19",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": -66.6,
+     "alarmed": true,
+     "share_ahead_pct": 27.2,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-01-21",
+     "date": "2025-01-21 00:48",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": 46.5,
+     "alarmed": true,
+     "share_ahead_pct": 43.8,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-02-07",
+     "date": "2025-02-07 15:50",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -51.3,
+     "alarmed": true,
+     "share_ahead_pct": 24.6,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-02-07",
+     "date": "2025-02-07 15:50",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": 32.4,
+     "alarmed": true,
+     "share_ahead_pct": 28.3,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-02-12",
+     "date": "2025-02-12 13:15",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": 39.6,
+     "alarmed": true,
+     "share_ahead_pct": 30.9,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-02-12",
+     "date": "2025-02-12 13:25",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -47.7,
+     "alarmed": true,
+     "share_ahead_pct": 30.2,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-02-12",
+     "date": "2025-02-12 13:25",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": 38.2,
+     "alarmed": true,
+     "share_ahead_pct": 24.1,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-02-12",
+     "date": "2025-02-12 13:25",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": 59.3,
+     "alarmed": true,
+     "share_ahead_pct": 16.9,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-02-13",
+     "date": "2025-02-13 18:28",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -42.1,
+     "alarmed": true,
+     "share_ahead_pct": 25.1,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-02-27",
+     "date": "2025-02-27 13:42",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -38.1,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-04-02",
+     "date": "2025-04-02 20:13",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -67.0,
+     "alarmed": true,
+     "share_ahead_pct": 93.3,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-04-02",
+     "date": "2025-04-02 20:17",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -83.5,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-04-02",
+     "date": "2025-04-02 20:21",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": 47.4,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-04-09",
+     "date": "2025-04-09 17:17",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": 170.3,
+     "alarmed": true,
+     "share_ahead_pct": 65.6,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-04-09",
+     "date": "2025-04-09 17:19",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": 134.5,
+     "alarmed": true,
+     "share_ahead_pct": 45.3,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-04-09",
+     "date": "2025-04-09 17:31",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": -56.1,
+     "alarmed": true,
+     "share_ahead_pct": 0.0,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-04-11",
+     "date": "2025-04-11 00:17",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": 103.7,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-05-23",
+     "date": "2025-05-23 11:38",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -57.6,
+     "alarmed": true,
+     "share_ahead_pct": 51.1,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-05-28",
+     "date": "2025-05-28 00:54",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": 49.5,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-05-28",
+     "date": "2025-05-28 23:29",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -52.8,
+     "alarmed": true,
+     "share_ahead_pct": 21.9,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-06-11",
+     "date": "2025-06-11 12:21",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": 45.8,
+     "alarmed": true,
+     "share_ahead_pct": 42.1,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-06-11",
+     "date": "2025-06-11 12:21",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": -40.1,
+     "alarmed": true,
+     "share_ahead_pct": 56.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-06-11",
+     "date": "2025-06-11 12:21",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -60.0,
+     "alarmed": true,
+     "share_ahead_pct": 43.4,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-07-03",
+     "date": "2025-07-03 12:16",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": 34.4,
+     "alarmed": true,
+     "share_ahead_pct": 0.0,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-07-03",
+     "date": "2025-07-03 12:19",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -53.8,
+     "alarmed": true,
+     "share_ahead_pct": 13.1,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-07-03",
+     "date": "2025-07-03 12:27",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": 53.4,
+     "alarmed": true,
+     "share_ahead_pct": 15.3,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-07-03",
+     "date": "2025-07-03 12:29",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": 83.5,
+     "alarmed": true,
+     "share_ahead_pct": 15.3,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-07-16",
+     "date": "2025-07-16 15:02",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": -98.3,
+     "alarmed": true,
+     "share_ahead_pct": 13.7,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-07-16",
+     "date": "2025-07-16 15:15",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": 82.0,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-07-16",
+     "date": "2025-07-16 15:15",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": -90.0,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdsgd-2025-07-16",
+     "date": "2025-07-16 15:40",
+     "instrument": "USDSGD",
+     "kind": "unscheduled",
+     "move_bp": 41.8,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "eurusd-2025-07-30",
+     "date": "2025-07-30 18:35",
+     "instrument": "EURUSD",
+     "kind": "unscheduled",
+     "move_bp": -62.6,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdchf-2025-07-30",
+     "date": "2025-07-30 18:35",
+     "instrument": "USDCHF",
+     "kind": "unscheduled",
+     "move_bp": 58.4,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "usdjpy-2025-07-30",
+     "date": "2025-07-30 18:35",
+     "instrument": "USDJPY",
+     "kind": "unscheduled",
+     "move_bp": 50.5,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    }
+   ]
+  },
+  {
+   "id": "chips",
+   "title": "Chip stocks",
+   "period": "13 new tickers, plus NVDA",
+   "labels": [
+    "pre-registered",
+    "new tickers",
+    "NVDA in-sample"
+   ],
+   "note": "The headline is the new tickers only; NVDA was looked at before the rules were frozen, so its rows are marked in-sample.",
+   "headline": {
+    "storms": 19,
+    "alarmed": 16,
+    "caught": 6,
+    "median_move_ahead_pct": 25.2,
+    "median_minutes_to_alarm": 10.0,
+    "false_alarm_episodes_per_day": 1.75,
+    "days": 20.0
+   },
+   "headline_note": null,
+   "storms": [
+    {
+     "id": "smci-2026-10-20",
+     "date": "2026-10-20 20:27",
+     "instrument": "SMCI",
+     "kind": "unscheduled",
+     "move_bp": 1318.5,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": "smci-2026-10-20.json"
+    },
+    {
+     "id": "tsm-2026-10-20",
+     "date": "2026-10-20 21:16",
+     "instrument": "TSM",
+     "kind": "unscheduled",
+     "move_bp": 484.4,
+     "alarmed": true,
+     "share_ahead_pct": 1.1,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "mu-2026-10-21",
+     "date": "2026-10-21 13:28",
+     "instrument": "MU",
+     "kind": "unscheduled",
+     "move_bp": -354.0,
+     "alarmed": true,
+     "share_ahead_pct": 49.8,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "lrcx-2026-10-21",
+     "date": "2026-10-21 20:01",
+     "instrument": "LRCX",
+     "kind": "unscheduled",
+     "move_bp": -839.7,
+     "alarmed": true,
+     "share_ahead_pct": 54.5,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "tsm-2026-10-22",
+     "date": "2026-10-22 21:00",
+     "instrument": "TSM",
+     "kind": "unscheduled",
+     "move_bp": 734.5,
+     "alarmed": true,
+     "share_ahead_pct": 2.2,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "mrvl-2026-10-28",
+     "date": "2026-10-28 20:56",
+     "instrument": "MRVL",
+     "kind": "unscheduled",
+     "move_bp": -1079.2,
+     "alarmed": true,
+     "share_ahead_pct": 7.8,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": "mrvl-2026-10-28.json"
+    },
+    {
+     "id": "amd-2026-10-29",
+     "date": "2026-10-29 19:50",
+     "instrument": "AMD",
+     "kind": "unscheduled",
+     "move_bp": -638.7,
+     "alarmed": true,
+     "share_ahead_pct": 58.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "soxx-2026-10-29",
+     "date": "2026-10-29 19:51",
+     "instrument": "SOXX",
+     "kind": "unscheduled",
+     "move_bp": -399.7,
+     "alarmed": true,
+     "share_ahead_pct": 61.5,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "mu-2026-10-29",
+     "date": "2026-10-29 19:52",
+     "instrument": "MU",
+     "kind": "unscheduled",
+     "move_bp": -418.5,
+     "alarmed": true,
+     "share_ahead_pct": 5.3,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "intc-2026-10-29",
+     "date": "2026-10-29 19:52",
+     "instrument": "INTC",
+     "kind": "unscheduled",
+     "move_bp": -2175.4,
+     "alarmed": true,
+     "share_ahead_pct": 24.6,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": "intc-2026-10-29.json"
+    },
+    {
+     "id": "smh-2026-10-29",
+     "date": "2026-10-29 19:52",
+     "instrument": "SMH",
+     "kind": "unscheduled",
+     "move_bp": -309.8,
+     "alarmed": true,
+     "share_ahead_pct": 25.8,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "arm-2026-10-29",
+     "date": "2026-10-29 19:56",
+     "instrument": "ARM",
+     "kind": "unscheduled",
+     "move_bp": -731.8,
+     "alarmed": true,
+     "share_ahead_pct": 59.7,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "avgo-2026-10-29",
+     "date": "2026-10-29 20:00",
+     "instrument": "AVGO",
+     "kind": "unscheduled",
+     "move_bp": -338.9,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "amd-2026-11-03",
+     "date": "2026-11-03 14:30",
+     "instrument": "AMD",
+     "kind": "unscheduled",
+     "move_bp": 481.4,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "smci-2026-11-03",
+     "date": "2026-11-03 20:55",
+     "instrument": "SMCI",
+     "kind": "unscheduled",
+     "move_bp": 613.2,
+     "alarmed": true,
+     "share_ahead_pct": 14.5,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "amd-2026-11-03-2",
+     "date": "2026-11-03 21:03",
+     "instrument": "AMD",
+     "kind": "unscheduled",
+     "move_bp": 787.4,
+     "alarmed": true,
+     "share_ahead_pct": 23.9,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "qcom-2026-11-04",
+     "date": "2026-11-04 13:23",
+     "instrument": "QCOM",
+     "kind": "unscheduled",
+     "move_bp": 586.2,
+     "alarmed": true,
+     "share_ahead_pct": 0.0,
+     "caught": false,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "mu-2026-11-05",
+     "date": "2026-11-05 16:06",
+     "instrument": "MU",
+     "kind": "unscheduled",
+     "move_bp": 646.6,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    },
+    {
+     "id": "nvda-2026-11-11",
+     "date": "2026-11-11 22:13",
+     "instrument": "NVDA",
+     "kind": "unscheduled",
+     "move_bp": -645.7,
+     "alarmed": true,
+     "share_ahead_pct": 100.0,
+     "caught": true,
+     "group": null,
+     "in_sample": true,
+     "bundle": null
+    },
+    {
+     "id": "nvda-2026-11-12",
+     "date": "2026-11-12 14:27",
+     "instrument": "NVDA",
+     "kind": "unscheduled",
+     "move_bp": 772.1,
+     "alarmed": false,
+     "share_ahead_pct": null,
+     "caught": false,
+     "group": null,
+     "in_sample": true,
+     "bundle": "nvda-2026-11-12.json"
+    },
+    {
+     "id": "smci-2026-11-12",
+     "date": "2026-11-12 16:22",
+     "instrument": "SMCI",
+     "kind": "unscheduled",
+     "move_bp": -821.9,
+     "alarmed": true,
+     "share_ahead_pct": 57.8,
+     "caught": true,
+     "group": null,
+     "in_sample": false,
+     "bundle": null
+    }
+   ]
+  }
+ ],
+ "stats": {
+  "note": "95% bootstrap intervals; the random-timing test moves the alarms to random times and counts how often chance catches as many storms (one-sided).",
+  "groups": [
+   {
+    "id": "sgx_august",
+    "title": "SGX August",
+    "storms": 6,
+    "alarmed": 6,
+    "caught": 4,
+    "alarmed_share": 1.0,
+    "alarmed_share_ci95": [
+     1.0,
+     1.0
+    ],
+    "caught_share": 0.667,
+    "caught_share_ci95": [
+     0.333,
+     1.0
+    ],
+    "random_timing": {
+     "caught": 4,
+     "null_median": 0.0,
+     "null_ci95": [
+      0.0,
+      3.0
+     ],
+     "p_value": 0.0006,
+     "holm_p_value": 0.0042,
+     "replicates": 10000
+    }
+   },
+   {
+    "id": "oos_round1",
+    "title": "Round 1",
+    "storms": 23,
+    "alarmed": 19,
+    "caught": 9,
+    "alarmed_share": 0.826,
+    "alarmed_share_ci95": [
+     0.652,
+     0.957
+    ],
+    "caught_share": 0.391,
+    "caught_share_ci95": [
+     0.217,
+     0.609
+    ],
+    "random_timing": {
+     "caught": 9,
+     "null_median": 0.0,
+     "null_ci95": [
+      0.0,
+      3.0
+     ],
+     "p_value": 0.0001,
+     "holm_p_value": 0.0008,
+     "replicates": 10000
+    }
+   },
+   {
+    "id": "oos_round2",
+    "title": "Round 2 (partial)",
+    "storms": 38,
+    "alarmed": 32,
+    "caught": 10,
+    "alarmed_share": 0.842,
+    "alarmed_share_ci95": [
+     0.711,
+     0.947
+    ],
+    "caught_share": 0.263,
+    "caught_share_ci95": [
+     0.132,
+     0.421
+    ],
+    "random_timing": {
+     "caught": 10,
+     "null_median": 8.0,
+     "null_ci95": [
+      0.0,
+      19.0
+     ],
+     "p_value": 0.3704,
+     "holm_p_value": 0.7407,
+     "replicates": 10000
+    }
+   },
+   {
+    "id": "chips_new",
+    "title": "Chip stocks, new tickers",
+    "storms": 19,
+    "alarmed": 16,
+    "caught": 6,
+    "alarmed_share": 0.842,
+    "alarmed_share_ci95": [
+     0.684,
+     1.0
+    ],
+    "caught_share": 0.316,
+    "caught_share_ci95": [
+     0.105,
+     0.526
+    ],
+    "random_timing": {
+     "caught": 6,
+     "null_median": 3.0,
+     "null_ci95": [
+      0.0,
+      7.0
+     ],
+     "p_value": 0.1081,
+     "holm_p_value": 0.3243,
+     "replicates": 10000
+    }
+   },
+   {
+    "id": "pooled_fx",
+    "title": "All FX pooled",
+    "storms": 65,
+    "alarmed": 55,
+    "caught": 23,
+    "alarmed_share": 0.846,
+    "alarmed_share_ci95": [
+     0.754,
+     0.923
+    ],
+    "caught_share": 0.354,
+    "caught_share_ci95": [
+     0.246,
+     0.462
+    ],
+    "random_timing": {
+     "caught": 23,
+     "null_median": 8.0,
+     "null_ci95": [
+      0.0,
+      20.0
+     ],
+     "p_value": 0.0078,
+     "holm_p_value": null,
+     "replicates": 10000
+    }
+   },
+   {
+    "id": "pooled_all",
+    "title": "Everything pooled",
+    "storms": 84,
+    "alarmed": 71,
+    "caught": 29,
+    "alarmed_share": 0.845,
+    "alarmed_share_ci95": [
+     0.762,
+     0.917
+    ],
+    "caught_share": 0.345,
+    "caught_share_ci95": [
+     0.25,
+     0.44
+    ],
+    "random_timing": {
+     "caught": 29,
+     "null_median": 11.0,
+     "null_ci95": [
+      3.0,
+      24.0
+     ],
+     "p_value": 0.0032,
+     "holm_p_value": null,
+     "replicates": 10000
+    }
+   }
+  ]
+ }
+}

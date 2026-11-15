@@ -7,9 +7,9 @@ templates.
 
 | What | Where | Pure logic (tested) |
 |---|---|---|
-| First-run tutorial: three cards (leverage, the margin-call line, cut and restore), Skip or Esc, shown once; **How to play** in the setup opens it again | `Tutorial.tsx` | `tutorial.ts` |
+| First-run tutorial: three cards (leverage, the margin-call line, cut and restore), Skip or Esc, shown once; **How to play** in the setup opens it again | `Tutorial.tsx` | `tutorialCards.ts` |
 | Storm choice: every storm in index.json as Easy, Medium or Hard, with one plain sentence each; 30 July stays the default (tagged "headline") | `StormList.tsx`, `stormFacts.ts` | `difficulty.ts` |
-| Coach line under the equity while sailing | `Coach.tsx` | `coach.ts` |
+| Coach line under the equity while sailing | `Coach.tsx` | `coachLine.ts` |
 | End card: what happened, the ship that followed the alarm, one lesson, a share line with Copy, best scores per storm | `../SurviveCard.tsx` | `endcard.ts` |
 
 Styles: `web/src/survive.css`, imported by `../SurvivePanel.tsx`. Tests: `survive.test.mjs` with fixtures in

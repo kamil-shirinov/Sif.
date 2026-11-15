@@ -122,7 +122,7 @@ test("presenter keys map to their actions", () => {
 
 test("Space, C and R stay with the replay and Survive; modifiers, repeats and fields are ignored", () => {
   const a = keys.presenterAction;
-  for (const k of [" ", "c", "C", "r", "R", "4", "Enter"]) {
+  for (const k of [" ", "c", "C", "r", "R", "4"]) {
     assert.equal(a(press(k), false), null, k);
     assert.equal(a(press(k), true), null, k);
   }
@@ -135,6 +135,16 @@ test("Space, C and R stay with the replay and Survive; modifiers, repeats and fi
   assert.equal(a(press("2", { target: { tagName: "SELECT" } }), false), null);
   assert.equal(a(press("1", { target: { tagName: "DIV", isContentEditable: true } }), false), null);
   assert.equal(a(press("1", { target: { tagName: "BUTTON" } }), false), "headline");
+});
+
+test("Enter is Start on the landing page only, not on a focused link or button; E goes back to the Explorer", () => {
+  const a = keys.presenterAction;
+  assert.equal(a(press("Enter"), true), "start");
+  assert.equal(a(press("Enter"), false), null);
+  assert.equal(a(press("Enter", { target: { tagName: "A" } }), true), null);
+  assert.equal(a(press("Enter", { target: { tagName: "BUTTON" } }), true), null);
+  assert.equal(a(press("e"), false), "explore");
+  assert.equal(a(press("E"), true), null);
 });
 
 test("bindPresenterKeys runs the action, prevents the default, and unbinds", () => {

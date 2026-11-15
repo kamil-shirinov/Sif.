@@ -6,7 +6,7 @@ The app's opening screen, for presenting StormScore to judges live. It opens whe
 
 | Section | Content | Source |
 |---|---|---|
-| Hero | Name, one line, **Watch 30 July** (`?storm=usdjpy-2026-07-30`) and **Survive a storm** (`?mode=survive`) | — |
+| Hero | Name, one line, and one **Start** button (Enter also works): the page gives way and the **Explorer** arrives | — |
 | Three figures | storms alarmed in the test month, caught with at least half the move ahead (plus `caught_first_onset`), false alert episodes per day (plus the per-pair rate). Each has a one-line plain meaning and links to its section of `docs/metrics.md` on GitHub | `index.json` → `metrics`: `split`, `storms`, `alarmed`, `caught`, `caught_first_onset`, `false_alarm_episodes_per_day`, `false_alarms_per_day` |
 | 01 The 30 July storm | Three sentences and a two-ship ledger, then a plain note that July was the tuning month | the headline bundle: `storm` (`onset_i`, `trough_i`, `move_bp`, `kind`, `event`, `alarm_i`, `move_ahead_pct`), `alarm` events (any before the credited alarm is the false one), `ships` (`cut_fraction`, `start_equity_usd`, `margin_call_i`), the last frame of `prepared_equity` / `unprepared_equity` |
 | 02 How it works | The three defences, "models read, code judges", the data stack (SGX, Tiger Data, ElevenLabs, Meta, Fireworks, Modal) | text, no numbers |
@@ -16,10 +16,20 @@ The app's opening screen, for presenting StormScore to judges live. It opens whe
 
 **No figure is typed into the page.** `facts.ts` builds every string that has a number in it, from the JSON as fetched. A test also checks that `Landing.tsx` contains none of the real backtest's figures. The landing fetches `index.json` and the headline bundle itself and reads them leniently. A missing `metrics` hides the figures, and a missing bundle hides the story, with a short note in each case. So the story still reads even from a bundle the replay's strict validator would refuse.
 
+## Explorer
+
+Start (or Enter on the landing page) flies into the app as before, but the Explorer arrives instead of a fixed storm (`Explorer.tsx`, `explorer.css`, `explore.ts`). It lists every dataset we tested, each with its headline numbers and a table of its storms (date, instrument, move, alarmed, share of the move ahead, caught or missed), then the statistics across all of them (95% bootstrap intervals and the random-timing test). Filters: by dataset, and by instrument. A row whose replay bundle is on this machine (listed in `index.json`) has **Replay** and **Survive this storm**; the others say "results only". The labels say what each dataset is: July in-sample (the tuning month), August the test, rounds 1 and 2 pre-registered, round 2 partial, chips' NVDA in-sample, the book synthetic.
+
+Its data is `web/public/evidence.json`, built by `scripts/build_evidence.py` from the published result files (`index.json` and the July bundles, `docs/results_snapshot.json`, `docs/stats/units/sgx-august.json`, `docs/oos/results.json`, `docs/oos/results-2.json`, `docs/chips/results.json`, `docs/stats/results.json`) and committed. Re-run it after any of them changes; never edit the JSON by hand. The July rows come from the replay bundles, which carry no `caught` flag: there caught is the metric's own definition (at least half the move ahead), and the headline says so.
+
+Picking a storm: the Explorer fades while the storm and mode are made ready under it, then the HUD arrives in sequence and a replay starts playing. **E** goes back to the Explorer from a replay; **L** goes back to the landing page from anywhere.
+
 ## Presenter keys
 
 | Key | Does |
 |---|---|
+| Enter | Start (on the landing page; a focused link or button answers Enter itself) |
+| E | Back to the Explorer from a replay |
 | L | Back to the landing page from anywhere, as one move (below): replay mode, the loaded storm rewound to calm and paused, `?storm`/`?mode` dropped from the URL |
 | 1 | Opens 30 July (`usdjpy-2026-07-30`), auto-playing |
 | 2 | Opens Survive on 30 July (or on the loaded storm when the index does not list 30 July) |

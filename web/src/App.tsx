@@ -24,6 +24,8 @@ import { NavigatorPanel } from "./ui/NavigatorPanel";
 import { Landing } from "./landing/Landing";
 import { usePresenterKeys } from "./landing/usePresenterKeys";
 import { useTransition } from "./landing/transition";
+import { useExplore } from "./landing/explore";
+import { Explorer } from "./landing/Explorer";
 
 const StormScene = lazy(() => import("./scene/Scene").then((m) => ({ default: m.StormScene })));
 
@@ -72,7 +74,19 @@ export function App() {
   const showLandingPage = landing || phase === "opening";
   // The HUD stays mounted under the landing page (hidden and inert), so opening the replay only starts its arrival:
   // mounting it then (the chart, the panels) cost a 60 ms frame at take-off.
-  const hudClass = phase === "opening" ? "hud-arrive" : phase === "closing" ? "hud-leave" : landing ? "hud-hidden" : "";
+  // The Explorer (Start) sits over the sea with the HUD hidden under it, like the landing page.
+  const explorerOpen = useExplore((s) => s.open);
+  const explorerLeaving = useExplore((s) => s.leaving);
+  const hudClass =
+    explorerOpen && phase !== "closing"
+      ? "hud-hidden"
+      : phase === "opening"
+        ? "hud-arrive"
+        : phase === "closing"
+          ? "hud-leave"
+          : landing
+            ? "hud-hidden"
+            : "";
   // The captions and the end card are portalled to <body> (ui/Presenter.tsx), outside the overlay: the phase is mirrored
   // on the root element so landing/transition.css can keep them out of the flight.
   useEffect(() => {
@@ -227,6 +241,7 @@ export function App() {
       ) : (
         <div className="no-webgl-note">3D view unavailable (WebGL failed). Showing the market chart and HUD.</div>
       )}
+      {explorerOpen && <Explorer leaving={explorerLeaving || phase === "closing"} />}
       {showLandingPage && <Landing motion={phase === "opening" ? "leave" : phase === "closing" ? "enter" : null} />}
       {(
       <div className={`overlay ${hudClass}`} inert={hudClass === "hud-hidden"} aria-hidden={hudClass === "hud-hidden" || undefined}>
