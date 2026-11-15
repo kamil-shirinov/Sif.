@@ -32,7 +32,9 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--package-dir',type=Path,required=True)
     args=ap.parse_args()
-    check_frozen2()
+    spec=check_frozen2()
+    if sha256(args.package_dir/'dist/cli/index.js') != spec['downloader']['cli_sha256']:
+        raise SystemExit('registered decoder/CLI source changed')
     if (DOCS/'run-2-started.json').exists() or (DOCS/'results-2.json').exists():
         raise SystemExit('a primary detector run already started; conversion refused')
     old=DATA2/'manifest-before-final-decode.json'
@@ -86,11 +88,14 @@ def main():
             except (ValueError,KeyError,OSError) as exc:
                 record.update(status='unusable',reason=str(exc))
                 record.pop('parquet',None)
-                record.pop('quality',None)
+                if hasattr(exc,'quality'): record['quality']=exc.quality
+                else: record.pop('quality',None)
             print(window['id'],record['pair'],record['status'],record['reason'] or '',flush=True)
     manifest['final_conversion']={'utc':pd.Timestamp.now(tz='UTC').isoformat(),'network_requests':0,
         'cli_overlap_ohlc_rows_verified_exact':checked_rows,
         'decoder_api_sha256':sha256(args.package_dir/'dist/index.js'),
+        'npm_lock_sha256':sha256(args.package_dir.parent.parent/'package-lock.json'),
+        'node_version':subprocess.check_output(['node','--version'],text=True).strip(),
         'note_sha256':sha256(DOCS/'acquisition-notes-2.md')}
     (DATA2/'manifest.json').write_text(json.dumps(manifest,indent=2,allow_nan=False)+'\n')
 

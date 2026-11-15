@@ -16,6 +16,7 @@ from storm.oos.report2 import render2
 from storm.oos.round2 import (START, evaluate_year, monthly_metrics, policy_summary,
                               selected_prefix, weekly_book, transport_audit)
 from storm.oos.round2 import load_features
+from storm.oos.acquire2 import CoverageError, convert_month
 
 
 def features(start="2025-01-06", days=5):
@@ -47,6 +48,20 @@ def test_second_registration_is_frozen_and_separate():
     assert spec["differences_from_registration_1"]["config_changed"] is False
     assert spec["differences_from_registration_1"]["code_modules_changed"] == ["exposure", "export", "equity"]
     assert spec["runtime"]["python"] == "3.10.0"
+
+
+def test_unusable_month_keeps_its_observed_coverage_diagnostics(tmp_path):
+    idx = pd.date_range("2025-02-03", periods=500, freq="min", tz="UTC")
+    for side, price in (("bid", 100.0), ("ask", 100.01)):
+        frame = pd.DataFrame({"timestamp": idx.asi8 // 1_000_000, "volume": 1.0,
+                              **{c: price for c in ("open", "high", "low", "close")}})
+        frame.to_csv(tmp_path / (side + ".csv"), index=False)
+    window = {"id": "2025-02", "download_start": "2025-02-03", "start": "2025-02-03", "end_exclusive": "2025-02-04"}
+    with pytest.raises(CoverageError) as error:
+        convert_month(tmp_path / "bid.csv", tmp_path / "ask.csv", window, tmp_path / "output.parquet")
+    assert error.value.quality["evaluation_rows"] == 500
+    assert error.value.quality["weekday_coverage"] == pytest.approx(500 / 1440)
+    assert not (tmp_path / "output.parquet").exists()
 
 
 def test_deadline_prefix_is_chronological_and_keeps_unusable_pairs():

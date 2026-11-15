@@ -13,6 +13,12 @@ from .protocol import sha256
 from .protocol2 import DATA2, REGISTRATION2, check_frozen2
 
 
+class CoverageError(ValueError):
+    def __init__(self, reason, quality):
+        super().__init__(reason)
+        self.quality = quality
+
+
 def convert_month(bid, ask, window, output):
     b, a = read_side(bid), read_side(ask)
     f = b.join(a, how="inner", lsuffix="_bid", rsuffix="_ask")
@@ -26,17 +32,17 @@ def convert_month(bid, ask, window, output):
     weekdays = int((pd.date_range(start, end, freq="D", inclusive="left").weekday < 5).sum())
     coverage = len(observed) / (1440 * weekdays)
     warm = int((f.index < start).sum())
-    if window["id"] == "2025-01" and warm < 720:
-        raise ValueError(f"insufficient initial warm-up: {warm} < 720")
-    if coverage < 0.5:
-        raise ValueError(f"insufficient monthly weekday coverage: {coverage} < 0.5")
     gaps = f.index.to_series().diff().dropna()
     quality = {"bid_rows": len(b), "ask_rows": len(a), "joined_rows": len(f),
                "evaluation_rows": len(observed), "warmup_rows": warm, "weekday_coverage": coverage,
                "unmatched_bid": len(b.index.difference(a.index)), "unmatched_ask": len(a.index.difference(b.index)),
                "gaps_over_one_minute": int((gaps > pd.Timedelta(minutes=1)).sum()),
-               "largest_gap_minutes": float(gaps.max() / pd.Timedelta(minutes=1)),
-               "first_utc": f.index[0].isoformat(), "last_utc": f.index[-1].isoformat()}
+               "largest_gap_minutes": float(gaps.max() / pd.Timedelta(minutes=1)) if not gaps.empty else None,
+               "first_utc": f.index[0].isoformat() if len(f) else None, "last_utc": f.index[-1].isoformat() if len(f) else None}
+    if window["id"] == "2025-01" and warm < 720:
+        raise CoverageError(f"insufficient initial warm-up: {warm} < 720", quality)
+    if coverage < 0.5:
+        raise CoverageError(f"insufficient monthly weekday coverage: {coverage} < 0.5", quality)
     for c in OHLC:
         f[c + "_mid"] = (f[c + "_bid"] + f[c + "_ask"]) / 2
     f.insert(0, "settlement_date", f.index.tz_localize(None).normalize())
