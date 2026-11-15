@@ -115,7 +115,7 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
       {statsEnabled && <Stats quality={lowQuality ? "low" : `tier ${tier}`} />}
       {!lowQuality && COMPOSER_ON && <Post tier={tier} />}
       {/* Last on purpose: see Warmup. */}
-      <Warmup stamp={`${seq}-${tier}-${derived.player ? "p" : "r"}`} throughComposer={!lowQuality && COMPOSER_ON} />
+      <Warmup stamp={`${seq}-${tier}-${derived.player ? "p" : "r"}`} throughComposer={!lowQuality && COMPOSER_ON} samples={lowQuality ? 0 : (OVERRIDE.msaa ?? TIERS[tier].msaa)} />
     </>
   );
 }
