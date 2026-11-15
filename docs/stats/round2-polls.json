@@ -1,0 +1,14 @@
+[
+  {
+    "checked_at_utc": "2026-11-15T05:20:48.224888+00:00",
+    "commit": "32b0c9cc0978e2939b9a61b260e6661a1604fed4",
+    "available": false,
+    "fetched": false
+  },
+  {
+    "checked_at_utc": "2026-11-15T05:20:58.325257+00:00",
+    "commit": "32b0c9cc0978e2939b9a61b260e6661a1604fed4",
+    "available": false,
+    "fetched": true
+  }
+]

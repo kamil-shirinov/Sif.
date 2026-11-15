@@ -14,6 +14,11 @@ LABELS = {"sgx_august": "SGX August", "oos_round1": "FX historical round 1", "oo
           "chips_new": "Chips: 13 new tickers", "pooled_fx": "Pooled FX (descriptive)", "pooled_all": "Pooled all (descriptive)"}
 
 
+def save_svg(fig, path):
+    fig.savefig(path, metadata={"Date": None})
+    path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
+
+
 def number(value, digits=2):
     return "undefined" if value is None else f"{value:,.{digits}f}"
 
@@ -143,7 +148,7 @@ def write_charts(result):
     ax.set_title("Frozen catch rate: storm bootstrap (blue), event-date blocks (orange)")
     ax.grid(axis="x", alpha=.2)
     fig.tight_layout()
-    fig.savefig(DOCS / "caught-intervals.svg", metadata={"Date": None})
+    save_svg(fig, DOCS / "caught-intervals.svg")
     plt.close(fig)
     available = [n for n in names if "chance" in result["groups"][n]]
     if not available:
@@ -162,5 +167,5 @@ def write_charts(result):
             ax.ticklabel_format(axis="x",style="plain",useOffset=False)
             ax.legend(fontsize=7)
     fig.tight_layout()
-    fig.savefig(DOCS / "timing-nulls.svg",metadata={"Date": None})
+    save_svg(fig, DOCS / "timing-nulls.svg")
     plt.close(fig)

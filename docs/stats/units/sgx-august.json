@@ -1,0 +1,2488 @@
+{
+  "cache_tag": "4d553a2500c5963d5f3fbb4a7434fa97cc3f4ad0e14014975c11b2543a9be44d",
+  "result": {
+    "dataset": "sgx_august",
+    "unit": "sgx-august",
+    "stock": false,
+    "group": "test",
+    "start": "2026-08-01 00:00:00+00:00",
+    "end": "2026-09-01 00:00:00+00:00",
+    "pairs": [
+      "EURUSD",
+      "USDJPY",
+      "USDSGD"
+    ],
+    "published_detection_check": {
+      "checked_fields": [
+        "storms",
+        "alarmed",
+        "caught",
+        "caught_first_onset",
+        "median_move_ahead_pct",
+        "median_minutes_to_alarm",
+        "median_move_ahead_pct_first_onset",
+        "median_minutes_to_alarm_first_onset",
+        "storm_alarms",
+        "false_alarms",
+        "false_alarm_episodes",
+        "false_alarm_episodes_per_day",
+        "days"
+      ],
+      "differences": [],
+      "passed": true
+    },
+    "published_policy": {
+      "book": {
+        "synthetic": true,
+        "legs": [
+          "long USD 6,666,667 via USDJPY",
+          "long USD 6,666,667 via EURUSD (short EUR)",
+          "long USD 6,666,667 via USDSGD"
+        ],
+        "equity_usd": 1000000,
+        "maintenance_margin": 0.025,
+        "cut_fraction": 0.75,
+        "from_utc": "2026-08-02 19:01",
+        "to_utc": "2026-08-31 23:59",
+        "execution": "signal at bar t's close, fill at the next bar's open, bid or ask (side-correct)"
+      },
+      "alerts": {
+        "danger_alarms": 11,
+        "squalls": 37,
+        "fair_winds": 3,
+        "all_clears": 39
+      },
+      "prepared": {
+        "final_equity_usd": 1033659,
+        "max_drawdown_usd": 191261,
+        "max_drawdown_pct": 17.2,
+        "margin_calls": 0,
+        "margin_call_utc": null,
+        "cuts": 11,
+        "restores": 11,
+        "fills": 22,
+        "spread_cost_usd": 7038
+      },
+      "unprepared": {
+        "final_equity_usd": 993889,
+        "max_drawdown_usd": 226151,
+        "max_drawdown_pct": 20.6,
+        "margin_calls": 0,
+        "margin_call_utc": null,
+        "cuts": 0,
+        "restores": 0,
+        "fills": 0,
+        "spread_cost_usd": 0
+      },
+      "trades": [
+        {
+          "utc": "2026-08-03 00:30",
+          "signal_utc": "2026-08-03 00:29",
+          "pair": "USDJPY",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 156.823,
+          "mid_price": 156.825,
+          "cost_usd": 64
+        },
+        {
+          "utc": "2026-08-03 01:34",
+          "signal_utc": "2026-08-03 01:33",
+          "pair": "USDJPY",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 156.241,
+          "mid_price": 156.2395,
+          "cost_usd": 48
+        },
+        {
+          "utc": "2026-08-07 12:33",
+          "signal_utc": "2026-08-07 12:32",
+          "pair": "EURUSD",
+          "action": "cut",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 1.15625,
+          "mid_price": 1.15623,
+          "cost_usd": 87
+        },
+        {
+          "utc": "2026-08-07 12:33",
+          "signal_utc": "2026-08-07 12:32",
+          "pair": "USDJPY",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 157.741,
+          "mid_price": 157.7445,
+          "cost_usd": 111
+        },
+        {
+          "utc": "2026-08-07 12:33",
+          "signal_utc": "2026-08-07 12:32",
+          "pair": "USDSGD",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 1.27834,
+          "mid_price": 1.27839,
+          "cost_usd": 196
+        },
+        {
+          "utc": "2026-08-07 13:26",
+          "signal_utc": "2026-08-07 13:25",
+          "pair": "EURUSD",
+          "action": "restore",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 1.15735,
+          "mid_price": 1.157355,
+          "cost_usd": 22
+        },
+        {
+          "utc": "2026-08-07 13:56",
+          "signal_utc": "2026-08-07 13:55",
+          "pair": "USDJPY",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 157.663,
+          "mid_price": 157.662,
+          "cost_usd": 32
+        },
+        {
+          "utc": "2026-08-07 13:56",
+          "signal_utc": "2026-08-07 13:55",
+          "pair": "USDSGD",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 1.27823,
+          "mid_price": 1.278215,
+          "cost_usd": 59
+        },
+        {
+          "utc": "2026-08-12 09:26",
+          "signal_utc": "2026-08-12 09:25",
+          "pair": "USDJPY",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 158.868,
+          "mid_price": 158.8705,
+          "cost_usd": 79
+        },
+        {
+          "utc": "2026-08-12 09:26",
+          "signal_utc": "2026-08-12 09:25",
+          "pair": "USDSGD",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 1.27894,
+          "mid_price": 1.27896,
+          "cost_usd": 78
+        },
+        {
+          "utc": "2026-08-12 09:51",
+          "signal_utc": "2026-08-12 09:50",
+          "pair": "USDSGD",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 1.27959,
+          "mid_price": 1.279585,
+          "cost_usd": 20
+        },
+        {
+          "utc": "2026-08-12 10:17",
+          "signal_utc": "2026-08-12 10:16",
+          "pair": "USDJPY",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 159.185,
+          "mid_price": 159.1845,
+          "cost_usd": 16
+        },
+        {
+          "utc": "2026-08-12 12:34",
+          "signal_utc": "2026-08-12 12:33",
+          "pair": "USDSGD",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 1.27867,
+          "mid_price": 1.278695,
+          "cost_usd": 98
+        },
+        {
+          "utc": "2026-08-12 14:29",
+          "signal_utc": "2026-08-12 14:28",
+          "pair": "USDSGD",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 1.27854,
+          "mid_price": 1.278525,
+          "cost_usd": 59
+        },
+        {
+          "utc": "2026-08-19 12:36",
+          "signal_utc": "2026-08-19 12:35",
+          "pair": "USDJPY",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 158.712,
+          "mid_price": 158.713,
+          "cost_usd": 32
+        },
+        {
+          "utc": "2026-08-19 12:39",
+          "signal_utc": "2026-08-19 12:38",
+          "pair": "EURUSD",
+          "action": "cut",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 1.16291,
+          "mid_price": 1.162905,
+          "cost_usd": 22
+        },
+        {
+          "utc": "2026-08-19 12:39",
+          "signal_utc": "2026-08-19 12:38",
+          "pair": "USDSGD",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 1.27408,
+          "mid_price": 1.2741,
+          "cost_usd": 78
+        },
+        {
+          "utc": "2026-08-19 15:22",
+          "signal_utc": "2026-08-19 15:21",
+          "pair": "USDJPY",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 158.424,
+          "mid_price": 158.423,
+          "cost_usd": 32
+        },
+        {
+          "utc": "2026-08-19 15:47",
+          "signal_utc": "2026-08-19 15:46",
+          "pair": "USDSGD",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 1.27177,
+          "mid_price": 1.271755,
+          "cost_usd": 59
+        },
+        {
+          "utc": "2026-08-19 16:10",
+          "signal_utc": "2026-08-19 16:09",
+          "pair": "EURUSD",
+          "action": "restore",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 1.16675,
+          "mid_price": 1.166755,
+          "cost_usd": 22
+        },
+        {
+          "utc": "2026-08-30 20:18",
+          "signal_utc": "2026-08-30 20:17",
+          "pair": "USDJPY",
+          "action": "cut",
+          "side": "sell",
+          "at": "open",
+          "fill_price": 159.827,
+          "mid_price": 159.9705,
+          "cost_usd": 4485
+        },
+        {
+          "utc": "2026-08-30 20:54",
+          "signal_utc": "2026-08-30 20:53",
+          "pair": "USDJPY",
+          "action": "restore",
+          "side": "buy",
+          "at": "open",
+          "fill_price": 160.11,
+          "mid_price": 160.067,
+          "cost_usd": 1343
+        }
+      ]
+    },
+    "descriptive_splits": null,
+    "methods": {
+      "v1": {
+        "storms": 6,
+        "alarmed": 6,
+        "caught": 4,
+        "median_move_ahead_pct": 57.38579154627428,
+        "median_minutes_to_alarm": 3.5,
+        "caught_first_onset": 4,
+        "median_move_ahead_pct_first_onset": 57.571840709662865,
+        "median_minutes_to_alarm_first_onset": 9.0,
+        "storm_alarms": 17,
+        "false_alarms": 11,
+        "false_alarms_per_day": 0.5112151040826206,
+        "false_alarm_episodes": 7,
+        "false_alarm_episodes_per_day": 0.3253187025980313,
+        "squalls_per_day": null,
+        "days": 21.51736111111111,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2026-08-03",
+            "alarm_utc": "2026-08-03 00:29",
+            "move_ahead_pct": 55.50619593172783,
+            "minutes": 2,
+            "caught": true,
+            "move_ahead_pct_first_onset": 55.7800751879701,
+            "minutes_first_onset": 3,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2026-08-03T00:27:00+00:00",
+            "first_onset_utc": "2026-08-03T00:26:00+00:00",
+            "trough_utc": "2026-08-03T00:42:00+00:00",
+            "end_utc": "2026-08-03T00:42:00+00:00",
+            "move_bp": -135.54025960856086,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-03"
+          },
+          {
+            "storm_id": "usdjpy-2026-08-07",
+            "alarm_utc": "2026-08-07 12:32",
+            "move_ahead_pct": 59.265387160820715,
+            "minutes": 12,
+            "caught": true,
+            "move_ahead_pct_first_onset": 59.363606231355625,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:20:00+00:00",
+            "first_onset_utc": "2026-08-07T12:16:00+00:00",
+            "trough_utc": "2026-08-07T12:35:00+00:00",
+            "end_utc": "2026-08-07T12:46:00+00:00",
+            "move_bp": -95.41611149350481,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "usdsgd-2026-08-07",
+            "alarm_utc": "2026-08-07 12:32",
+            "move_ahead_pct": 34.63414634146291,
+            "minutes": 4,
+            "caught": false,
+            "move_ahead_pct_first_onset": 34.80392156862617,
+            "minutes_first_onset": 6,
+            "caught_first_onset": false,
+            "pair": "USDSGD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:28:00+00:00",
+            "first_onset_utc": "2026-08-07T12:26:00+00:00",
+            "trough_utc": "2026-08-07T12:43:00+00:00",
+            "end_utc": "2026-08-07T12:45:00+00:00",
+            "move_bp": -32.00449624142343,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "eurusd-2026-08-07",
+            "alarm_utc": "2026-08-07 12:32",
+            "move_ahead_pct": 29.43676939426103,
+            "minutes": 3,
+            "caught": false,
+            "move_ahead_pct_first_onset": 32.13457076566028,
+            "minutes_first_onset": 12,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:29:00+00:00",
+            "first_onset_utc": "2026-08-07T12:20:00+00:00",
+            "trough_utc": "2026-08-07T12:44:00+00:00",
+            "end_utc": "2026-08-07T12:45:00+00:00",
+            "move_bp": 40.809776999071175,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "usdjpy-2026-08-19",
+            "alarm_utc": "2026-08-19 12:35",
+            "move_ahead_pct": 60.53370786516711,
+            "minutes": 10,
+            "caught": true,
+            "move_ahead_pct_first_onset": 59.53038674033003,
+            "minutes_first_onset": 12,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2026-08-19T12:25:00+00:00",
+            "first_onset_utc": "2026-08-19T12:23:00+00:00",
+            "trough_utc": "2026-08-19T12:40:00+00:00",
+            "end_utc": "2026-08-19T12:46:00+00:00",
+            "move_bp": -44.78156408417866,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-19"
+          },
+          {
+            "storm_id": "eurusd-2026-08-28",
+            "alarm_utc": "2026-08-28 14:01",
+            "move_ahead_pct": 100.0,
+            "minutes": 0,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": 0,
+            "caught_first_onset": true,
+            "pair": "EURUSD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-28T14:01:00+00:00",
+            "first_onset_utc": "2026-08-28T14:01:00+00:00",
+            "trough_utc": "2026-08-28T14:16:00+00:00",
+            "end_utc": "2026-08-28T14:16:00+00:00",
+            "move_bp": -33.09495806254947,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-28"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-02",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-03",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-04",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-05",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-06",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-07",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-09",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-10",
+            "observed_minutes": 1439,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-11",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-12",
+            "observed_minutes": 1438,
+            "episodes": 2
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-13",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-14",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-16",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-17",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-18",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-19",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-20",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-21",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-23",
+            "observed_minutes": 298,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-24",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-25",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-26",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-27",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-28",
+            "observed_minutes": 1262,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-30",
+            "observed_minutes": 298,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-31",
+            "observed_minutes": 1438,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 6,
+        "alarmed": 6,
+        "caught": 1,
+        "median_move_ahead_pct": 6.161655514993346,
+        "median_minutes_to_alarm": 13.0,
+        "caught_first_onset": 1,
+        "median_move_ahead_pct_first_onset": 6.324512939807391,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 6,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 21.51736111111111,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2026-08-03",
+            "alarm_utc": "2026-08-03 00:41",
+            "move_ahead_pct": 3.92798690671042,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 3.947368421052755,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2026-08-03T00:27:00+00:00",
+            "first_onset_utc": "2026-08-03T00:26:00+00:00",
+            "trough_utc": "2026-08-03T00:42:00+00:00",
+            "end_utc": "2026-08-03T00:42:00+00:00",
+            "move_bp": -135.54025960856086,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-03"
+          },
+          {
+            "storm_id": "usdjpy-2026-08-07",
+            "alarm_utc": "2026-08-07 12:31",
+            "move_ahead_pct": 59.232296492388116,
+            "minutes": 11,
+            "caught": true,
+            "move_ahead_pct_first_onset": 59.33046072257097,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:20:00+00:00",
+            "first_onset_utc": "2026-08-07T12:16:00+00:00",
+            "trough_utc": "2026-08-07T12:35:00+00:00",
+            "end_utc": "2026-08-07T12:46:00+00:00",
+            "move_bp": -95.41611149350481,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "usdsgd-2026-08-07",
+            "alarm_utc": "2026-08-07 12:41",
+            "move_ahead_pct": 3.6585365853681653,
+            "minutes": 13,
+            "caught": false,
+            "move_ahead_pct_first_onset": 3.676470588237535,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDSGD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:28:00+00:00",
+            "first_onset_utc": "2026-08-07T12:26:00+00:00",
+            "trough_utc": "2026-08-07T12:43:00+00:00",
+            "end_utc": "2026-08-07T12:45:00+00:00",
+            "move_bp": -32.00449624142343,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "eurusd-2026-08-07",
+            "alarm_utc": "2026-08-07 12:35",
+            "move_ahead_pct": 8.395324123276273,
+            "minutes": 6,
+            "caught": false,
+            "move_ahead_pct_first_onset": 9.164733178657587,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:29:00+00:00",
+            "first_onset_utc": "2026-08-07T12:20:00+00:00",
+            "trough_utc": "2026-08-07T12:44:00+00:00",
+            "end_utc": "2026-08-07T12:45:00+00:00",
+            "move_bp": 40.809776999071175,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "usdjpy-2026-08-19",
+            "alarm_utc": "2026-08-19 12:38",
+            "move_ahead_pct": 8.848314606740049,
+            "minutes": 13,
+            "caught": false,
+            "move_ahead_pct_first_onset": 8.701657458562028,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2026-08-19T12:25:00+00:00",
+            "first_onset_utc": "2026-08-19T12:23:00+00:00",
+            "trough_utc": "2026-08-19T12:40:00+00:00",
+            "end_utc": "2026-08-19T12:46:00+00:00",
+            "move_bp": -44.78156408417866,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-19"
+          },
+          {
+            "storm_id": "eurusd-2026-08-28",
+            "alarm_utc": "2026-08-28 14:16",
+            "move_ahead_pct": 0.0,
+            "minutes": 15,
+            "caught": false,
+            "move_ahead_pct_first_onset": 0.0,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-28T14:01:00+00:00",
+            "first_onset_utc": "2026-08-28T14:01:00+00:00",
+            "trough_utc": "2026-08-28T14:16:00+00:00",
+            "end_utc": "2026-08-28T14:16:00+00:00",
+            "move_bp": -33.09495806254947,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-28"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-02",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-03",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-04",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-05",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-06",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-07",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-09",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-10",
+            "observed_minutes": 1439,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-11",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-12",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-13",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-14",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-16",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-17",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-18",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-19",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-20",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-21",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-23",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-24",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-25",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-26",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-27",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-28",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-30",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-31",
+            "observed_minutes": 1438,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 6,
+        "alarmed": 6,
+        "caught": 4,
+        "median_move_ahead_pct": 57.38579154627428,
+        "median_minutes_to_alarm": 3.5,
+        "caught_first_onset": 4,
+        "median_move_ahead_pct_first_onset": 57.571840709662865,
+        "median_minutes_to_alarm_first_onset": 8.5,
+        "storm_alarms": 65,
+        "false_alarms": 59,
+        "false_alarms_per_day": 2.7419719218976923,
+        "false_alarm_episodes": 40,
+        "false_alarm_episodes_per_day": 1.8589640148458932,
+        "squalls_per_day": null,
+        "days": 21.51736111111111,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2026-08-03",
+            "alarm_utc": "2026-08-03 00:29",
+            "move_ahead_pct": 55.50619593172783,
+            "minutes": 2,
+            "caught": true,
+            "move_ahead_pct_first_onset": 55.7800751879701,
+            "minutes_first_onset": 3,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2026-08-03T00:27:00+00:00",
+            "first_onset_utc": "2026-08-03T00:26:00+00:00",
+            "trough_utc": "2026-08-03T00:42:00+00:00",
+            "end_utc": "2026-08-03T00:42:00+00:00",
+            "move_bp": -135.54025960856086,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-03"
+          },
+          {
+            "storm_id": "usdjpy-2026-08-07",
+            "alarm_utc": "2026-08-07 12:32",
+            "move_ahead_pct": 59.265387160820715,
+            "minutes": 12,
+            "caught": true,
+            "move_ahead_pct_first_onset": 59.363606231355625,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:20:00+00:00",
+            "first_onset_utc": "2026-08-07T12:16:00+00:00",
+            "trough_utc": "2026-08-07T12:35:00+00:00",
+            "end_utc": "2026-08-07T12:46:00+00:00",
+            "move_bp": -95.41611149350481,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "usdsgd-2026-08-07",
+            "alarm_utc": "2026-08-07 12:32",
+            "move_ahead_pct": 34.63414634146291,
+            "minutes": 4,
+            "caught": false,
+            "move_ahead_pct_first_onset": 34.80392156862617,
+            "minutes_first_onset": 6,
+            "caught_first_onset": false,
+            "pair": "USDSGD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:28:00+00:00",
+            "first_onset_utc": "2026-08-07T12:26:00+00:00",
+            "trough_utc": "2026-08-07T12:43:00+00:00",
+            "end_utc": "2026-08-07T12:45:00+00:00",
+            "move_bp": -32.00449624142343,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "eurusd-2026-08-07",
+            "alarm_utc": "2026-08-07 12:32",
+            "move_ahead_pct": 29.43676939426103,
+            "minutes": 3,
+            "caught": false,
+            "move_ahead_pct_first_onset": 32.13457076566028,
+            "minutes_first_onset": 12,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-07T12:29:00+00:00",
+            "first_onset_utc": "2026-08-07T12:20:00+00:00",
+            "trough_utc": "2026-08-07T12:44:00+00:00",
+            "end_utc": "2026-08-07T12:45:00+00:00",
+            "move_bp": 40.809776999071175,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-07"
+          },
+          {
+            "storm_id": "usdjpy-2026-08-19",
+            "alarm_utc": "2026-08-19 12:34",
+            "move_ahead_pct": 80.82865168539124,
+            "minutes": 9,
+            "caught": true,
+            "move_ahead_pct_first_onset": 79.48895027624104,
+            "minutes_first_onset": 11,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2026-08-19T12:25:00+00:00",
+            "first_onset_utc": "2026-08-19T12:23:00+00:00",
+            "trough_utc": "2026-08-19T12:40:00+00:00",
+            "end_utc": "2026-08-19T12:46:00+00:00",
+            "move_bp": -44.78156408417866,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-19"
+          },
+          {
+            "storm_id": "eurusd-2026-08-28",
+            "alarm_utc": "2026-08-28 14:01",
+            "move_ahead_pct": 100.0,
+            "minutes": 0,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": 0,
+            "caught_first_onset": true,
+            "pair": "EURUSD",
+            "kind": "scheduled",
+            "onset_utc": "2026-08-28T14:01:00+00:00",
+            "first_onset_utc": "2026-08-28T14:01:00+00:00",
+            "trough_utc": "2026-08-28T14:16:00+00:00",
+            "end_utc": "2026-08-28T14:16:00+00:00",
+            "move_bp": -33.09495806254947,
+            "duration_min": 15,
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "block": "2026-08-28"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-02",
+            "observed_minutes": 298,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-03",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-04",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-05",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-06",
+            "observed_minutes": 1438,
+            "episodes": 2
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-07",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-09",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-10",
+            "observed_minutes": 1439,
+            "episodes": 5
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-11",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-12",
+            "observed_minutes": 1438,
+            "episodes": 4
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-13",
+            "observed_minutes": 1438,
+            "episodes": 3
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-14",
+            "observed_minutes": 1262,
+            "episodes": 2
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-16",
+            "observed_minutes": 298,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-17",
+            "observed_minutes": 1438,
+            "episodes": 3
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-18",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-19",
+            "observed_minutes": 1438,
+            "episodes": 2
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-20",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-21",
+            "observed_minutes": 1262,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-23",
+            "observed_minutes": 298,
+            "episodes": 3
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-24",
+            "observed_minutes": 1438,
+            "episodes": 3
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-25",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-26",
+            "observed_minutes": 1438,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-27",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-28",
+            "observed_minutes": 1262,
+            "episodes": 2
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-30",
+            "observed_minutes": 298,
+            "episodes": 1
+          },
+          {
+            "dataset": "sgx_august",
+            "unit": "sgx-august",
+            "date": "2026-08-31",
+            "observed_minutes": 1438,
+            "episodes": 2
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "policy": {
+      "independent_reset_books": 1,
+      "synthetic": true,
+      "prepared_minus_unprepared_usd": 39769.70088879205,
+      "prepared": {
+        "margin_calls": 0,
+        "cuts": 11,
+        "restores": 11,
+        "fills": 22,
+        "spread_cost_usd": 7037.742634074416,
+        "pnl_usd": 33659.036476023146,
+        "max_book_drawdown_usd": 191261.12569283566,
+        "median_book_drawdown_usd": 191261.12569283566
+      },
+      "unprepared": {
+        "margin_calls": 0,
+        "cuts": 0,
+        "restores": 0,
+        "fills": 0,
+        "spread_cost_usd": 0.0,
+        "pnl_usd": -6110.664412768907,
+        "max_book_drawdown_usd": 226151.319310684,
+        "median_book_drawdown_usd": 226151.319310684
+      }
+    },
+    "policy_books": [
+      {
+        "name": "sgx-august",
+        "pairs": [
+          "EURUSD",
+          "USDJPY",
+          "USDSGD"
+        ],
+        "start": "2026-08-01 00:00:00+00:00",
+        "end": "2026-09-01 00:00:00+00:00",
+        "prepared": {
+          "final_equity_usd": 1033659.0364760231,
+          "max_drawdown_usd": 191261.12569283566,
+          "max_drawdown_pct": 17.234751200513575,
+          "margin_calls": 0,
+          "cuts": 11,
+          "restores": 11,
+          "spread_cost_usd": 7037.742634074416,
+          "fills": 22
+        },
+        "unprepared": {
+          "final_equity_usd": 993889.3355872311,
+          "max_drawdown_usd": 226151.319310684,
+          "max_drawdown_pct": 20.637658749210814,
+          "margin_calls": 0,
+          "cuts": 0,
+          "restores": 0,
+          "spread_cost_usd": 0.0,
+          "fills": 0
+        }
+      }
+    ],
+    "sensitivity": [
+      {
+        "factor": "spread_multiplier",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 39769.70088879205,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 7037.742634074416,
+            "pnl_usd": 33659.036476023146,
+            "max_book_drawdown_usd": 191261.12569283566,
+            "median_book_drawdown_usd": 191261.12569283566
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1033659.0364760231,
+              "max_drawdown_usd": 191261.12569283566,
+              "max_drawdown_pct": 17.234751200513575,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 7037.742634074416,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 32725.02007809549,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 14075.485268148832,
+            "pnl_usd": 26614.355665326584,
+            "max_book_drawdown_usd": 191513.07064528612,
+            "median_book_drawdown_usd": 191513.07064528612
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1026614.3556653266,
+              "max_drawdown_usd": 191513.07064528612,
+              "max_drawdown_pct": 17.27240490945945,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 14075.485268148832,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 3,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 25680.339267397998,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 21113.227902223243,
+            "pnl_usd": 19569.67485462909,
+            "max_book_drawdown_usd": 191765.01559773483,
+            "median_book_drawdown_usd": 191765.01559773483
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1019569.6748546291,
+              "max_drawdown_usd": 191765.01559773483,
+              "max_drawdown_pct": 17.310123916140686,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 21113.227902223243,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 39769.70088879205,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 7037.742634074416,
+            "pnl_usd": 33659.036476023146,
+            "max_book_drawdown_usd": 191261.12569283566,
+            "median_book_drawdown_usd": 191261.12569283566
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1033659.0364760231,
+              "max_drawdown_usd": 191261.12569283566,
+              "max_drawdown_pct": 17.234751200513575,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 7037.742634074416,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 40394.71787205071,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 6864.242039607211,
+            "pnl_usd": 34284.0534592818,
+            "max_book_drawdown_usd": 186503.00660724135,
+            "median_book_drawdown_usd": 186503.00660724135
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1034284.0534592818,
+              "max_drawdown_usd": 186503.00660724135,
+              "max_drawdown_pct": 16.87350071419872,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 6864.242039607211,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -10268.926504233386,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 5605.027540473752,
+            "pnl_usd": -16379.590917002293,
+            "max_book_drawdown_usd": 205526.1384443764,
+            "median_book_drawdown_usd": 205526.1384443764
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 983620.4090829977,
+              "max_drawdown_usd": 205526.1384443764,
+              "max_drawdown_pct": 19.19343932960428,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 5605.027540473752,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 26513.1339258604,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 4691.828422716278,
+            "pnl_usd": 20402.46951309149,
+            "max_book_drawdown_usd": 202891.19023211848,
+            "median_book_drawdown_usd": 202891.19023211848
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1020402.4695130915,
+              "max_drawdown_usd": 202891.19023211848,
+              "max_drawdown_pct": 18.359526803922577,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 4691.828422716278,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.75,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 39769.70088879205,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 7037.742634074416,
+            "pnl_usd": 33659.036476023146,
+            "max_book_drawdown_usd": 191261.12569283566,
+            "median_book_drawdown_usd": 191261.12569283566
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1033659.0364760231,
+              "max_drawdown_usd": 191261.12569283566,
+              "max_drawdown_pct": 17.234751200513575,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 7037.742634074416,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 1.0,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 53026.267851726036,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 9383.656845432555,
+            "pnl_usd": 46915.60343895713,
+            "max_book_drawdown_usd": 182693.8210358573,
+            "median_book_drawdown_usd": 182693.8210358573
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1046915.6034389571,
+              "max_drawdown_usd": 182693.8210358573,
+              "max_drawdown_pct": 16.3492489706126,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 9383.656845432555,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "leverage",
+        "value": 10,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 19884.850444396026,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 3518.871317037208,
+            "pnl_usd": 16829.518238011166,
+            "max_book_drawdown_usd": 95630.56284641847,
+            "median_book_drawdown_usd": 95630.56284641847
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -3055.332206384861,
+            "max_book_drawdown_usd": 113075.65965534246,
+            "median_book_drawdown_usd": 113075.65965534246
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1016829.5182380112,
+              "max_drawdown_usd": 95630.56284641847,
+              "max_drawdown_pct": 9.065620488323695,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 3518.871317037208,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 996944.6677936151,
+              "max_drawdown_usd": 113075.65965534246,
+              "max_drawdown_pct": 10.790595659173768,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "leverage",
+        "value": 20,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 39769.70088879205,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 7037.742634074416,
+            "pnl_usd": 33659.036476023146,
+            "max_book_drawdown_usd": 191261.12569283566,
+            "median_book_drawdown_usd": 191261.12569283566
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1033659.0364760231,
+              "max_drawdown_usd": 191261.12569283566,
+              "max_drawdown_pct": 17.234751200513575,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 7037.742634074416,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "leverage",
+        "value": 30,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 59654.55133319739,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 10556.613951111622,
+            "pnl_usd": 50488.55471404758,
+            "max_book_drawdown_usd": 286891.68853925215,
+            "median_book_drawdown_usd": 286891.68853925215
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -9165.99661914981,
+            "max_book_drawdown_usd": 339226.97896602924,
+            "median_book_drawdown_usd": 339226.97896602924
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1050488.5547140476,
+              "max_drawdown_usd": 286891.68853925215,
+              "max_drawdown_pct": 24.634106235453032,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 10556.613951111622,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 990834.0033808502,
+              "max_drawdown_usd": 339226.97896602924,
+              "max_drawdown_pct": 29.65975947502964,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.7,
+        "status": "invalid",
+        "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.8,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 6,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 1.0,
+          "caught_share": 0.6666666666666666,
+          "caught_share_first_onset": 0.6666666666666666,
+          "median_share_ahead_pct": 57.38579154627428,
+          "median_minutes_to_alarm": 3.5,
+          "median_share_ahead_pct_first_onset": 57.571840709662865,
+          "median_minutes_to_alarm_first_onset": 9.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.3253187025980313
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 39769.70088879205,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 11,
+            "restores": 11,
+            "fills": 22,
+            "spread_cost_usd": 7037.742634074416,
+            "pnl_usd": 33659.036476023146,
+            "max_book_drawdown_usd": 191261.12569283566,
+            "median_book_drawdown_usd": 191261.12569283566
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1033659.0364760231,
+              "max_drawdown_usd": 191261.12569283566,
+              "max_drawdown_pct": 17.234751200513575,
+              "margin_calls": 0,
+              "cuts": 11,
+              "restores": 11,
+              "spread_cost_usd": 7037.742634074416,
+              "fills": 22
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.9,
+        "status": "evaluated",
+        "detection": {
+          "storms": 6,
+          "alarmed": 5,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 0.8333333333333334,
+          "caught_share": 0.3333333333333333,
+          "caught_share_first_onset": 0.3333333333333333,
+          "median_share_ahead_pct": 34.63414634146291,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 34.80392156862617,
+          "median_minutes_to_alarm_first_onset": 12.0,
+          "observed_days": 21.51736111111111,
+          "false_episodes": 6,
+          "false_alert_episodes_per_observed_day": 0.27884460222688395
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 11789.63424634852,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 6,
+            "restores": 6,
+            "fills": 12,
+            "spread_cost_usd": 769.2072479626153,
+            "pnl_usd": 5678.969833579613,
+            "max_book_drawdown_usd": 212147.15764168673,
+            "median_book_drawdown_usd": 212147.15764168673
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -6110.664412768907,
+            "max_book_drawdown_usd": 226151.319310684,
+            "median_book_drawdown_usd": 226151.319310684
+          }
+        },
+        "books": [
+          {
+            "name": "sgx-august",
+            "pairs": [
+              "EURUSD",
+              "USDJPY",
+              "USDSGD"
+            ],
+            "start": "2026-08-01 00:00:00+00:00",
+            "end": "2026-09-01 00:00:00+00:00",
+            "prepared": {
+              "final_equity_usd": 1005678.9698335796,
+              "max_drawdown_usd": 212147.15764168673,
+              "max_drawdown_pct": 19.40041084995208,
+              "margin_calls": 0,
+              "cuts": 6,
+              "restores": 6,
+              "spread_cost_usd": 769.2072479626153,
+              "fills": 12
+            },
+            "unprepared": {
+              "final_equity_usd": 993889.3355872311,
+              "max_drawdown_usd": 226151.319310684,
+              "max_drawdown_pct": 20.637658749210814,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ]
+      }
+    ],
+    "oracle_checks": [
+      {
+        "book": "sgx-august",
+        "checked_trials": [
+          0,
+          1,
+          501,
+          1001
+        ],
+        "rtol": 1e-09,
+        "atol_usd": 1e-05,
+        "passed": true
+      }
+    ],
+    "elapsed_seconds": 4.205828666999878
+  }
+}
