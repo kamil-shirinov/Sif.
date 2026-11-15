@@ -4,6 +4,8 @@
 
 **▶ Watch it [here](https://youtu.be/97NzAPgNpU0)** (narrated demo, 2:17)
 
+**Try it live:** [kamil-shirinov.github.io/Sif./](https://kamil-shirinov.github.io/Sif./) (the landing page, the Explorer and a synthetic sample storm; real market data isn't redistributed, so the real replays run in the local demo)
+
 ![From the landing page into the Explorer of every dataset we tested](docs/img/hero-flight.gif)
 
 **Why Sif.** In Norse myth Sif is Thor's wife, tied to the harvest; farmers prayed to Thor for weather kind to their crops. Sif watches the market's weather so that a trader's book makes it through the storm.
