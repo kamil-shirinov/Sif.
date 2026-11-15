@@ -55,3 +55,6 @@ included transparently rather than described as new unseen evidence. All weekly 
 are synthetic, independently reset long-USD $20m positions on $1m equity per pair.
 The carry-in convention and partial-week coverage rules are explicit in the registration.
 All planned instruments have a USD leg; no unsupported non-USD cross is silently valued.
+
+The [completed validation record](validation-2.md) gives the actual prefix, unavailable
+series, test results and persistent local data locations.
