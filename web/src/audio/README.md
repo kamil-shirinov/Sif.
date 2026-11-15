@@ -5,6 +5,8 @@ interface. Call `start()` from a user click, `update(frame)` each animation fram
 and `trigger(event)` for discrete events. Mute is local to this engine; `dispose()`
 releases players, synth, filters, gains, and pending announcements. Missing MP3s
 are silent and do not prevent the rest of the audio from loading.
+One-shot starts use a per-player clock with at least 1 ms between retriggers.
+Audio failures stay inside the engine; a failed unlock can be retried on the next click.
 
 ## Signal mapping
 
@@ -97,7 +99,7 @@ all existing assets and incurs fresh usage.
 cd tools/audio
 npm install
 npx tsc -p tsconfig.check.json
-npm test
+npm test -- ../../web/src/audio/engine.test.mjs
 "$AUDIO_PYTHON" -m pytest -q test/test_generate.py
 "$AUDIO_PYTHON" generate.py --dry-run
 ```
