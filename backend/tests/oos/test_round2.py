@@ -109,23 +109,28 @@ def test_book_aware_pass_preserves_direction_agnostic_detections():
     pd.testing.assert_frame_equal(book.frame, neutral.frame)
 
 
-def test_week_reset_pays_for_carry_in_alarm_and_restores():
+@pytest.mark.parametrize("pair,side", [("EURUSD", "buy"), ("USDJPY", "sell"), ("USDSGD", "sell"),
+                                      ("GBPUSD", "buy"), ("AUDUSD", "buy"), ("USDCHF", "sell")])
+def test_week_reset_pays_for_carry_in_alarm_and_restores(pair, side):
     feat = features()
     first = feat.index[0]
     events = [{"type": "alarm", "time": first - pd.Timedelta(minutes=30)},
               {"type": "all_clear", "time": first + pd.Timedelta(minutes=5)}]
-    weekly = weekly_book("USDJPY", feat, events, first, first + pd.Timedelta(days=5))
+    weekly = weekly_book(pair, feat, events, first, first + pd.Timedelta(days=5))
     assert weekly["carry_in_alarm_utc"] == events[0]["time"].isoformat()
     trades = weekly["prepared"]["trades"]
     assert trades[0]["action"] == "cut"
     assert trades[0]["signal_utc"] == first.isoformat()
     assert trades[0]["utc"] == (first + pd.Timedelta(minutes=1)).isoformat()
-    assert trades[0]["side"] == "sell"
-    assert trades[0]["fill_price"] < trades[0]["mid_price"]
+    assert trades[0]["side"] == side
+    if side == "sell":
+        assert trades[0]["fill_price"] < trades[0]["mid_price"]
+    else:
+        assert trades[0]["fill_price"] > trades[0]["mid_price"]
     assert weekly["prepared"]["spread_cost_usd"] > 0
     assert weekly["prepared"]["restores"] == 1
     events[1]["time"] = first
-    weekly = weekly_book("USDJPY", feat, events, first, first + pd.Timedelta(days=5))
+    weekly = weekly_book(pair, feat, events, first, first + pd.Timedelta(days=5))
     assert weekly["carry_in_alarm_utc"] is None
     assert weekly["prepared"]["cuts"] == 0
 
