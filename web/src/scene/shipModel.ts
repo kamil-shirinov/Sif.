@@ -114,6 +114,9 @@ export function makeHullGeometry(): BufferGeometry {
     tp.push(v.x, v.y, v.z);
   }
   for (let j = 1; j < per; j++) ti.push(0, j, j + 1);
+  // Close the fan across the top (starboard rail back to port rail). Without this triangle the upper middle of the
+  // transom was open: from astern one looked through the stern into the hull and out through the single-sided deck.
+  ti.push(0, per, 1);
   const transom = new BufferGeometry();
   transom.setAttribute("position", new BufferAttribute(new Float32Array(tp), 3));
   transom.setIndex(ti);
@@ -351,9 +354,6 @@ export function makeRigGeometry(): BufferGeometry {
   const mast = new CylinderGeometry(0.1, 0.17, MAST_TOP, 10);
   mast.translate(MAST_X, MAST_TOP / 2, 0);
   parts.push(mast);
-  // yard and a lower boom for the sail
-  parts.push(rod([MAST_X + 0.12, YARD_Y, -SAIL_W / 2 - 0.2], [MAST_X + 0.12, YARD_Y, SAIL_W / 2 + 0.2], 0.075, 6));
-  parts.push(rod([MAST_X + 0.12, YARD_Y - SAIL_H, -SAIL_W / 2 - 0.1], [MAST_X + 0.12, YARD_Y - SAIL_H, SAIL_W / 2 + 0.1], 0.06, 6));
   // crow's nest ring
   const nest = new CylinderGeometry(0.34, 0.26, 0.38, 10, 1, true);
   nest.translate(MAST_X, YARD_Y + 0.75, 0);
@@ -364,12 +364,73 @@ export function makeRigGeometry(): BufferGeometry {
   for (const s of [-1, 1]) {
     parts.push(rod(mastHead, [MAST_X - 0.9, BULWARK, s * (HULL_B / 2 - 0.12)], 0.022));
     parts.push(rod(mastHead, [MAST_X + 1.0, BULWARK, s * (HULL_B / 2 - 0.12)], 0.022));
-    parts.push(rod(mastHead, [MAST_X + 0.12, YARD_Y, s * (SAIL_W / 2 + 0.15)], 0.016));
   }
   // jackstaff at the bow
   parts.push(rod([HULL_L / 2 - 0.75, sheerAt(1), 0], [HULL_L / 2 - 0.75, sheerAt(1) + 1.9, 0], 0.035));
   const withAttrs = parts.map((p) => (p.index ? p.toNonIndexed() : p));
   return mergeGeometries(withAttrs)!;
+}
+
+/**
+ * The yard with its lifts, in the frame of the mast (origin on the mast's axis at deck level): it is braced round
+ * to the wind as one piece, and the sail hangs from it.
+ */
+export function makeYardGeometry(): BufferGeometry {
+  const parts: BufferGeometry[] = [];
+  parts.push(rod([0.14, YARD_Y, -SAIL_W / 2 - 0.2], [0.14, YARD_Y, SAIL_W / 2 + 0.2], 0.075, 6));
+  for (const s of [-1, 1]) parts.push(rod([0, MAST_TOP - 0.15, 0], [0.14, YARD_Y, s * (SAIL_W / 2 + 0.15)], 0.016));
+  return mergeGeometries(parts.map((p) => (p.index ? p.toNonIndexed() : p)))!;
+}
+
+/** A flag: a strip of cloth, FLAG_SEG quads long, two high. Its vertices are moved every frame (shapeFlag). */
+export const FLAG_SEG = 8;
+export const FLAG_LEN = 1.5;
+export const FLAG_HOIST = 0.8;
+export function makeFlagGeometry(): BufferGeometry {
+  const n = FLAG_SEG + 1;
+  const g = new BufferGeometry();
+  g.setAttribute("position", new BufferAttribute(new Float32Array(n * 2 * 3), 3));
+  g.setAttribute("normal", new BufferAttribute(new Float32Array(n * 2 * 3), 3));
+  const idx: number[] = [];
+  for (let i = 0; i < FLAG_SEG; i++) {
+    const a = i * 2;
+    idx.push(a, a + 1, a + 2, a + 2, a + 1, a + 3);
+  }
+  g.setIndex(idx);
+  return g;
+}
+
+/**
+ * Stream the flag from its staff (the local origin is the top of the hoist). (wx, wz): the way the wind blows, in
+ * the ship's frame, unit length; `wind` 0..1 its strength: a light wind lets it hang, a gale holds it out straight
+ * and makes it snap.
+ */
+export function shapeFlag(g: BufferGeometry, wx: number, wz: number, wind: number, time: number) {
+  const p = g.attributes.position as BufferAttribute;
+  const nr = g.attributes.normal as BufferAttribute;
+  const a = p.array as Float32Array;
+  const nn = nr.array as Float32Array;
+  const lift = Math.min(1, 0.25 + wind * 1.1); // how far out the wind holds it
+  // across the wind, horizontal: the direction it flaps in
+  const px = -wz;
+  const pz = wx;
+  for (let i = 0; i <= FLAG_SEG; i++) {
+    const s = i / FLAG_SEG;
+    const out = s * FLAG_LEN * lift;
+    const sag = s * FLAG_LEN * (1 - lift) + s * s * 0.25 * (1 - wind);
+    const wave = Math.sin(time * (5 + 9 * wind) - s * 6.5) * (0.04 + 0.12 * wind) * s + Math.sin(time * 2.3 - s * 3) * 0.05 * s;
+    for (let j = 0; j < 2; j++) {
+      const k = (i * 2 + j) * 3;
+      a[k] = wx * out + px * wave;
+      a[k + 1] = -sag - j * FLAG_HOIST * (1 - 0.15 * s);
+      a[k + 2] = wz * out + pz * wave;
+      nn[k] = px;
+      nn[k + 1] = 0.2;
+      nn[k + 2] = pz;
+    }
+  }
+  p.needsUpdate = true;
+  nr.needsUpdate = true;
 }
 
 /** Railings around the forecastle and the bridge deck, bollards, the hatch coaming: small dark steel details. */
@@ -418,6 +479,7 @@ export function makeSailGeometry(): BufferGeometry {
   const g = new BufferGeometry();
   g.setAttribute("position", new BufferAttribute(pos, 3));
   g.setAttribute("uv", new BufferAttribute(uv, 2));
+  g.setAttribute("normal", new BufferAttribute(new Float32Array(n * n * 3), 3));
   g.setIndex(idx);
   return g;
 }
@@ -426,12 +488,13 @@ export function makeSailGeometry(): BufferGeometry {
  * Shape the sail. `fill` 0..1 is how full it draws (bundle: equity rising, or a fair wind); `wind` 0..1 the wind
  * (bundle: state); `time` seconds. A full sail bellies forward; a slack one hangs and shivers along its foot.
  */
-export function shapeSail(g: BufferGeometry, fill: number, wind: number, time: number) {
+export function shapeSail(g: BufferGeometry, fill: number, wind: number, time: number, luff = 0) {
   const p = g.attributes.position as BufferAttribute;
   const n = SAIL_SEG + 1;
   const a = p.array as Float32Array;
   // A slack sail is furled: a neat roll under the yard. It unrolls as it fills.
-  const open = Math.pow(Math.min(1, Math.max(0, fill)), 0.8);
+  // `luff` 0..1: the ship is heading into the wind: the sail is set (not furled) but has no belly, and shivers.
+  const open = Math.max(Math.pow(Math.min(1, Math.max(0, fill)), 0.8), luff);
   const drop = SAIL_H * (0.09 + 0.91 * open);
   for (let j = 0; j < n; j++) {
     const v = j / SAIL_SEG; // 0 at the yard, 1 at the foot
@@ -442,7 +505,7 @@ export function shapeSail(g: BufferGeometry, fill: number, wind: number, time: n
       const belly = Math.sin(Math.PI * Math.min(1, v * 1.08)) * (0.35 + 0.65 * edge);
       // The foot is narrower when the sail is clewed up.
       const width = SAIL_W * (1 - (1 - fill) * 0.22 * v);
-      const flutterAmp = (0.05 + 0.2 * wind) * (1 - 0.75 * fill) * v * (0.15 + 0.85 * open);
+      const flutterAmp = ((0.05 + 0.2 * wind) * (1 - 0.75 * fill) + luff * (0.12 + 0.22 * wind)) * v * (0.15 + 0.85 * open);
       const flutter = Math.sin(time * (5 + 7 * wind) + v * 7 + u * 9) * flutterAmp + Math.sin(time * 3.1 + u * 14) * flutterAmp * 0.5;
       const gust = 1 + 0.07 * Math.sin(time * 1.3 + u * 2) * wind;
       a[k] = belly * (0.2 + 1.55 * fill) * gust + flutter; // forward (+x)
@@ -451,5 +514,29 @@ export function shapeSail(g: BufferGeometry, fill: number, wind: number, time: n
     }
   }
   p.needsUpdate = true;
-  g.computeVertexNormals();
+  // Normals from the grid's own neighbours (central differences), written in place: computeVertexNormals() allocates
+  // on every call, and this runs every frame for every ship.
+  const nrm = g.attributes.normal as BufferAttribute;
+  const nn = nrm.array as Float32Array;
+  for (let j = 0; j < n; j++) {
+    const j0 = Math.max(0, j - 1);
+    const j1 = Math.min(n - 1, j + 1);
+    for (let i = 0; i < n; i++) {
+      const i0 = Math.max(0, i - 1);
+      const i1 = Math.min(n - 1, i + 1);
+      const ka = (j * n + i0) * 3;
+      const kb = (j * n + i1) * 3;
+      const kc = (j0 * n + i) * 3;
+      const kd = (j1 * n + i) * 3;
+      const ux = a[kb] - a[ka], uy = a[kb + 1] - a[ka + 1], uz = a[kb + 2] - a[ka + 2];
+      const vx = a[kd] - a[kc], vy = a[kd + 1] - a[kc + 1], vz = a[kd + 2] - a[kc + 2];
+      // across (+z) x down (-y) points forward (+x), the side the sail bellies toward
+      let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      const len = Math.hypot(nx, ny, nz) || 1;
+      nx /= len; ny /= len; nz /= len;
+      const k = (j * n + i) * 3;
+      nn[k] = nx; nn[k + 1] = ny; nn[k + 2] = nz;
+    }
+  }
+  nrm.needsUpdate = true;
 }

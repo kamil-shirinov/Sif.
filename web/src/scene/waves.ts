@@ -16,11 +16,15 @@ const TABLE: [number, number, number, number, number][] = [
 ];
 
 /**
- * Waves fade out with distance so the far sea does not alias: the longest swell between these radii, shorter waves
- * sooner (a wave of length L between about 10 L and 26 L), because the sea's grid coarsens away from the ships.
+ * Waves fade out with distance, each before the sea's grid gets too coarse to carry it (the grid is 0.7 units fine
+ * out to 105 units and grows about 6.4% a step beyond): a wave of length L fades between about 4 L and 9 L, so it
+ * always has six or more grid points per wavelength while it still has height. No wave is ever under-sampled: no
+ * facets and no teeth on the horizon. Beyond that the surface is flat geometry and the waves live on in the shading
+ * (waveShade, evaluated per pixel, with the fade pushed SHADE_REACH times further out).
  */
 export const WAVE_FADE_START = 260;
-export const WAVE_FADE_END = 900;
+export const WAVE_FADE_END = 600;
+export const SHADE_REACH = 2.6;
 const G = 9.8;
 interface Wave {
   dx: number;
@@ -36,8 +40,8 @@ interface Wave {
 export const WAVES: Wave[] = TABLE.map(([x, z, L, swell, chop]) => {
   const len = Math.hypot(x, z);
   const k = (2 * Math.PI) / L;
-  const f0 = Math.min(WAVE_FADE_START, Math.max(75, L * 10));
-  const f1 = Math.min(WAVE_FADE_END, Math.max(190, L * 26));
+  const f0 = Math.min(WAVE_FADE_START, Math.max(60, L * 4));
+  const f1 = Math.min(WAVE_FADE_END, Math.max(150, L * 9));
   return { dx: x / len, dz: z / len, k, w: Math.sqrt(G * k) * 0.55, swell, chop, f0, f1 };
 });
 
@@ -144,18 +148,15 @@ export const waveUniforms = {
  *     and the Jacobian of the horizontal push (1 = untouched, toward 0 = crest squeezed together: whitecaps);
  *   vec3 waveEval(vec2 p): (h, dh/dx, dh/dz) at world point p (one fixed-point step), for things riding the sea.
  */
-export const WAVE_GLSL = /* glsl */ `
-uniform float uWaveAmp;
-uniform float uWaveChop;
-uniform float uWaveSteep;
-uniform float uWaveTime;
-vec3 waveDisp(vec2 p, out vec3 n, out float jac) {
+/** One Gerstner sum as GLSL; `reach` scales the distances over which each wave fades. */
+const waveSum = (name: string, reach: number) => /* glsl */ `
+vec3 ${name}(vec2 p, out vec3 n, out float jac) {
   vec3 d = vec3(0.0);
   float pxx = 1.0, pxz = 0.0, pyx = 0.0, pyz = 0.0, pzz = 1.0;
   float dist = length(p);
   float a; float s; float ph; float sn; float cs; vec2 D;
 ${WAVES.map(
-  (w) => `  a = (${f(w.swell)} + uWaveChop * ${f(w.chop)}) * uWaveAmp * (1.0 - smoothstep(${f(w.f0)}, ${f(w.f1)}, dist));
+  (w) => `  a = (${f(w.swell)} + uWaveChop * ${f(w.chop)}) * uWaveAmp * (1.0 - smoothstep(${f(w.f0 * reach)}, ${f(w.f1 * reach)}, dist));
   s = min(${f(SHARP_CAP)}, uWaveSteep * ${f(SHARP_GAIN * w.k)} * a);
   D = vec2(${f(w.dx)}, ${f(w.dz)});
   ph = dot(D, p) * ${f(w.k)} + uWaveTime * ${f(w.w)};
@@ -170,6 +171,19 @@ ${WAVES.map(
   jac = pxx * pzz - pxz * pxz;
   return d;
 }
+`;
+
+const WAVE_UNIFORMS_GLSL = /* glsl */ `
+uniform float uWaveAmp;
+uniform float uWaveChop;
+uniform float uWaveSteep;
+uniform float uWaveTime;
+`;
+
+/** For the sea's fragment shader: the wave uniforms and waveShade(p, n, jac), the same waves with a longer reach. */
+export const WAVE_SHADE_GLSL = WAVE_UNIFORMS_GLSL + waveSum("waveShade", SHADE_REACH);
+
+export const WAVE_GLSL = /* glsl */ `${WAVE_UNIFORMS_GLSL}${waveSum("waveDisp", 1)}
 vec3 waveEval(vec2 p) {
   vec3 n; float j;
   vec3 d = waveDisp(p, n, j);

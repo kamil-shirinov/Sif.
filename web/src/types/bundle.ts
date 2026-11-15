@@ -63,7 +63,8 @@ export interface AlarmEvent {
   i: number;
   type: "alarm";
   text: string;
-  move_ahead_pct: number;
+  /** Share of the storm's move still ahead at the alarm; null for an alarm no storm followed (a false alarm). */
+  move_ahead_pct: number | null;
 }
 
 export interface MarginCallEvent {

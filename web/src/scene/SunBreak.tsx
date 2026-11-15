@@ -8,7 +8,8 @@ const HEIGHT = 420;
 const UP = new Vector3(0, 1, 0);
 const _dir = new Vector3();
 
-const SUN = new Color(2.3, 2.1, 1.6); // HDR: brighter than the thinned sky, so the column reads
+// Near white: a warm shaft over a dark storm sea read as a tan stain on the water.
+const SUN = new Color(2.0, 2.05, 2.0); // HDR: brighter than the thinned sky, so the column reads
 const MOON = new Color(1.0, 1.25, 1.9);
 
 /**
@@ -66,7 +67,7 @@ export function SunBreak() {
     const cz = (SHIP_LAYOUT.prepared.z + SHIP_LAYOUT.unprepared.z) / 2;
     shaft.position.set(cx, 0, cz);
     const u = (shaft.material as ShaderMaterial).uniforms;
-    u.uOpacity.value = fw * (0.16 + 0.18 * day);
+    u.uOpacity.value = fw * (0.1 + 0.12 * day);
     u.uTint.value.copy(MOON).lerp(SUN, day);
   });
 

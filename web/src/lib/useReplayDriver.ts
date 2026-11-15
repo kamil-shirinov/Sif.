@@ -15,7 +15,7 @@ function toastFor(e: BundleEvent, b: Bundle): { title: string; text: string } {
     case "watch":
       return { title: "Storm watch", text: e.text };
     case "alarm":
-      return { title: "Storm alarm", text: `${e.text}. ${e.move_ahead_pct.toFixed(1)}% of the move was still ahead.` };
+      return { title: "Storm alarm", text: e.move_ahead_pct === null ? e.text : `${e.text}. ${e.move_ahead_pct.toFixed(1)}% of the move was still ahead.` };
     case "margin_call":
       return { title: `Margin call: ${b.ships[e.ship].label}`, text: e.text };
     case "all_clear":

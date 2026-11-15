@@ -26,6 +26,8 @@ import { Stars } from "./Stars";
 import { Particles } from "./Particles";
 import { Stats, statsEnabled } from "./Stats";
 import { show } from "./debugFlags";
+import { Warmup } from "./Warmup";
+import { StormCell } from "./StormCell";
 
 /** Far plane well beyond the sky sphere (radius SKY_SCALE / 2), so nothing of the sky can be clipped. */
 const CAMERA_FAR = 2_000_000;
@@ -49,7 +51,7 @@ function VisDriver({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
 /**
  * Adaptive quality (high-quality path only): <AdaptiveQuality/> steps the tier down when the median frame rate stays
  * under 45 fps (the target is 60 fps, whatever the display's rate). Each step trades the least visible thing first.
- *   3: pixel ratio up to 1.75, MSAA, reflections, bloom
+ *   3: pixel ratio up to 1.6, MSAA, reflections, bloom (1.75 left no room for the storm cell: 54 fps under it)
  *   2: pixel ratio 1.35, no MSAA
  *   1: pixel ratio 1, no mirror reflection (sky tint instead)
  *   0: pixel ratio 0.85, no bloom
@@ -59,7 +61,7 @@ export const TIERS = [
   { dpr: 0.85, msaa: 0, reflect: false, bloom: false },
   { dpr: 1, msaa: 0, reflect: false, bloom: true },
   { dpr: 1.35, msaa: 0, reflect: true, bloom: true },
-  { dpr: 1.75, msaa: 4, reflect: true, bloom: true },
+  { dpr: 1.6, msaa: 4, reflect: true, bloom: true },
 ] as const;
 
 function Post({ tier }: { tier: number }) {
@@ -89,6 +91,7 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
       <Atmosphere />
       {show("clouds") && <Clouds lowQuality={lowQuality} />}
       {show("stars") && <Stars />}
+      {show("cell") && <StormCell bundle={bundle} derived={derived} />}
       {show("sea") && <Sea lowQuality={lowQuality} reflect={TIERS[tier].reflect} />}
       {show("front") && <StormFronts key={`f${seq}`} watches={derived.watches} />}
       {show("lighthouse") && <Lighthouse />}
@@ -113,6 +116,8 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
       <CameraRig />
       {statsEnabled && <Stats quality={lowQuality ? "low" : `tier ${tier}`} />}
       {!lowQuality && COMPOSER_ON && <Post tier={tier} />}
+      {/* Last on purpose: see Warmup. */}
+      <Warmup stamp={`${seq}-${tier}-${derived.player ? "p" : "r"}`} throughComposer={!lowQuality && COMPOSER_ON} samples={lowQuality ? 0 : (OVERRIDE.msaa ?? TIERS[tier].msaa)} />
     </>
   );
 }
@@ -176,7 +181,7 @@ const PINNED_TIER = (() => {
   }
 })();
 
-const maxDpr = () => Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 1.75);
+const maxDpr = () => Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 1.6);
 
 export function StormScene({
   bundle,

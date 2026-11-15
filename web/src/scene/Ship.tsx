@@ -13,6 +13,7 @@ import {
   MeshStandardMaterial,
   PlaneGeometry,
   PointLight,
+  Quaternion,
   ShaderMaterial,
   SRGBColorSpace,
   Vector3,
@@ -37,8 +38,11 @@ import {
   makeDetailGeometry,
   makeHullGeometry,
   makeHullMaterial,
+  makeFlagGeometry,
   makeRigGeometry,
   makeSailGeometry,
+  makeYardGeometry,
+  shapeFlag,
   MAST_TOP,
   MAST_X,
   shapeSail,
@@ -59,6 +63,17 @@ const LIVERY: Record<SceneShip, { hull: string; funnel: string }> = {
   unprepared: { hull: "#a04233", funnel: "#d04a32" },
   player: { hull: "#27405e", funnel: "#e0a81c" },
 };
+
+// Buoyancy: where the sea is sampled under the hull, and the springs (natural frequency rad/s, damping ratio).
+const BUOY_X = HULL_L * 0.4;
+const BUOY_Z = 1.9;
+const HEAVE_W = 3.4;
+const HEAVE_Z = 0.5;
+const PITCH_W = 3.0;
+const PITCH_Z = 0.42;
+const ROLL_W = 3.7;
+const ROLL_Z = 0.36;
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
 const FREEBOARD_MAX = 1.95; // deck height above water with a full margin buffer (riding high)
 const FREEBOARD_MIN = 0.2; // no margin buffer left: deck nearly awash
@@ -103,20 +118,27 @@ function buildShared() {
     hull: makeHullGeometry(),
     deck: makeDeckGeometry(),
     rig: makeRigGeometry(),
+    yard: makeYardGeometry(),
     detail: makeDetailGeometry(),
     white,
     // BoxGeometry faces: +x, -x, +y, -y, +z, -z. Windows on the four walls, plain plating on roof and floor.
     houseMats: [house, house, white, white, house, house],
     wheelMats: [wheel, wheel, white, white, wheel, wheel],
     glow: [house, wheel],
-    deckMat: new MeshStandardMaterial({ color: "#5d6f62", roughness: 0.85, metalness: 0.0 }),
-    rigMat: new MeshStandardMaterial({ color: "#3b3f44", roughness: 0.6, metalness: 0.3 }),
+    // Double-sided, like the hull: no face of the ship is see-through from any angle (under the deck, inside the
+    // crow's nest, along the open-ended stays).
+    deckMat: new MeshStandardMaterial({ color: "#5d6f62", roughness: 0.85, metalness: 0.0, side: DoubleSide }),
+    rigMat: new MeshStandardMaterial({ color: "#3b3f44", roughness: 0.6, metalness: 0.3, side: DoubleSide }),
     darkMat: new MeshStandardMaterial({ color: "#1b1f24", roughness: 0.6, metalness: 0.2 }),
     sailMat: new MeshStandardMaterial({ map: cloth, roughness: 0.95, metalness: 0, side: DoubleSide }),
   };
 }
 
-function makeWake(): Mesh {
+/**
+ * A V of foam riding the waves: the wake astern (long, spreading wide) and the bow wave (short, hugging the hull).
+ * `len` how far it trails, `s0` and `s1` its half-width scale at the near and far end, `x` where it starts on the hull.
+ */
+function makeWake(len = 30, s0 = 1.6, s1 = 10.6, x = -HULL_L / 2 + 0.6): Mesh {
   const g = new PlaneGeometry(1, 1, 6, 30);
   g.rotateX(-Math.PI / 2);
   const mat = new ShaderMaterial({
@@ -128,8 +150,8 @@ function makeWake(): Mesh {
         vUv = uv;
         vec3 pos = position;
         float along = 1.0 - uv.y;                 // 0 at stern, 1 at far end
-        pos.x = -along * 30.0;                    // trail behind the stern (local -x)
-        pos.z *= 1.6 + along * 9.0;               // V-shaped spread
+        pos.x = -along * ${len.toFixed(1)};       // trail aft (local -x)
+        pos.z *= mix(${s0.toFixed(2)}, ${s1.toFixed(2)}, along); // V-shaped spread
         vec4 wp = modelMatrix * vec4(pos, 1.0);
         wp.y = waveEval(wp.xz).x + 0.08;
         gl_Position = projectionMatrix * viewMatrix * wp;
@@ -150,7 +172,7 @@ function makeWake(): Mesh {
     depthWrite: false,
   });
   const m = new Mesh(g, mat);
-  m.position.set(-HULL_L / 2 + 0.6, 0, 0);
+  m.position.set(x, 0, 0);
   m.frustumCulled = false;
   return m;
 }
@@ -197,8 +219,25 @@ export function crateAboard(ship: ShipDerived, crate: number, t: number): boolea
   return true;
 }
 
-/** Live deck height of each ship (world y of the deck), so crates thrown and hoisted meet the real deck. */
-export const shipPose: Record<SceneShip, { y: number }> = { prepared: { y: 1 }, unprepared: { y: 1 }, player: { y: 1 } };
+/**
+ * Live pose of each ship, shared with the containers in the water (Jettison.tsx): the deck's world height, the hull's
+ * world matrix and its inverse, and the point the derrick's hook should be at (the top of the container being lifted).
+ */
+export interface ShipPose {
+  y: number;
+  matrix: Matrix4;
+  inv: Matrix4;
+  hook: { active: boolean; x: number; y: number; z: number };
+}
+const newPose = (): ShipPose => ({ y: 1, matrix: new Matrix4(), inv: new Matrix4(), hook: { active: false, x: 0, y: 0, z: 0 } });
+export const shipPose: Record<SceneShip, ShipPose> = { prepared: newPose(), unprepared: newPose(), player: newPose() };
+
+// The derrick: a boom stepped on the mast, with a topping lift to the mast head and a cargo runner down to the hook.
+const BOOM_PIVOT = new Vector3(MAST_X + 0.3, 2.55, 0);
+export const BOOM_LEN = 9.5;
+const BOOM_STOW_LUFF = 0.24; // radians: stowed pointing forward over the cargo
+const BOOM_MIN_LUFF = 0.14;
+const HOOK_IDLE_DROP = 0.9;
 
 // ---------- motion shared by ship + jettisoned crates ----------
 export function shipBuffer(ship: ShipDerived, t: number): number {
@@ -216,6 +255,20 @@ export function sinkProgress(ship: ShipDerived, t: number): number {
 const _w: WaveSample = { h: 0, dhdx: 0, dhdz: 0 };
 const _m = new Matrix4();
 const ZERO = new Matrix4().makeScale(0, 0, 0);
+const _tip = new Vector3();
+const _hook = new Vector3();
+const _head = new Vector3(MAST_X, MAST_TOP - 0.25, 0);
+const _dir = new Vector3();
+const _mid = new Vector3();
+const _q = new Quaternion();
+const UP = new Vector3(0, 1, 0);
+/** Lay a unit-height rod (a cylinder along +y, centred) from a to b. */
+function layRod(mesh: Mesh, a: Vector3, b: Vector3) {
+  const len = _dir.copy(b).sub(a).length();
+  mesh.position.copy(_mid.copy(a).add(b).multiplyScalar(0.5));
+  mesh.scale.set(1, Math.max(len, 1e-3), 1);
+  if (len > 1e-4) mesh.quaternion.copy(_q.setFromUnitVectors(UP, _dir.multiplyScalar(1 / len)));
+}
 
 // ---------- component ----------
 export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derived }) {
@@ -224,7 +277,9 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
   const S = (shared ??= buildShared());
   const hullMat = useMemo(() => makeHullMaterial(LIVERY[shipKey].hull), [shipKey]);
   const sailGeo = useMemo(makeSailGeometry, []);
-  const wake = useMemo(makeWake, []);
+  const wake = useMemo(() => makeWake(), []);
+  const bowWave = useMemo(() => makeWake(9, 0.5, 3.3, HULL_L / 2 - 0.7), []);
+  const flagGeo = useMemo(makeFlagGeometry, []);
   const slots = useMemo(() => crateSlots(derived.crates), [derived.crates]);
   // Cargo: one instanced draw for all containers on deck.
   const cargo = useMemo(() => {
@@ -243,9 +298,10 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     () => () => {
       hullMat.dispose();
       sailGeo.dispose();
+      flagGeo.dispose();
       cargo.dispose();
     },
-    [hullMat, sailGeo, cargo],
+    [hullMat, sailGeo, flagGeo, cargo],
   );
 
   const outer = useRef<Group>(null);
@@ -260,7 +316,30 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     }),
     [],
   );
-  const smooth = useRef({ rising: 0, heel: 0, freeboard: 1, aboard: "" });
+  const smooth = useRef({
+    rising: 0, // how full the sail draws
+    luffing: 0, // how hard it shivers, head to wind
+    brace: 0, // the yard's angle to the wind
+    heel: 0,
+    freeboard: 1,
+    aboard: -1,
+    slew: 0,
+    luff: BOOM_STOW_LUFF,
+    // buoyancy: heave, pitch and roll, each a damped spring toward what the water under the hull asks for
+    init: false,
+    heave: 0,
+    heaveV: 0,
+    pitch: 0,
+    pitchV: 0,
+    roll: 0,
+    rollV: 0,
+  });
+  const yardG = useRef<Group>(null);
+  const boomG = useRef<Group>(null);
+  const boomTilt = useRef<Group>(null);
+  const runner = useRef<Mesh>(null);
+  const lift = useRef<Mesh>(null);
+  const hookBlock = useRef<Mesh>(null);
 
   const anchor = useMemo(() => new Vector3(), []);
   const prevT = useRef(vis.t);
@@ -272,46 +351,127 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     const buffer = shipBuffer(ship, t);
     sm.freeboard += (FREEBOARD_MIN + (FREEBOARD_MAX - FREEBOARD_MIN) * buffer - sm.freeboard) * k;
     sm.heel += (sampleAt(ship.heelDeg, t) - sm.heel) * k;
-    // Sails fill when equity is rising, and when a fair_wind event has the sun breaking through.
-    const fill = Math.max(sampleAt(ship.rising, t), vis.fairWind * 0.9);
-    sm.rising += (fill * (1 - sink) - sm.rising) * (1 - Math.exp(-vis.dt * 1.5));
-
-    waveAt(lay.x, lay.z, vis.wave, _w);
     const fx = Math.cos(lay.heading);
     const fz = -Math.sin(lay.heading);
-    const slopeF = _w.dhdx * fx + _w.dhdz * fz;
-    const slopeS = _w.dhdx * -fz + _w.dhdz * fx; // local +z in world = (sin h, cos h) = (-fz, fx)
+
+    // The true wind in the ship's frame: `tail` +1 from dead astern, -1 from dead ahead; `side` how much of it blows
+    // across toward the starboard side.
+    const tail = vis.windDir.x * fx + vis.windDir.z * fz;
+    const side = vis.windDir.x * -fz + vis.windDir.z * fx;
+    // Sail: furled in a storm; otherwise it draws with the wind abaft the beam (a beam wind still draws a little),
+    // and luffs (set, flat, shivering) when the ship heads into it. A fair_wind event fills it whatever the state.
+    const furl = clamp01((vis.wind - 0.72) / 0.23);
+    const drive = clamp01(tail * 0.85 + Math.abs(side) * 0.4);
+    const fillT = Math.max(drive * (0.55 + 0.45 * vis.wind) * (1 - furl), vis.fairWind * 0.9) * (1 - sink);
+    const luffT = clamp01(-tail * 1.4) * (1 - furl) * (1 - vis.fairWind) * (1 - sink);
+    const ks = 1 - Math.exp(-vis.dt * 1.5);
+    sm.rising += (fillT - sm.rising) * ks;
+    sm.luffing += (luffT - sm.luffing) * ks;
+    // The yard is braced round toward the wind (up to 34 degrees), so the sail's belly points downwind.
+    const braceT = tail > -0.3 ? Math.max(-0.6, Math.min(0.6, -Math.atan2(side, Math.max(0.2, tail)) * 0.7)) : 0;
+    sm.brace += (braceT - sm.brace) * (1 - Math.exp(-vis.dt * 1.2));
+    if (yardG.current) yardG.current.rotation.y = sm.brace;
+
+    // Buoyancy: the sea under five points of the hull (centre, bow, stern, both sides) says where the ship wants to
+    // be: its height, its trim and its list. She follows as a damped spring, so she has weight: she lags a crest,
+    // overshoots a little and settles.
+    const hC = waveAt(lay.x, lay.z, vis.wave, _w).h;
+    const hS = waveAt(lay.x - fx * BUOY_X, lay.z - fz * BUOY_X, vis.wave, _w).h;
+    const hP = waveAt(lay.x + fz * BUOY_Z, lay.z - fx * BUOY_Z, vis.wave, _w).h;
+    const hSb = waveAt(lay.x - fz * BUOY_Z, lay.z + fx * BUOY_Z, vis.wave, _w).h;
+    const hB = waveAt(lay.x + fx * BUOY_X, lay.z + fz * BUOY_X, vis.wave, _w).h; // last: _w is the sea at the bow
+    const heaveT = 0.3 * hC + 0.2 * (hB + hS) + 0.15 * (hP + hSb);
+    const pitchT = Math.atan2(hB - hS, 2 * BUOY_X);
+    const rollT = Math.atan2(hP - hSb, 2 * BUOY_Z) * 0.85;
+    if (!sm.init || Math.abs(t - prevT.current) > 3) {
+      // A seek: she is simply where the sea puts her.
+      sm.init = true;
+      sm.heave = heaveT;
+      sm.pitch = pitchT;
+      sm.roll = rollT;
+      sm.heaveV = sm.pitchV = sm.rollV = 0;
+    } else {
+      const steps = vis.dt > 1 / 50 ? 2 : 1;
+      const h = Math.min(vis.dt, 0.06) / steps;
+      for (let q = 0; q < steps; q++) {
+        sm.heaveV += (HEAVE_W * HEAVE_W * (heaveT - sm.heave) - 2 * HEAVE_Z * HEAVE_W * sm.heaveV) * h;
+        sm.heave += sm.heaveV * h;
+        sm.pitchV += (PITCH_W * PITCH_W * (pitchT - sm.pitch) - 2 * PITCH_Z * PITCH_W * sm.pitchV) * h;
+        sm.pitch += sm.pitchV * h;
+        sm.rollV += (ROLL_W * ROLL_W * (rollT - sm.roll) - 2 * ROLL_Z * ROLL_W * sm.rollV) * h;
+        sm.roll += sm.rollV * h;
+      }
+    }
+    // Wind heel: the wind on the beam lays her over to leeward, more with sail set.
+    const windHeel = side * vis.wind * (0.035 + 0.11 * Math.max(sm.rising, sm.luffing * 0.3)) * (1 - sink);
     if (outer.current) {
-      outer.current.position.set(lay.x, _w.h + sm.freeboard - sink * 13, lay.z);
+      outer.current.position.set(lay.x, sm.heave + sm.freeboard - sink * 13, lay.z);
       shipPose[shipKey].y = outer.current.position.y;
-      outer.current.visible = sink < 0.999;
+      // Hide the hull group, never the group that holds the lantern: a light that disappears changes the scene's light
+      // count, and three recompiles every lit material when that changes (a 130 to 150 ms frame as she went under).
+      if (pitchG.current) pitchG.current.visible = sink < 0.999;
       anchor.set(lay.x, Math.max(outer.current.position.y, 0) + MAST_TOP + 0.9, lay.z);
       placeLabel(`ship-${shipKey}`, anchor, camera, size.width, size.height);
     }
     // Going down by the stern: the bow lifts as she sinks.
-    if (pitchG.current) pitchG.current.rotation.z = Math.atan(slopeF) * 0.75 + sink * 0.75;
-    if (rollG.current) {
-      const flutter = Math.sin(vis.elapsed * 1.7 + lay.x) * 0.015 * (0.3 + vis.wind);
-      rollG.current.rotation.x = (sm.heel * Math.PI) / 180 - Math.atan(slopeS) * 0.75 + flutter + sink * 0.35;
-    }
-    shapeSail(sailGeo, sm.rising, vis.wind, vis.elapsed + lay.x);
+    if (pitchG.current) pitchG.current.rotation.z = sm.pitch + sink * 0.75;
+    if (rollG.current) rollG.current.rotation.x = (sm.heel * Math.PI) / 180 + sm.roll + windHeel + sink * 0.35;
+    shapeSail(sailGeo, sm.rising, vis.wind, vis.elapsed + lay.x, sm.luffing);
+    shapeFlag(flagGeo, tail, side, vis.wind, vis.elapsed + lay.x);
+    // Wake astern and bow wave: she makes way while the sail draws; the bow wave also shows when she pitches into a sea.
+    const light = foamLight(vis.dayFactor, vis.risk, vis.flash, vis.lantern);
     const wm = wake.material as ShaderMaterial;
     wm.uniforms.uOpacity.value = sm.rising * 0.85;
     wm.uniforms.uTime.value = vis.elapsed;
-    wm.uniforms.uLight.value = foamLight(vis.dayFactor, vis.risk, vis.flash, vis.lantern);
+    wm.uniforms.uLight.value = light;
     wake.visible = sm.rising > 0.01;
+    const bm = bowWave.material as ShaderMaterial;
+    bm.uniforms.uOpacity.value = Math.min(0.9, sm.rising * 0.7 + Math.max(0, -sm.pitchV) * 1.6 * Math.min(1, vis.wave.chop)) * (1 - sink);
+    bm.uniforms.uTime.value = vis.elapsed;
+    bm.uniforms.uLight.value = light;
+    bowWave.visible = bm.uniforms.uOpacity.value > 0.01;
 
     // Containers on deck: only rewrite the instance matrices when one leaves or comes back.
-    let sig = "";
-    for (let i = 0; i < slots.length; i++) sig += crateAboard(ship, i, t) ? "1" : "0";
+    let sig = 0; // one bit per container (at most MAX_CRATES = 24)
+    for (let i = 0; i < slots.length; i++) if (crateAboard(ship, i, t)) sig |= 1 << i;
     if (sig !== sm.aboard) {
       sm.aboard = sig;
       for (let i = 0; i < slots.length; i++) {
         const s = slots[i];
-        cargo.setMatrixAt(i, sig[i] === "1" ? _m.makeScale(s.dims.len, s.dims.h, s.dims.w).setPosition(s.local) : ZERO);
+        cargo.setMatrixAt(i, sig & (1 << i) ? _m.makeScale(s.dims.len, s.dims.h, s.dims.w).setPosition(s.local) : ZERO);
       }
       cargo.instanceMatrix.needsUpdate = true;
     }
+
+    // The hull's world pose, for the containers in the water and the derrick.
+    const pose = shipPose[shipKey];
+    if (rollG.current) {
+      rollG.current.updateWorldMatrix(true, false);
+      pose.matrix.copy(rollG.current.matrixWorld);
+      pose.inv.copy(pose.matrix).invert();
+    }
+    // Derrick: slew and luff so the boom's tip stands over the hook point; stowed forward when there is nothing to lift.
+    let slewT = 0;
+    let boomLuffT = BOOM_STOW_LUFF;
+    const lifting = pose.hook.active && sink < 0.05;
+    if (lifting) {
+      _hook.set(pose.hook.x, pose.hook.y, pose.hook.z).applyMatrix4(pose.inv);
+      const dx = _hook.x - BOOM_PIVOT.x;
+      const dz = _hook.z - BOOM_PIVOT.z;
+      slewT = Math.atan2(-dz, dx);
+      const reach = Math.min(BOOM_LEN * Math.cos(BOOM_MIN_LUFF), Math.max(1.2, Math.hypot(dx, dz)));
+      boomLuffT = Math.acos(reach / BOOM_LEN);
+    }
+    const kb = 1 - Math.exp(-vis.dt * 10);
+    sm.slew += Math.atan2(Math.sin(slewT - sm.slew), Math.cos(slewT - sm.slew)) * kb;
+    sm.luff += (boomLuffT - sm.luff) * kb;
+    if (boomG.current) boomG.current.rotation.y = sm.slew;
+    if (boomTilt.current) boomTilt.current.rotation.z = sm.luff;
+    _tip.set(BOOM_PIVOT.x + Math.cos(sm.slew) * Math.cos(sm.luff) * BOOM_LEN, BOOM_PIVOT.y + Math.sin(sm.luff) * BOOM_LEN, BOOM_PIVOT.z - Math.sin(sm.slew) * Math.cos(sm.luff) * BOOM_LEN);
+    if (!lifting) _hook.set(_tip.x, _tip.y - HOOK_IDLE_DROP, _tip.z);
+    if (runner.current) layRod(runner.current, _tip, _hook);
+    if (lift.current) layRod(lift.current, _head, _tip);
+    if (hookBlock.current) hookBlock.current.position.copy(_hook);
 
     // Lanterns and cabin windows follow the light: on at dusk, at night and while the market is closed.
     const lit = vis.lantern * (1 - sink);
@@ -380,7 +540,34 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
             </mesh>
             {/* mast, yard and standing rigging; the sail hangs from the yard */}
             <mesh geometry={S.rig} material={S.rigMat} />
-            <mesh geometry={sailGeo} material={S.sailMat} position={[MAST_X + 0.2, YARD_Y, 0]} />
+            <group ref={yardG} position={[MAST_X, 0, 0]}>
+              <mesh geometry={S.yard} material={S.rigMat} />
+              <mesh geometry={sailGeo} material={S.sailMat} position={[0.2, YARD_Y, 0]} />
+            </group>
+            {/* ensign on a staff at the stern, streaming with the true wind */}
+            <mesh position={[-HULL_L / 2 + 0.45, 1.4, 0]} material={S.rigMat}>
+              <cylinderGeometry args={[0.03, 0.035, 2.0, 5]} />
+            </mesh>
+            <mesh geometry={flagGeo} position={[-HULL_L / 2 + 0.45, 2.35, 0]} frustumCulled={false}>
+              <meshStandardMaterial color={funnel} roughness={0.9} side={DoubleSide} />
+            </mesh>
+            {/* derrick: boom stepped on the mast, topping lift, cargo runner and hook block */}
+            <group ref={boomG} position={BOOM_PIVOT}>
+              <group ref={boomTilt}>
+                <mesh position={[BOOM_LEN / 2, 0, 0]} rotation={[0, 0, -Math.PI / 2]} material={S.rigMat}>
+                  <cylinderGeometry args={[0.1, 0.17, BOOM_LEN, 8]} />
+                </mesh>
+              </group>
+            </group>
+            <mesh ref={runner} material={S.darkMat}>
+              <cylinderGeometry args={[0.022, 0.022, 1, 5]} />
+            </mesh>
+            <mesh ref={lift} material={S.rigMat}>
+              <cylinderGeometry args={[0.02, 0.02, 1, 5]} />
+            </mesh>
+            <mesh ref={hookBlock} material={S.darkMat}>
+              <boxGeometry args={[0.22, 0.26, 0.22]} />
+            </mesh>
             {/* lanterns: masthead, port (red) and starboard (green) */}
             <mesh position={[MAST_X, MAST_TOP + 0.2, 0]} material={lamps.mast}>
               <sphereGeometry args={[0.2, 10, 8]} />
@@ -391,12 +578,14 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
             <mesh position={[-4.6, 2.95, 2.22]} material={lamps.starboard}>
               <sphereGeometry args={[0.15, 8, 6]} />
             </mesh>
-            <pointLight ref={lanternLight} position={[MAST_X + 0.6, MAST_TOP - 0.6, 0]} intensity={0} distance={38} decay={1.5} color="#ffd9a0" />
             {/* cargo: one container per USD_PER_CRATE of notional from exposure.positions */}
             <primitive object={cargo} />
           </group>
         </group>
         <primitive object={wake} />
+        <primitive object={bowWave} />
+        {/* Outside the hull group, which is hidden once she has sunk: the light count must not change. */}
+        <pointLight ref={lanternLight} position={[MAST_X + 0.6, MAST_TOP - 0.6, 0]} intensity={0} distance={38} decay={1.5} color="#ffd9a0" />
       </group>
       <Wreck shipKey={shipKey} derived={derived} />
     </>
