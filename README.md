@@ -1,16 +1,18 @@
-# StormScore
+# Sif
 
 **A storm defence for FX traders, shown as a live 3D sea.**
 
+**Why Sif.** In Norse myth Sif is Thor's wife, tied to the harvest; farmers prayed to Thor for weather kind to their crops. Sif watches the market's weather so that a trader's book makes it through the storm.
+
 In five lines:
 
-1. StormScore replays real FX storms as a 3D sea, with two ships: one followed the alarm, one ignored it. *Survive the storm* teaches a beginner where the margin-call line sits.
+1. Sif replays real FX storms as a 3D sea, with two ships: one followed the alarm, one ignored it. *Survive the storm* teaches a beginner where the margin-call line sits.
 2. We found little warning in prices, so it never predicts: it warns from a calendar, alarms in the first minutes, and prepares the book.
 3. **A reliable storm alarm.** It fired on 6 of 6 August storms (which tuning never saw), 19 of 23 in the frozen round 1 and 32 of 38 in round 2, with about a third of a false alert episode a day on FX.
 4. **An early-warning edge on big storms only.** On the crisis events and on SGX August the alarm beat the same alarms moved to random times (p=0.0001 and 0.0006); on ordinary months of 2025 it did not (10 of 38 caught, p=0.37), and on stocks it does worse.
 5. **A response rule that still needs work.** The blunt 75% cut lost $477,177 against holding over round 2's weekly books, and 0 of 4 money tests survive correction. The book is synthetic, every number is computed by code, and the misses are in the tables.
 
-Built for SGX FX's **Challenge 1, "Cloudy with a chance of margin calls"**: warn a trader before leverage turns a fast move into a margin call. It also answers **Challenge 2, "Every trader needs to start somewhere"**. StormScore replays a real storm from SGX's one-minute FX data: the sea and sky turn, an alarm fires, two ships show what the warning saved, and a short storm report follows, every number of it checked by code.
+Built for SGX FX's **Challenge 1, "Cloudy with a chance of margin calls"**: warn a trader before leverage turns a fast move into a margin call. It also answers **Challenge 2, "Every trader needs to start somewhere"**. Sif replays a real storm from SGX's one-minute FX data: the sea and sky turn, an alarm fires, two ships show what the warning saved, and a short storm report follows, every number of it checked by code.
 
 **How we built it:** 24 hours at DurHack 2026, with Claude Code and Codex working under strict file ownership, every result checked by tests and two independent audits.
 

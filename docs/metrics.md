@@ -1,4 +1,4 @@
-# StormScore metrics: exact definitions
+# Sif metrics: exact definitions
 
 Each definition below is what the backend code computes, written as a formula, with the
 module that computes it. Times are UTC. One frame or bar is one minute. `mid` is the
