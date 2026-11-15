@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { Color, PlaneGeometry, Vector3 } from "three";
 import { Water } from "three/examples/jsm/objects/Water.js";
 import { makeWaterNormals } from "./waterNormals";
-import { WAVE_GLSL, waveUniforms } from "./waves";
+import { WAVE_GLSL, WAVE_SHADE_GLSL, waveUniforms } from "./waves";
 import { MOON_DIR, vis } from "./vis";
 
 const SEA_SIZE = 9000;
@@ -101,14 +101,15 @@ export function Sea({ lowQuality, reflect }: { lowQuality: boolean; reflect: boo
     m.uniforms.uFoamLight = { value: 1 };
     m.uniforms.uSss = { value: new Color("#1f8a86") };
     m.vertexShader = m.vertexShader
-      .replace("varying vec4 worldPosition;", `varying vec4 worldPosition;\nvarying vec3 vWaveN;\nvarying float vJac;\nvarying float vCrest;\n${WAVE_GLSL}`)
+      .replace("varying vec4 worldPosition;", `varying vec4 worldPosition;\nvarying vec2 vFlat;\nvarying float vCrest;\n${WAVE_GLSL}`)
       .replace(
         "mirrorCoord = modelMatrix * vec4( position, 1.0 );",
         `vec4 wp = modelMatrix * vec4( position, 1.0 );
          vec3 wn; float wj;
+         vFlat = wp.xz;
          vec3 wd = waveDisp( wp.xz, wn, wj );
          wp.xyz += wd;
-         vWaveN = wn; vJac = wj; vCrest = wd.y;
+         vCrest = wd.y;
          mirrorCoord = wp;`,
       )
       .replace("vec4 mvPosition =  modelViewMatrix * vec4( position, 1.0 );", "vec4 mvPosition = viewMatrix * wp;");
@@ -116,20 +117,22 @@ export function Sea({ lowQuality, reflect }: { lowQuality: boolean; reflect: boo
       .replace(
         "varying vec4 worldPosition;",
         `varying vec4 worldPosition;
-varying vec3 vWaveN;
-varying float vJac;
+varying vec2 vFlat;
 varying float vCrest;
 uniform float uReflect;
 uniform vec3 uSkyTint;
-uniform float uWaveAmp;
 uniform float uFoam;
+${WAVE_SHADE_GLSL}
 uniform float uFoamLight;
 uniform vec3 uSss;
 ${FOAM_GLSL}`,
       )
       .replace(
         "vec3 surfaceNormal = normalize( noise.xzy * vec3( 1.5, 1.0, 1.5 ) );",
-        `vec3 wn = normalize( vWaveN );
+        // The wave normal and the crest squeeze are evaluated here, per pixel, at the surface point's undisplaced
+        // place (vFlat interpolates exactly): shading is smooth however coarse the far grid is.
+        `vec3 wn; float vJac;
+         waveShade( vFlat, wn, vJac );
          vec3 surfaceNormal = normalize( noise.xzy * vec3( 1.5, 1.0, 1.5 ) + vec3( wn.x, 0.0, wn.z ) / max( wn.y, 0.25 ) * 2.0 );`,
       )
       .replace(
@@ -152,7 +155,7 @@ ${FOAM_GLSL}`,
         `// Whitecaps where the Gerstner crests squeeze together (low Jacobian), broken up by noise; cover from risk.
          float fn = foamNoise( worldPosition.xz * 0.42 + vec2( time * 0.35, time * 0.12 ) );
          float squeeze = ( 1.0 - vJac ) * 1.25 + max( crestH, 0.0 ) * 0.3;
-         float thr = 1.08 - 0.42 * uFoam;
+         float thr = 1.02 - 0.5 * uFoam;
          float foam = smoothstep( thr, thr + 0.22, squeeze + ( fn - 0.5 ) * 0.55 ) * uFoam;
          foam += smoothstep( 0.78, 0.97, fn ) * smoothstep( 0.55, 1.0, crestH ) * uFoam * 0.25;
          foam *= 0.55 + 0.45 * fn;

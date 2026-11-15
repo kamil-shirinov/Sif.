@@ -24,6 +24,13 @@ export interface Vis {
   alarm: number; // 0..1 smoothed alarmActive
   flash: number; // lightning flash 0..1 (set by Lightning)
   flashPos: Vector3; // where the last bolt came out of the cloud (lights the cloud base around it)
+  /**
+   * The true wind. Its strength is `wind` (from series.state). Its direction comes from the book: `windTail` is the
+   * smoothed, signed change of the book's equity over the last 3 frames (+1 = equity rising fast: the wind is astern;
+   * -1 = falling fast: it is ahead; 0 = on the beam), and `windDir` is the unit vector it blows toward.
+   */
+  windTail: number;
+  windDir: Vector3;
   // The storm cell (StormCell.tsx, from stormTrack.ts): where it stands, how built it is, how nearly overhead (0..1).
   cellX: number;
   cellZ: number;
@@ -52,6 +59,8 @@ export const vis: Vis = {
   alarm: 0,
   flash: 0,
   flashPos: new Vector3(0, 500, -300),
+  windTail: 0,
+  windDir: new Vector3(0, 0, 1),
   cellX: 0,
   cellZ: -1500,
   cellLife: 0,
@@ -64,6 +73,9 @@ export const vis: Vis = {
 
 /** Where the moon stands at night: behind the ships and to the left, so they are rim-lit and the sea glitters toward the camera. */
 export const MOON_DIR = new Vector3(-0.5, 0.58, -0.64).normalize();
+
+/** Equity change over 3 frames (as a share of start equity, per unit of cargo held) that puts the wind dead astern. */
+export const WIND_FULL_PER_RETURN = 400;
 
 export const WIND_BY_STATE = [0.15, 0.55, 1.0];
 
@@ -163,6 +175,18 @@ export function updateVis(b: Bundle, d: Derived, t: number, dt: number) {
   }
   vis.lantern = Math.min(1, Math.max(0, (0.75 - vis.dayFactor) / 0.5));
   vis.alarm = damp(vis.alarm, stepAt(d.alarmActive, t), 3, dt);
+
+  // Wind direction. The book's equity over the last 3 frames, per unit of cargo still held (a cut book moves less
+  // for the same market): +0.25% of start equity in 3 minutes on a full book is a wind dead astern, the same loss a
+  // wind dead ahead. Between them it veers through the beam (blowing from the far side of the scene toward the
+  // camera). The ships head roughly along +x.
+  const book = d.player ?? d.ships.prepared;
+  const held = Math.max(0.2, sampleAt(book.held, t));
+  const mom = (sampleAt(book.equity, t) - sampleAt(book.equity, Math.max(0, t - 3))) / book.startEquity / held;
+  const tail = Math.min(1, Math.max(-1, mom * WIND_FULL_PER_RETURN));
+  vis.windTail = Math.abs(t - prevT) > 8 ? tail : damp(vis.windTail, tail, 0.9, dt);
+  const ang = (Math.PI / 2) * (1 - vis.windTail);
+  vis.windDir.set(Math.cos(ang), 0, Math.sin(ang));
   vis.flash = Math.max(0, vis.flash - dt * 3.5);
 
   // A jump of the playhead (seek, reload) drops any pulse left over from the old position.

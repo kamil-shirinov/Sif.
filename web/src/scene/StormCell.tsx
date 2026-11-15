@@ -97,23 +97,25 @@ function makePuffs(): Puff[] {
   const out: Puff[] = [];
   const H = TOP_Y - BASE_Y;
   // Base: a wide, flat, dark shelf.
-  for (let k = 0; k < 46; k++) {
+  // (Counts and shapes are kept lean: every puff is a screen-filling layer when the cell is near. The shelf and the
+  // anvil are flat puffs, half as tall as wide: half the pixels.)
+  for (let k = 0; k < 26; k++) {
     const a = r() * Math.PI * 2;
     const d = Math.sqrt(r()) * BASE_R;
-    out.push({ x: Math.cos(a) * d, y: BASE_Y + r() * 35, z: Math.sin(a) * d * 0.9, size: 95 + r() * 70, seed: r(), kind: 0, grow: 0.02 + 0.12 * r() });
+    out.push({ x: Math.cos(a) * d, y: BASE_Y + r() * 35, z: Math.sin(a) * d * 0.9, size: 120 + r() * 70, seed: r(), kind: 0.25, grow: 0.02 + 0.12 * r() });
   }
   // Tower: stacked turrets, narrowing a little with height.
-  for (let k = 0; k < 70; k++) {
+  for (let k = 0; k < 38; k++) {
     const h = Math.pow(r(), 0.8);
     const rad = BASE_R * (0.62 - 0.22 * h) * Math.sqrt(r());
     const a = r() * Math.PI * 2;
-    out.push({ x: Math.cos(a) * rad, y: BASE_Y + 35 + h * H * 0.7, z: Math.sin(a) * rad * 0.85, size: 70 + r() * 70, seed: r(), kind: 0, grow: 0.12 + 0.55 * h });
+    out.push({ x: Math.cos(a) * rad, y: BASE_Y + 35 + h * H * 0.7, z: Math.sin(a) * rad * 0.85, size: 85 + r() * 70, seed: r(), kind: 0, grow: 0.12 + 0.55 * h });
   }
   // Anvil: a flat sheet at the top, spreading downwind (+x in cell space, turned to the exit direction).
-  for (let k = 0; k < 56; k++) {
+  for (let k = 0; k < 30; k++) {
     const along = -0.35 + 1.6 * r();
     const across = (r() - 0.5) * (0.9 + 0.5 * Math.max(0, along));
-    out.push({ x: along * BASE_R * 1.25, y: TOP_Y - 55 + r() * 55 - 25 * Math.abs(across), z: across * BASE_R * 1.3, size: 80 + r() * 70, seed: r(), kind: 0, grow: 0.72 + 0.26 * r() });
+    out.push({ x: along * BASE_R * 1.25, y: TOP_Y - 55 + r() * 55 - 25 * Math.abs(across), z: across * BASE_R * 1.3, size: 105 + r() * 75, seed: r(), kind: 0.25, grow: 0.72 + 0.26 * r() });
   }
   // Fair-weather cumulus: small flat-bottomed heaps far off, all round the horizon.
   for (let c = 0; c < FAIR_COUNT; c++) {
@@ -156,8 +158,14 @@ void main() {
   vCenter = c;
   vec4 mv = viewMatrix * vec4(c, 1.0);
   vDist = -mv.z;
-  mv.xy += position.xy * size * 2.0;
+  // kind 0.25: a flat puff (the shelf, the anvil), half as tall as it is wide.
+  mv.xy += position.xy * size * 2.0 * vec2(1.0, aInfo.z > 0.1 && aInfo.z < 0.5 ? 0.5 : 1.0);
   gl_Position = projectionMatrix * mv;
+  // Overdraw guard: a puff right over the camera would cover the whole frame, layer on layer, for nothing but a
+  // blur. Puffs fade out as they come within 260 units, and one that draws nothing is thrown out of the frustum here,
+  // so it costs no pixels at all. (With the cell overhead this was the difference between 54 and 62 fps.)
+  if (aInfo.z < 0.5) vAlpha *= smoothstep(110.0, 300.0, vDist);
+  if (vAlpha < 0.004) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
 }`;
 
 const FRAG = /* glsl */ `

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial } from "three";
-import { WAVE_GLSL, waveUniforms } from "./waves";
+import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial, Vector3 } from "three";
+import { WAVE_GLSL, waveAt, waveUniforms, type WaveSample } from "./waves";
 import { vis } from "./vis";
 
 // One pool of GPU particles for everything the sea throws up: spray at the bows in heavy seas, the splash of a
@@ -64,6 +64,8 @@ export function clearParticles() {
   dirtyHi = POOL - 1;
 }
 
+const _crest: WaveSample = { h: 0, dhdx: 0, dhdz: 0 };
+
 export function Particles() {
   const size = useThree((s) => s.size);
   const points = useMemo(() => {
@@ -75,11 +77,11 @@ export function Particles() {
     g.setAttribute("aVel", aVel);
     g.setAttribute("aMeta", aMeta);
     const m = new ShaderMaterial({
-      uniforms: { ...waveUniforms, uTime: { value: 0 }, uScale: { value: 600 }, uLight: { value: 1 } },
+      uniforms: { ...waveUniforms, uTime: { value: 0 }, uScale: { value: 600 }, uLight: { value: 1 }, uWind: { value: new Vector3() } },
       vertexShader: /* glsl */ `
         ${WAVE_GLSL}
         attribute vec3 aVel; attribute vec4 aMeta;
-        uniform float uTime; uniform float uScale;
+        uniform float uTime; uniform float uScale; uniform vec3 uWind;
         varying float vA; varying float vKind;
         void main() {
           float age = uTime - aMeta.x;
@@ -92,7 +94,8 @@ export function Particles() {
             float u = age / life;
             if (vKind < 0.5) {
               // Spray: ballistic, with a little drag; gone when it falls back into the sea.
-              p += aVel * age * (1.0 - 0.25 * u) + vec3(0.0, -9.8 * 0.5 * age * age, 0.0);
+              // Ballistic, and carried downwind: the wind keeps pushing, so the drift grows with the square of its age.
+              p += aVel * age * (1.0 - 0.25 * u) + vec3(0.0, -9.8 * 0.5 * age * age, 0.0) + uWind * age * age;
               float sea = waveEval(p.xz).x;
               vA = (1.0 - u) * step(sea - 0.2, p.y);
               sz *= 1.0 + u * 0.8;
@@ -140,6 +143,24 @@ export function Particles() {
   useFrame(({ camera, gl }) => {
     const m = points.material as ShaderMaterial;
     m.uniforms.uTime.value = vis.elapsed;
+    // Wind on the spray: nothing in a calm, 7 units/s^2 downwind in a storm.
+    (m.uniforms.uWind.value as Vector3).copy(vis.windDir).multiplyScalar(7 * Math.max(0, vis.wind - 0.2));
+    // Spindrift: in a storm (wind over 0.6, i.e. state storm) the wind tears the tops off the waves around the
+    // ships. A few random points are tried each frame; those near a crest throw a streak of spray downwind.
+    const gale = Math.max(0, vis.wind - 0.6) / 0.4;
+    if (gale > 0 && vis.wave.amp > 0.6) {
+      const tries = Math.floor(gale * 10 + rnd());
+      for (let k = 0; k < tries; k++) {
+        const x = (rnd() - 0.5) * 150;
+        const z = (rnd() - 0.5) * 110 - 10;
+        waveAt(x, z, vis.wave, _crest);
+        if (_crest.h < vis.wave.amp * 0.55) continue;
+        for (let q = 0; q < 3; q++) {
+          spawnParticle(PK.Spray, x + (rnd() - 0.5) * 2.5, _crest.h + 0.1, z + (rnd() - 0.5) * 2.5,
+            vis.windDir.x * (4 + rnd() * 4), 1.2 + rnd() * 1.8, vis.windDir.z * (4 + rnd() * 4), 0.7 + rnd() * 0.5, 0.25 + rnd() * 0.3);
+        }
+      }
+    }
     const fov = "fov" in camera ? (camera as { fov: number }).fov : 50;
     m.uniforms.uScale.value = (size.height * gl.getPixelRatio() * 0.5) / Math.tan((fov * Math.PI) / 360);
     m.uniforms.uLight.value = Math.min(1.5, 0.15 + 0.85 * vis.dayFactor * (1 - 0.5 * vis.risk) + vis.flash * 1.2 + 0.1 * vis.lantern);
