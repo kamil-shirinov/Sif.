@@ -1,0 +1,20 @@
+{
+  "started_at_utc": "2026-11-15T04:09:14.244446+00:00",
+  "conservative_usd_per_wall_second": 0.002,
+  "watchdog_deadline_s": 3300,
+  "budget_usd": 10,
+  "app": "stormscore-private-llm",
+  "status": "complete",
+  "deployed_at_utc": "2026-11-15T04:09:18.294271+00:00",
+  "wake_discovery_s": 71.34392737499729,
+  "model_available": true,
+  "stop_exit_code": 0,
+  "stopped_at_utc": "2026-11-15T04:10:47.724356+00:00",
+  "wall_time_s_including_deploy_wake_stop": 93.4796886250042,
+  "runtime_cost_upper_estimate_usd": 0.19551110800000002,
+  "cost_note": "Conservative wall-time estimate including deployment, startup and stop; not a provider invoice. Modal token cost is zero.",
+  "server_stopped_at_utc": "2026-11-15T04:10:52+00:00",
+  "observed_running_tasks": 0,
+  "observed_final_state": "stopped",
+  "conservative_billing_window_s": 97.755554
+}

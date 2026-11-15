@@ -1,0 +1,32 @@
+{
+  "checked_at_utc": "2026-11-15T04:19:39.559872+00:00",
+  "pytest_command": "cd backend && python -m pytest -q -rs",
+  "pytest_passed": 341,
+  "pytest_skipped": 9,
+  "pytest_elapsed_s": 35.15,
+  "pytest_log_sha256": "28e24bbaee52ec0f4eaf69c67789c91da8c5042152e5c1e9e513ed300fa0c5bf",
+  "skip_reasons": [
+    "SKIPPED [1] tests/live/test_tiger_live.py:11: no .env with TIGER_DATABASE_URL",
+    "SKIPPED [1] tests/oos/test_oos.py:58: Frozen-core fingerprint requires the registered runtime (pyarrow: registered 24.0.0, running 25.0.1). See docs/oos/amendment-2026-11-15-runtime.md; this skip does not verify the historical fingerprint.",
+    "SKIPPED [1] tests/oos/test_oos.py:64: Frozen-core fingerprint requires the registered runtime (pyarrow: registered 24.0.0, running 25.0.1). See docs/oos/amendment-2026-11-15-runtime.md; this skip does not verify the historical fingerprint.",
+    "SKIPPED [1] tests/oos/test_oos.py:72: Frozen-core fingerprint requires the registered runtime (pyarrow: registered 24.0.0, running 25.0.1). See docs/oos/amendment-2026-11-15-runtime.md; this skip does not verify the historical fingerprint.",
+    "SKIPPED [1] tests/test_export.py:55: no processed SGX data",
+    "SKIPPED [1] tests/test_ingest.py:65: SGX data not in data/raw",
+    "SKIPPED [1] tests/test_labels.py:45: SGX data not in data/raw",
+    "SKIPPED [1] tests/test_readme_results.py:59: data/processed/metrics.json not present (SGX data is not committed)",
+    "SKIPPED [1] tests/test_readme_results.py:73: data/processed/metrics.json not present (SGX data is not committed)"
+  ],
+  "existing_validator_errors": {
+    "intc-2026-10-29": [],
+    "smci-2026-10-20": [],
+    "mrvl-2026-10-28": [],
+    "index": []
+  },
+  "archive_verification": {
+    "raw_hashes_verified": 14,
+    "pooled_scores_reproduced": 3,
+    "detector_reruns": 0,
+    "network_requests": 0
+  },
+  "shared_source_fingerprints_unchanged": true
+}
