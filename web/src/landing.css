@@ -22,7 +22,7 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(120% 90% at 0% 40%, rgba(4, 8, 13, 0.9) 0%, rgba(4, 8, 13, 0.66) 38%, rgba(4, 8, 13, 0.12) 72%, rgba(4, 8, 13, 0) 100%),
+    radial-gradient(125% 100% at 0% 38%, rgba(4, 8, 13, 0.92) 0%, rgba(4, 8, 13, 0.8) 34%, rgba(4, 8, 13, 0.34) 60%, rgba(4, 8, 13, 0) 84%),
     linear-gradient(0deg, rgba(4, 8, 13, 0.92) 0%, rgba(4, 8, 13, 0.55) 26%, rgba(4, 8, 13, 0) 52%),
     linear-gradient(180deg, rgba(4, 8, 13, 0.45) 0%, rgba(4, 8, 13, 0) 18%);
 }
@@ -95,6 +95,7 @@
   line-height: 1.35;
   color: var(--text);
   text-wrap: pretty;
+  text-shadow: 0 1px 0.6em rgba(0, 0, 0, 0.6);
 }
 
 .lp-cta {
