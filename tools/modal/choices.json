@@ -1,0 +1,12 @@
+{
+  "private_model": "openai/gpt-oss-120b",
+  "navigator_model": "fireworks:accounts/fireworks/models/qwen3p8-max",
+  "report_model": "fireworks:accounts/fireworks/models/glm-5p3",
+  "navigator_selection": "most no-fallback successes, then latency, then cost",
+  "backend_tests": {
+    "passed": 293,
+    "skipped": 6
+  },
+  "same_private_fact_fingerprints": true,
+  "same_report_fact_fingerprints": true
+}

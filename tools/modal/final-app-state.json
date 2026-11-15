@@ -1,0 +1,18 @@
+[
+  {
+    "app_id": "ap-zH3vlj8R7dOT8OidE5rInM",
+    "description": "stormscore-private-llm",
+    "state": "stopped",
+    "tasks": "0",
+    "created_at": "2026-11-15 01:34:01+00:00",
+    "stopped_at": "2026-11-15 02:24:47+00:00"
+  },
+  {
+    "app_id": "ap-FU5cJY9pFZUKO1UMvufeid",
+    "description": "stormscore-private-llm",
+    "state": "stopped",
+    "tasks": "0",
+    "created_at": "2026-11-14 19:06:01+00:00",
+    "stopped_at": "2026-11-15 01:34:00+00:00"
+  }
+]

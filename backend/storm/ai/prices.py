@@ -1,4 +1,9 @@
-"""USD per million tokens, always charged at the uncached rate."""
+"""USD per million tokens, always charged at the uncached rate.
+
+New bake-off IDs checked 15 Nov 2026 against:
+https://dev.meta.ai/docs/pricing-rate-limits
+https://docs.fireworks.ai/serverless/pricing
+"""
 
 from decimal import Decimal
 import re
@@ -6,6 +11,9 @@ import re
 
 CONSERVATIVE_PRICE = (3.00, 15.00)
 PRICES = {
+    "muse-wonder-1.0": (4.00, 20.00),
+    "qwen3p8-max": (2.00, 6.00),
+    "glm-5p3": (1.40, 4.40),
     "muse-spark-1.1": (1.25, 4.25),
     "muse-spark-1.2": (1.25, 4.25),
     "muse-spark-1.3": (1.25, 4.25),

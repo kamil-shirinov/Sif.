@@ -117,7 +117,7 @@ def test_nullable_alarm_and_exposure_metrics(bundle):
 
 
 def test_report_preflights_inspector_before_spending(bundle, monkeypatch):
-    monkeypatch.setenv("FIREWORKS_MODEL_CHECKER", "muse-spark-1.2")
+    monkeypatch.setenv("FIREWORKS_MODEL_CHECKER", "accounts/fireworks/models/glm-5p3")
     monkeypatch.setattr(llm, "complete", lambda *a, **k: pytest.fail("No inference before family validation"))
     with pytest.raises(llm.GatewayError, match="different model family"):
         report.write_report(report.facts_from_bundle(bundle), live=True)

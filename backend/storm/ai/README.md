@@ -167,6 +167,45 @@ for both attempts, initial audit issues and final verdict, without the book fact
 or generated report prose. Historic runs that saved only aggregates cannot be
 retroactively assigned exact per-report causes.
 
+## Measured model comparisons
+
+`storm.ai.navigator_bakeoff` defines ten fixed questions and expected tool
+arguments, including signed moves, different durations, explicit synthetic
+leverage, multiple tool calls and a comparison of two replay shapes. It runs the
+same demo path as `navigator.ask`, with Kimi inspecting every writer except Kimi,
+which uses GLM. `--out` saves each question's numeric check, tool-use check,
+inspector verdict, fallback, elapsed time and uncached token cost. It does not
+save replay bundles, book facts or generated answer text. A successful row needs
+verified numbers, every expected tool call with matching arguments, no tool
+errors, an ok inspector and no deterministic fallback. Numeric verification
+alone is not a measure of answer completeness or correct tool use.
+
+```sh
+STORM_ENV_FILE=~/Desktop/stormscore/.env \
+STORM_TASK_ID=cx-models-20261115 \
+STORM_TASK_LIMITS_JSON='{"meta":20,"fireworks":20,"modal":25}' \
+python -m storm.ai.navigator_bakeoff --live \
+  --bundles ~/Desktop/stormscore/web/public/bundles \
+  --out /tmp/navigator-results.json
+```
+
+The task guard adds atomic task-specific reservations to the existing provider
+guard, using the normal ledger API and a purpose prefix. It warns at 75% and
+refuses at 90% of the supplied ceiling, including held reservations and uncertain
+failures. Reuse the same task ID on restarts; changing IDs resets task accounting.
+Neither caps nor historic entries are modified. Modal tokens remain zero-priced;
+its runtime needs the separate single-GPU watchdog in `tools/modal`.
+
+Navigator overrides are `NAVIGATOR_PROVIDER` and `NAVIGATOR_MODEL`, independently
+of report selection. Reports now default to Fireworks `glm-5p3`: on the same 15
+bundles it accepted every first draft with no flags/fallbacks, at lower latency
+and cost than Spark. `REPORT_WRITER_PROVIDER=meta REPORT_WRITER_MODEL=muse-spark-1.3`
+restores Spark. Explicit `write_report(..., provider=..., model=...)` takes
+precedence, and model-only callers retain the historical Meta route.
+Explicit `ask(..., provider=..., model=...)` arguments
+are useful for measurements. `LLM_PRIVATE_MODE=1` still routes every live role to
+Modal, including inspectors, without a hosted fallback.
+
 ## Navigator
 
 `ask(question, storm_id=None, live=False)` in `storm.ai.navigator` calls the

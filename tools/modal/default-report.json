@@ -1,0 +1,13 @@
+{
+  "model": "accounts/fireworks/models/glm-5p3",
+  "verified": true,
+  "fallback": false,
+  "first_try_verified": true,
+  "cost_usd": 0.0036948,
+  "inspector": {
+    "verdict": "ok",
+    "issues": [],
+    "model": "accounts/fireworks/models/kimi-k3p1-pro",
+    "cost_usd": 0.002666
+  }
+}

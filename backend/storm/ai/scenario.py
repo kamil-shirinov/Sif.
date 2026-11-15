@@ -70,10 +70,18 @@ def book_paths(bundle: dict) -> tuple[dict, dict, dict]:
     return book, mids, exposure.ships(mids, book, actions)
 
 
-def stress_test(symbol: str, move_pct: float, minutes: int) -> dict:
+def stress_test(symbol: str, move_pct: float, minutes: int, leverage: float | None = None) -> dict:
     """Endpoint stress on the default synthetic book, before liquidation/policy cuts."""
     symbol, move_pct, minutes = parameters(symbol, move_pct, minutes)
     book = exposure.book_for(symbol)
+    if leverage is not None:
+        if (isinstance(leverage, bool) or not isinstance(leverage, (int, float))
+                or not math.isfinite(leverage) or not 0 < leverage <= 1000):
+            raise ValueError("leverage must be finite, positive and at most 1000")
+        old_notional = sum(leg["usd_notional"] for leg in book["legs"])
+        scale = book["equity_usd"] * leverage / old_notional
+        for leg in book["legs"]:
+            leg["usd_notional"] *= scale
     ratio = 1 + move_pct / 100
     # exposure.stress_test expects a USD move: invert EURUSD exactly.
     usd_move_bp = (ratio - 1 if symbol.startswith("USD") else 1 / ratio - 1) * 10_000
@@ -86,7 +94,8 @@ def stress_test(symbol: str, move_pct: float, minutes: int) -> dict:
     return {"symbol": symbol, "move_pct": move_pct, "minutes": minutes,
             "book_is_synthetic": True, "start_equity_usd": book["equity_usd"],
             "notional_usd": sum(leg["usd_notional"] for leg in book["legs"]),
-            "assumptions": "Endpoint stress before liquidation; no spread or slippage; duration does not change endpoint P&L",
+            "leverage": sum(leg["usd_notional"] for leg in book["legs"]) / book["equity_usd"],
+            "assumptions": "Endpoint stress before liquidation; no policy cuts, spread or slippage; duration does not change endpoint P&L",
             **result}
 
 
@@ -133,13 +142,23 @@ def scenario(symbol: str = "USDJPY", move_pct: float = -3, minutes: int = 30,
     def frame(i):
         return max(0, min(minutes, int(math.floor((i - onset) * minutes / (trough - onset) + .5))))
 
-    # Retain policy history so a cut before onset becomes an assumed cut at the
-    # scenario start. Strip all old text/MCs: those describe the historical path.
-    events = []
-    for event in base["events"]:
+    # Carry an earlier alarm only while it is still active at onset. A completed
+    # earlier episode must not clamp both its signals to frame zero and produce
+    # spurious next-frame cuts/restores. Also discard stray earlier all-clears.
+    policy_events = []
+    for event in sorted(base["events"], key=lambda event: event["i"]):
         kind = event["type"]
         if event["i"] > trough or kind not in {"alarm", "all_clear"}:
             continue
+        if kind == "all_clear" and event["i"] < onset:
+            policy_events.clear()
+        else:
+            policy_events.append(event)
+
+    # Strip old text/MCs: those describe the historical path.
+    events = []
+    for event in policy_events:
+        kind = event["type"]
         i = frame(event["i"])
         ev = {"i": i, "type": kind, "text": f"Assumed {kind.replace('_', ' ')} timing from the base replay"}
         if kind == "alarm":

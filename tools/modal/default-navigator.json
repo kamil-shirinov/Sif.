@@ -1,0 +1,35 @@
+{
+  "models": [
+    {
+      "provider": "fireworks",
+      "model": "accounts/fireworks/models/qwen3p8-max"
+    },
+    {
+      "provider": "fireworks",
+      "model": "accounts/fireworks/models/qwen3p8-max"
+    },
+    {
+      "provider": "fireworks",
+      "model": "accounts/fireworks/models/kimi-k3p1-pro"
+    }
+  ],
+  "verified": true,
+  "inspector": {
+    "verdict": "ok",
+    "issues": [],
+    "model": "accounts/fireworks/models/kimi-k3p1-pro",
+    "cost_usd": 0.001988
+  },
+  "tools": [
+    {
+      "name": "stress_test",
+      "arguments": {
+        "move_pct": -3,
+        "minutes": 30,
+        "symbol": "USDJPY"
+      },
+      "error": null
+    }
+  ],
+  "latency_s": 5.133439749995887
+}

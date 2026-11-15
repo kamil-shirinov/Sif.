@@ -1,0 +1,2338 @@
+{
+  "models": [
+    {
+      "model": "meta:muse-spark-1.3",
+      "private_mode": false,
+      "questions": 10,
+      "verified": 10,
+      "first_try_verified": 7,
+      "correct_tool_use": 10,
+      "inspector_ok": 10,
+      "initial_inspector_ok": 10,
+      "fallback": 2,
+      "success": 8,
+      "errors": 0,
+      "mean_latency_s": 32.173773654299296,
+      "under_15_s": 0,
+      "cost_usd": 0.26232875,
+      "details": [
+        {
+          "case": "stress-drop",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 30,
+                "move_pct": -3.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "minutes": 30,
+                "move_pct": -3.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "usdjpy-2026-07-30"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 26.413919458995224,
+          "cost_usd": 0.02256125
+        },
+        {
+          "case": "stress-rise",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "list_storms",
+              "arguments": {},
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 60,
+                "move_pct": 1.5,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "eurusd-2026-08-07",
+                "minutes": 60,
+                "move_pct": 1.5,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 45.79982991699944,
+          "cost_usd": 0.035479500000000004
+        },
+        {
+          "case": "stress-small",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "list_storms",
+              "arguments": {},
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "usdsgd-2026-08-07"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 5,
+                "move_pct": -0.5,
+                "symbol": "USDSGD"
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdsgd-2026-08-07",
+                "minutes": 5,
+                "move_pct": -0.5,
+                "symbol": "USDSGD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 42.48125266600255,
+          "cost_usd": 0.034687
+        },
+        {
+          "case": "scenario-short",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 15,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "list_storms",
+              "arguments": {},
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "minutes": 15,
+                "move_pct": -2.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 15,
+                "move_pct": -2.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "usdjpy-2026-07-30"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 19.201236624998273,
+          "cost_usd": 0.02146075
+        },
+        {
+          "case": "scenario-long",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1,
+                "minutes": 120,
+                "base_storm_id": "eurusd-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "eurusd-2026-08-07",
+                "minutes": 120,
+                "move_pct": 1.0,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 30.924952832996496,
+          "cost_usd": 0.0254465
+        },
+        {
+          "case": "leverage-ten",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "leverage": 10.0,
+                "minutes": 30,
+                "move_pct": -2.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "minutes": 30,
+                "move_pct": -2.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "usdjpy-2026-07-30"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 42.55849120799394,
+          "cost_usd": 0.0327375
+        },
+        {
+          "case": "leverage-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 40
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 30,
+                "move_pct": -2.0,
+                "symbol": "USDJPY",
+                "leverage": 10.0
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 30,
+                "move_pct": -2.0,
+                "symbol": "USDJPY",
+                "leverage": 40.0
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 18.439966584002832,
+          "cost_usd": 0.01494325
+        },
+        {
+          "case": "duration-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 5
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 120
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 5,
+                "move_pct": -1.0,
+                "symbol": "USDSGD"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 120,
+                "move_pct": -1.0,
+                "symbol": "USDSGD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 17.42746016700403,
+          "cost_usd": 0.013215499999999998
+        },
+        {
+          "case": "exposure-then-stress",
+          "expected_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2,
+                "minutes": 45
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 45,
+                "move_pct": 2.0,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 25.031109709001612,
+          "cost_usd": 0.01699525
+        },
+        {
+          "case": "two-storms",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "list_storms",
+              "arguments": {},
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "minutes": 30,
+                "move_pct": -3.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-08-07",
+                "minutes": 30,
+                "move_pct": -3.0,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 53.45951737499854,
+          "cost_usd": 0.04480225
+        }
+      ]
+    },
+    {
+      "model": "meta:muse-wonder-1.0",
+      "private_mode": false,
+      "questions": 10,
+      "verified": 10,
+      "first_try_verified": 7,
+      "correct_tool_use": 10,
+      "inspector_ok": 8,
+      "initial_inspector_ok": 8,
+      "fallback": 3,
+      "success": 7,
+      "errors": 0,
+      "mean_latency_s": 14.603429324900935,
+      "under_15_s": 7,
+      "cost_usd": 0.45393999999999995,
+      "details": [
+        {
+          "case": "stress-drop",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3.0,
+                "minutes": 30
+              },
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "usdjpy-2026-07-30"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 11.398155041999416,
+          "cost_usd": 0.035048
+        },
+        {
+          "case": "stress-rise",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 10.095823832998576,
+          "cost_usd": 0.032203999999999997
+        },
+        {
+          "case": "stress-small",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              },
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "usdsgd-2026-08-07"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 10.729106124999817,
+          "cost_usd": 0.033120000000000004
+        },
+        {
+          "case": "scenario-short",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 15,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "symbol": "USDJPY",
+                "move_pct": -2.0,
+                "minutes": 15
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 11.210855332996289,
+          "cost_usd": 0.039992
+        },
+        {
+          "case": "scenario-long",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1,
+                "minutes": 120,
+                "base_storm_id": "eurusd-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.0,
+                "minutes": 120,
+                "base_storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 12.767989917003433,
+          "cost_usd": 0.042727999999999995
+        },
+        {
+          "case": "leverage-ten",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": false,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [
+            "The report introduces 'policy cuts,' which are not mentioned or supported by the supplied facts."
+          ],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2.0,
+                "minutes": 30,
+                "leverage": 10.0
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 25.44450329100073,
+          "cost_usd": 0.06468600000000001
+        },
+        {
+          "case": "leverage-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 40
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": false,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [
+            "The claim that the stress test excludes policy cuts is unsupported; the supplied assumptions only state no spread or slippage."
+          ],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2.0,
+                "minutes": 30,
+                "leverage": 10.0
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2.0,
+                "minutes": 30,
+                "leverage": 40.0
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 20.462152333006088,
+          "cost_usd": 0.061924
+        },
+        {
+          "case": "duration-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 5
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 120
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1.0,
+                "minutes": 5
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1.0,
+                "minutes": 120
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 11.00638533300662,
+          "cost_usd": 0.036343999999999994
+        },
+        {
+          "case": "exposure-then-stress",
+          "expected_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2,
+                "minutes": 45
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2.0,
+                "minutes": 45
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 12.633723833998374,
+          "cost_usd": 0.037278
+        },
+        {
+          "case": "two-storms",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "symbol": "USDJPY",
+                "move_pct": -3.0,
+                "minutes": 30
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-08-07",
+                "symbol": "USDJPY",
+                "move_pct": -3.0,
+                "minutes": 30
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 20.28559820800001,
+          "cost_usd": 0.070616
+        }
+      ]
+    },
+    {
+      "model": "fireworks:accounts/fireworks/models/qwen3p8-max",
+      "private_mode": false,
+      "questions": 10,
+      "verified": 10,
+      "first_try_verified": 6,
+      "correct_tool_use": 10,
+      "inspector_ok": 9,
+      "initial_inspector_ok": 7,
+      "fallback": 5,
+      "success": 5,
+      "errors": 0,
+      "mean_latency_s": 9.80471891660054,
+      "under_15_s": 9,
+      "cost_usd": 0.16225799999999999,
+      "details": [
+        {
+          "case": "stress-drop",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 10.137334417006059,
+          "cost_usd": 0.009164
+        },
+        {
+          "case": "stress-rise",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              },
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 6.295460790999641,
+          "cost_usd": 0.010966
+        },
+        {
+          "case": "stress-small",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 5.53066541699809,
+          "cost_usd": 0.008368
+        },
+        {
+          "case": "scenario-short",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 15,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 15,
+                "base_storm_id": "usdjpy-2026-07-30"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 11.13745866699901,
+          "cost_usd": 0.016753999999999998
+        },
+        {
+          "case": "scenario-long",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1,
+                "minutes": 120,
+                "base_storm_id": "eurusd-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "eurusd-2026-08-07",
+                "minutes": 120,
+                "move_pct": 1,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 9.860586583003169,
+          "cost_usd": 0.018566
+        },
+        {
+          "case": "leverage-ten",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-07-30"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 12.38068524999835,
+          "cost_usd": 0.024404000000000002
+        },
+        {
+          "case": "leverage-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 40
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": false,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [
+            "The claim that the stress excludes policy cuts is unsupported by the supplied assumptions."
+          ],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 40
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 10.637236499998835,
+          "cost_usd": 0.016800000000000002
+        },
+        {
+          "case": "duration-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 5
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 120
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 5
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 120
+              },
+              "error": null
+            },
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "usdsgd-2026-08-07"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 10.630341875003069,
+          "cost_usd": 0.014955999999999999
+        },
+        {
+          "case": "exposure-then-stress",
+          "expected_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2,
+                "minutes": 45
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2,
+                "minutes": 45
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 5.150189790998411,
+          "cost_usd": 0.009842
+        },
+        {
+          "case": "two-storms",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-08-07",
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 16.287229875000776,
+          "cost_usd": 0.032438
+        }
+      ]
+    },
+    {
+      "model": "fireworks:accounts/fireworks/models/glm-5p3",
+      "private_mode": false,
+      "questions": 10,
+      "verified": 10,
+      "first_try_verified": 3,
+      "correct_tool_use": 10,
+      "inspector_ok": 7,
+      "initial_inspector_ok": 7,
+      "fallback": 6,
+      "success": 4,
+      "errors": 0,
+      "mean_latency_s": 11.280443929300237,
+      "under_15_s": 8,
+      "cost_usd": 0.11165880000000002,
+      "details": [
+        {
+          "case": "stress-drop",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 30,
+                "move_pct": -3,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 4.669490374995803,
+          "cost_usd": 0.0053962
+        },
+        {
+          "case": "stress-rise",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "move_pct": 1.5,
+                "minutes": 60,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 6.827916000002006,
+          "cost_usd": 0.0052592
+        },
+        {
+          "case": "stress-small",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": false,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [
+            "The claim that the stress excludes policy cuts is unsupported by the tool result, which only specifies endpoint stress before liquidation with no spread or slippage."
+          ],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 5,
+                "move_pct": -0.5,
+                "symbol": "USDSGD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 17.413848791999044,
+          "cost_usd": 0.0106654
+        },
+        {
+          "case": "scenario-short",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 15,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "minutes": 15,
+                "move_pct": -2,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 6.858628208996379,
+          "cost_usd": 0.009499
+        },
+        {
+          "case": "scenario-long",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1,
+                "minutes": 120,
+                "base_storm_id": "eurusd-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "eurusd-2026-08-07",
+                "minutes": 120,
+                "move_pct": 1,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 21.54105733299366,
+          "cost_usd": 0.034251
+        },
+        {
+          "case": "leverage-ten",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "leverage": 10,
+                "minutes": 30,
+                "move_pct": -2,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 9.560897917006514,
+          "cost_usd": 0.005305600000000001
+        },
+        {
+          "case": "leverage-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 40
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": false,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [
+            "The claim that the stress test excludes policy cuts is unsupported by the supplied assumptions, which mention only endpoint stress before liquidation and no spread or slippage."
+          ],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "leverage": 10,
+                "minutes": 30,
+                "move_pct": -2,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "leverage": 40,
+                "minutes": 30,
+                "move_pct": -2,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 11.254475500005356,
+          "cost_usd": 0.008704
+        },
+        {
+          "case": "duration-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 5
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 120
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": false,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [
+            "The claim that the stress excludes policy cuts is unsupported; the stated assumptions only cover endpoint stress before liquidation, no spread or slippage, and duration not changing endpoint P&L."
+          ],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 5,
+                "move_pct": -1,
+                "symbol": "USDSGD"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 120,
+                "move_pct": -1,
+                "symbol": "USDSGD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 10.300675375001447,
+          "cost_usd": 0.0086562
+        },
+        {
+          "case": "exposure-then-stress",
+          "expected_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2,
+                "minutes": 45
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "minutes": 45,
+                "move_pct": 2,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 10.811333875004493,
+          "cost_usd": 0.0086242
+        },
+        {
+          "case": "two-storms",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "minutes": 30,
+                "move_pct": -3,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-08-07",
+                "minutes": 30,
+                "move_pct": -3,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 13.56611591699766,
+          "cost_usd": 0.015298
+        }
+      ]
+    },
+    {
+      "model": "fireworks:accounts/fireworks/models/kimi-k3p1-pro",
+      "private_mode": false,
+      "questions": 10,
+      "verified": 10,
+      "first_try_verified": 6,
+      "correct_tool_use": 10,
+      "inspector_ok": 10,
+      "initial_inspector_ok": 9,
+      "fallback": 4,
+      "success": 6,
+      "errors": 0,
+      "mean_latency_s": 12.039064771098491,
+      "under_15_s": 6,
+      "cost_usd": 0.1335364,
+      "details": [
+        {
+          "case": "stress-drop",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 7.906164291998721,
+          "cost_usd": 0.0077624
+        },
+        {
+          "case": "stress-rise",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1.5,
+                "minutes": 60
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 9.14749208399735,
+          "cost_usd": 0.009099000000000001
+        },
+        {
+          "case": "stress-small",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -0.5,
+                "minutes": 5
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 5.531286250006815,
+          "cost_usd": 0.006968799999999999
+        },
+        {
+          "case": "scenario-short",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 15,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": false,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 15
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 17.985185999998066,
+          "cost_usd": 0.019654400000000002
+        },
+        {
+          "case": "scenario-long",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 1,
+                "minutes": 120,
+                "base_storm_id": "eurusd-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "eurusd-2026-08-07",
+                "minutes": 120,
+                "move_pct": 1,
+                "symbol": "EURUSD"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 20.101163041996188,
+          "cost_usd": 0.0200542
+        },
+        {
+          "case": "leverage-ten",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "leverage": 10,
+                "minutes": 30,
+                "move_pct": -2,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 8.926304291999259,
+          "cost_usd": 0.0084884
+        },
+        {
+          "case": "leverage-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 10
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -2,
+                "minutes": 30,
+                "leverage": 40
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "leverage": 10,
+                "minutes": 30,
+                "move_pct": -2,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "leverage": 40,
+                "minutes": 30,
+                "move_pct": -2,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 6.382168416996137,
+          "cost_usd": 0.0088082
+        },
+        {
+          "case": "duration-compare",
+          "expected_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 5
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 120
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": true,
+          "fallback": false,
+          "tool_calls": [
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 5
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "USDSGD",
+                "move_pct": -1,
+                "minutes": 120
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 9.25466449999658,
+          "cost_usd": 0.0101034
+        },
+        {
+          "case": "exposure-then-stress",
+          "expected_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              }
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2,
+                "minutes": 45
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "get_exposure",
+              "arguments": {
+                "storm_id": "eurusd-2026-08-07"
+              },
+              "error": null
+            },
+            {
+              "name": "stress_test",
+              "arguments": {
+                "symbol": "EURUSD",
+                "move_pct": 2,
+                "minutes": 45
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 16.809258333996695,
+          "cost_usd": 0.017136799999999997
+        },
+        {
+          "case": "two-storms",
+          "expected_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-07-30"
+              }
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "symbol": "USDJPY",
+                "move_pct": -3,
+                "minutes": 30,
+                "base_storm_id": "usdjpy-2026-08-07"
+              }
+            }
+          ],
+          "verified": true,
+          "correct_tool_use": true,
+          "inspector_ok": true,
+          "initial_inspector_ok": true,
+          "inspector_model": "accounts/fireworks/models/glm-5p3",
+          "inspector_issues": [],
+          "first_try_verified": false,
+          "fallback": true,
+          "tool_calls": [
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-07-30",
+                "minutes": 30,
+                "move_pct": -3,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            },
+            {
+              "name": "scenario",
+              "arguments": {
+                "base_storm_id": "usdjpy-2026-08-07",
+                "minutes": 30,
+                "move_pct": -3,
+                "symbol": "USDJPY"
+              },
+              "error": null
+            }
+          ],
+          "latency_s": 18.346960499999113,
+          "cost_usd": 0.0254608
+        }
+      ]
+    }
+  ]
+}

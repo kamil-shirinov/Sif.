@@ -225,16 +225,17 @@ def test_report_and_inspector_reserve_their_larger_output_limits(caps, bundle, m
 
     def guarded(*args):
         reservations.append((args[0], args[3]))
+        previous = budget.spent(args[0])
         call_id = reserve(*args)
         # The gateway reserves the full new reasoning+text output ceiling before
         # the mocked provider is invoked, not the smaller previous token limit.
-        assert budget.spent(args[0]) == cost_usd(args[1], args[2], args[3])
+        assert budget.spent(args[0]) - previous == pytest.approx(cost_usd(args[1], args[2], args[3]))
         return call_id
 
     def handler(request):
         payload = json.loads(request.content)
         data = response()
-        is_writer = payload["model"].startswith("muse")
+        is_writer = payload["model"].endswith("glm-5p3")
         data["choices"][0]["message"]["content"] = (
             report.deterministic_report(facts) if is_writer else '{"verdict":"ok","issues":[]}'
         )
@@ -245,4 +246,4 @@ def test_report_and_inspector_reserve_their_larger_output_limits(caps, bundle, m
     monkeypatch.setattr(budget, "reserve", guarded)
     sdk_client(monkeypatch, handler)
     assert report.write_report(facts, live=True)["verified"]
-    assert reservations == [("meta", 4096), ("fireworks", 2048)]
+    assert reservations == [("fireworks", 4096), ("fireworks", 2048)]

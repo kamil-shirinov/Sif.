@@ -1,6 +1,6 @@
 """StormScore's private OpenAI-compatible endpoint. Deploy with modal deploy.
 
-One L4, public ungated Qwen3-8B weights, authenticated inference, no prompt logs.
+One GPU, pinned public weights, authenticated inference, no prompt logs.
 MODAL_KEEP_WARM=1 keeps the sole container warm for judging (billed while idle).
 """
 
@@ -10,25 +10,34 @@ import modal
 
 APP_NAME = "stormscore-private-llm"
 SECRET_NAME = "stormscore-private-llm"
-MODEL = "Qwen/Qwen3-8B"
-REVISION = "c4991a667c9137cff07024144d448d2afe76abc4"
+MODEL = os.getenv("PRIVATE_MODEL", "openai/gpt-oss-120b")
+REVISIONS = {
+    "Qwen/Qwen3-8B": "c4991a667c9137cff07024144d448d2afe76abc4",
+    "openai/gpt-oss-120b": "b5c939de8f754692c1647ca79fbf85e8c1e70f8a",
+}
+REVISION = REVISIONS[MODEL]
 PORT = 8000
 KEEP_WARM = os.getenv("MODAL_KEEP_WARM", "0") == "1"
-GPU = os.getenv("MODAL_GPU", "L4")
-if GPU not in {"L4", "A10G", "L40S"}:
-    raise ValueError("MODAL_GPU must be L4, A10G, or L40S")
+GPU = os.getenv("MODAL_GPU", "H100" if MODEL.startswith("openai/") else "L40S")
+if GPU not in {"L4", "A10G", "L40S", "H100", "H200", "B200"}:
+    raise ValueError("Unsupported single GPU")
 
 app = modal.App(APP_NAME)
 weights = modal.Volume.from_name("stormscore-qwen3-weights", create_if_missing=True)
 image = (
-    modal.Image.from_registry("vllm/vllm-openai:v0.10.2", add_python="3.12")
+    modal.Image.from_registry("vllm/vllm-openai:v0.11.0", add_python="3.12")
     .entrypoint([])
     .env({
         "HF_HOME": "/weights",
         "HF_HUB_DISABLE_TELEMETRY": "1",
         "DO_NOT_TRACK": "1",
         "VLLM_NO_USAGE_STATS": "1",
+        "TIKTOKEN_CACHE_DIR": "/opt/tiktoken-cache",
+        "TIKTOKEN_ENCODINGS_BASE": "/opt/tiktoken-cache",
     })
+    .add_local_file(os.path.join(os.path.dirname(__file__), "tokenizer_cache.py"),
+                    remote_path="/opt/tokenizer_cache.py", copy=True)
+    .run_commands("timeout 90 python /opt/tokenizer_cache.py")
     .add_local_file(__file__, remote_path="/root/llm_server.py", copy=True)
 )
 
@@ -36,8 +45,8 @@ image = (
 @app.function(
     image=image,
     gpu=GPU,
-    cpu=4,
-    memory=16384,
+    cpu=(4, 4),
+    memory=(16384, 65536),
     volumes={"/weights": weights},
     secrets=[modal.Secret.from_name(SECRET_NAME, required_keys=["MODAL_API_KEY"])],
     min_containers=int(KEEP_WARM),
@@ -69,8 +78,8 @@ def serve():
         "--max-num-batched-tokens", "2048",
         "--gpu-memory-utilization", "0.90",
         "--enforce-eager",
-        "--enable-auto-tool-choice", "--tool-call-parser", "hermes",
-        "--reasoning-parser", "qwen3",
+        "--enable-auto-tool-choice", "--tool-call-parser", "openai" if MODEL.startswith("openai/") else "hermes",
+        "--reasoning-parser", "openai_gptoss" if MODEL.startswith("openai/") else "qwen3",
         "--disable-log-requests", "--disable-uvicorn-access-log",
         "--uvicorn-log-level", "warning",
     ]

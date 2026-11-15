@@ -1,22 +1,34 @@
 # StormScore private GPU crew
 
-`llm_server.py` serves public Apache-2.0 `Qwen/Qwen3-8B` weights at a pinned revision,
-using vLLM 0.10.2 on **one L4 (24 GB)**. BF16 weights, a 16,384-token context, one
-generation sequence, and eager execution leave room for the KV cache without a
-larger GPU. This is the initial configuration; deployment alone does not prove
-the model fits or measure inference quality. Validate after the env handoff.
-`MODAL_GPU=A10G` selects another 24 GB GPU if L4 capacity is unavailable;
-`MODAL_GPU=L40S` is an explicit 48 GB fallback if later measurements require it.
-There is no automatic GPU upgrade or multi-GPU allocation.
+`llm_server.py` now serves pinned Apache-2.0 `openai/gpt-oss-120b` MXFP4 weights
+with vLLM 0.11.0 on **one H100 (80 GB)**. The live server reported 65.9651 GiB
+for model loading and 4.95 GiB for KV cache, with a 16,384-token context, one
+generation sequence and eager execution. The OpenAI-compatible URL and named
+authentication Secret are unchanged. Requests use GPT-OSS reasoning settings
+and its OpenAI tool parser; the Qwen thinking flag is sent only to Qwen models.
 
-The 14 November 2026 deployment uses `MODAL_GPU=L40S`: Modal reported unavailable
-L4 and A10G capacity. Reproduce that deployment with the same variable; plain
-`modal deploy` returns to the default L4 configuration. Recorded smoke, privacy,
-quality, cold-start and allocation results are in [validation.json](validation.json).
-The configured idle window is 300 seconds; this run observed zero runners about
-6.5 minutes after the final external request, including platform shutdown and
-30-second observer polling. Treat the setting as an autoscaler policy, not an
-exact wall-clock shutdown guarantee.
+The all-private 13-bundle run passed numeric verification on 13 first drafts,
+with no template fallbacks or inspector flags. Qwen's same-facts rerun passed
+10 first drafts but needed 8 fallbacks. The isolated private navigator stress
+check passed tool use, number verification and inspection in 5.37 seconds.
+Machine-readable results are beside this file; the main tables and limitations
+are in [the bake-off report](../../backend/reports/bakeoff.md).
+
+The original 14 November Qwen results remain in [validation.json](validation.json)
+and [review_bakeoff.json](review_bakeoff.json). Restore that model explicitly with
+`PRIVATE_MODEL=Qwen/Qwen3-8B MODAL_GPU=L40S` at deploy time and
+`MODAL_MODEL=Qwen/Qwen3-8B` on the backend. There is no automatic GPU upgrade or
+multi-GPU allocation.
+
+The image build fetches public Harmony tokenizer files and verifies their pinned
+SHA-256 hashes before a GPU is allocated. This fixes the first H100 attempt's
+startup stall. GPU weights remain cached on the existing Modal Volume. The
+successful measured cached startup took 69.74 seconds; first download/startup
+is separate and can take several minutes. Muse Spark Open was excluded because
+its smallest official checkpoint is about 537 GB, exceeding one available GPU.
+See [Meta checkpoint sizes](https://dev.meta.ai/docs/muse-spark-open/get-the-model),
+[Harmony cache loading](https://github.com/openai/harmony/blob/main/src/tiktoken_ext/public_encodings.rs)
+and [vLLM's GPT-OSS recipe](https://docs.vllm.ai/projects/recipes/en/latest/OpenAI/GPT-OSS.html).
 
 The Hugging Face cache is on the `stormscore-qwen3-weights` Modal Volume. The
 container receives only the `stormscore-private-llm` Secret, containing
@@ -64,7 +76,7 @@ newer Python, so the deploy tooling is pinned to 1.6.4.
 Set `LLM_PRIVATE_MODE=1` on the backend process. Every live model role, including
 the navigator and inspector, routes to Modal, regardless of external provider
 defaults. No external model fallback is allowed. Mock remains the default until
-explicit live opt-in. The inspector is a separate role sharing Qwen weights in
+explicit live opt-in. The inspector is a separate role sharing private weights in
 this mode, not a second model family. Code still verifies every report number.
 
 ```sh
@@ -73,12 +85,37 @@ STORM_ENV_FILE=~/Desktop/stormscore/.env LLM_PRIVATE_MODE=1 \
   ~/.venvs/stormscore/bin/python -m storm.ai.smoke --live
 ```
 
-The gateway sends `MODAL_API_KEY` as a bearer credential, disables Qwen thinking
+The gateway sends `MODAL_API_KEY` as a bearer credential, uses low GPT-OSS reasoning (disables thinking only for Qwen)
 per request, and allows 600 seconds for a cold start. Token ledger entries are
 zero dollars for Modal, including retries: Modal bills runtime separately. This
 does not mean the GPU is free. Caps and existing ledger entries are untouched.
 
 ## Judging warmth
+
+The app is stopped at the end of this task. **Three to five minutes before
+judging**, redeploy from this branch (cached image/weights), request one warm
+container, and make an authenticated smoke request. Allow extra time if Modal
+has no H100 capacity. Keep the same existing Secret; do not provision a new key.
+
+```sh
+~/.venvs/stormscore/bin/python -m modal deploy tools/modal/llm_server.py
+~/.venvs/stormscore/bin/python -m modal run tools/modal/llm_server.py --warm
+PYTHONPATH=backend STORM_ENV_FILE=~/Desktop/stormscore/.env \
+  MODAL_MODEL=openai/gpt-oss-120b \
+  ~/.venvs/stormscore/bin/python -m storm.ai.smoke --live --provider modal
+```
+
+Warmth is billable. After judging, restore zero idle containers and stop the app:
+
+```sh
+~/.venvs/stormscore/bin/python -m modal run tools/modal/llm_server.py --no-warm
+~/.venvs/stormscore/bin/python -m modal app stop stormscore-private-llm --yes
+```
+
+For a bounded experiment, run `task_watchdog.py` alongside it. The task used a
+conservative wall-time rate of $0.002/second for one GPU, four vCPUs and at most
+64 GiB RAM. The watchdog stops the app noninteractively. Modal runtime estimates
+are separate from its zero-dollar token ledger; neither is a provider invoice.
 
 Keep one container warm on the deployed function, then restore scale-to-zero:
 
@@ -99,7 +136,7 @@ STORM_ENV_FILE=~/Desktop/stormscore/.env \
   ~/.venvs/stormscore/bin/python -m storm.ai.smoke --live --provider modal
 STORM_ENV_FILE=~/Desktop/stormscore/.env LLM_PRIVATE_MODE=0 \
   ~/.venvs/stormscore/bin/python -m storm.ai.bakeoff --live \
-  --models modal:Qwen/Qwen3-8B --fx-only --expected-bundles 13 --details \
+  --models modal:openai/gpt-oss-120b --fx-only --expected-bundles 13 --details \
   --bundles ~/Desktop/stormscore/web/public/bundles
 ```
 
