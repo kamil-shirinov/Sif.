@@ -192,7 +192,7 @@ def policy_summary(weeks):
     used = [w for w in weeks if w["status"] == "usable"]
     diffs = [w["difference_usd"] for w in used]
     n = len(used)
-    result = {"planned_pair_weeks": len(weeks), "usable_pair_weeks": n, "unavailable_pair_weeks": len(weeks) - n,
+    result = {"synthetic": True, "planned_pair_weeks": len(weeks), "usable_pair_weeks": n, "unavailable_pair_weeks": len(weeks) - n,
               "helped": sum(d > 0 for d in diffs), "hurt": sum(d < 0 for d in diffs), "ties": sum(d == 0 for d in diffs),
               "helped_share_pct": 100 * sum(d > 0 for d in diffs) / n if n else None,
               "median_difference_usd": _median(diffs), "total_difference_usd": sum(diffs),
@@ -274,6 +274,14 @@ def evaluate_year(spec, manifest):
                              "policy": policy_summary(own_weeks)})
         print(pair, "storms:", pm["storms"], "weekly books:", len(own_weeks), flush=True)
     return {"status": "unassessed_no_usable_observations" if not feats else "full_year" if len(selected) == 12 else "chronological_prefix",
+            "policy_book": {"synthetic": True, "long_currency": "USD", "reset_utc": "Monday 00:00",
+                            "equity_usd_per_pair": spec["weekly_book"]["equity_usd"],
+                            "notional_usd_per_pair": sum(leg["usd_notional"] for leg in spec["weekly_book"]["legs"]),
+                            "maintenance_margin": spec["weekly_book"]["maintenance_margin"],
+                            "cut_fraction": spec["weekly_book"]["cut_fraction"], "independent_reset_books": True},
+            "verified_calendar_years": sorted(int(y) for y in calendar["time_utc"].dt.year.unique()) if not calendar.empty else [],
+            "registration1_overlap": {"month": "2025-06", "planned_pairs": ["EURUSD", "USDJPY", "GBPUSD"],
+                                      "month_in_selected_prefix": "2025-06" in selected},
             "selected_months": selected, "selected_end": manifest["selected_end"],
             "planned_pair_months": len(spec["pairs"]) * 12,
             "usable_pair_months": sum(r["status"] == "usable" for p in pair_results for r in p["months"]),

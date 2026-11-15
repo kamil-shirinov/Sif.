@@ -41,6 +41,8 @@ def render2(result):
              "Canonical results JSON SHA-256: `" + hashlib.sha256(canonical(result).encode()).hexdigest() + "`.", "",
              "A dash is unavailable, not zero. Monthly storms are assigned by peak onset; shares and minutes also "
              "refer to first onset where labelled. False-alarm classifications use all labels in the completed prefix.", "",
+             f"Years present in the frozen verified calendar: {', '.join(map(str, d['verified_calendar_years'])) or 'none'}. "
+             "No retrospective watch dates were added; weekly cuts follow the book-aware price alarm.", "",
              "## Detector totals", ""]
     lines += table(["Metric", "All six pairs", "SGX pairs"],
                    [[label, d["metrics"].get(key), d["sgx_metrics"].get(key)] for label, key in METRICS])
@@ -90,11 +92,14 @@ def render2(result):
                           if d["usable_pair_months"] else "No pair-month was usable, so detector performance is unassessed rather than a zero-storm success. ")
     policy_sentence = (f"Following the alarms helped in {pol['helped']} of {pol['usable_pair_weeks']} usable independent pair-weeks, with median weekly difference ${pol['median_difference_usd']} and total difference ${pol['total_difference_usd']}; spread costs and both-sided margin-call outcomes are included. "
                        if pol["usable_pair_weeks"] else "No paired week met the registered coverage threshold, so weekly policy performance is unassessed. ")
+    overlap_sentence = ("The planned June 2025 EURUSD, USDJPY and GBPUSD series overlap registration 1; June lies in the selected prefix and is not newly unseen evidence. "
+                        if d["registration1_overlap"]["month_in_selected_prefix"] else
+                        "The planned June 2025 EURUSD, USDJPY and GBPUSD series overlap registration 1, but June lies outside this completed prefix and was not scored. ")
     lines += ["## Strengths and limits", "",
               detection_sentence +
               f"It produced {m['false_alarm_episodes']} false alert episodes over {m['days']} observed days, and every labelled miss remains listed; missing source intervals can conceal unlabelled storms. "
               + policy_sentence +
-              "June 2025 for EURUSD, USDJPY and GBPUSD overlaps registration 1 and is not newly unseen evidence. "
+              + overlap_sentence +
               "This frozen historical evaluation measures detection and synthetic book outcomes, not prospective prediction of unscheduled prices.", "",
               "Full exact results, every labelled storm/false alarm, every weekly fill, and raw/parquet/source hashes are in `results-2.json`. "
               "Recompute both registrations with `cd backend && python -m storm.oos.run --verify`, using the recorded runtime and local acquisition directories.", ""]

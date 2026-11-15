@@ -5,6 +5,8 @@ before acquisition. It freezes main `3625e41`, the unchanged tuned config and th
 calculation fingerprints. The three acquisition amendments document sandbox permissions,
 the feed's HTTP-to-HTTPS redirect, and bounded completion of partial daily artifacts.
 They were pushed before their corresponding continuation and before any detector run.
+The [warm-up clarification](amendment-2-2026-11-15-warmup.md) preserves valid December
+history independently of January coverage, without relaxing either eligibility threshold.
 The original registration 1 and published result files remain unchanged.
 
 Use CPython 3.10.0, NumPy 2.2.6, pandas 2.3.3 and PyArrow 24.0.0 for exact verification.
