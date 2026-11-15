@@ -5,6 +5,7 @@ import { SPEEDS, useTimeline } from "../state/timeline";
 import { useApp } from "../state/app";
 import { useSurvive } from "../state/survive";
 import { fmtUtc } from "../lib/format";
+import { PresenterLayer } from "./Presenter";
 import { captionLine, groupTicks, STORY_COLORS, storyEvents, type StoryEvent } from "./story";
 
 export function Controls({ derived }: { derived: Derived }) {
@@ -81,6 +82,7 @@ export function Controls({ derived }: { derived: Derived }) {
           </option>
         ))}
       </select>
+      {bundle && <PresenterLayer bundle={bundle} derived={derived} events={events} />}
     </div>
   );
 }

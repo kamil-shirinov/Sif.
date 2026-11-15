@@ -12,6 +12,9 @@
   --accent: #7cc4ff;
   --font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Bottom row: the controls (left) and the chart (right); the captions sit in the gap between them. */
+  --controls-w: max(300px, min(440px, 100vw - 530px));
+  --chart-w: min(480px, 100vw - 32px);
   color-scheme: dark;
 }
 
@@ -840,7 +843,7 @@ body,
 .chart {
   right: 16px;
   bottom: 16px;
-  width: min(480px, calc(100vw - 32px));
+  width: var(--chart-w);
   height: 270px;
   padding: 10px 10px 6px;
   display: flex;
@@ -913,8 +916,7 @@ body,
 .controls {
   left: 16px;
   bottom: 16px;
-  width: min(440px, calc(100vw - 530px));
-  min-width: 300px;
+  width: var(--controls-w);
   padding: 10px 12px;
   display: flex;
   align-items: center;
@@ -1111,6 +1113,57 @@ body,
   white-space: nowrap;
 }
 
+/* ---------- captions (bottom centre, between the controls and the chart) ---------- */
+.caption-bar {
+  position: fixed;
+  left: calc(28px + var(--controls-w));
+  right: calc(28px + var(--chart-w));
+  bottom: 34px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.caption {
+  max-width: 640px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent);
+  background: rgba(8, 13, 20, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  text-wrap: balance;
+  animation: caption-in 0.35s ease-out;
+  transition: opacity 0.45s ease-in, transform 0.45s ease-in;
+}
+.caption.leaving {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.caption-time {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: #c4cfda;
+}
+.caption-dot {
+  margin: 0 6px;
+  color: var(--muted);
+}
+@keyframes caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 /* ---------- ship labels (in 3D) ---------- */
 .ship-label {
   position: absolute;
@@ -1214,6 +1267,11 @@ body,
   }
   .hint {
     display: none;
+  }
+  .caption-bar {
+    left: 16px;
+    right: 16px;
+    bottom: 372px;
   }
 }
 
@@ -1441,8 +1499,7 @@ body,
 .survive-actions {
   left: 16px;
   bottom: 84px;
-  width: min(440px, calc(100vw - 530px));
-  min-width: 300px;
+  width: var(--controls-w);
   padding: 8px;
   display: grid;
   grid-template-columns: 1fr 1fr;
