@@ -5,7 +5,7 @@ import { CRANE_LEAD, HOIST_FRAMES, shipOf, type Derived, type SceneShip } from "
 import type { Bundle } from "../types/bundle";
 import { WAVE_GLSL, waveAt, waveUniforms, type WaveSample } from "./waves";
 import { vis, WIND_BY_STATE, WIND_FULL_PER_RETURN } from "./vis";
-import { crateAboard, crateSlots, freeboardAt, SHIP_LAYOUT, shipPose, type CrateSlot } from "./Ship";
+import { crateAboard, crateSlots, freeboardAt, SHIP_LAYOUT, shipPose, type CrateSlot, type Hook } from "./Ship";
 import { splash } from "./Particles";
 import { containerGeometry, containerMaterial } from "./shipModel";
 import { FOAM_NOISE_GLSL, foamLight } from "./foam";
@@ -19,11 +19,11 @@ const RING_S = 2.2;
 /** Simulated seconds over which a box hands over from riding with the ship to riding the waves, once it is wet. */
 const WET_BLEND_S = 0.8;
 /** Drift after the simulation: away from the ship (always), plus the wind; units per simulated second. */
-const DRIFT_AWAY = 0.1;
-const DRIFT_WIND = 0.16;
+const DRIFT_AWAY = 0.045;
+const DRIFT_WIND = 0.07;
 /** Spreading apart after the simulation: the group grows about its centre by this share per simulated second. */
-const SPREAD_PER_S = 0.012;
-const SPREAD_MAX = 1.7;
+const SPREAD_PER_S = 0.006;
+const SPREAD_MAX = 1.3;
 
 const _w: WaveSample = { h: 0, dhdx: 0, dhdz: 0 };
 const _p = new Vector3();
@@ -289,13 +289,14 @@ export function Jettison({ bundle, shipKey, derived }: { bundle: Bundle; shipKey
           const wetFrame = sim.startFrame + wetAt / SIM_PER_FRAME;
           if (forward && pt < wetFrame && t >= wetFrame) splash(_p.x, _p.y + 0.3 * h, _p.z, Math.min(1.6, c.slot.spec.size * 1.2));
         }
-        // The derrick swings out over the first container before it lifts.
+        // Before its lift the derrick swings out over this box and lowers the hook onto it; the slings go on as the
+        // hook arrives.
         if (hoistAge >= -CRANE_LEAD && !hookOn) {
           hookOn = true;
-          _e3.set(0, h * 0.5, 0).applyQuaternion(_q);
-          pose.hook.x = _p.x + _e3.x;
-          pose.hook.y = _p.y + _e3.y;
-          pose.hook.z = _p.z + _e3.z;
+          const lead = (hoistAge + CRANE_LEAD) / CRANE_LEAD;
+          holdBox(pose.hook, _p, _q, len, h, w);
+          pose.hook.lower = smooth((lead - 0.35) / 0.55);
+          pose.hook.slung = lead > 0.9;
         }
       } else {
         // Lifted back aboard by the derrick: straight up out of the water, across, and down into its slot.
@@ -317,11 +318,10 @@ export function Jettison({ bundle, shipKey, derived }: { bundle: Bundle; shipKey
         }
         boxes.setMatrixAt(k, _m.compose(_p, _q, _s));
         hookOn = true;
-        // The hook holds the top of the container (along its own up axis).
-        _e3.set(0, h * 0.5, 0).applyQuaternion(_q);
-        pose.hook.x = _p.x + _e3.x;
-        pose.hook.y = _p.y + _e3.y;
-        pose.hook.z = _p.z + _e3.z;
+        // The hook holds the box by its slings until it is down in its slot.
+        holdBox(pose.hook, _p, _q, len, h, w);
+        pose.hook.lower = 1;
+        pose.hook.slung = u < 0.97;
       }
       if (ringProg >= 0 && ringProg < 1 && t >= trip.out) {
         const size = (len + w) * (1.5 + 1.4 * ringProg);
@@ -346,6 +346,25 @@ export function Jettison({ bundle, shipKey, derived }: { bundle: Bundle; shipKey
       <primitive object={rings} />
     </>
   );
+}
+
+const SLING_RISE = 0.95; // the hook rides this far above the top of the box it holds
+const _c = new Vector3();
+/** Put the hook above the box's top (along the box's own up) and the slings on its four top corners. */
+function holdBox(hook: Hook, p: Vector3, q: Quaternion, len: number, h: number, w: number) {
+  _c.set(0, h / 2 + SLING_RISE, 0).applyQuaternion(q).add(p);
+  hook.x = _c.x;
+  hook.y = _c.y;
+  hook.z = _c.z;
+  let k = 0;
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) {
+      _c.set(sx * len * 0.42, h / 2, sz * w * 0.42).applyQuaternion(q).add(p);
+      hook.corners[k++] = _c.x;
+      hook.corners[k++] = _c.y;
+      hook.corners[k++] = _c.z;
+    }
+  }
 }
 
 /** The drift table at fractional frame t, component 0 (x) or 1 (z). */

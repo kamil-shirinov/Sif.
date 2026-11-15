@@ -20,19 +20,19 @@ export const SIM_PER_FRAME = 0.25;
 const STEP = 1 / 60;
 const STORE_EVERY = 2;
 /** Seconds simulated after the last box is cut loose: falling, splashing, coming to rest afloat. */
-const SETTLE_S = 7.5;
+const SETTLE_S = 9;
 const GRAVITY = 9.82;
 /** Share of a box's height under water at rest: 40% freeboard shows. */
 export const DRAFT = 0.6;
 /** Collision boxes are this much larger than the drawn ones, so the drawn boxes always keep a gap between them. */
 const MARGIN = 1.06;
-const PUSH_ACCEL = 7;
+const PUSH_ACCEL = 4.5;
 /** Upward help for a box stuck on the rail or a neighbour (more than gravity: it is levered up and over). */
-const STUCK_LIFT = 13;
+const STUCK_LIFT = 12.5;
 /** After this long a box is no longer shoved (it is in the water by then). */
-const PUSH_MAX_S = 6;
+const PUSH_MAX_S = 8;
 /** Strength of the push apart between floating boxes that are close, units / s^2 at contact. */
-const SEPARATE = 2.2;
+const SEPARATE = 5;
 /** Per-step time budget for simulating ahead of the playhead in the background, ms per animation frame. */
 export const BACKGROUND_BUDGET_MS = 3;
 
