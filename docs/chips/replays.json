@@ -1,0 +1,151 @@
+[
+  {
+    "storm_id": "intc-2026-10-29",
+    "ticker": "INTC",
+    "onset_utc": "2026-10-29 19:52:00+00:00",
+    "trough_utc": "2026-10-29 20:07:00+00:00",
+    "move_bp": -2175.377490475484,
+    "caught": false,
+    "alarm_utc": "2026-10-29 20:02:00",
+    "move_ahead_pct": 24.615386116287645,
+    "n": 361,
+    "filled_open_minutes": 0,
+    "stress_scenarios": 6,
+    "fills": [
+      {
+        "i": 189,
+        "signal_i": 189,
+        "pair": "INTC",
+        "action": "margin_call",
+        "at": "close",
+        "side": "sell",
+        "qty": 43506.633606511125,
+        "price": 80.855,
+        "mid": 80.855,
+        "cost_usd": 0.0,
+        "utc": "2026-10-29 20:01:00+00:00"
+      }
+    ],
+    "ships": {
+      "prepared": {
+        "final": 517728.8602544572,
+        "min": 517728.8602544572,
+        "drawdown": [
+          501849.01865110546,
+          49.22125411251578
+        ],
+        "margin_call": "2026-10-29 20:01:00+00:00"
+      },
+      "unprepared": {
+        "final": 517728.8602544572,
+        "min": 517728.8602544572,
+        "drawdown": [
+          501849.01865110546,
+          49.22125411251578
+        ],
+        "margin_call": "2026-10-29 20:01:00+00:00"
+      }
+    },
+    "validator_errors": [],
+    "staged_file": "intc-2026-10-29.json"
+  },
+  {
+    "storm_id": "smci-2026-10-20",
+    "ticker": "SMCI",
+    "onset_utc": "2026-10-20 20:27:00+00:00",
+    "trough_utc": "2026-10-20 20:40:00+00:00",
+    "move_bp": 1318.4591679506918,
+    "caught": false,
+    "alarm_utc": null,
+    "move_ahead_pct": null,
+    "n": 361,
+    "filled_open_minutes": 11,
+    "stress_scenarios": 0,
+    "fills": [],
+    "ships": {
+      "prepared": {
+        "final": 1682100.8036961602,
+        "min": 992532.4499072037,
+        "drawdown": [
+          137123.270236562,
+          12.138500942491666
+        ],
+        "margin_call": null
+      },
+      "unprepared": {
+        "final": 1682100.8036961602,
+        "min": 992532.4499072037,
+        "drawdown": [
+          137123.270236562,
+          12.138500942491666
+        ],
+        "margin_call": null
+      }
+    },
+    "validator_errors": [],
+    "staged_file": "smci-2026-10-20.json"
+  },
+  {
+    "storm_id": "mrvl-2026-10-28",
+    "ticker": "MRVL",
+    "onset_utc": "2026-10-28 20:56:00+00:00",
+    "trough_utc": "2026-10-28 21:11:00+00:00",
+    "move_bp": -1079.1893871571579,
+    "caught": false,
+    "alarm_utc": "2026-10-28 21:06:00",
+    "move_ahead_pct": 7.843137254902005,
+    "n": 361,
+    "filled_open_minutes": 5,
+    "stress_scenarios": 5,
+    "fills": [
+      {
+        "i": 191,
+        "signal_i": 190,
+        "pair": "MRVL",
+        "action": "cut",
+        "at": "open",
+        "side": "sell",
+        "qty": 12039.73096521584,
+        "price": 223.67,
+        "mid": 223.67,
+        "cost_usd": 0.0,
+        "utc": "2026-10-28 21:07:00+00:00"
+      },
+      {
+        "i": 233,
+        "signal_i": 232,
+        "pair": "MRVL",
+        "action": "restore",
+        "at": "open",
+        "side": "buy",
+        "qty": 12039.73096521584,
+        "price": 230.38,
+        "mid": 230.38,
+        "cost_usd": 0.0,
+        "utc": "2026-10-28 21:49:00+00:00"
+      }
+    ],
+    "ships": {
+      "prepared": {
+        "final": 632426.9646421699,
+        "min": 552523.2834696872,
+        "drawdown": [
+          516263.7715659947,
+          48.3037073787125
+        ],
+        "margin_call": null
+      },
+      "unprepared": {
+        "final": 519133.0962594887,
+        "min": 519133.0962594887,
+        "drawdown": [
+          549653.9587761932,
+          51.427827104234794
+        ],
+        "margin_call": "2026-10-28 21:11:00+00:00"
+      }
+    },
+    "validator_errors": [],
+    "staged_file": "mrvl-2026-10-28.json"
+  }
+]

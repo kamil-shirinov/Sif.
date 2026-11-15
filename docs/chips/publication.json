@@ -1,0 +1,12 @@
+{
+  "existing_entries_preserved": 15,
+  "new_entries": 3,
+  "existing_order_preserved": true,
+  "metrics_preserved": true,
+  "index_validator_errors": [],
+  "bundle_sha256": {
+    "intc-2026-10-29.json": "e29760bfcfde9f810c3682ab6571ef6bbfc7cfd562abee6f1c90cd1f57c53574",
+    "smci-2026-10-20.json": "805d3601d15706c34f2fa1aaaa96a6884ef92f81e96d5612b4fbc99df67f0f8b",
+    "mrvl-2026-10-28.json": "e71a74165792284f01a278e7243a39ea0bd02a68313c02d708232b3085007755"
+  }
+}

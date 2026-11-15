@@ -1,0 +1,121 @@
+{
+  "crew": "default",
+  "private_mode": false,
+  "writer_model": "accounts/fireworks/models/glm-5p3",
+  "inspector_models": [
+    "accounts/fireworks/models/kimi-k3p1-pro"
+  ],
+  "requested_reports": 3,
+  "reports": 3,
+  "errors": 0,
+  "first_try_numbers_verified": 3,
+  "first_try_verification_rate": 1.0,
+  "accepted_first_try": 3,
+  "fallbacks": 0,
+  "inspector_flags": 0,
+  "outcomes": {
+    "passed_first_try": 3
+  },
+  "mean_latency_s": 4.4310969723349745,
+  "mean_writer_latency_s": 2.03025500033497,
+  "token_cost_usd": 0.012794600000000001,
+  "cost_per_report_usd": 0.004264866666666667,
+  "details": [
+    {
+      "storm_id": "intc-2026-10-29",
+      "facts_sha256": "1d6af48f54ebb2b084e523e925e53ddeb8c0e786655f290d9a301964e97ec8b8",
+      "status": "complete",
+      "report": {
+        "text": "From 29 Oct, 19:52 UTC to 29 Oct, 20:07 UTC, INTC fell 2175.4 basis points over 15 trading minutes. The alarm sounded at 29 Oct, 20:02 UTC, 10 minutes after the move began, by which point 24.6% of the eventual move was still to come. Both ships ended with $517,729 on the synthetic book. Exposure was 4.01 times equity, with a 39.8% margin buffer.",
+        "verified": true,
+        "unverified_numbers": [],
+        "inspector": {
+          "verdict": "ok",
+          "issues": [],
+          "model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "cost_usd": 0.003608
+        },
+        "model": "accounts/fireworks/models/glm-5p3",
+        "cost_usd": 0.0045208,
+        "attempts": 1,
+        "fallback": false,
+        "first_try_verified": true,
+        "writer_latency_s": 1.907972167005937,
+        "outcome": "passed_first_try",
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "numbers_verified": true,
+            "unverified_numbers": [],
+            "format_issues": []
+          }
+        ]
+      },
+      "latency_s": 4.176332041999558
+    },
+    {
+      "storm_id": "smci-2026-10-20",
+      "facts_sha256": "cf0dca4b15385a3f003824f2186825ea957359200ec237ffabc5340bc340c76f",
+      "status": "complete",
+      "report": {
+        "text": "From 20 Oct, 20:27 UTC to 20 Oct, 20:40 UTC, SMCI rose 1318.5 basis points over 13 trading minutes. No storm alarm was recorded in this replay. Both ships ended with $1,682,101 on the synthetic book. Exposure was 3.85 times equity, with a 42.3% margin buffer.",
+        "verified": true,
+        "unverified_numbers": [],
+        "inspector": {
+          "verdict": "ok",
+          "issues": [],
+          "model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "cost_usd": 0.002704
+        },
+        "model": "accounts/fireworks/models/glm-5p3",
+        "cost_usd": 0.0034528,
+        "attempts": 1,
+        "fallback": false,
+        "first_try_verified": true,
+        "writer_latency_s": 1.2175605419979547,
+        "outcome": "passed_first_try",
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "numbers_verified": true,
+            "unverified_numbers": [],
+            "format_issues": []
+          }
+        ]
+      },
+      "latency_s": 3.494654542002536
+    },
+    {
+      "storm_id": "mrvl-2026-10-28",
+      "facts_sha256": "5a3dbd4f5bbcbff685a733eb1eea0418912ba5a77d1f2af3306adc82ad4d5686",
+      "status": "complete",
+      "report": {
+        "text": "MRVL dropped 1079.2 basis points between 28 Oct, 20:56 UTC and 28 Oct, 21:11 UTC, a move that unfolded over 15 trading minutes. The alarm sounded at 28 Oct, 21:06 UTC, 10 minutes after the move began, leaving 7.8% of the eventual drop still to come. On the synthetic book, the prepared ship ended at $632,427 versus $519,133 for the unprepared ship, a $113,294 advantage. Exposure stood at 4.22 times equity with a 36.8% margin buffer.",
+        "verified": true,
+        "unverified_numbers": [],
+        "inspector": {
+          "verdict": "ok",
+          "issues": [],
+          "model": "accounts/fireworks/models/kimi-k3p1-pro",
+          "cost_usd": 0.003782
+        },
+        "model": "accounts/fireworks/models/glm-5p3",
+        "cost_usd": 0.004821000000000001,
+        "attempts": 1,
+        "fallback": false,
+        "first_try_verified": true,
+        "writer_latency_s": 2.9652322920010192,
+        "outcome": "passed_first_try",
+        "attempt_checks": [
+          {
+            "attempt": 1,
+            "numbers_verified": true,
+            "unverified_numbers": [],
+            "format_issues": []
+          }
+        ]
+      },
+      "latency_s": 5.62230433300283
+    }
+  ]
+}

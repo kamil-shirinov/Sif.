@@ -1,0 +1,16 @@
+........................................................................ [ 20%]
+........................................................................ [ 41%]
+.....................................................s........sss....... [ 61%]
+........................................................................ [ 82%]
+.............s.................s..s.....s.s...................           [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/live/test_tiger_live.py:11: no .env with TIGER_DATABASE_URL
+SKIPPED [1] tests/oos/test_oos.py:58: Frozen-core fingerprint requires the registered runtime (pyarrow: registered 24.0.0, running 25.0.1). See docs/oos/amendment-2026-11-15-runtime.md; this skip does not verify the historical fingerprint.
+SKIPPED [1] tests/oos/test_oos.py:64: Frozen-core fingerprint requires the registered runtime (pyarrow: registered 24.0.0, running 25.0.1). See docs/oos/amendment-2026-11-15-runtime.md; this skip does not verify the historical fingerprint.
+SKIPPED [1] tests/oos/test_oos.py:72: Frozen-core fingerprint requires the registered runtime (pyarrow: registered 24.0.0, running 25.0.1). See docs/oos/amendment-2026-11-15-runtime.md; this skip does not verify the historical fingerprint.
+SKIPPED [1] tests/test_export.py:55: no processed SGX data
+SKIPPED [1] tests/test_ingest.py:65: SGX data not in data/raw
+SKIPPED [1] tests/test_labels.py:45: SGX data not in data/raw
+SKIPPED [1] tests/test_readme_results.py:59: data/processed/metrics.json not present (SGX data is not committed)
+SKIPPED [1] tests/test_readme_results.py:73: data/processed/metrics.json not present (SGX data is not committed)
+341 passed, 9 skipped in 35.15s
