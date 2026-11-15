@@ -35,6 +35,14 @@ def registration() -> dict:
     return json.loads(REGISTRATION.read_text().split("```json\n", 1)[1].split("\n```", 1)[0])
 
 
+def round2_cutoff() -> str:
+    amendment = DOCS / "amendment-2026-11-15-cutoff.md"
+    if amendment.exists():
+        value = json.loads(amendment.read_text().split("```json\n", 1)[1].split("\n```", 1)[0])
+        return value["effective_round2_cutoff_utc"]
+    return registration()["round2_cutoff_utc"]
+
+
 def check_frozen() -> dict:
     spec = registration()
     commit = subprocess.check_output(

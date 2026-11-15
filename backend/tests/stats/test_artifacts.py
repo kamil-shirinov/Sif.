@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pytest
 
-from storm.stats.protocol import DOCS, registration
+from storm.stats.protocol import DOCS, registration, round2_cutoff
 from storm.stats.randomization import null_summary, holm
 from storm.stats.report import render, judge_sentences
 
@@ -19,6 +19,7 @@ def test_markdown_matches_json_and_judge_text_has_five_to_eight_sentences():
     assert (DOCS / "results.md").read_text() == render(result)
     assert 5 <= len(judge_sentences(result)) <= 8
     assert result["config"] == registration()["config"]
+    assert result["provenance"]["effective_round2_cutoff_utc"] == round2_cutoff()
     assert "data/" not in result["units"][0]
 
 

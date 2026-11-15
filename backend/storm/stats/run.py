@@ -18,7 +18,7 @@ from .bootstrap import uncertainty, paired_caught_difference, summarize
 from .datasets import load_all, detect, alarms_for, evaluate_unit
 from .policy import inputs_for, real_actions, batch, oracle, check_batch, null_schedules, totals, native_library
 from .pooling import prepare_pooling, pooled_metric
-from .protocol import DOCS, REPO_ROOT, check_frozen, rng_for, save, sha256, canonical
+from .protocol import DOCS, REPO_ROOT, check_frozen, rng_for, save, sha256, canonical, round2_cutoff
 from .randomization import prepare_train, draw_offsets, caught_counts, null_summary, holm
 
 
@@ -266,6 +266,7 @@ def main():
     parser.add_argument("--resume", action="store_true", help="Reuse exact-input/source-matched unit artifacts")
     parser.add_argument("--only-unit", help="Compute one unit; no aggregate/report")
     args = parser.parse_args()
+    args.include_round2 = args.include_round2 or (DOCS / "round2-source-results.json").exists()
     spec = check_frozen()
     units, hashes = load_all(args.include_round2)
     prepare_pooling(units)
@@ -318,7 +319,13 @@ def main():
         item["published_difference_usd"] += difference
         item["frozen_main_difference_usd"] += row["policy"]["prepared_minus_unprepared_usd"]
     round2_origin = None
-    round2_status = "pending; monitor until registered cutoff"
+    cutoff = datetime.fromisoformat(round2_cutoff())
+    if not args.include_round2 and datetime.now(timezone.utc) >= cutoff:
+        polls = json.loads((DOCS / "round2-polls.json").read_text())
+        if not any(p["fetched"] and not p["available"] and datetime.fromisoformat(p["checked_at_utc"]) >= cutoff for p in polls):
+            raise ValueError("Complete the final remote publication check before reporting round two unavailable")
+    round2_status = ("pending; monitor until " + cutoff.strftime("%H:%M") + " UK" if datetime.now(timezone.utc)<cutoff else
+                     "unavailable: no published results document by " + cutoff.strftime("%H:%M") + " UK")
     if args.include_round2:
         polls = json.loads((DOCS / "round2-polls.json").read_text())
         round2_origin = next(p for p in polls if p["available"])
@@ -337,6 +344,7 @@ def main():
                              "accelerator": "optional C++ (oracle-verified)" if native_library() else "original Python simulator",
                              "command": "python -m storm.stats.run" + (" --include-round2" if args.include_round2 else ""),
                              "amendments": {p.name: sha256(p) for p in sorted(DOCS.glob("amendment-*.md"))},
+                             "effective_round2_cutoff_utc":round2_cutoff(),
                              "finished_at_utc": datetime.now(timezone.utc).isoformat()},
               "round2_status": round2_status, "round2_origin":round2_origin,
               "coverage": {r["unit"]: r["coverage"] for r in results if r["coverage"]},

@@ -16,7 +16,8 @@ cd backend
 
 `--include-round2` includes the byte-exact remote results snapshot captured by
 `python -m storm.stats.monitor`. The monitor fetches only `lane/cx-oos2` at
-fifteen-minute intervals until results exist or 07:45 UTC on 15 November 2026;
+fifteen-minute intervals until results exist or 08:30 UTC on 15 November 2026
+(extended from 07:45 by the explicit user instruction in the dated cutoff amendment);
 `round2-polls.json` records checks, commits and artifact hashes. The run reads the
 original data in the worktrees listed in the registration. It never acquires,
 rewrites or commits market data.

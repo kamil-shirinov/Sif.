@@ -4136,14 +4136,14 @@
       "__init__.py": "81686ecd542ce108fe319e2340cb756af5912fd345a97fac15aa6a9dac572786",
       "bootstrap.py": "efb022231270b18f7a8d124a08434f4b0a621e843f0f7d77f9dac02a5200543b",
       "datasets.py": "677bfe1fdfcfa91d8536bf88aef10038b236bb47296aabb097a69b6fd63f1597",
-      "monitor.py": "b8be914be00e75cae57b6a88c79edf4995e24ceace3a095d8d9cc611d7ba1b94",
+      "monitor.py": "23715a250b9b9fc98df905d635b6248c906537fa7df3f504351b981163fa95e0",
       "policy.py": "22a6095cc3eefc73bd2e53b51334321afdfd6bd1997956ed0b1da898e0beaefc",
       "policy_native.cpp": "625481c2d70c037d1f0438a6961293c02d5420f1b397995678294d8391479bbc",
       "pooling.py": "f3caf7a2c90e8863897f0215bbfeb601e3f5cd1b4616ae8403434d753e392bc1",
-      "protocol.py": "8e9f9781c1dc7ce00e9c0c11016f9c7fa64ad97ad6567f17052b190819823c3d",
+      "protocol.py": "e28eeab8358dd377e4c92072f7d2ca7becb71929eac0d701c99340a973a493a0",
       "randomization.py": "517d4bbea33044047da4deb06196f6835003473e3df2547e95f5d91a4aad5c6c",
       "report.py": "c47d7a42f1813ec40486184b7653cbfac6e4cfea4d53838d037e11b6920c2625",
-      "run.py": "193012cc0ca161045bd6c468eb1460465a2d8aab26a5c55c4be38e07dca8ba87"
+      "run.py": "9891a7b4a29a480cec29f6235829d4e27c21fa097a0ff39c6e5dce1b47cf865e"
     },
     "inputs": {
       "/Users/kamilshirinov/Desktop/stormscore/data/processed/EURUSD_SPOT.parquet": "1e9b0329652a8687670822638c5dd4ae25f504e9b62ac2e9b901c2154e61622d",
@@ -4198,11 +4198,13 @@
     "command": "python -m storm.stats.run",
     "amendments": {
       "amendment-2026-11-15-censoring.md": "467338d4526bbc464f843b42793bb00f94dadca9b5cfe0b6cd1e75fb4bb7c8a1",
+      "amendment-2026-11-15-cutoff.md": "ece74a690b68cba43fffe074f4fde0e49c54ad1950fe5c0e3309d5b3b2d35d18",
       "amendment-2026-11-15-pooling.md": "edf038b844831b6a248ef3a24aa4b84f3fc1861491bfb863a1b9a7bb9caac450"
     },
-    "finished_at_utc": "2026-11-15T05:40:22.605688+00:00"
+    "effective_round2_cutoff_utc": "2026-11-15T08:30:00+00:00",
+    "finished_at_utc": "2026-11-15T07:22:51.697919+00:00"
   },
-  "round2_status": "pending; monitor until registered cutoff",
+  "round2_status": "pending; monitor until 08:30 UK",
   "round2_origin": null,
   "coverage": {},
   "oracle_checks": [

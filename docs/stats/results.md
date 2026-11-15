@@ -7,7 +7,7 @@ The descriptive pooled catch rate is 39.6%, with a joint-date-block 95% interval
 False-alert burden was 0.33 episodes per observed day on SGX and 1.75 per trading day on chips (2.65 per observed day).
 The synthetic prepared books' pooled FX result was USD 527,056 relative to holding, but 0 of 3 individual dataset policy tests survived multiplicity correction.
 At five-bar fills, SGX's simulated policy advantage changes from USD 39,770 to USD -10,269, so the benefit is sensitive to execution delay.
-Round-two status is pending; monitor until registered cutoff; this retrospective evidence supports assessment of detection and risk response, and does not demonstrate price prediction or causal trading profit.
+Round-two status is pending; monitor until 08:30 UK; this retrospective evidence supports assessment of detection and risk response, and does not demonstrate price prediction or causal trading profit.
 
 ## Frozen headline and uncertainty
 
