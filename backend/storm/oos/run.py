@@ -258,12 +258,18 @@ def main() -> None:
     ap.add_argument("--verify", action="store_true")
     ap.add_argument("--data-dir", type=Path, default=DATA,
                     help="original acquisition artifacts for historical --verify")
+    ap.add_argument("--round-two-data-dir", type=Path, default=DATA / "round2",
+                    help="registration 2 acquisition artifacts")
     args = ap.parse_args()
     if not args.verify and (RESULTS.exists() or (DOCS / "run_started.json").exists()):
         raise SystemExit("results/one-shot marker exists; use --verify; refusing another evaluation")
     if args.verify:
         from .verify import verify_saved
-        verify_saved(args.data_dir)
+        data1 = args.data_dir / "round1" if (args.data_dir / "round1").is_dir() else args.data_dir
+        verify_saved(data1)
+        if (DOCS / "preregistration-2.md").exists():
+            from .verify2 import verify_round2
+            verify_round2(args.round_two_data_dir)
     else:
         # Check provenance and local acquisition integrity before claiming a run.
         check_frozen()
