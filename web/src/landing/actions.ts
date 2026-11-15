@@ -11,6 +11,8 @@ import { NVDA_STORM_ID } from "./facts";
 import { runClosing, runOpening, settleFrames, useTransition } from "./transition";
 
 const AUTOPLAY_MS = 700;
+/** The rewind on L waits this long: the panels, captions and end card fade first. */
+const REWIND_DELAY_MS = 380;
 const busy = () => useTransition.getState().phase !== "idle";
 let opening = 0; // a newer open (a second key press while a storm loads) wins
 
@@ -32,7 +34,14 @@ export function showLanding() {
     (ms) => {
       // Replay mode: rewind alongside the flight, so the sea calms as the camera pulls back. (Survive's ship is the
       // player's: it is swapped for the two demo ships once the page covers the scene, below.)
-      if (useApp.getState().mode === "replay") rewind(ms * 0.92);
+      // It starts once the panels, the captions and the end card have faded (the end card goes the moment the playhead
+      // leaves the last frame, so it must be invisible by then).
+      if (useApp.getState().mode === "replay") {
+        const seq = useTransition.getState().seq;
+        window.setTimeout(() => {
+          if (useTransition.getState().seq === seq) rewind(Math.max(1, ms * 0.92 - REWIND_DELAY_MS));
+        }, REWIND_DELAY_MS);
+      }
     },
     () => {
       const st = useApp.getState();
@@ -71,7 +80,13 @@ export function closeLanding() {
   const app = useApp.getState();
   if (!app.landing || busy()) return;
   opening++;
-  void runOpening(enterReplay, () => {});
+  const token = opening;
+  useTransition.getState().setPreparing(true);
+  void (async () => {
+    await settleFrames(3);
+    if (token !== opening) return;
+    await runOpening(enterReplay, () => {});
+  })();
 }
 
 function enterReplay() {
@@ -95,11 +110,14 @@ export function openFromLanding(id: string, mode: Mode = "replay") {
     return;
   }
   const token = ++opening;
+  useTransition.getState().setPreparing(true);
   void (async () => {
     const changed = await prepare(id, mode);
+    if (changed === null) useTransition.getState().setPreparing(false);
     if (token !== opening || changed === null) return;
-    // A rebuilt scene (new storm, new mode) is drawn once offscreen first: start the flight on steady frames.
-    if (changed) await settleFrames(5);
+    // A rebuilt scene (new storm, new mode) is drawn once offscreen first, and the replay's Controls mount under the
+    // page: start the flight on steady frames.
+    await settleFrames(changed ? 5 : 3);
     if (token !== opening) return;
     await runOpening(enterReplay, () => {
       if (useApp.getState().mode === "replay" && !useApp.getState().landing) useTimeline.getState().play();
