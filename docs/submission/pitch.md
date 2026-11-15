@@ -35,7 +35,7 @@ Panels away: this is the view for a trading floor.
 
 **[The END CARD appears at about 48 s]** 
 
-$762,899 against $494,551. The alarm kept $268,348. Not a profit: the ship that cut still lost 24%. A defence. And we froze the detector and tested it on other data, misses included: twenty-three storms, nineteen alarmed, nine caught with half the move ahead. Moved to random times, the same alarms caught a median of zero: p one in ten thousand. On stocks it is worse, and we say so.
+$762,899 against $494,551. The alarm kept $268,348. Not a profit: the ship that cut still lost 24%. A defence. And we froze the detector and tested it on other data, misses included: twenty-three storms, nineteen alarmed, nine caught with half the move ahead. On the big storms the alarm beats random timing; on ordinary months it does not, and our simple cut rule lost money there. We say so.
 
 **[Press `L` (the camera pulls back to the landing), then `2`. The Survive setup opens.]**
 
@@ -90,7 +90,7 @@ $762,899 against $494,551. Following the alarm kept $268,348. To be exact: the p
 
 **[Keep the end card up.]** *(about 2:50)*
 
-So we froze the detector and tested it on another vendor's data, before downloading a single bar: six famous events, from the SNB in 2015 to the 2024 carry unwind, and two ordinary months. Twenty-three storms, nineteen alarmed, nine caught with half the move ahead. And we asked whether luck could do it: we moved the same alarms to random times, ten thousand times. They caught a median of zero storms; ours caught nine, p equals one in ten thousand. On August, four against zero, p equals six in ten thousand. The honest part: August's four of six has a ninety-five percent interval from thirty-three to a hundred. And the money result, positive in every dataset, does not survive correction for multiple tests, and with fills five bars late August's gain becomes a loss of ten thousand dollars. We report it. On fourteen chip stocks it is worse: six of nineteen caught, and 2.35 false alerts a trading day. A detector tuned on FX is not a detector for stocks. Every miss is in the tables.
+So we froze the detector and tested it on another vendor's data, before downloading a single bar: six famous events, from the SNB in 2015 to the 2024 carry unwind, and two ordinary months. Twenty-three storms, nineteen alarmed, nine caught with half the move ahead. And we asked whether luck could do it: we moved the same alarms to random times, ten thousand times. On the crisis events they caught a median of zero storms; ours caught nine, p equals one in ten thousand. On August, four against zero. The honest part: on ordinary months of 2025, ten of thirty-eight, no better than random timing, and the simple cut rule lost four hundred and seventy-seven thousand dollars over the weekly test books. So: a reliable alarm, an early-warning edge on big storms, and a response rule that still needs work. On fourteen chip stocks it is worse: six of nineteen caught, and 2.35 false alerts a trading day. A detector tuned on FX is not a detector for stocks. Every miss is in the tables.
 
 **[Press `L`, then `2`.]** *(about 3:20)*
 
@@ -104,7 +104,7 @@ Cut when it sounds, restore when it clears, and the end card tells you in plain 
 
 Models read, code judges: an AI writes the report, and code checks every number it wrote. Tiger Data serves the candles. ElevenLabs makes the storm. Nothing here predicts a price; it tells you a storm is under way, in the first minutes, while there is still a move to cut. StormScore: a warning you can see.
 
-> *If you run long:* cut "Nothing in the data tells you in advance…", the chip sentence, and the "money result" sentences (keep the p-values). *To add NVDA (about 15 s):* press `3` after Survive and say "One more: NVDA, this week. Real prices, but Yahoo gives trades, not quotes, so there is no spread to measure, and we do not pretend there is." Then `L`. (The speed stays at 8x: set it back to 1x before the next show.)
+> *If you run long:* cut "Nothing in the data tells you in advance…", the chip sentence, and the "honest part" sentences (keep the sentence that starts "So: a reliable alarm"). *To add NVDA (about 15 s):* press `3` after Survive and say "One more: NVDA, this week. Real prices, but Yahoo gives trades, not quotes, so there is no spread to measure, and we do not pretend there is." Then `L`. (The speed stays at 8x: set it back to 1x before the next show.)
 
 ## The numbers to say, and where they come from
 
@@ -126,12 +126,13 @@ Models read, code judges: an AI writes the report, and code checks every number 
 | Round 1 frozen holdout, all windows: 23 storms, 19 alarmed, 9 caught | 23; 19; 9 | [docs/oos/results.md](../oos/results.md) |
 | Round 1 ordinary months: 0.26 false alert episodes a day over 42.16 days | 0.26; 42.16 | `docs/oos/results.md` |
 | Chip sector (13 new tickers): 19 storms, 6 caught, 2.35 false alerts per trading day | 19; 6; 2.35 | [docs/chips/results.md](../chips/results.md) |
-| Same alarms moved to random times (10,000 draws): round 1 caught 9 vs a median of 0, p=0.0001; August 4 vs 0, p=0.0006; after Holm 0.0006 and 0.0030 | as written | [docs/stats/results.md](../stats/results.md) |
-| Chips against chance: 6 caught vs a median of 3, p=0.1081 (0.1439 corrected): not distinguishable from chance | as written | `docs/stats/results.md` |
+| Same alarms moved to random times (10,000 draws): round 1 caught 9 vs a median of 0, p=0.0001; August 4 vs 0, p=0.0006; after Holm 0.0008 and 0.0042 | as written | [docs/stats/results.md](../stats/results.md) |
+| Round 2 ordinary months: 10 caught vs a median of 8, p=0.3704 (0.7407 corrected): not better than random timing | as written | `docs/stats/results.md` |
+| Chips against chance: 6 caught vs a median of 3, p=0.1081 (0.3243 corrected): not distinguishable from chance | as written | `docs/stats/results.md` |
 | August 4 of 6 caught: 66.7%, 95% interval 33.3% to 100% (40.0% to 100% by event date) | as written | `docs/stats/results.md` |
-| Money result: positive in all three datasets (pooled FX +$527,056), corrected p 0.0959, 0.1439, 0.1439: 0 of 3 survive | as written | `docs/stats/results.md` |
+| Money result: ahead in August (+$39,770), round 1 (+$487,286) and chips (+$660,809), behind in round 2 (-$477,177); corrected p 0.2398, 0.2398, 1.0000, 0.1439: 0 of 4 survive | as written | `docs/stats/results.md` |
 | Five-bar fills: August +$39,770 becomes -$10,269 | as written | `docs/stats/results.md` |
-| Round 2 (a full year of 2025) | not finished when written: do not quote a number until `docs/oos/results-2.md` exists | `docs/oos/results-2.md` |
+| Round 2 (January to July 2025; 24 of 72 pair-months usable): 38 storms, 32 alarmed, 10 caught; 0.34 false episodes a day; weekly books helped 13, hurt 23, tied 62, total -$477,177; one margin call avoided | 38; 32; 10; 0.34; 13; 23; 62 | [docs/oos/results-2.md](../oos/results-2.md) |
 | Tiger Data: 347.9 MB compressed to 48.4 MB (7.2x); aggregate 2.8 to 5.5 times less server work | as written | [docs/tiger.md](../tiger.md) |
 | ElevenLabs: 19 sounds generated once | 19 | [web/src/audio/README.md](../../web/src/audio/README.md) |
 
@@ -139,5 +140,5 @@ Models read, code judges: an AI writes the report, and code checks every number 
 
 - **"Predict" or "forecast"** about prices. Say "detects", "warns", "alarm in the first minutes".
 - **"Profit"** about the prepared ship. It lost $237,101. Say "defence", "kept".
-- **"Significant"** about the money result, and **"proves"** or **"validated"** about the out-of-sample tests. They are frozen historical holdouts with the misses in the tables, not a forward test.
+- **"A year"** or **"full-year validation"** about round 2: it is January to July. **"Significant"** about the money result, and **"proves"** or **"validated"** about the out-of-sample tests. They are frozen historical holdouts with the misses in the tables, not a forward test.
 - **"Real trader"** or **"real book"**. The book is synthetic, and the screen says so.

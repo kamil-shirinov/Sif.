@@ -1,8 +1,8 @@
-# Thirty-three hard questions, with honest answers
+# Thirty-four hard questions, with honest answers
 
 For a quant judge. Each answer is short and states its own limit. Where a number appears, it is in the file named under **Source**. File paths are relative to the repository root. If an answer and a source ever disagree, the source wins.
 
-**Contents.** Look-ahead and method (1 to 7) · The alarm's results (8 to 13) · Spreads, latency and the book (14 to 19) · Why FX, and what we do not claim (20 to 22) · The AI's role (23 to 26) · The out-of-sample and chip results (27 to 30) · Statistics: against chance, with intervals (31 to 33)
+**Contents.** Look-ahead and method (1 to 7) · The alarm's results (8 to 13) · Spreads, latency and the book (14 to 19) · Why FX, and what we do not claim (20 to 22) · The AI's role (23 to 26) · The out-of-sample and chip results (27 to 30) · Statistics: against chance, with intervals (31 to 34)
 
 ---
 
@@ -30,7 +30,7 @@ Because it is the clearest story, and we label it in-sample everywhere: the READ
 
 ### 5. Six August storms is a tiny test. What can it support?
 
-Not much, and we say so. One storm moves a share by 17 points: "4 of 6 caught" is compatible with a wide range of true rates. It supports "the alarm worked on this month", not a rate. The bootstrap interval says it plainly: 4 of 6 is 66.7%, with a 95% interval of 33.3% to 100% (40.0% to 100% resampling by event date, four dates). That is why we froze the detector and ran it on other data (questions 27 to 30), and why we tested it against chance (questions 31 to 33).
+Not much, and we say so. One storm moves a share by 17 points: "4 of 6 caught" is compatible with a wide range of true rates. It supports "the alarm worked on this month", not a rate. The bootstrap interval says it plainly: 4 of 6 is 66.7%, with a 95% interval of 33.3% to 100% (40.0% to 100% resampling by event date, four dates). That is why we froze the detector and ran it on other data (questions 27 to 30), and why we tested it against chance (questions 31 to 34).
 **Source:** [README.md](../../README.md) ("Results on August"), [docs/stats/results.md](../stats/results.md).
 
 ### 6. "Caught means at least 50% of the move still ahead": isn't 50% arbitrary?
@@ -173,30 +173,35 @@ Mixed, and we show it. Summed over the six event books (each reset independently
 The detector did worse, and we published it. Across 13 new tickers over 20 trading days: 19 storms, 16 alarmed, 6 caught with at least half the move ahead, and 47 false pair alerts, 2.35 a trading day. The three replays (INTC, SMCI, MRVL, the largest moves) were all missed, and in INTC both ships were margin-called together. The ticker universe was picked with NVDA already observed, so it is a cross-ticker test, not a future-period one; Yahoo gives trades, not quotes, so no spread is measured; sector moves are correlated. The reading is that a detector tuned on FX is not a detector for stocks.
 **Source:** [docs/chips/results.md](../chips/results.md), [docs/chips/preregistration.md](../chips/preregistration.md).
 
-### 30. What did the second out-of-sample round (a full year of 2025) show?
+### 30. What did the second out-of-sample round (2025) show?
 
-It was still running when this was written, so we claim nothing from it yet. It uses the same frozen detector, registered and pushed before its download, on a full year of 2025 (monthly detector scoring, weekly independent synthetic books), and its June 2025 overlaps round 1, as registered. Read its result file before answering with a number.
-**Source:** `docs/oos/results-2.md` (when published), `docs/oos/preregistration-2.md`.
+It did not finish the year: it reached January to July 2025, and only 24 of 72 pair-months were usable (6 pairs times 12 months planned; August to December not reached; GBPUSD and AUDUSD had no usable month for lack of warm-up history or empty feed files; four more months dropped for empty files or under half the weekdays). On those ordinary months: 38 storms, 32 alarmed, 10 caught with at least half the move ahead, median 6 minutes from onset to alarm, 29.3% of the move ahead, 0.34 false alert episodes per observed day over 146.07 days. The weekly synthetic books (98 usable) helped in 13, hurt in 23 and tied in 62, for -$477,177 in total, with one margin call avoided and none induced; in nine weeks both books were margin-called. So on ordinary months the early warning did not beat random timing (10 caught against a null median of 8, p=0.37) and the blunt cut rule lost money. June 2025 overlaps round 1, as registered. This is a prefix, not a full-year validation.
+**Source:** [docs/oos/results-2.md](../oos/results-2.md), [docs/oos/preregistration-2.md](../oos/preregistration-2.md).
 
 ## Statistics: against chance, with intervals
 
 ### 31. Could the alarms have caught those storms by luck?
 
-We tested exactly that. The cx-stats analysis takes every alarm train and moves it to random minutes (10,000 draws, keeping each pair's alarm count and timing within the pair), then counts how many storms the moved alarms catch with half the move still ahead. Historical FX, round 1: the real alarms caught 9 of 23; the moved ones caught a median of 0 (97.5th percentile 3), p=0.0001. SGX August: 4 caught, against a median of 0, p=0.0006. Both survive Holm's correction (0.0006 and 0.0030). On the chips it does not: 6 caught against a median of 3, p=0.1081 (0.1439 corrected), so we do not claim it there. The null is conditional (it asks whether the alarms are placed better than random in time), not a causal experiment, and round 1's events were chosen for stress, not sampled.
+On big storms, no; on ordinary months, we cannot rule it out. The cx-stats analysis takes every alarm train and moves it to random minutes (10,000 draws, keeping each pair's alarm count and timing within the pair), then counts how many storms the moved alarms catch with half the move still ahead. Round 1 (crisis events): the real alarms caught 9 of 23; the moved ones a median of 0 (97.5th percentile 3), p=0.0001. SGX August: 4 against a median of 0, p=0.0006. Both survive Holm's correction across the four datasets (0.0008 and 0.0042). Round 2 (ordinary months of 2025): 10 of 38 against a median of 8 (97.5th percentile 19), p=0.3704, 0.7407 corrected: not distinguishable from random timing. Chips: 6 against a median of 3, p=0.1081 (0.3243 corrected). The null is conditional (it asks whether the alarms are placed better than random in time), not a causal experiment, and round 1's events were chosen for stress, not sampled.
 **Source:** [docs/stats/results.md](../stats/results.md) ("Against chance"), [docs/stats/results.json](../stats/results.json).
 
 ### 32. Does the money result hold up statistically?
 
-Not by the standard we set, and we say so plainly. The prepared synthetic book beat the unprepared one in every dataset, and pooled over FX it is +$527,056 across nine reset books, but that is a descriptive scenario total. Against the same timing null the raw p-values are 0.0240 (chips), 0.0480 (round 1) and 0.0490 (August); after multiplicity correction they are 0.0959, 0.1439 and 0.1439, so 0 of 3 datasets survive. The claim we make is the detection one, not "the policy makes money".
+No, and we say so plainly. The prepared synthetic book was ahead in August (+$39,770), round 1 (+$487,286) and the chips (+$660,809), and behind in round 2 (-$477,177). Against the same timing null the raw p-values are 0.0490, 0.0480, 1.0000 and 0.0240; after multiplicity correction 0.2398, 0.2398, 1.0000 and 0.1439, so 0 of 4 datasets survive. Pooled rows exist in the file but are descriptive. The claim we make is the detection one on big storms, not "the policy makes money".
 **Source:** [docs/stats/results.md](../stats/results.md) ("Against chance", "Synthetic policy outcomes").
 
 ### 33. How sensitive is the money result to execution speed?
 
-Very, in August. With fills five bars after the signal instead of the next bar, August's +$39,770 becomes -$10,269; at two bars it is +$40,395. Round 1 stays positive at five bars (+$406,610, from +$487,286) and so do the chips (+$575,271). A spread of two or three times the measured one takes round 1's +$487,286 to +$464,269 and +$441,252, and August's to +$32,725 and +$25,680. The chips have no spread sensitivity: Yahoo has trades, not quotes.
+Very, in August. With fills five bars after the signal instead of the next bar, August's +$39,770 becomes -$10,269; at two bars it is +$40,395. Round 1 stays positive at five bars (+$406,610, from +$487,286) and so do the chips (+$575,271). Round 2 is negative at every delay (-$477,177, -$448,629 at two bars, -$313,963 at five). A spread of two or three times the measured one takes round 1's +$487,286 to +$464,269 and +$441,252, and August's to +$32,725 and +$25,680. The chips have no spread sensitivity: Yahoo has trades, not quotes.
 **Source:** [docs/stats/results.md](../stats/results.md) ("Sensitivity beside the frozen headline").
+
+### 34. In one sentence: what do you actually claim?
+
+A reliable storm alarm (it fired on 6 of 6 August storms, 19 of 23 in round 1 and 32 of 38 in round 2, with about a third of a false alert episode a day on FX); an early-warning edge on big storms, the crisis events and SGX August, which beats random timing; and a response rule, the blunt 75% cut, that still needs work, because it lost $477,177 over round 2's weekly books and 0 of 4 money tests survive correction. We do not claim price prediction, a trading profit, or a full-year validation.
+**Source:** [README.md](../../README.md) ("Statistical evidence"), [docs/stats/results.md](../stats/results.md), [docs/oos/results-2.md](../oos/results-2.md).
 
 ---
 
 ## If they ask something we have not covered
 
-Say what is true: we found little advance warning in the data; the alarm is fast, not clairvoyant; July is in-sample; the book is synthetic; the out-of-sample tests include the misses. Then point to the file. Do not say "predict", "proves" or "profit".
+Say what is true: we found little advance warning in the data; the alarm is fast, not clairvoyant; July is in-sample; the book is synthetic; the out-of-sample tests include the misses, and the alarm's edge is on big storms, not ordinary months. Then point to the file. Do not say "predict", "proves" or "profit".
