@@ -1,8 +1,8 @@
-# Thirty hard questions, with honest answers
+# Thirty-three hard questions, with honest answers
 
 For a quant judge. Each answer is short and states its own limit. Where a number appears, it is in the file named under **Source**. File paths are relative to the repository root. If an answer and a source ever disagree, the source wins.
 
-**Contents.** Look-ahead and method (1 to 7) · The alarm's results (8 to 13) · Spreads, latency and the book (14 to 19) · Why FX, and what we do not claim (20 to 22) · The AI's role (23 to 26) · The out-of-sample and chip results (27 to 30)
+**Contents.** Look-ahead and method (1 to 7) · The alarm's results (8 to 13) · Spreads, latency and the book (14 to 19) · Why FX, and what we do not claim (20 to 22) · The AI's role (23 to 26) · The out-of-sample and chip results (27 to 30) · Statistics: against chance, with intervals (31 to 33)
 
 ---
 
@@ -30,8 +30,8 @@ Because it is the clearest story, and we label it in-sample everywhere: the READ
 
 ### 5. Six August storms is a tiny test. What can it support?
 
-Not much, and we say so. One storm moves a share by 17 points: "4 of 6 caught" is compatible with a wide range of true rates. It supports "the alarm worked on this month", not a rate. That is why we froze the detector and ran it on other data (questions 27 to 30).
-**Source:** [README.md](../../README.md) ("Results on August").
+Not much, and we say so. One storm moves a share by 17 points: "4 of 6 caught" is compatible with a wide range of true rates. It supports "the alarm worked on this month", not a rate. The bootstrap interval says it plainly: 4 of 6 is 66.7%, with a 95% interval of 33.3% to 100% (40.0% to 100% resampling by event date, four dates). That is why we froze the detector and ran it on other data (questions 27 to 30), and why we tested it against chance (questions 31 to 33).
+**Source:** [README.md](../../README.md) ("Results on August"), [docs/stats/results.md](../stats/results.md).
 
 ### 6. "Caught means at least 50% of the move still ahead": isn't 50% arbitrary?
 
@@ -177,6 +177,23 @@ The detector did worse, and we published it. Across 13 new tickers over 20 tradi
 
 It was still running when this was written, so we claim nothing from it yet. It uses the same frozen detector, registered and pushed before its download, on a full year of 2025 (monthly detector scoring, weekly independent synthetic books), and its June 2025 overlaps round 1, as registered. Read its result file before answering with a number.
 **Source:** `docs/oos/results-2.md` (when published), `docs/oos/preregistration-2.md`.
+
+## Statistics: against chance, with intervals
+
+### 31. Could the alarms have caught those storms by luck?
+
+We tested exactly that. The cx-stats analysis takes every alarm train and moves it to random minutes (10,000 draws, keeping each pair's alarm count and timing within the pair), then counts how many storms the moved alarms catch with half the move still ahead. Historical FX, round 1: the real alarms caught 9 of 23; the moved ones caught a median of 0 (97.5th percentile 3), p=0.0001. SGX August: 4 caught, against a median of 0, p=0.0006. Both survive Holm's correction (0.0006 and 0.0030). On the chips it does not: 6 caught against a median of 3, p=0.1081 (0.1439 corrected), so we do not claim it there. The null is conditional (it asks whether the alarms are placed better than random in time), not a causal experiment, and round 1's events were chosen for stress, not sampled.
+**Source:** [docs/stats/results.md](../stats/results.md) ("Against chance"), [docs/stats/results.json](../stats/results.json).
+
+### 32. Does the money result hold up statistically?
+
+Not by the standard we set, and we say so plainly. The prepared synthetic book beat the unprepared one in every dataset, and pooled over FX it is +$527,056 across nine reset books, but that is a descriptive scenario total. Against the same timing null the raw p-values are 0.0240 (chips), 0.0480 (round 1) and 0.0490 (August); after multiplicity correction they are 0.0959, 0.1439 and 0.1439, so 0 of 3 datasets survive. The claim we make is the detection one, not "the policy makes money".
+**Source:** [docs/stats/results.md](../stats/results.md) ("Against chance", "Synthetic policy outcomes").
+
+### 33. How sensitive is the money result to execution speed?
+
+Very, in August. With fills five bars after the signal instead of the next bar, August's +$39,770 becomes -$10,269; at two bars it is +$40,395. Round 1 stays positive at five bars (+$406,610, from +$487,286) and so do the chips (+$575,271). A spread of two or three times the measured one takes round 1's +$487,286 to +$464,269 and +$441,252, and August's to +$32,725 and +$25,680. The chips have no spread sensitivity: Yahoo has trades, not quotes.
+**Source:** [docs/stats/results.md](../stats/results.md) ("Sensitivity beside the frozen headline").
 
 ---
 
