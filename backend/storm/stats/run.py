@@ -18,7 +18,7 @@ from .bootstrap import uncertainty, paired_caught_difference, summarize
 from .datasets import load_all, detect, alarms_for, evaluate_unit
 from .policy import inputs_for, real_actions, batch, oracle, check_batch, null_schedules, totals, native_library
 from .pooling import prepare_pooling, pooled_metric
-from .protocol import DOCS, REPO_ROOT, check_frozen, rng_for, save, sha256, canonical
+from .protocol import DOCS, REPO_ROOT, check_frozen, rng_for, save, sha256, canonical, round2_cutoff
 from .randomization import prepare_train, draw_offsets, caught_counts, null_summary, holm
 
 
@@ -63,7 +63,8 @@ def comparison_to_published(unit, calculated):
         if not published:
             raise ValueError("Explicit round-two metric schema review required")
         reconstructed = calculated
-        keys = ("storms", "alarmed", "caught", "false_alarms", "false_alarm_episodes")
+        keys = ("storms", "alarmed", "caught", "caught_first_onset", "median_move_ahead_pct", "median_minutes_to_alarm",
+                "storm_alarms", "false_alarms", "false_alarm_episodes", "false_alarm_episodes_per_day", "days")
     differences = []
     for key in keys:
         a, b = reconstructed.get(key), published.get(key)
@@ -170,7 +171,8 @@ def analyze_unit(unit, spec, do_null=True, do_sensitivity=True):
             "pairs": list(unit.feats), "published_detection_check": checked,
             "published_policy": published_policy,
             "descriptive_splits": unit.metadata.get("descriptive_splits"),
-            "coverage": {key:unit.metadata[key] for key in ("selected_months","partial") if key in unit.metadata},
+            "coverage": {key:unit.metadata[key] for key in ("selected_months","partial","planned_pair_months","usable_pair_months",
+                                                           "planned_pair_weeks","usable_pair_weeks","published_status") if key in unit.metadata},
             "methods": methods, "pooled_methods": pooled_methods, "pooling": unit.metadata["pooling_summary"],
             "policy": policy, "policy_books": paths,
             "sensitivity": sensitivity, "oracle_checks": checks,
@@ -266,6 +268,7 @@ def main():
     parser.add_argument("--resume", action="store_true", help="Reuse exact-input/source-matched unit artifacts")
     parser.add_argument("--only-unit", help="Compute one unit; no aggregate/report")
     args = parser.parse_args()
+    args.include_round2 = args.include_round2 or (DOCS / "round2-source-results.json").exists()
     spec = check_frozen()
     units, hashes = load_all(args.include_round2)
     prepare_pooling(units)
@@ -318,7 +321,13 @@ def main():
         item["published_difference_usd"] += difference
         item["frozen_main_difference_usd"] += row["policy"]["prepared_minus_unprepared_usd"]
     round2_origin = None
-    round2_status = "pending; monitor until registered cutoff"
+    cutoff = datetime.fromisoformat(round2_cutoff())
+    if not args.include_round2 and datetime.now(timezone.utc) >= cutoff:
+        polls = json.loads((DOCS / "round2-polls.json").read_text())
+        if not any(p["fetched"] and not p["available"] and datetime.fromisoformat(p["checked_at_utc"]) >= cutoff for p in polls):
+            raise ValueError("Complete the final remote publication check before reporting round two unavailable")
+    round2_status = ("pending; monitor until " + cutoff.strftime("%H:%M") + " UK" if datetime.now(timezone.utc)<cutoff else
+                     "unavailable: no published results document by " + cutoff.strftime("%H:%M") + " UK")
     if args.include_round2:
         polls = json.loads((DOCS / "round2-polls.json").read_text())
         round2_origin = next(p for p in polls if p["available"])
@@ -337,6 +346,7 @@ def main():
                              "accelerator": "optional C++ (oracle-verified)" if native_library() else "original Python simulator",
                              "command": "python -m storm.stats.run" + (" --include-round2" if args.include_round2 else ""),
                              "amendments": {p.name: sha256(p) for p in sorted(DOCS.glob("amendment-*.md"))},
+                             "effective_round2_cutoff_utc":round2_cutoff(),
                              "finished_at_utc": datetime.now(timezone.utc).isoformat()},
               "round2_status": round2_status, "round2_origin":round2_origin,
               "coverage": {r["unit"]: r["coverage"] for r in results if r["coverage"]},

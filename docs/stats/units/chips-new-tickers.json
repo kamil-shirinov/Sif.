@@ -1,5 +1,5 @@
 {
-  "cache_tag": "e17d8e0ec80fd262dcf98037068aaebb105ef191e0d7934445163309543165dd",
+  "cache_tag": "067dca7ea5f4b47c8b988bf1430d78bc6079b8e3ea429bae151124bd4e5aac1c",
   "result": {
     "dataset": "chips_new",
     "unit": "chips-new-tickers",
@@ -10385,6 +10385,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 18.632222958993225
+    "elapsed_seconds": 18.54394579200016
   }
 }

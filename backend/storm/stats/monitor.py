@@ -8,7 +8,7 @@ import json
 import subprocess
 import time
 
-from .protocol import DOCS, REPO_ROOT, registration, save
+from .protocol import DOCS, REPO_ROOT, round2_cutoff, save
 
 
 def poll(fetch=True):
@@ -39,8 +39,15 @@ def main():
     parser.add_argument("--once",action="store_true")
     parser.add_argument("--no-fetch",action="store_true")
     args = parser.parse_args()
-    spec = registration()
-    cutoff = datetime.fromisoformat(spec["round2_cutoff_utc"])
+    cutoff = datetime.fromisoformat(round2_cutoff())
+    path = DOCS / "round2-polls.json"
+    previous = json.loads(path.read_text()) if path.exists() else []
+    if previous and not args.once:
+        if previous[-1]["available"]:
+            return
+        next_check = min(datetime.fromisoformat(previous[-1]["checked_at_utc"]).timestamp()+900, cutoff.timestamp())
+        while datetime.now(timezone.utc).timestamp() < next_check:
+            time.sleep(min(30, next_check-datetime.now(timezone.utc).timestamp()))
     while True:
         row = poll(not args.no_fetch)
         if row["available"] or args.once or datetime.now(timezone.utc) >= cutoff:

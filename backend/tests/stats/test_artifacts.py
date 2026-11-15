@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pytest
 
-from storm.stats.protocol import DOCS, registration
+from storm.stats.protocol import DOCS, registration, round2_cutoff
 from storm.stats.randomization import null_summary, holm
 from storm.stats.report import render, judge_sentences
 
@@ -19,6 +19,7 @@ def test_markdown_matches_json_and_judge_text_has_five_to_eight_sentences():
     assert (DOCS / "results.md").read_text() == render(result)
     assert 5 <= len(judge_sentences(result)) <= 8
     assert result["config"] == registration()["config"]
+    assert result["provenance"]["effective_round2_cutoff_utc"] == round2_cutoff()
     assert "data/" not in result["units"][0]
 
 
@@ -68,3 +69,28 @@ def test_counts_intervals_sensitivity_and_denominators_are_consistent():
     chips = result["groups"]["chips_new"]["point"]
     assert chips["false_alert_episodes_per_trading_day"] == chips["false_episodes"] / chips["trading_days"]
     assert all(c["passed"] for c in result["oracle_checks"])
+
+
+def test_pooled_statistics_and_nulls_reconstruct_from_retained_unit_contributions():
+    result = artifact()
+    units = [json.loads((DOCS/path).read_text())["result"] for path in result["units"]]
+    for name, group in result["groups"].items():
+        pooled = name.startswith("pooled")
+        selected = [u for u in units if (u["dataset"] != "chips_new" if name=="pooled_fx" else
+                                        True if name=="pooled_all" else u["dataset"]==name)]
+        field = "pooled_methods" if pooled else "methods"
+        assert group["point"]["storms"] == sum(u[field]["v1"]["storms"] for u in selected)
+        assert group["point"]["caught"] == sum(u[field]["v1"]["caught"] for u in selected)
+        books = [b for u in selected for b in u["policy_books"] if not pooled or b["include_in_pooled"]]
+        observed = sum(b["prepared"]["final_equity_usd"]-b["unprepared"]["final_equity_usd"] for b in books)
+        assert observed == pytest.approx(group["policy"]["prepared_minus_unprepared_usd"],abs=1e-5)
+        nulls = [json.loads((DOCS/"nulls"/("unit-"+u["unit"]+".json")).read_text()) for u in selected]
+        aggregate = json.loads((DOCS/"nulls"/(name+".json")).read_text())
+        caught = np.sum([n["pooled_caught_counts" if pooled else "caught_counts"] for n in nulls],axis=0)
+        pnl = np.sum([n["pooled_policy_difference_usd" if pooled else "policy_difference_usd"] for n in nulls],axis=0)
+        assert np.array_equal(caught,aggregate["caught_counts"])
+        assert np.allclose(pnl,aggregate["policy_difference_usd"],rtol=1e-9,atol=1e-5)
+    if "oos_round2" in result["groups"]:
+        raw = sum(g["point"]["storms"] for name,g in result["groups"].items() if not name.startswith("pooled"))
+        removed = sum(len(p["excluded_storm_ids"]) for p in result["pooling"].values())
+        assert result["groups"]["pooled_all"]["point"]["storms"] == raw-removed

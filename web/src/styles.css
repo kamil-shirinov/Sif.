@@ -679,12 +679,12 @@ body,
 /* ---------- toasts (top centre) ---------- */
 .toasts {
   position: absolute;
-  top: 16px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   width: min(440px, calc(100vw - 600px));
   min-width: 260px;
   pointer-events: none !important;
@@ -717,18 +717,43 @@ body,
   border: 1px solid var(--panel-border);
   border-left: 4px solid var(--accent);
   border-radius: 8px;
-  padding: 9px 12px;
+  padding: 6px 12px;
   backdrop-filter: blur(10px);
   animation: toast-in 0.35s ease-out, toast-out 0.5s ease-in 6s forwards;
 }
+/* At most two toasts (ui/toastQueue.ts): the newest with one line of text, the older one its title only. Together
+   they end about 91 px from the top, above the ships' labels at the default camera: at 1280x720 those start at
+   131 px, and rise to about 99 px as the ships heave in a storm. */
 .toast-title {
   font-weight: 700;
   font-size: 13px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .toast-text {
   color: #c4cfda;
   font-size: 12px;
+  line-height: 16px;
   margin-top: 2px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+}
+.toast.compact {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  opacity: 0.85;
+}
+/* Taller screens have the room for a second line of text (labels start at 219 px at 1920x1080). */
+@media (min-height: 900px) {
+  .toast-text {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
 }
 .toast-alarm {
   border-left-color: var(--watch);

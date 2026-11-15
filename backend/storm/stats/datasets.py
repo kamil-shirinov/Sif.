@@ -184,7 +184,12 @@ def load_oos2(root: Path, document: dict):
                             "start": utc(w["from_utc"]), "end": utc(w["to_utc"]), "carry_in": True}
                            for w in weeks if w["status"] == "usable"]
     unit.metadata = {"source": "Dukascopy", "group": "chronological", "published": document,
-                     "selected_months": selected, "partial": len(selected) < 12}
+                     "selected_months": selected, "partial": len(selected) < 12,
+                     "planned_pair_months": exact["planned_pair_months"],
+                     "usable_pair_months": exact["usable_pair_months"],
+                     "usable_pair_weeks": exact["policy"]["usable_pair_weeks"],
+                     "planned_pair_weeks": exact["policy"]["planned_pair_weeks"],
+                     "published_status": exact["status"]}
     return [unit], inventory(inputs)
 
 

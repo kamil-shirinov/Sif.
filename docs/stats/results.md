@@ -3,11 +3,11 @@
 On SGX's August test month the frozen detector caught 4 of 6 storms, with a storm-bootstrap 95% interval of 33.3% to 100.0%; that is a small sample.
 On the selected historical FX windows it caught 9 of 23, with timing-randomization p=0.0001, but these events were chosen for stress rather than sampled prospectively.
 On the thirteen new chip tickers it caught 6 of 19; their shared dates, sector and already seen shock week weaken independence.
-The descriptive pooled catch rate is 39.6%, with a joint-date-block 95% interval of 24.5% to 55.3%; pooling does not create a new holdout.
+The descriptive pooled catch rate is 34.5%, with a 95% interval of 22.6% to 47.0% from resampling storm dates within each dataset; pooling does not create a new holdout.
 False-alert burden was 0.33 episodes per observed day on SGX and 1.75 per trading day on chips (2.65 per observed day).
-The synthetic prepared books' pooled FX result was USD 527,056 relative to holding, but 0 of 3 individual dataset policy tests survived multiplicity correction.
+Round two's synthetic prepared books finished USD 477,177 behind holding; 0 of 4 individual dataset policy tests survived multiplicity correction.
 At five-bar fills, SGX's simulated policy advantage changes from USD 39,770 to USD -10,269, so the benefit is sensitive to execution delay.
-Round-two status is pending; monitor until registered cutoff; this retrospective evidence supports assessment of detection and risk response, and does not demonstrate price prediction or causal trading profit.
+Round two caught 10 of 38 storms with only 24 of 72 planned pair-months usable; this evidence does not establish price prediction or causal profit.
 
 ## Frozen headline and uncertainty
 
@@ -17,19 +17,23 @@ Secondary retrospective analysis. The headline configuration is fixed throughout
 |---|---:|---|---|---|---|---|
 | Chips: 13 new tickers | 19 | 84.2% [68.4%, 100.0%] | 31.6% [10.5%, 52.6%] | 25.21 [7.84, 57.81] | 10.00 [5.00, 12.00] | 2.65 [1.89, 3.48] |
 | FX historical round 1 | 23 | 82.6% [65.2%, 95.7%] | 39.1% [21.7%, 60.9%] | 43.40 [35.18, 69.59] | 5.00 [2.00, 10.00] | 0.22 [0.11, 0.33] |
+| FX chronological round 2 | 38 | 84.2% [71.1%, 94.7%] | 26.3% [13.2%, 42.1%] | 29.26 [21.87, 45.34] | 6.00 [4.00, 10.00] | 0.34 [0.25, 0.43] |
 | SGX August | 6 | 100.0% [100.0%, 100.0%] | 66.7% [33.3%, 100.0%] | 57.39 [32.04, 80.27] | 3.50 [1.00, 11.00] | 0.33 [0.10, 0.61] |
-| Pooled FX (descriptive) | 29 | 86.2% [72.4%, 96.6%] | 44.8% [27.6%, 62.1%] | 55.51 [35.18, 66.50] | 4.00 [2.00, 10.00] | 0.24 [0.15, 0.35] |
-| Pooled all (descriptive) | 48 | 85.4% [75.0%, 93.8%] | 39.6% [27.1%, 54.2%] | 43.40 [33.58, 57.98] | 8.00 [4.00, 10.00] | 0.56 [0.42, 0.72] |
+| Pooled FX (descriptive) | 65 | 84.6% [75.4%, 92.3%] | 35.4% [24.6%, 46.2%] | 35.87 [30.88, 55.99] | 5.00 [4.00, 10.00] | 0.29 [0.22, 0.36] |
+| Pooled all (descriptive) | 84 | 84.5% [76.2%, 91.7%] | 34.5% [25.0%, 44.0%] | 35.71 [29.44, 54.55] | 6.00 [4.00, 10.00] | 0.42 [0.34, 0.50] |
 
-Storm resampling assumes independent storms; the date-block intervals below jointly resample storms across pairs on the same event date. They remain weak with few independent event dates. An all-success sample produces a degenerate empirical bootstrap interval (SGX alarmed share is 100% to 100%); that cannot establish perfect population sensitivity or account for misses absent from the sample. Dataset strata and their actual storm counts are retained in pooled resamples. False-alert intervals resample whole days jointly across pairs, including zero-alarm and partial days; unrelated historical windows are separate timelines.
+Round-two snapshot: `8e6642d4a17a25e17433026372000540f26da0ca`, first captured `2026-11-15T07:36:03.358969+00:00`. Served coverage: `{"chronological-2025": {"partial": true, "planned_pair_months": 72, "planned_pair_weeks": 318, "published_status": "chronological_prefix", "selected_months": ["2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07"], "usable_pair_months": 24, "usable_pair_weeks": 98}}`. A partial chronological prefix is not a full-year validation; unavailable observations/books are not scored as successes.
+
+Storm resampling assumes independent storms; the date-block intervals below jointly resample storms across pairs on the same event date within each dataset/window. They remain weak with few independent event dates. An all-success sample produces a degenerate empirical bootstrap interval (SGX alarmed share is 100% to 100%); that cannot establish perfect population sensitivity or account for misses absent from the sample. Dataset strata and their actual storm counts are retained in pooled resamples. False-alert intervals resample whole days jointly across pairs, including zero-alarm and partial days; unrelated historical windows are separate timelines. Exact duplicate removal does not make different instruments on overlapping round-one/two dates independent: their shared macro shocks are not jointly resampled across dataset strata. Pooled intervals remain descriptive and may understate that dependence.
 
 | Dataset | Event-date blocks | Alarmed share, date-block [95%] | Caught share, date-block [95%] | Caught share, first onset [95%] | First-onset median minutes [95%] | Undefined conditional-median replicates |
 |---|---:|---|---|---|---|---:|
 | Chips: 13 new tickers | 9 | 84.2% [72.7%, 94.7%] | 31.6% [8.3%, 50.0%] | 36.8% [15.8%, 57.9%] | 14.00 [12.00, 16.00] | 0 |
 | FX historical round 1 | 16 | 82.6% [61.9%, 96.3%] | 39.1% [11.8%, 65.4%] | 39.1% [21.7%, 60.9%] | 14.00 [7.00, 16.00] | 0 |
+| FX chronological round 2 | 18 | 84.2% [64.1%, 97.6%] | 26.3% [8.5%, 45.7%] | 26.3% [13.2%, 42.1%] | 15.00 [14.00, 15.00] | 0 |
 | SGX August | 4 | 100.0% [100.0%, 100.0%] | 66.7% [40.0%, 100.0%] | 66.7% [33.3%, 100.0%] | 9.00 [1.50, 14.00] | 0 |
-| Pooled FX (descriptive) | 20 | 86.2% [70.4%, 97.0%] | 44.8% [24.0%, 66.7%] | 44.8% [27.6%, 62.1%] | 14.00 [6.50, 15.00] | 0 |
-| Pooled all (descriptive) | 29 | 85.4% [75.0%, 93.8%] | 39.6% [24.5%, 55.3%] | 41.7% [29.2%, 56.2%] | 14.00 [12.00, 15.00] | 0 |
+| Pooled FX (descriptive) | 38 | 84.6% [71.9%, 94.4%] | 35.4% [21.1%, 50.8%] | 35.4% [24.6%, 46.2%] | 14.00 [12.00, 15.00] | 0 |
+| Pooled all (descriptive) | 47 | 84.5% [74.4%, 92.6%] | 34.5% [22.6%, 47.0%] | 35.7% [26.2%, 45.2%] | 14.00 [13.00, 15.00] | 0 |
 
 Chips additionally retains the original ET trading-day denominator: 1.75 [1.25, 2.30] false episodes per trading day, over 20 dates. Observed days mean 1,440 union observed minutes; the two rates are not interchangeable. NVDA is excluded from every headline and pooled row. Its original in-sample and all-ticker descriptive splits remain in results.json.
 
@@ -43,16 +47,18 @@ One-sided Monte Carlo p=(1+null values at least observed)/(B+1). Detection uses 
 
 | Dataset | Statistic | Observed | Null median [2.5%, 97.5%] | B | Exceedances | Raw p | Holm p | Monte Carlo SE | Degenerate |
 |---|---|---:|---|---:|---:|---:|---:|---:|---|
-| Chips: 13 new tickers | Caught storms | 6 | 3 [0, 7] | 10000 | 1080 | 0.1081 | 0.1439 | 0.0031 | False |
-| Chips: 13 new tickers | Prepared − unprepared, USD | 660,809 | 26,759 [-194,002, 648,151] | 1000 | 23 | 0.0240 | 0.0959 | 0.0048 | False |
-| FX historical round 1 | Caught storms | 9 | 0 [0, 3] | 10000 | 0 | 0.0001 | 0.0006 | 0.0001 | False |
-| FX historical round 1 | Prepared − unprepared, USD | 487,286 | -27,625 [-605,997, 651,932] | 1000 | 47 | 0.0480 | 0.1439 | 0.0068 | False |
-| SGX August | Caught storms | 4 | 0 [0, 3] | 10000 | 5 | 0.0006 | 0.0030 | 0.0002 | False |
-| SGX August | Prepared − unprepared, USD | 39,770 | -1,796 [-24,215, 95,905] | 1000 | 48 | 0.0490 | 0.1439 | 0.0068 | False |
-| Pooled FX (descriptive) | Caught storms | 13 | 0 [0, 3] | 10000 | 0 | 0.0001 | undefined | 0.0001 | False |
-| Pooled FX (descriptive) | Prepared − unprepared, USD | 527,056 | -24,454 [-603,251, 656,452] | 1000 | 42 | 0.0430 | undefined | 0.0064 | False |
-| Pooled all (descriptive) | Caught storms | 19 | 4 [1, 8] | 10000 | 0 | 0.0001 | undefined | 0.0001 | False |
-| Pooled all (descriptive) | Prepared − unprepared, USD | 1,187,865 | 29,140 [-651,262, 911,430] | 1000 | 7 | 0.0080 | undefined | 0.0028 | False |
+| Chips: 13 new tickers | Caught storms | 6 | 3 [0, 7] | 10000 | 1080 | 0.1081 | 0.3243 | 0.0031 | False |
+| Chips: 13 new tickers | Prepared − unprepared, USD | 660,809 | 26,759 [-194,002, 648,151] | 1000 | 23 | 0.0240 | 0.1439 | 0.0048 | False |
+| FX historical round 1 | Caught storms | 9 | 0 [0, 3] | 10000 | 0 | 0.0001 | 0.0008 | 0.0001 | False |
+| FX historical round 1 | Prepared − unprepared, USD | 487,286 | -27,625 [-605,997, 651,932] | 1000 | 47 | 0.0480 | 0.2398 | 0.0068 | False |
+| FX chronological round 2 | Caught storms | 10 | 8 [0, 19] | 10000 | 3703 | 0.3704 | 0.7407 | 0.0048 | False |
+| FX chronological round 2 | Prepared − unprepared, USD | -477,177 | 88,156 [-298,743, 689,416] | 1000 | 1000 | 1.0000 | 1.0000 | 0.0000 | False |
+| SGX August | Caught storms | 4 | 0 [0, 3] | 10000 | 5 | 0.0006 | 0.0042 | 0.0002 | False |
+| SGX August | Prepared − unprepared, USD | 39,770 | -1,796 [-24,215, 95,905] | 1000 | 48 | 0.0490 | 0.2398 | 0.0068 | False |
+| Pooled FX (descriptive) | Caught storms | 23 | 8 [0, 20] | 10000 | 77 | 0.0078 | undefined | 0.0009 | False |
+| Pooled FX (descriptive) | Prepared − unprepared, USD | 198,911 | 31,164 [-735,538, 851,570] | 1000 | 327 | 0.3277 | undefined | 0.0148 | False |
+| Pooled all (descriptive) | Caught storms | 29 | 11 [3, 24] | 10000 | 31 | 0.0032 | undefined | 0.0006 | False |
+| Pooled all (descriptive) | Prepared − unprepared, USD | 859,720 | 169,760 [-740,899, 1,207,948] | 1000 | 94 | 0.0949 | undefined | 0.0093 | False |
 
 ![Timing null distributions](timing-nulls.svg)
 
@@ -66,12 +72,14 @@ These are detection baselines, not retrofitted trading policies. Paired interval
 | Chips: 13 new tickers | v0 | 17 / 19 | 10 / 19 | 6.20 | -21.1% [-42.1%, 0.0%] |
 | FX historical round 1 | naive | 22 / 23 | 6 / 23 | 0.02 | 13.0% [-4.3%, 30.4%] |
 | FX historical round 1 | v0 | 22 / 23 | 13 / 23 | 1.50 | -17.4% [-34.8%, -4.3%] |
+| FX chronological round 2 | naive | 38 / 38 | 6 / 38 | 0.01 | 10.5% [2.6%, 21.1%] |
+| FX chronological round 2 | v0 | 36 / 38 | 20 / 38 | 1.93 | -26.3% [-42.1%, -13.2%] |
 | SGX August | naive | 6 / 6 | 1 / 6 | 0.00 | 50.0% [16.7%, 83.3%] |
 | SGX August | v0 | 6 / 6 | 4 / 6 | 1.86 | 0.0% [0.0%, 0.0%] |
-| Pooled FX (descriptive) | naive | 28 / 29 | 7 / 29 | 0.01 | 20.7% [3.4%, 37.9%] |
-| Pooled FX (descriptive) | v0 | 28 / 29 | 17 / 29 | 1.59 | -13.8% [-27.6%, -3.4%] |
-| Pooled all (descriptive) | naive | 45 / 48 | 9 / 48 | 0.07 | 20.8% [6.2%, 35.4%] |
-| Pooled all (descriptive) | v0 | 45 / 48 | 27 / 48 | 2.20 | -16.7% [-29.2%, -4.2%] |
+| Pooled FX (descriptive) | naive | 64 / 65 | 13 / 65 | 0.01 | 15.4% [6.2%, 24.6%] |
+| Pooled FX (descriptive) | v0 | 62 / 65 | 36 / 65 | 1.75 | -20.0% [-30.8%, -10.8%] |
+| Pooled all (descriptive) | naive | 81 / 84 | 15 / 84 | 0.03 | 16.7% [7.1%, 26.2%] |
+| Pooled all (descriptive) | v0 | 79 / 84 | 46 / 84 | 1.99 | -20.2% [-29.8%, -10.7%] |
 
 ### Conditional timing design
 
@@ -107,6 +115,10 @@ These are detection baselines, not retrofitted trading policies. Paired interval
 | chips-new-tickers | LRCX | 2 | 1 | 290 | 0 |
 | chips-new-tickers | SMH | 4 | 1 | 31 | 0 |
 | chips-new-tickers | SOXX | 9 | 1 | 3 | 0 |
+| chronological-2025 | EURUSD | 30 | 14 | 198 | 0 |
+| chronological-2025 | USDJPY | 21 | 12 | 362 | 0 |
+| chronological-2025 | USDSGD | 27 | 12 | 77 | 0 |
+| chronological-2025 | USDCHF | 19 | 9 | 138 | 0 |
 
 ## Synthetic policy outcomes
 
@@ -116,9 +128,10 @@ Current-main policy is frozen at the registered base, without tuning. FX books s
 |---|---:|---:|---:|---:|---|---|---|
 | Chips: 13 new tickers | 13 | 660,809 | -7,824,243 | -8,485,052 | 12 / 13 | 0 / 0 | 2,820,442 / 2,878,468 |
 | FX historical round 1 | 8 | 487,286 | -1,143,179 | -1,630,466 | 3 / 3 | 79,470 / 56,479 | 827,332 / 855,330 |
+| FX chronological round 2 | 98 | -477,177 | -5,413,370 | -4,936,193 | 9 / 10 | 79,356 / 7,497 | 838,514 / 838,514 |
 | SGX August | 1 | 39,770 | 33,659 | -6,111 | 0 / 0 | 7,038 / 0 | 191,261 / 226,151 |
-| Pooled FX (descriptive) | 9 | 527,056 | -1,109,520 | -1,636,576 | 3 / 3 | 86,507 / 56,479 | 827,332 / 855,330 |
-| Pooled all (descriptive) | 22 | 1,187,865 | -8,933,763 | -10,121,628 | 15 / 16 | 86,507 / 56,479 | 2,820,442 / 2,878,468 |
+| Pooled FX (descriptive) | 95 | 198,911 | -5,982,316 | -6,181,227 | 12 / 13 | 160,678 / 63,976 | 838,514 / 855,330 |
+| Pooled all (descriptive) | 108 | 859,720 | -13,806,559 | -14,666,279 | 24 / 26 | 160,678 / 63,976 | 2,820,442 / 2,878,468 |
 
 Round 1's published policy used an older valuation implementation. Original per-window policy results are preserved beside current-main recomputation in units/; they are not silently revised. Chip full-period policies here are new secondary analyses, rather than the original selected replay outcomes. Yahoo bars contain trades, not measured quotes: zero simulated spread is not evidence of free execution, and spread sensitivities are unavailable for chips.
 
@@ -126,6 +139,7 @@ Round 1's published policy used an older valuation implementation. Original per-
 |---|---:|---:|
 | SGX August | 39,770 | 39,770 |
 | FX historical round 1 | 487,286 | 487,286 |
+| FX chronological round 2 | -477,177 | -477,177 |
 
 ## Sensitivity beside the frozen headline
 
@@ -173,6 +187,27 @@ Every row changes one factor only. There is no search, selection or replacement 
 | storm_on=0.8 | evaluated | 9 / 23 | 82.6% | 0.22 | 487,286 | 3 / 3 | True | True |
 | storm_on=0.9 | evaluated | 8 / 23 | 82.6% | 0.11 | 411,125 | 3 / 3 | True | True |
 
+### FX chronological round 2
+
+| Setting | Status | Caught / storms | Alarmed share | False episodes / observed day | Prepared − unprepared, USD | Prepared / holding margin calls | Policy-sign conclusion survives | Catch-advantage sign vs naive survives |
+|---|---|---:|---:|---:|---:|---|---|---|
+| **Frozen headline** | fixed | 10 / 38 | 84.2% | 0.34 | -477,177 | 9 / 10 | reference | reference |
+| spread_multiplier=1 | evaluated | 10 / 38 | 84.2% | 0.34 | -477,177 | 9 / 10 | True | True |
+| spread_multiplier=2 | evaluated | 10 / 38 | 84.2% | 0.34 | -548,660 | 9 / 10 | True | True |
+| spread_multiplier=3 | evaluated | 10 / 38 | 84.2% | 0.34 | -583,321 | 9 / 10 | True | True |
+| fill_delay_bars=1 | evaluated | 10 / 38 | 84.2% | 0.34 | -477,177 | 9 / 10 | True | True |
+| fill_delay_bars=2 | evaluated | 10 / 38 | 84.2% | 0.34 | -448,629 | 10 / 10 | True | True |
+| fill_delay_bars=5 | evaluated | 10 / 38 | 84.2% | 0.34 | -313,963 | 9 / 10 | True | True |
+| cut_fraction=0.5 | evaluated | 10 / 38 | 84.2% | 0.34 | -350,980 | 10 / 10 | True | True |
+| cut_fraction=0.75 | evaluated | 10 / 38 | 84.2% | 0.34 | -477,177 | 9 / 10 | True | True |
+| cut_fraction=1.0 | evaluated | 10 / 38 | 84.2% | 0.34 | -653,869 | 9 / 10 | True | True |
+| leverage=10 | evaluated | 10 / 38 | 84.2% | 0.34 | -302,846 | 0 / 0 | True | True |
+| leverage=20 | evaluated | 10 / 38 | 84.2% | 0.34 | -477,177 | 9 / 10 | True | True |
+| leverage=30 | evaluated | 10 / 38 | 84.2% | 0.34 | 215,869 | 50 / 50 | False | True |
+| storm_on=0.7 | invalid: Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed. | — | — | — | — | — | — | — |
+| storm_on=0.8 | evaluated | 10 / 38 | 84.2% | 0.34 | -477,177 | 9 / 10 | True | True |
+| storm_on=0.9 | evaluated | 9 / 38 | 84.2% | 0.22 | -434,406 | 9 / 10 | True | True |
+
 ### SGX August
 
 | Setting | Status | Caught / storms | Alarmed share | False episodes / observed day | Prepared − unprepared, USD | Prepared / holding margin calls | Policy-sign conclusion survives | Catch-advantage sign vs naive survives |
@@ -198,43 +233,43 @@ Every row changes one factor only. There is no search, selection or replacement 
 
 | Setting | Status | Caught / storms | Alarmed share | False episodes / observed day | Prepared − unprepared, USD | Prepared / holding margin calls | Policy-sign conclusion survives | Catch-advantage sign vs naive survives |
 |---|---|---:|---:|---:|---:|---|---|---|
-| **Frozen headline** | fixed | 13 / 29 | 86.2% | 0.24 | 527,056 | 3 / 3 | reference | reference |
-| spread_multiplier=1 | evaluated | 13 / 29 | 86.2% | 0.24 | 527,056 | 3 / 3 | True | True |
-| spread_multiplier=2 | evaluated | 13 / 29 | 86.2% | 0.24 | 496,994 | 3 / 3 | True | True |
-| spread_multiplier=3 | evaluated | 13 / 29 | 86.2% | 0.24 | 466,933 | 3 / 3 | True | True |
-| fill_delay_bars=1 | evaluated | 13 / 29 | 86.2% | 0.24 | 527,056 | 3 / 3 | True | True |
-| fill_delay_bars=2 | evaluated | 13 / 29 | 86.2% | 0.24 | 580,635 | 3 / 3 | True | True |
-| fill_delay_bars=5 | evaluated | 13 / 29 | 86.2% | 0.24 | 396,341 | 3 / 3 | True | True |
-| cut_fraction=0.5 | evaluated | 13 / 29 | 86.2% | 0.24 | 351,371 | 3 / 3 | True | True |
-| cut_fraction=0.75 | evaluated | 13 / 29 | 86.2% | 0.24 | 527,056 | 3 / 3 | True | True |
-| cut_fraction=1.0 | evaluated | 13 / 29 | 86.2% | 0.24 | 702,741 | 3 / 3 | True | True |
-| leverage=10 | evaluated | 13 / 29 | 86.2% | 0.24 | 473,180 | 1 / 1 | True | True |
-| leverage=20 | evaluated | 13 / 29 | 86.2% | 0.24 | 527,056 | 3 / 3 | True | True |
-| leverage=30 | evaluated | 13 / 29 | 86.2% | 0.24 | 840,949 | 6 / 7 | True | True |
+| **Frozen headline** | fixed | 23 / 65 | 84.6% | 0.29 | 198,911 | 12 / 13 | reference | reference |
+| spread_multiplier=1 | evaluated | 23 / 65 | 84.6% | 0.29 | 198,911 | 12 / 13 | True | True |
+| spread_multiplier=2 | evaluated | 23 / 65 | 84.6% | 0.29 | 102,534 | 12 / 13 | True | True |
+| spread_multiplier=3 | evaluated | 23 / 65 | 84.6% | 0.29 | 42,980 | 12 / 13 | True | True |
+| fill_delay_bars=1 | evaluated | 23 / 65 | 84.6% | 0.29 | 198,911 | 12 / 13 | True | True |
+| fill_delay_bars=2 | evaluated | 23 / 65 | 84.6% | 0.29 | 262,906 | 13 / 13 | True | True |
+| fill_delay_bars=5 | evaluated | 23 / 65 | 84.6% | 0.29 | 233,326 | 12 / 13 | True | True |
+| cut_fraction=0.5 | evaluated | 23 / 65 | 84.6% | 0.29 | 99,745 | 13 / 13 | True | True |
+| cut_fraction=0.75 | evaluated | 23 / 65 | 84.6% | 0.29 | 198,911 | 12 / 13 | True | True |
+| cut_fraction=1.0 | evaluated | 23 / 65 | 84.6% | 0.29 | 247,581 | 12 / 13 | True | True |
+| leverage=10 | evaluated | 23 / 65 | 84.6% | 0.29 | 244,849 | 1 / 1 | True | True |
+| leverage=20 | evaluated | 23 / 65 | 84.6% | 0.29 | 198,911 | 12 / 13 | True | True |
+| leverage=30 | evaluated | 23 / 65 | 84.6% | 0.29 | 1,060,981 | 48 / 49 | True | True |
 | storm_on=0.7 | invalid: Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed. | — | — | — | — | — | — | — |
-| storm_on=0.8 | evaluated | 13 / 29 | 86.2% | 0.24 | 527,056 | 3 / 3 | True | True |
-| storm_on=0.9 | evaluated | 10 / 29 | 82.8% | 0.15 | 422,914 | 3 / 3 | True | True |
+| storm_on=0.8 | evaluated | 23 / 65 | 84.6% | 0.29 | 198,911 | 12 / 13 | True | True |
+| storm_on=0.9 | evaluated | 19 / 65 | 83.1% | 0.19 | 88,756 | 12 / 13 | True | True |
 
 ### Pooled all (descriptive)
 
 | Setting | Status | Caught / storms | Alarmed share | False episodes / observed day | Prepared − unprepared, USD | Prepared / holding margin calls | Policy-sign conclusion survives | Catch-advantage sign vs naive survives |
 |---|---|---:|---:|---:|---:|---|---|---|
-| **Frozen headline** | fixed | 19 / 48 | 85.4% | 0.56 | 1,187,865 | 15 / 16 | reference | reference |
-| spread_multiplier=1 | partial (FX subset only) | 13 / 29 | 86.2% | 0.24 | 527,056 | 3 / 3 | True | True |
-| spread_multiplier=2 | partial (FX subset only) | 13 / 29 | 86.2% | 0.24 | 496,994 | 3 / 3 | True | True |
-| spread_multiplier=3 | partial (FX subset only) | 13 / 29 | 86.2% | 0.24 | 466,933 | 3 / 3 | True | True |
-| fill_delay_bars=1 | evaluated | 19 / 48 | 85.4% | 0.56 | 1,187,865 | 15 / 16 | True | True |
-| fill_delay_bars=2 | evaluated | 19 / 48 | 85.4% | 0.56 | 1,189,580 | 15 / 16 | True | True |
-| fill_delay_bars=5 | evaluated | 19 / 48 | 85.4% | 0.56 | 971,612 | 15 / 16 | True | True |
-| cut_fraction=0.5 | evaluated | 19 / 48 | 85.4% | 0.56 | 920,950 | 15 / 16 | True | True |
-| cut_fraction=0.75 | evaluated | 19 / 48 | 85.4% | 0.56 | 1,187,865 | 15 / 16 | True | True |
-| cut_fraction=1.0 | evaluated | 19 / 48 | 85.4% | 0.56 | 1,454,984 | 15 / 16 | True | True |
-| leverage=10 | evaluated | 19 / 48 | 85.4% | 0.56 | 473,180 | 14 / 14 | True | True |
-| leverage=20 | evaluated | 19 / 48 | 85.4% | 0.56 | 527,056 | 16 / 16 | True | True |
-| leverage=30 | evaluated | 19 / 48 | 85.4% | 0.56 | 840,949 | 19 / 20 | True | True |
+| **Frozen headline** | fixed | 29 / 84 | 84.5% | 0.42 | 859,720 | 24 / 26 | reference | reference |
+| spread_multiplier=1 | partial (FX subset only) | 23 / 65 | 84.6% | 0.29 | 198,911 | 12 / 13 | True | True |
+| spread_multiplier=2 | partial (FX subset only) | 23 / 65 | 84.6% | 0.29 | 102,534 | 12 / 13 | True | True |
+| spread_multiplier=3 | partial (FX subset only) | 23 / 65 | 84.6% | 0.29 | 42,980 | 12 / 13 | True | True |
+| fill_delay_bars=1 | evaluated | 29 / 84 | 84.5% | 0.42 | 859,720 | 24 / 26 | True | True |
+| fill_delay_bars=2 | evaluated | 29 / 84 | 84.5% | 0.42 | 871,852 | 25 / 26 | True | True |
+| fill_delay_bars=5 | evaluated | 29 / 84 | 84.5% | 0.42 | 808,597 | 24 / 26 | True | True |
+| cut_fraction=0.5 | evaluated | 29 / 84 | 84.5% | 0.42 | 669,324 | 25 / 26 | True | True |
+| cut_fraction=0.75 | evaluated | 29 / 84 | 84.5% | 0.42 | 859,720 | 24 / 26 | True | True |
+| cut_fraction=1.0 | evaluated | 29 / 84 | 84.5% | 0.42 | 999,824 | 24 / 26 | True | True |
+| leverage=10 | evaluated | 29 / 84 | 84.5% | 0.42 | 244,849 | 14 / 14 | True | True |
+| leverage=20 | evaluated | 29 / 84 | 84.5% | 0.42 | 198,911 | 25 / 26 | True | True |
+| leverage=30 | evaluated | 29 / 84 | 84.5% | 0.42 | 1,060,981 | 61 / 62 | True | True |
 | storm_on=0.7 | invalid: Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed. | — | — | — | — | — | — | — |
-| storm_on=0.8 | evaluated | 19 / 48 | 85.4% | 0.56 | 1,187,865 | 15 / 16 | True | True |
-| storm_on=0.9 | evaluated | 14 / 48 | 81.2% | 0.37 | 1,007,732 | 15 / 16 | True | True |
+| storm_on=0.8 | evaluated | 29 / 84 | 84.5% | 0.42 | 859,720 | 24 / 26 | True | True |
+| storm_on=0.9 | evaluated | 23 / 84 | 82.1% | 0.28 | 673,574 | 24 / 26 | True | True |
 
 ## Provenance and reproduction
 
@@ -244,7 +279,7 @@ Seed: `20261115`. Independent random streams are SHA-256-keyed by dataset/unit/p
 
 ```sh
 cd backend
-python -m storm.stats.run
+python -m storm.stats.run --include-round2
 python -m pytest -q
 ```
 
@@ -266,3 +301,4 @@ Duplicate scored observations use fixed priority SGX, round 1, round 2, chips an
 | ordinary-mar-2024 | 0 | 0 | 0 |
 | ordinary-jun-2025 | 0 | 0 | 0 |
 | chips-new-tickers | 0 | 0 | 0 |
+| chronological-2025 | 54564 | 2 | 12 |

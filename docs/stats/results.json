@@ -245,8 +245,8 @@
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal",
-          "holm_p_value": 0.14385614385614387,
-          "holm_family_size": 6
+          "holm_p_value": 0.32426757324267574,
+          "holm_family_size": 8
         },
         "policy_difference_usd": {
           "statistic": 660809.049469373,
@@ -261,8 +261,8 @@
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal",
-          "holm_p_value": 0.0959040959040959,
-          "holm_family_size": 6
+          "holm_p_value": 0.14385614385614387,
+          "holm_family_size": 8
         }
       },
       "sensitivity": [
@@ -965,8 +965,8 @@
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal",
-          "holm_p_value": 0.0005999400059994001,
-          "holm_family_size": 6
+          "holm_p_value": 0.0007999200079992001,
+          "holm_family_size": 8
         },
         "policy_difference_usd": {
           "statistic": 487286.308500684,
@@ -981,8 +981,8 @@
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal",
-          "holm_p_value": 0.14385614385614387,
-          "holm_family_size": 6
+          "holm_p_value": 0.23976023976023975,
+          "holm_family_size": 8
         }
       },
       "sensitivity": [
@@ -1595,6 +1595,810 @@
         }
       ]
     },
+    "oos_round2": {
+      "point": {
+        "storms": 38,
+        "alarmed": 32,
+        "caught": 10,
+        "caught_first_onset": 10,
+        "alarmed_share": 0.8421052631578947,
+        "caught_share": 0.2631578947368421,
+        "caught_share_first_onset": 0.2631578947368421,
+        "median_share_ahead_pct": 29.25626124256457,
+        "median_minutes_to_alarm": 6.0,
+        "median_share_ahead_pct_first_onset": 29.198062901298094,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "observed_days": 146.06666666666666,
+        "false_episodes": 49,
+        "false_alert_episodes_per_observed_day": 0.3354632587859425
+      },
+      "intervals": {
+        "alarmed_share": {
+          "estimate": 0.8421052631578947,
+          "ci95": [
+            0.7105263157894737,
+            0.9473684210526315
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "caught_share": {
+          "estimate": 0.2631578947368421,
+          "ci95": [
+            0.13157894736842105,
+            0.42105263157894735
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "caught_share_first_onset": {
+          "estimate": 0.2631578947368421,
+          "ci95": [
+            0.13157894736842105,
+            0.42105263157894735
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_share_ahead_pct": {
+          "estimate": 29.25626124256457,
+          "ci95": [
+            21.867115222874446,
+            45.342163355409255
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_minutes_to_alarm": {
+          "estimate": 6.0,
+          "ci95": [
+            4.0,
+            10.0
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_share_ahead_pct_first_onset": {
+          "estimate": 29.198062901298094,
+          "ci95": [
+            22.222222222220957,
+            48.08052434457023
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_minutes_to_alarm_first_onset": {
+          "estimate": 15.0,
+          "ci95": [
+            14.0,
+            15.0
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "false_alert_episodes_per_observed_day": {
+          "estimate": 0.3354632587859425,
+          "ci95": [
+            0.2524582459736208,
+            0.42680729401700274
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "date_block": {
+          "alarmed_share": {
+            "estimate": 0.8421052631578947,
+            "ci95": [
+              0.6410256410256411,
+              0.9761904761904762
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          },
+          "caught_share": {
+            "estimate": 0.2631578947368421,
+            "ci95": [
+              0.0851063829787234,
+              0.45714285714285713
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          },
+          "blocks": 18
+        }
+      },
+      "baselines": {
+        "naive": {
+          "point": {
+            "storms": 38,
+            "alarmed": 38,
+            "caught": 6,
+            "caught_first_onset": 5,
+            "alarmed_share": 1.0,
+            "caught_share": 0.15789473684210525,
+            "caught_share_first_onset": 0.13157894736842105,
+            "median_share_ahead_pct": 16.058550743665297,
+            "median_minutes_to_alarm": 11.0,
+            "median_share_ahead_pct_first_onset": 17.594496994517687,
+            "median_minutes_to_alarm_first_onset": 15.0,
+            "observed_days": 146.06666666666666,
+            "false_episodes": 1,
+            "false_alert_episodes_per_observed_day": 0.006846188954815153
+          },
+          "v1_minus_baseline_caught_share": {
+            "estimate": 0.10526315789473684,
+            "ci95": [
+              0.02631578947368421,
+              0.21052631578947367
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          }
+        },
+        "v0": {
+          "point": {
+            "storms": 38,
+            "alarmed": 36,
+            "caught": 20,
+            "caught_first_onset": 20,
+            "alarmed_share": 0.9473684210526315,
+            "caught_share": 0.5263157894736842,
+            "caught_share_first_onset": 0.5263157894736842,
+            "median_share_ahead_pct": 63.160207821785676,
+            "median_minutes_to_alarm": 3.5,
+            "median_share_ahead_pct_first_onset": 67.16243841282724,
+            "median_minutes_to_alarm_first_onset": 12.5,
+            "observed_days": 146.06666666666666,
+            "false_episodes": 282,
+            "false_alert_episodes_per_observed_day": 1.9306252852578731
+          },
+          "v1_minus_baseline_caught_share": {
+            "estimate": -0.2631578947368421,
+            "ci95": [
+              -0.42105263157894735,
+              -0.13157894736842105
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          }
+        }
+      },
+      "policy": {
+        "independent_reset_books": 98,
+        "synthetic": true,
+        "prepared_minus_unprepared_usd": -477176.9862609095,
+        "prepared": {
+          "margin_calls": 9,
+          "cuts": 42,
+          "restores": 42,
+          "fills": 93,
+          "spread_cost_usd": 79356.49745861355,
+          "pnl_usd": -5413370.0725861965,
+          "max_book_drawdown_usd": 838514.2497713014,
+          "median_book_drawdown_usd": 235918.06453368708
+        },
+        "unprepared": {
+          "margin_calls": 10,
+          "cuts": 0,
+          "restores": 0,
+          "fills": 10,
+          "spread_cost_usd": 7497.104980642993,
+          "pnl_usd": -4936193.086325283,
+          "max_book_drawdown_usd": 838514.2497713014,
+          "median_book_drawdown_usd": 243513.6278528532
+        }
+      },
+      "inferential": true,
+      "status": "evaluated",
+      "chance": {
+        "caught_storms": {
+          "statistic": 10,
+          "replicates": 10000,
+          "exceedances": 3703,
+          "p_value": 0.37036296370362964,
+          "monte_carlo_se": 0.0048287775029309515,
+          "null_median": 8.0,
+          "null_ci95": [
+            0.0,
+            19.0
+          ],
+          "fully_degenerate": false,
+          "tail": "greater_or_equal",
+          "holm_p_value": 0.7407259274072593,
+          "holm_family_size": 8
+        },
+        "policy_difference_usd": {
+          "statistic": -477176.9862609095,
+          "replicates": 1000,
+          "exceedances": 1000,
+          "p_value": 1.0,
+          "monte_carlo_se": 0.0,
+          "null_median": 88156.35842894943,
+          "null_ci95": [
+            -298743.44549991353,
+            689416.3430147743
+          ],
+          "fully_degenerate": false,
+          "tail": "greater_or_equal",
+          "holm_p_value": 1.0,
+          "holm_family_size": 8
+        }
+      },
+      "sensitivity": [
+        {
+          "factor": "spread_multiplier",
+          "value": 1,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -477176.9862609095,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 79356.49745861355,
+              "pnl_usd": -5413370.0725861965,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235918.06453368708
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "spread_multiplier",
+          "value": 2,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -548660.3715046286,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 159126.73903070742,
+              "pnl_usd": -5492350.562810558,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 237278.43162037368
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 14994.209961285986,
+              "pnl_usd": -4943690.191305927,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "spread_multiplier",
+          "value": 3,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -583320.9777080867,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 236129.38567162235,
+              "pnl_usd": -5534508.273994658,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 237528.39897553663
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 22491.314941928977,
+              "pnl_usd": -4951187.296286571,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "fill_delay_bars",
+          "value": 1,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -477176.9862609095,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 79356.49745861355,
+              "pnl_usd": -5413370.0725861965,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235918.06453368708
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "fill_delay_bars",
+          "value": 2,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -448628.7081300513,
+            "prepared": {
+              "margin_calls": 10,
+              "cuts": 41,
+              "restores": 41,
+              "fills": 92,
+              "spread_cost_usd": 71913.17251703158,
+              "pnl_usd": -5384821.794455337,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 232223.12606615992
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "fill_delay_bars",
+          "value": 5,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -313962.7750182514,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 68907.7963061469,
+              "pnl_usd": -5250155.8613435365,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235090.11348952912
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "cut_fraction",
+          "value": 0.5,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -350979.738762026,
+            "prepared": {
+              "margin_calls": 10,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 94,
+              "spread_cost_usd": 56633.86313331846,
+              "pnl_usd": -5287172.825087312,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235955.62422302732
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "cut_fraction",
+          "value": 0.75,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -477176.9862609095,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 79356.49745861355,
+              "pnl_usd": -5413370.0725861965,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235918.06453368708
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "cut_fraction",
+          "value": 1.0,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -653869.2473484005,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 102431.0755945426,
+              "pnl_usd": -5590062.333673686,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235880.5048443469
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "leverage",
+          "value": 10,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -302846.27371297637,
+            "prepared": {
+              "margin_calls": 0,
+              "cuts": 46,
+              "restores": 46,
+              "fills": 92,
+              "spread_cost_usd": 37427.814947738814,
+              "pnl_usd": -3160284.56395759,
+              "max_book_drawdown_usd": 675345.3077841687,
+              "median_book_drawdown_usd": 117959.03226684354
+            },
+            "unprepared": {
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 0,
+              "spread_cost_usd": 0.0,
+              "pnl_usd": -2857438.2902446124,
+              "max_book_drawdown_usd": 675345.3077841687,
+              "median_book_drawdown_usd": 121756.81392642664
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "leverage",
+          "value": 20,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -477176.9862609095,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 79356.49745861355,
+              "pnl_usd": -5413370.0725861965,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235918.06453368708
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "leverage",
+          "value": 30,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 215868.63237442286,
+            "prepared": {
+              "margin_calls": 50,
+              "cuts": 30,
+              "restores": 30,
+              "fills": 110,
+              "spread_cost_usd": 151656.2807333413,
+              "pnl_usd": -5710402.9161400385,
+              "max_book_drawdown_usd": 808158.4431979861,
+              "median_book_drawdown_usd": 285286.16928845056
+            },
+            "unprepared": {
+              "margin_calls": 50,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 50,
+              "spread_cost_usd": 71725.04468406565,
+              "pnl_usd": -5926271.548514461,
+              "max_book_drawdown_usd": 808158.4431979861,
+              "median_book_drawdown_usd": 290086.26349587936
+            }
+          },
+          "policy_sign_survives": false,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "storm_on",
+          "value": 0.7,
+          "status": "invalid",
+          "unavailable_units": [
+            {
+              "unit": "chronological-2025",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            }
+          ]
+        },
+        {
+          "factor": "storm_on",
+          "value": 0.8,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 10,
+          "alarmed": 32,
+          "caught_share": 0.2631578947368421,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.3354632587859425,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -477176.9862609095,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 42,
+              "restores": 42,
+              "fills": 93,
+              "spread_cost_usd": 79356.49745861355,
+              "pnl_usd": -5413370.0725861965,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 235918.06453368708
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "storm_on",
+          "value": 0.9,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 38,
+          "caught": 9,
+          "alarmed": 32,
+          "caught_share": 0.23684210526315788,
+          "alarmed_share": 0.8421052631578947,
+          "false_alert_episodes_per_observed_day": 0.2190780465540849,
+          "policy": {
+            "independent_reset_books": 98,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": -434405.7004000438,
+            "prepared": {
+              "margin_calls": 9,
+              "cuts": 29,
+              "restores": 29,
+              "fills": 67,
+              "spread_cost_usd": 52849.129647456684,
+              "pnl_usd": -5370598.78672533,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 237627.2191207526
+            },
+            "unprepared": {
+              "margin_calls": 10,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 10,
+              "spread_cost_usd": 7497.104980642993,
+              "pnl_usd": -4936193.086325283,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 243513.6278528532
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        }
+      ]
+    },
     "sgx_august": {
       "point": {
         "storms": 6,
@@ -1804,8 +2608,8 @@
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal",
-          "holm_p_value": 0.0029997000299970002,
-          "holm_family_size": 6
+          "holm_p_value": 0.004199580041995801,
+          "holm_family_size": 8
         },
         "policy_difference_usd": {
           "statistic": 39769.70088879205,
@@ -1820,8 +2624,8 @@
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal",
-          "holm_p_value": 0.14385614385614387,
-          "holm_family_size": 6
+          "holm_p_value": 0.23976023976023975,
+          "holm_family_size": 8
         }
       },
       "sensitivity": [
@@ -2401,900 +3205,60 @@
     },
     "pooled_fx": {
       "point": {
-        "storms": 29,
-        "alarmed": 25,
-        "caught": 13,
-        "caught_first_onset": 13,
-        "alarmed_share": 0.8620689655172413,
-        "caught_share": 0.4482758620689655,
-        "caught_share_first_onset": 0.4482758620689655,
-        "median_share_ahead_pct": 55.50619593172783,
-        "median_minutes_to_alarm": 4.0,
-        "median_share_ahead_pct_first_onset": 55.7800751879701,
+        "storms": 65,
+        "alarmed": 55,
+        "caught": 23,
+        "caught_first_onset": 23,
+        "alarmed_share": 0.8461538461538461,
+        "caught_share": 0.35384615384615387,
+        "caught_share_first_onset": 0.35384615384615387,
+        "median_share_ahead_pct": 35.86538461537948,
+        "median_minutes_to_alarm": 5.0,
+        "median_share_ahead_pct_first_onset": 38.53155339805713,
         "median_minutes_to_alarm_first_onset": 14.0,
-        "observed_days": 86.30486111111111,
-        "false_episodes": 21,
-        "false_alert_episodes_per_observed_day": 0.2433234898896837
+        "observed_days": 232.33125,
+        "false_episodes": 67,
+        "false_alert_episodes_per_observed_day": 0.2883813520566002
       },
       "intervals": {
         "alarmed_share": {
-          "estimate": 0.8620689655172413,
+          "estimate": 0.8461538461538461,
           "ci95": [
-            0.7241379310344828,
-            0.9655172413793104
+            0.7538461538461538,
+            0.9230769230769231
           ],
           "replicates": 10000,
           "undefined_replicates": 0
         },
         "caught_share": {
-          "estimate": 0.4482758620689655,
+          "estimate": 0.35384615384615387,
           "ci95": [
-            0.27586206896551724,
-            0.6206896551724138
+            0.24615384615384617,
+            0.46153846153846156
           ],
           "replicates": 10000,
           "undefined_replicates": 0
         },
         "caught_share_first_onset": {
-          "estimate": 0.4482758620689655,
+          "estimate": 0.35384615384615387,
           "ci95": [
-            0.27586206896551724,
-            0.6206896551724138
+            0.24615384615384617,
+            0.46153846153846156
           ],
           "replicates": 10000,
           "undefined_replicates": 0
         },
         "median_share_ahead_pct": {
-          "estimate": 55.50619593172783,
+          "estimate": 35.86538461537948,
           "ci95": [
-            35.175427322966215,
-            66.49568601461354
+            30.876865671645042,
+            55.99393019726734
           ],
           "replicates": 10000,
           "undefined_replicates": 0
         },
         "median_minutes_to_alarm": {
-          "estimate": 4.0,
-          "ci95": [
-            2.0,
-            10.0
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "median_share_ahead_pct_first_onset": {
-          "estimate": 55.7800751879701,
-          "ci95": [
-            35.27516432529988,
-            67.56903655221375
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "median_minutes_to_alarm_first_onset": {
-          "estimate": 14.0,
-          "ci95": [
-            6.5,
-            15.0
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "false_alert_episodes_per_observed_day": {
-          "estimate": 0.2433234898896837,
-          "ci95": [
-            0.14598449570155986,
-            0.35375344402172043
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "date_block": {
-          "alarmed_share": {
-            "estimate": 0.8620689655172413,
-            "ci95": [
-              0.7037037037037037,
-              0.9696969696969697
-            ],
-            "replicates": 10000,
-            "undefined_replicates": 0
-          },
-          "caught_share": {
-            "estimate": 0.4482758620689655,
-            "ci95": [
-              0.24,
-              0.6666666666666666
-            ],
-            "replicates": 10000,
-            "undefined_replicates": 0
-          },
-          "blocks": 20
-        }
-      },
-      "baselines": {
-        "naive": {
-          "point": {
-            "storms": 29,
-            "alarmed": 28,
-            "caught": 7,
-            "caught_first_onset": 7,
-            "alarmed_share": 0.9655172413793104,
-            "caught_share": 0.2413793103448276,
-            "caught_share_first_onset": 0.2413793103448276,
-            "median_share_ahead_pct": 28.46606750174414,
-            "median_minutes_to_alarm": 11.0,
-            "median_share_ahead_pct_first_onset": 26.654551594515716,
-            "median_minutes_to_alarm_first_onset": 15.0,
-            "observed_days": 86.30486111111111,
-            "false_episodes": 1,
-            "false_alert_episodes_per_observed_day": 0.0115868328518897
-          },
-          "v1_minus_baseline_caught_share": {
-            "estimate": 0.20689655172413793,
-            "ci95": [
-              0.034482758620689655,
-              0.3793103448275862
-            ],
-            "replicates": 10000,
-            "undefined_replicates": 0
-          }
-        },
-        "v0": {
-          "point": {
-            "storms": 29,
-            "alarmed": 28,
-            "caught": 17,
-            "caught_first_onset": 17,
-            "alarmed_share": 0.9655172413793104,
-            "caught_share": 0.5862068965517241,
-            "caught_share_first_onset": 0.5862068965517241,
-            "median_share_ahead_pct": 64.04860751525241,
-            "median_minutes_to_alarm": 3.5,
-            "median_share_ahead_pct_first_onset": 64.475564658875,
-            "median_minutes_to_alarm_first_onset": 10.5,
-            "observed_days": 86.30486111111111,
-            "false_episodes": 137,
-            "false_alert_episodes_per_observed_day": 1.5873961007088888
-          },
-          "v1_minus_baseline_caught_share": {
-            "estimate": -0.13793103448275862,
-            "ci95": [
-              -0.27586206896551724,
-              -0.034482758620689655
-            ],
-            "replicates": 10000,
-            "undefined_replicates": 0
-          }
-        }
-      },
-      "policy": {
-        "independent_reset_books": 9,
-        "synthetic": true,
-        "prepared_minus_unprepared_usd": 527056.009389476,
-        "prepared": {
-          "margin_calls": 3,
-          "cuts": 41,
-          "restores": 41,
-          "fills": 85,
-          "spread_cost_usd": 86507.32078797225,
-          "pnl_usd": -1109520.3822545754,
-          "max_book_drawdown_usd": 827331.5016782176,
-          "median_book_drawdown_usd": 561740.0267722887
-        },
-        "unprepared": {
-          "margin_calls": 3,
-          "cuts": 0,
-          "restores": 0,
-          "fills": 3,
-          "spread_cost_usd": 56478.67415367108,
-          "pnl_usd": -1636576.3916440513,
-          "max_book_drawdown_usd": 855329.7081314847,
-          "median_book_drawdown_usd": 691356.4112723726
-        }
-      },
-      "inferential": false,
-      "status": "evaluated",
-      "chance": {
-        "caught_storms": {
-          "statistic": 13,
-          "replicates": 10000,
-          "exceedances": 0,
-          "p_value": 9.999000099990002e-05,
-          "monte_carlo_se": 9.998500187478128e-05,
-          "null_median": 0.0,
-          "null_ci95": [
-            0.0,
-            3.0
-          ],
-          "fully_degenerate": false,
-          "tail": "greater_or_equal"
-        },
-        "policy_difference_usd": {
-          "statistic": 527056.009389476,
-          "replicates": 1000,
-          "exceedances": 42,
-          "p_value": 0.04295704295704296,
-          "monte_carlo_se": 0.006408639852002689,
-          "null_median": -24454.430534716725,
-          "null_ci95": [
-            -603251.4945721045,
-            656451.7864447364
-          ],
-          "fully_degenerate": false,
-          "tail": "greater_or_equal"
-        }
-      },
-      "sensitivity": [
-        {
-          "factor": "spread_multiplier",
-          "value": 1,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 527056.009389476,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -1109520.3822545754,
-              "max_book_drawdown_usd": 827331.5016782176,
-              "median_book_drawdown_usd": 561740.0267722887
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "spread_multiplier",
-          "value": 2,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 496994.2556169878,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 173014.6415759445,
-              "pnl_usd": -1196060.8101807348,
-              "max_book_drawdown_usd": 856264.1900325557,
-              "median_book_drawdown_usd": 564141.5411531237
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 112957.34830734217,
-              "pnl_usd": -1693055.065797723,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 692179.5355778616
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "spread_multiplier",
-          "value": 3,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 466932.5018445209,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 259521.9623639168,
-              "pnl_usd": -1282601.238106873,
-              "max_book_drawdown_usd": 885196.8783868938,
-              "median_book_drawdown_usd": 566543.0555339588
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 169436.02246101326,
-              "pnl_usd": -1749533.7399513936,
-              "max_book_drawdown_usd": 865400.8284602407,
-              "median_book_drawdown_usd": 693002.6598833504
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "fill_delay_bars",
-          "value": 1,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 527056.009389476,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -1109520.3822545754,
-              "max_book_drawdown_usd": 827331.5016782176,
-              "median_book_drawdown_usd": 561740.0267722887
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "fill_delay_bars",
-          "value": 2,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 580634.6251741224,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 88111.34076447337,
-              "pnl_usd": -1055941.7664699291,
-              "max_book_drawdown_usd": 824895.0647641679,
-              "median_book_drawdown_usd": 559411.9652960052
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "fill_delay_bars",
-          "value": 5,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 396340.69454794354,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 77663.62471334067,
-              "pnl_usd": -1240235.697096108,
-              "max_book_drawdown_usd": 841645.5685482553,
-              "median_book_drawdown_usd": 589650.9704005372
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "cut_fraction",
-          "value": 0.5,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 351370.6729262963,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 76497.77190987187,
-              "pnl_usd": -1285205.7187177553,
-              "max_book_drawdown_usd": 821544.9640073497,
-              "median_book_drawdown_usd": 603085.849339142
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "cut_fraction",
-          "value": 0.75,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 527056.009389476,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -1109520.3822545754,
-              "max_book_drawdown_usd": 827331.5016782176,
-              "median_book_drawdown_usd": 561740.0267722887
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "cut_fraction",
-          "value": 1.0,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 702741.3458526344,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 96516.86966607266,
-              "pnl_usd": -933835.0457914171,
-              "max_book_drawdown_usd": 833118.0393490854,
-              "median_book_drawdown_usd": 559660.2778852897
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "leverage",
-          "value": 10,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 473179.72749608307,
-            "prepared": {
-              "margin_calls": 1,
-              "cuts": 43,
-              "restores": 42,
-              "fills": 86,
-              "spread_cost_usd": 48738.92979301159,
-              "pnl_usd": -1073898.5217186334,
-              "max_book_drawdown_usd": 1074502.545000897,
-              "median_book_drawdown_usd": 280870.0133861444
-            },
-            "unprepared": {
-              "margin_calls": 1,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 1,
-              "spread_cost_usd": 23167.649536647412,
-              "pnl_usd": -1547078.2492147163,
-              "max_book_drawdown_usd": 1361501.3469395768,
-              "median_book_drawdown_usd": 419696.63040531776
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "leverage",
-          "value": 20,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 527056.009389476,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -1109520.3822545754,
-              "max_book_drawdown_usd": 827331.5016782176,
-              "median_book_drawdown_usd": 561740.0267722887
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "leverage",
-          "value": 30,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 840948.9085709869,
-            "prepared": {
-              "margin_calls": 6,
-              "cuts": 23,
-              "restores": 23,
-              "fills": 56,
-              "spread_cost_usd": 84266.71976338135,
-              "pnl_usd": -1208857.040473708,
-              "max_book_drawdown_usd": 1240997.2525173263,
-              "median_book_drawdown_usd": 613616.727119402
-            },
-            "unprepared": {
-              "margin_calls": 7,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 11,
-              "spread_cost_usd": 48376.27136567361,
-              "pnl_usd": -2049805.949044695,
-              "max_book_drawdown_usd": 1259089.8912159533,
-              "median_book_drawdown_usd": 650839.7032707371
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "storm_on",
-          "value": 0.7,
-          "status": "invalid",
-          "unavailable_units": [
-            {
-              "unit": "sgx-august",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "snb-2015",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "gbp-flash-2016",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "jpy-flash-2019",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "intervention-sep-2022",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "intervention-oct-2022",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "carry-2024",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "ordinary-mar-2024",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            },
-            {
-              "unit": "ordinary-jun-2025",
-              "status": "invalid",
-              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
-            }
-          ]
-        },
-        {
-          "factor": "storm_on",
-          "value": 0.8,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 527056.009389476,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -1109520.3822545754,
-              "max_book_drawdown_usd": 827331.5016782176,
-              "median_book_drawdown_usd": 561740.0267722887
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        },
-        {
-          "factor": "storm_on",
-          "value": 0.9,
-          "status": "evaluated",
-          "unavailable_units": [],
-          "storms": 29,
-          "caught": 10,
-          "alarmed": 24,
-          "caught_share": 0.3448275862068966,
-          "alarmed_share": 0.8275862068965517,
-          "false_alert_episodes_per_observed_day": 0.1506288270745661,
-          "policy": {
-            "independent_reset_books": 9,
-            "synthetic": true,
-            "prepared_minus_unprepared_usd": 422914.2516088831,
-            "prepared": {
-              "margin_calls": 3,
-              "cuts": 27,
-              "restores": 27,
-              "fills": 57,
-              "spread_cost_usd": 71634.46783386896,
-              "pnl_usd": -1213662.1400351683,
-              "max_book_drawdown_usd": 839393.2608106355,
-              "median_book_drawdown_usd": 561740.0267722887
-            },
-            "unprepared": {
-              "margin_calls": 3,
-              "cuts": 0,
-              "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
-              "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
-            }
-          },
-          "policy_sign_survives": true,
-          "caught_advantage_over_naive_survives": true,
-          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
-        }
-      ]
-    },
-    "pooled_all": {
-      "point": {
-        "storms": 48,
-        "alarmed": 41,
-        "caught": 19,
-        "caught_first_onset": 20,
-        "alarmed_share": 0.8541666666666666,
-        "caught_share": 0.3958333333333333,
-        "caught_share_first_onset": 0.4166666666666667,
-        "median_share_ahead_pct": 43.39839265212333,
-        "median_minutes_to_alarm": 8.0,
-        "median_share_ahead_pct_first_onset": 46.512544812965324,
-        "median_minutes_to_alarm_first_onset": 14.0,
-        "observed_days": 99.52361111111111,
-        "false_episodes": 56,
-        "false_alert_episodes_per_observed_day": 0.5626805476087472
-      },
-      "intervals": {
-        "alarmed_share": {
-          "estimate": 0.8541666666666666,
-          "ci95": [
-            0.75,
-            0.9375
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "caught_share": {
-          "estimate": 0.3958333333333333,
-          "ci95": [
-            0.2708333333333333,
-            0.5416666666666666
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "caught_share_first_onset": {
-          "estimate": 0.4166666666666667,
-          "ci95": [
-            0.2916666666666667,
-            0.5625
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "median_share_ahead_pct": {
-          "estimate": 43.39839265212333,
-          "ci95": [
-            33.578792341676184,
-            57.97786678206875
-          ],
-          "replicates": 10000,
-          "undefined_replicates": 0
-        },
-        "median_minutes_to_alarm": {
-          "estimate": 8.0,
+          "estimate": 5.0,
           "ci95": [
             4.0,
             10.0
@@ -3303,10 +3267,10 @@
           "undefined_replicates": 0
         },
         "median_share_ahead_pct_first_onset": {
-          "estimate": 46.512544812965324,
+          "estimate": 38.53155339805713,
           "ci95": [
-            34.80392156862617,
-            59.46019428034314
+            31.850533807831365,
+            56.03015075376949
           ],
           "replicates": 10000,
           "undefined_replicates": 0
@@ -3321,59 +3285,59 @@
           "undefined_replicates": 0
         },
         "false_alert_episodes_per_observed_day": {
-          "estimate": 0.5626805476087472,
+          "estimate": 0.2883813520566002,
           "ci95": [
-            0.42447096277974683,
-            0.7154539797781636
+            0.22477101778649763,
+            0.35674694074261154
           ],
           "replicates": 10000,
           "undefined_replicates": 0
         },
         "date_block": {
           "alarmed_share": {
-            "estimate": 0.8541666666666666,
+            "estimate": 0.8461538461538461,
             "ci95": [
-              0.75,
-              0.9375
+              0.7192982456140351,
+              0.943681533646322
             ],
             "replicates": 10000,
             "undefined_replicates": 0
           },
           "caught_share": {
-            "estimate": 0.3958333333333333,
+            "estimate": 0.35384615384615387,
             "ci95": [
-              0.24489795918367346,
-              0.5526455767077266
+              0.2112676056338028,
+              0.5076923076923077
             ],
             "replicates": 10000,
             "undefined_replicates": 0
           },
-          "blocks": 29
+          "blocks": 38
         }
       },
       "baselines": {
         "naive": {
           "point": {
-            "storms": 48,
-            "alarmed": 45,
-            "caught": 9,
-            "caught_first_onset": 9,
-            "alarmed_share": 0.9375,
-            "caught_share": 0.1875,
-            "caught_share_first_onset": 0.1875,
-            "median_share_ahead_pct": 22.850678733031675,
-            "median_minutes_to_alarm": 12.0,
-            "median_share_ahead_pct_first_onset": 22.775800711746065,
+            "storms": 65,
+            "alarmed": 64,
+            "caught": 13,
+            "caught_first_onset": 12,
+            "alarmed_share": 0.9846153846153847,
+            "caught_share": 0.2,
+            "caught_share_first_onset": 0.18461538461538463,
+            "median_share_ahead_pct": 17.94076082805114,
+            "median_minutes_to_alarm": 11.0,
+            "median_share_ahead_pct_first_onset": 19.09231297409947,
             "median_minutes_to_alarm_first_onset": 15.0,
-            "observed_days": 99.52361111111111,
-            "false_episodes": 7,
-            "false_alert_episodes_per_observed_day": 0.0703350684510934
+            "observed_days": 232.33125,
+            "false_episodes": 2,
+            "false_alert_episodes_per_observed_day": 0.008608398568853738
           },
           "v1_minus_baseline_caught_share": {
-            "estimate": 0.20833333333333334,
+            "estimate": 0.15384615384615385,
             "ci95": [
-              0.0625,
-              0.3541666666666667
+              0.06153846153846154,
+              0.24615384615384617
             ],
             "replicates": 10000,
             "undefined_replicates": 0
@@ -3381,26 +3345,26 @@
         },
         "v0": {
           "point": {
-            "storms": 48,
-            "alarmed": 45,
-            "caught": 27,
-            "caught_first_onset": 29,
-            "alarmed_share": 0.9375,
-            "caught_share": 0.5625,
-            "caught_share_first_onset": 0.6041666666666666,
-            "median_share_ahead_pct": 57.97786678206875,
-            "median_minutes_to_alarm": 5.0,
-            "median_share_ahead_pct_first_onset": 59.99999999999025,
-            "median_minutes_to_alarm_first_onset": 12.0,
-            "observed_days": 99.52361111111111,
-            "false_episodes": 219,
-            "false_alert_episodes_per_observed_day": 2.2004828558270653
+            "storms": 65,
+            "alarmed": 62,
+            "caught": 36,
+            "caught_first_onset": 36,
+            "alarmed_share": 0.9538461538461539,
+            "caught_share": 0.5538461538461539,
+            "caught_share_first_onset": 0.5538461538461539,
+            "median_share_ahead_pct": 63.160207821785676,
+            "median_minutes_to_alarm": 3.5,
+            "median_share_ahead_pct_first_onset": 65.14463873617972,
+            "median_minutes_to_alarm_first_onset": 11.5,
+            "observed_days": 232.33125,
+            "false_episodes": 407,
+            "false_alert_episodes_per_observed_day": 1.7518091087617356
           },
           "v1_minus_baseline_caught_share": {
-            "estimate": -0.16666666666666666,
+            "estimate": -0.2,
             "ci95": [
-              -0.2916666666666667,
-              -0.041666666666666664
+              -0.3076923076923077,
+              -0.1076923076923077
             ],
             "replicates": 10000,
             "undefined_replicates": 0
@@ -3408,57 +3372,902 @@
         }
       },
       "policy": {
-        "independent_reset_books": 22,
+        "independent_reset_books": 95,
         "synthetic": true,
-        "prepared_minus_unprepared_usd": 1187865.0588588489,
+        "prepared_minus_unprepared_usd": 198910.80656908965,
         "prepared": {
-          "margin_calls": 15,
-          "cuts": 52,
-          "restores": 52,
-          "fills": 119,
-          "spread_cost_usd": 86507.32078797225,
-          "pnl_usd": -8933763.399646405,
-          "max_book_drawdown_usd": 2820441.825049938,
-          "median_book_drawdown_usd": 640185.3858678241
+          "margin_calls": 12,
+          "cuts": 75,
+          "restores": 75,
+          "fills": 162,
+          "spread_cost_usd": 160678.30198318674,
+          "pnl_usd": -5982315.773476533,
+          "max_book_drawdown_usd": 838514.2497713014,
+          "median_book_drawdown_usd": 248930.61547169776
         },
         "unprepared": {
-          "margin_calls": 16,
+          "margin_calls": 13,
           "cuts": 0,
           "restores": 0,
-          "fills": 16,
-          "spread_cost_usd": 56478.67415367108,
-          "pnl_usd": -10121628.45850525,
-          "max_book_drawdown_usd": 2878468.4453058564,
-          "median_book_drawdown_usd": 692035.2368581826
+          "fills": 13,
+          "spread_cost_usd": 63975.779134314085,
+          "pnl_usd": -6181226.580045621,
+          "max_book_drawdown_usd": 855329.7081314847,
+          "median_book_drawdown_usd": 249736.95645133522
         }
       },
       "inferential": false,
       "status": "evaluated",
       "chance": {
         "caught_storms": {
-          "statistic": 19,
+          "statistic": 23,
           "replicates": 10000,
-          "exceedances": 0,
-          "p_value": 9.999000099990002e-05,
-          "monte_carlo_se": 9.998500187478128e-05,
-          "null_median": 4.0,
+          "exceedances": 77,
+          "p_value": 0.007799220077992201,
+          "monte_carlo_se": 0.0008796373390391641,
+          "null_median": 8.0,
           "null_ci95": [
-            1.0,
-            8.0
+            0.0,
+            20.0
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal"
         },
         "policy_difference_usd": {
-          "statistic": 1187865.0588588489,
+          "statistic": 198910.80656908965,
           "replicates": 1000,
-          "exceedances": 7,
-          "p_value": 0.007992007992007992,
-          "monte_carlo_se": 0.0028142877579734084,
-          "null_median": 29140.16604624319,
+          "exceedances": 327,
+          "p_value": 0.3276723276723277,
+          "monte_carlo_se": 0.014835197681860073,
+          "null_median": 31163.985773325665,
           "null_ci95": [
-            -651261.7172555476,
-            911429.5443213308
+            -735537.796785125,
+            851570.0613030801
+          ],
+          "fully_degenerate": false,
+          "tail": "greater_or_equal"
+        }
+      },
+      "sensitivity": [
+        {
+          "factor": "spread_multiplier",
+          "value": 1,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 198910.80656908965,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -5982315.773476533,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 248930.61547169776
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "spread_multiplier",
+          "value": 2,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 102534.00173120841,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 321770.3480798538,
+              "pnl_usd": -6142668.357448726,
+              "max_book_drawdown_usd": 856264.1900325557,
+              "median_book_drawdown_usd": 249736.95645133522
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 127951.55826862817,
+              "pnl_usd": -6245202.359179937,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "spread_multiplier",
+          "value": 3,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 42979.975933602895,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 480094.7992453421,
+              "pnl_usd": -6266198.162380647,
+              "max_book_drawdown_usd": 885196.8783868938,
+              "median_book_drawdown_usd": 250433.25263921032
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 191927.33740294224,
+              "pnl_usd": -6309178.138314248,
+              "max_book_drawdown_usd": 865400.8284602407,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "fill_delay_bars",
+          "value": 1,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 198910.80656908965,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -5982315.773476533,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 248930.61547169776
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "fill_delay_bars",
+          "value": 2,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 262906.23267425597,
+            "prepared": {
+              "margin_calls": 13,
+              "cuts": 74,
+              "restores": 74,
+              "fills": 161,
+              "spread_cost_usd": 154826.97459124666,
+              "pnl_usd": -5918320.347371367,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 238058.7735856512
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "fill_delay_bars",
+          "value": 5,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 233326.40875607217,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 142365.4151764771,
+              "pnl_usd": -5947900.171289548,
+              "max_book_drawdown_usd": 841645.5685482553,
+              "median_book_drawdown_usd": 236772.666229381
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "cut_fraction",
+          "value": 0.5,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 99745.45645795227,
+            "prepared": {
+              "margin_calls": 13,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 163,
+              "spread_cost_usd": 129674.6242009243,
+              "pnl_usd": -6081481.123587667,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 244456.39302280336
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "cut_fraction",
+          "value": 0.75,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 198910.80656908965,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -5982315.773476533,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 248930.61547169776
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "cut_fraction",
+          "value": 1.0,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 247581.14309160144,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 192033.92357608318,
+              "pnl_usd": -5933645.436954021,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 248155.7091523368
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "leverage",
+          "value": 10,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 244849.34550336812,
+            "prepared": {
+              "margin_calls": 1,
+              "cuts": 81,
+              "restores": 80,
+              "fills": 162,
+              "spread_cost_usd": 83573.9866090509,
+              "pnl_usd": -3963895.7449941006,
+              "max_book_drawdown_usd": 1074502.545000897,
+              "median_book_drawdown_usd": 124465.30773584882
+            },
+            "unprepared": {
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 1,
+              "spread_cost_usd": 23167.649536647412,
+              "pnl_usd": -4208745.09049747,
+              "max_book_drawdown_usd": 1361501.3469395768,
+              "median_book_drawdown_usd": 124868.47822566761
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "leverage",
+          "value": 20,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 198910.80656908965,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -5982315.773476533,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 248930.61547169776
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "leverage",
+          "value": 30,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 1060980.5504209036,
+            "prepared": {
+              "margin_calls": 48,
+              "cuts": 50,
+              "restores": 50,
+              "fills": 152,
+              "spread_cost_usd": 228532.18348681155,
+              "pnl_usd": -5637917.435720995,
+              "max_book_drawdown_usd": 1240997.2525173263,
+              "median_book_drawdown_usd": 285615.81172609294
+            },
+            "unprepared": {
+              "margin_calls": 49,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 53,
+              "spread_cost_usd": 115993.60933422484,
+              "pnl_usd": -6698897.986141898,
+              "max_book_drawdown_usd": 1259089.8912159533,
+              "median_book_drawdown_usd": 291385.0733161939
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "storm_on",
+          "value": 0.7,
+          "status": "invalid",
+          "unavailable_units": [
+            {
+              "unit": "sgx-august",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "snb-2015",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "gbp-flash-2016",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "jpy-flash-2019",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "intervention-sep-2022",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "intervention-oct-2022",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "carry-2024",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "ordinary-mar-2024",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "ordinary-jun-2025",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "chronological-2025",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            }
+          ]
+        },
+        {
+          "factor": "storm_on",
+          "value": 0.8,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 198910.80656908965,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -5982315.773476533,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 248930.61547169776
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        },
+        {
+          "factor": "storm_on",
+          "value": 0.9,
+          "status": "evaluated",
+          "unavailable_units": [],
+          "storms": 65,
+          "caught": 19,
+          "alarmed": 54,
+          "caught_share": 0.2923076923076923,
+          "alarmed_share": 0.8307692307692308,
+          "false_alert_episodes_per_observed_day": 0.18938476851478223,
+          "policy": {
+            "independent_reset_books": 95,
+            "synthetic": true,
+            "prepared_minus_unprepared_usd": 88755.84679961833,
+            "prepared": {
+              "margin_calls": 12,
+              "cuts": 51,
+              "restores": 51,
+              "fills": 114,
+              "spread_cost_usd": 121432.26237404988,
+              "pnl_usd": -6092470.733246001,
+              "max_book_drawdown_usd": 839393.2608106355,
+              "median_book_drawdown_usd": 249736.95645133522
+            },
+            "unprepared": {
+              "margin_calls": 13,
+              "cuts": 0,
+              "restores": 0,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
+              "max_book_drawdown_usd": 855329.7081314847,
+              "median_book_drawdown_usd": 249736.95645133522
+            }
+          },
+          "policy_sign_survives": true,
+          "caught_advantage_over_naive_survives": true,
+          "sensitivity_chance_inference": "not_tested; headline null is not reused as a new p-value"
+        }
+      ]
+    },
+    "pooled_all": {
+      "point": {
+        "storms": 84,
+        "alarmed": 71,
+        "caught": 29,
+        "caught_first_onset": 30,
+        "alarmed_share": 0.8452380952380952,
+        "caught_share": 0.34523809523809523,
+        "caught_share_first_onset": 0.35714285714285715,
+        "median_share_ahead_pct": 35.7142857142848,
+        "median_minutes_to_alarm": 6.0,
+        "median_share_ahead_pct_first_onset": 38.53155339805713,
+        "median_minutes_to_alarm_first_onset": 14.0,
+        "observed_days": 245.55,
+        "false_episodes": 102,
+        "false_alert_episodes_per_observed_day": 0.41539401343921806
+      },
+      "intervals": {
+        "alarmed_share": {
+          "estimate": 0.8452380952380952,
+          "ci95": [
+            0.7619047619047619,
+            0.9166666666666666
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "caught_share": {
+          "estimate": 0.34523809523809523,
+          "ci95": [
+            0.25,
+            0.44047619047619047
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "caught_share_first_onset": {
+          "estimate": 0.35714285714285715,
+          "ci95": [
+            0.2619047619047619,
+            0.4523809523809524
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_share_ahead_pct": {
+          "estimate": 35.7142857142848,
+          "ci95": [
+            29.43676939426103,
+            54.54545454545454
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_minutes_to_alarm": {
+          "estimate": 6.0,
+          "ci95": [
+            4.0,
+            10.0
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_share_ahead_pct_first_onset": {
+          "estimate": 38.53155339805713,
+          "ci95": [
+            30.56777424965717,
+            55.7800751879701
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "median_minutes_to_alarm_first_onset": {
+          "estimate": 14.0,
+          "ci95": [
+            13.0,
+            15.0
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "false_alert_episodes_per_observed_day": {
+          "estimate": 0.41539401343921806,
+          "ci95": [
+            0.3394680168172642,
+            0.49658208405352744
+          ],
+          "replicates": 10000,
+          "undefined_replicates": 0
+        },
+        "date_block": {
+          "alarmed_share": {
+            "estimate": 0.8452380952380952,
+            "ci95": [
+              0.7435897435897436,
+              0.9263157894736842
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          },
+          "caught_share": {
+            "estimate": 0.34523809523809523,
+            "ci95": [
+              0.2261808755760369,
+              0.46987951807228917
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          },
+          "blocks": 47
+        }
+      },
+      "baselines": {
+        "naive": {
+          "point": {
+            "storms": 84,
+            "alarmed": 81,
+            "caught": 15,
+            "caught_first_onset": 14,
+            "alarmed_share": 0.9642857142857143,
+            "caught_share": 0.17857142857142858,
+            "caught_share_first_onset": 0.16666666666666666,
+            "median_share_ahead_pct": 17.921141072654233,
+            "median_minutes_to_alarm": 11.0,
+            "median_share_ahead_pct_first_onset": 19.11372130272322,
+            "median_minutes_to_alarm_first_onset": 15.0,
+            "observed_days": 245.55,
+            "false_episodes": 8,
+            "false_alert_episodes_per_observed_day": 0.03257992262268377
+          },
+          "v1_minus_baseline_caught_share": {
+            "estimate": 0.16666666666666666,
+            "ci95": [
+              0.07142857142857142,
+              0.2619047619047619
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          }
+        },
+        "v0": {
+          "point": {
+            "storms": 84,
+            "alarmed": 79,
+            "caught": 46,
+            "caught_first_onset": 48,
+            "alarmed_share": 0.9404761904761905,
+            "caught_share": 0.5476190476190477,
+            "caught_share_first_onset": 0.5714285714285714,
+            "median_share_ahead_pct": 59.265387160820715,
+            "median_minutes_to_alarm": 4.0,
+            "median_share_ahead_pct_first_onset": 60.25829185508482,
+            "median_minutes_to_alarm_first_onset": 12.0,
+            "observed_days": 245.55,
+            "false_episodes": 489,
+            "false_alert_episodes_per_observed_day": 1.9914477703115454
+          },
+          "v1_minus_baseline_caught_share": {
+            "estimate": -0.20238095238095238,
+            "ci95": [
+              -0.2976190476190476,
+              -0.10714285714285714
+            ],
+            "replicates": 10000,
+            "undefined_replicates": 0
+          }
+        }
+      },
+      "policy": {
+        "independent_reset_books": 108,
+        "synthetic": true,
+        "prepared_minus_unprepared_usd": 859719.8560384627,
+        "prepared": {
+          "margin_calls": 24,
+          "cuts": 86,
+          "restores": 86,
+          "fills": 196,
+          "spread_cost_usd": 160678.30198318674,
+          "pnl_usd": -13806558.790868357,
+          "max_book_drawdown_usd": 2820441.825049938,
+          "median_book_drawdown_usd": 286028.00552175596
+        },
+        "unprepared": {
+          "margin_calls": 26,
+          "cuts": 0,
+          "restores": 0,
+          "fills": 26,
+          "spread_cost_usd": 63975.779134314085,
+          "pnl_usd": -14666278.646906817,
+          "max_book_drawdown_usd": 2878468.4453058564,
+          "median_book_drawdown_usd": 283436.78206309746
+        }
+      },
+      "inferential": false,
+      "status": "evaluated",
+      "chance": {
+        "caught_storms": {
+          "statistic": 29,
+          "replicates": 10000,
+          "exceedances": 31,
+          "p_value": 0.0031996800319968005,
+          "monte_carlo_se": 0.0005647232213547539,
+          "null_median": 11.0,
+          "null_ci95": [
+            3.0,
+            24.0
+          ],
+          "fully_degenerate": false,
+          "tail": "greater_or_equal"
+        },
+        "policy_difference_usd": {
+          "statistic": 859719.8560384627,
+          "replicates": 1000,
+          "exceedances": 94,
+          "p_value": 0.09490509490509491,
+          "monte_carlo_se": 0.009263493161901145,
+          "null_median": 169760.35963370124,
+          "null_ci95": [
+            -740898.5081611852,
+            1207948.482439524
           ],
           "fully_degenerate": false,
           "tail": "greater_or_equal"
@@ -3476,35 +4285,35 @@
               "reason": "Yahoo trade bars have no measured bid/ask spread; 1x/2x/3x cannot be priced."
             }
           ],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
           "policy": {
-            "independent_reset_books": 9,
+            "independent_reset_books": 95,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 527056.009389476,
+            "prepared_minus_unprepared_usd": 198910.80656908965,
             "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -1109520.3822545754,
-              "max_book_drawdown_usd": 827331.5016782176,
-              "median_book_drawdown_usd": 561740.0267722887
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -5982315.773476533,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 248930.61547169776
             },
             "unprepared": {
-              "margin_calls": 3,
+              "margin_calls": 13,
               "cuts": 0,
               "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440513,
+              "fills": 13,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045621,
               "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 691356.4112723726
+              "median_book_drawdown_usd": 249736.95645133522
             }
           },
           "policy_sign_survives": true,
@@ -3522,35 +4331,35 @@
               "reason": "Yahoo trade bars have no measured bid/ask spread; 1x/2x/3x cannot be priced."
             }
           ],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
           "policy": {
-            "independent_reset_books": 9,
+            "independent_reset_books": 95,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 496994.2556169878,
+            "prepared_minus_unprepared_usd": 102534.00173120841,
             "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 173014.6415759445,
-              "pnl_usd": -1196060.8101807348,
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 321770.3480798538,
+              "pnl_usd": -6142668.357448726,
               "max_book_drawdown_usd": 856264.1900325557,
-              "median_book_drawdown_usd": 564141.5411531237
+              "median_book_drawdown_usd": 249736.95645133522
             },
             "unprepared": {
-              "margin_calls": 3,
+              "margin_calls": 13,
               "cuts": 0,
               "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 112957.34830734217,
-              "pnl_usd": -1693055.065797723,
+              "fills": 13,
+              "spread_cost_usd": 127951.55826862817,
+              "pnl_usd": -6245202.359179937,
               "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 692179.5355778616
+              "median_book_drawdown_usd": 249736.95645133522
             }
           },
           "policy_sign_survives": true,
@@ -3568,35 +4377,35 @@
               "reason": "Yahoo trade bars have no measured bid/ask spread; 1x/2x/3x cannot be priced."
             }
           ],
-          "storms": 29,
-          "caught": 13,
-          "alarmed": 25,
-          "caught_share": 0.4482758620689655,
-          "alarmed_share": 0.8620689655172413,
-          "false_alert_episodes_per_observed_day": 0.2433234898896837,
+          "storms": 65,
+          "caught": 23,
+          "alarmed": 55,
+          "caught_share": 0.35384615384615387,
+          "alarmed_share": 0.8461538461538461,
+          "false_alert_episodes_per_observed_day": 0.2883813520566002,
           "policy": {
-            "independent_reset_books": 9,
+            "independent_reset_books": 95,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 466932.5018445209,
+            "prepared_minus_unprepared_usd": 42979.975933602895,
             "prepared": {
-              "margin_calls": 3,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 85,
-              "spread_cost_usd": 259521.9623639168,
-              "pnl_usd": -1282601.238106873,
+              "margin_calls": 12,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 162,
+              "spread_cost_usd": 480094.7992453421,
+              "pnl_usd": -6266198.162380647,
               "max_book_drawdown_usd": 885196.8783868938,
-              "median_book_drawdown_usd": 566543.0555339588
+              "median_book_drawdown_usd": 250433.25263921032
             },
             "unprepared": {
-              "margin_calls": 3,
+              "margin_calls": 13,
               "cuts": 0,
               "restores": 0,
-              "fills": 3,
-              "spread_cost_usd": 169436.02246101326,
-              "pnl_usd": -1749533.7399513936,
+              "fills": 13,
+              "spread_cost_usd": 191927.33740294224,
+              "pnl_usd": -6309178.138314248,
               "max_book_drawdown_usd": 865400.8284602407,
-              "median_book_drawdown_usd": 693002.6598833504
+              "median_book_drawdown_usd": 249736.95645133522
             }
           },
           "policy_sign_survives": true,
@@ -3608,35 +4417,35 @@
           "value": 1,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 1187865.0588588489,
+            "prepared_minus_unprepared_usd": 859719.8560384627,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 52,
-              "restores": 52,
-              "fills": 119,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -8933763.399646405,
+              "margin_calls": 24,
+              "cuts": 86,
+              "restores": 86,
+              "fills": 196,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -13806558.790868357,
               "max_book_drawdown_usd": 2820441.825049938,
-              "median_book_drawdown_usd": 640185.3858678241
+              "median_book_drawdown_usd": 286028.00552175596
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -3648,35 +4457,35 @@
           "value": 2,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 1189580.4301421994,
+            "prepared_minus_unprepared_usd": 871852.0376423328,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 52,
-              "restores": 52,
-              "fills": 119,
-              "spread_cost_usd": 88111.34076447337,
-              "pnl_usd": -8932048.028363053,
+              "margin_calls": 25,
+              "cuts": 85,
+              "restores": 85,
+              "fills": 195,
+              "spread_cost_usd": 154826.97459124666,
+              "pnl_usd": -13794426.60926448,
               "max_book_drawdown_usd": 2836817.435674308,
-              "median_book_drawdown_usd": 655565.3169655842
+              "median_book_drawdown_usd": 284723.8688273827
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -3688,35 +4497,35 @@
           "value": 5,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 971611.5630088563,
+            "prepared_minus_unprepared_usd": 808597.2772169844,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 52,
-              "restores": 52,
-              "fills": 119,
-              "spread_cost_usd": 77663.62471334067,
-              "pnl_usd": -9150016.895496396,
+              "margin_calls": 24,
+              "cuts": 86,
+              "restores": 86,
+              "fills": 196,
+              "spread_cost_usd": 142365.4151764771,
+              "pnl_usd": -13857681.36968983,
               "max_book_drawdown_usd": 2881553.705278564,
-              "median_book_drawdown_usd": 649873.3297495134
+              "median_book_drawdown_usd": 282015.414580912
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -3728,35 +4537,35 @@
           "value": 0.5,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 920949.5686554688,
+            "prepared_minus_unprepared_usd": 669324.3521871245,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 52,
-              "restores": 52,
-              "fills": 119,
-              "spread_cost_usd": 76497.77190987187,
-              "pnl_usd": -9200678.889849782,
+              "margin_calls": 25,
+              "cuts": 86,
+              "restores": 86,
+              "fills": 197,
+              "spread_cost_usd": 129674.6242009243,
+              "pnl_usd": -13996954.294719689,
               "max_book_drawdown_usd": 2839784.031801911,
-              "median_book_drawdown_usd": 664886.6686683663
+              "median_book_drawdown_usd": 283904.2202575154
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -3768,35 +4577,35 @@
           "value": 0.75,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 1187865.0588588489,
+            "prepared_minus_unprepared_usd": 859719.8560384627,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 52,
-              "restores": 52,
-              "fills": 119,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -8933763.399646405,
+              "margin_calls": 24,
+              "cuts": 86,
+              "restores": 86,
+              "fills": 196,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -13806558.790868357,
               "max_book_drawdown_usd": 2820441.825049938,
-              "median_book_drawdown_usd": 640185.3858678241
+              "median_book_drawdown_usd": 286028.00552175596
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -3808,35 +4617,35 @@
           "value": 1.0,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 1454984.4448944097,
+            "prepared_minus_unprepared_usd": 999824.242133377,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 52,
-              "restores": 52,
-              "fills": 119,
-              "spread_cost_usd": 96516.86966607266,
-              "pnl_usd": -8666644.013610844,
+              "margin_calls": 24,
+              "cuts": 86,
+              "restores": 86,
+              "fills": 196,
+              "spread_cost_usd": 192033.92357608318,
+              "pnl_usd": -13666454.404773444,
               "max_book_drawdown_usd": 2801099.6182979653,
-              "median_book_drawdown_usd": 642186.3977822654
+              "median_book_drawdown_usd": 286028.00552175596
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -3848,25 +4657,25 @@
           "value": 10,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 473179.72749608307,
+            "prepared_minus_unprepared_usd": 244849.34550336812,
             "prepared": {
               "margin_calls": 14,
-              "cuts": 43,
-              "restores": 42,
-              "fills": 99,
-              "spread_cost_usd": 48738.92979301159,
-              "pnl_usd": -1073898.5217186366,
+              "cuts": 81,
+              "restores": 80,
+              "fills": 175,
+              "spread_cost_usd": 83573.9866090509,
+              "pnl_usd": -3963895.7449941034,
               "max_book_drawdown_usd": 1074502.545000897,
-              "median_book_drawdown_usd": 0.0
+              "median_book_drawdown_usd": 113189.68252897344
             },
             "unprepared": {
               "margin_calls": 14,
@@ -3874,9 +4683,9 @@
               "restores": 0,
               "fills": 14,
               "spread_cost_usd": 23167.649536647412,
-              "pnl_usd": -1547078.2492147195,
+              "pnl_usd": -4208745.090497472,
               "max_book_drawdown_usd": 1361501.3469395768,
-              "median_book_drawdown_usd": 0.0
+              "median_book_drawdown_usd": 114227.56648210593
             }
           },
           "policy_sign_survives": true,
@@ -3888,35 +4697,35 @@
           "value": 20,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 527056.009389476,
+            "prepared_minus_unprepared_usd": 198910.80656908965,
             "prepared": {
-              "margin_calls": 16,
-              "cuts": 41,
-              "restores": 41,
-              "fills": 98,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -1109520.3822545833,
-              "max_book_drawdown_usd": 827331.5016782176,
-              "median_book_drawdown_usd": 0.0
+              "margin_calls": 25,
+              "cuts": 75,
+              "restores": 75,
+              "fills": 175,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -5982315.77347654,
+              "max_book_drawdown_usd": 838514.2497713014,
+              "median_book_drawdown_usd": 226379.36505794706
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -1636576.3916440592,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -6181226.580045628,
               "max_book_drawdown_usd": 855329.7081314847,
-              "median_book_drawdown_usd": 0.0
+              "median_book_drawdown_usd": 228455.13296421187
             }
           },
           "policy_sign_survives": true,
@@ -3928,35 +4737,35 @@
           "value": 30,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 840948.9085709869,
+            "prepared_minus_unprepared_usd": 1060980.5504209036,
             "prepared": {
-              "margin_calls": 19,
-              "cuts": 23,
-              "restores": 23,
-              "fills": 69,
-              "spread_cost_usd": 84266.71976338135,
-              "pnl_usd": -1208857.0404737075,
+              "margin_calls": 61,
+              "cuts": 50,
+              "restores": 50,
+              "fills": 165,
+              "spread_cost_usd": 228532.18348681155,
+              "pnl_usd": -5637917.435720993,
               "max_book_drawdown_usd": 1240997.2525173263,
-              "median_book_drawdown_usd": 0.0
+              "median_book_drawdown_usd": 280381.27771718835
             },
             "unprepared": {
-              "margin_calls": 20,
+              "margin_calls": 62,
               "cuts": 0,
               "restores": 0,
-              "fills": 24,
-              "spread_cost_usd": 48376.27136567361,
-              "pnl_usd": -2049805.9490446942,
+              "fills": 66,
+              "spread_cost_usd": 115993.60933422484,
+              "pnl_usd": -6698897.986141898,
               "max_book_drawdown_usd": 1259089.8912159533,
-              "median_book_drawdown_usd": 0.0
+              "median_book_drawdown_usd": 283434.28327958356
             }
           },
           "policy_sign_survives": true,
@@ -4017,6 +4826,11 @@
               "unit": "chips-new-tickers",
               "status": "invalid",
               "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+            },
+            {
+              "unit": "chronological-2025",
+              "status": "invalid",
+              "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
             }
           ]
         },
@@ -4025,35 +4839,35 @@
           "value": 0.8,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 19,
-          "alarmed": 41,
-          "caught_share": 0.3958333333333333,
-          "alarmed_share": 0.8541666666666666,
-          "false_alert_episodes_per_observed_day": 0.5626805476087472,
+          "storms": 84,
+          "caught": 29,
+          "alarmed": 71,
+          "caught_share": 0.34523809523809523,
+          "alarmed_share": 0.8452380952380952,
+          "false_alert_episodes_per_observed_day": 0.41539401343921806,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 1187865.0588588489,
+            "prepared_minus_unprepared_usd": 859719.8560384627,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 52,
-              "restores": 52,
-              "fills": 119,
-              "spread_cost_usd": 86507.32078797225,
-              "pnl_usd": -8933763.399646405,
+              "margin_calls": 24,
+              "cuts": 86,
+              "restores": 86,
+              "fills": 196,
+              "spread_cost_usd": 160678.30198318674,
+              "pnl_usd": -13806558.790868357,
               "max_book_drawdown_usd": 2820441.825049938,
-              "median_book_drawdown_usd": 640185.3858678241
+              "median_book_drawdown_usd": 286028.00552175596
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -4065,35 +4879,35 @@
           "value": 0.9,
           "status": "evaluated",
           "unavailable_units": [],
-          "storms": 48,
-          "caught": 14,
-          "alarmed": 39,
-          "caught_share": 0.2916666666666667,
-          "alarmed_share": 0.8125,
-          "false_alert_episodes_per_observed_day": 0.3717710760986366,
+          "storms": 84,
+          "caught": 23,
+          "alarmed": 69,
+          "caught_share": 0.27380952380952384,
+          "alarmed_share": 0.8214285714285714,
+          "false_alert_episodes_per_observed_day": 0.276929342292812,
           "policy": {
-            "independent_reset_books": 22,
+            "independent_reset_books": 108,
             "synthetic": true,
-            "prepared_minus_unprepared_usd": 1007732.2639448177,
+            "prepared_minus_unprepared_usd": 673573.859135553,
             "prepared": {
-              "margin_calls": 15,
-              "cuts": 37,
-              "restores": 37,
-              "fills": 89,
-              "spread_cost_usd": 71634.46783386896,
-              "pnl_usd": -9113896.194560435,
+              "margin_calls": 24,
+              "cuts": 61,
+              "restores": 61,
+              "fills": 146,
+              "spread_cost_usd": 121432.26237404988,
+              "pnl_usd": -13992704.787771262,
               "max_book_drawdown_usd": 2820441.825049938,
-              "median_book_drawdown_usd": 659311.4646656187
+              "median_book_drawdown_usd": 286028.00552175596
             },
             "unprepared": {
-              "margin_calls": 16,
+              "margin_calls": 26,
               "cuts": 0,
               "restores": 0,
-              "fills": 16,
-              "spread_cost_usd": 56478.67415367108,
-              "pnl_usd": -10121628.45850525,
+              "fills": 26,
+              "spread_cost_usd": 63975.779134314085,
+              "pnl_usd": -14666278.646906817,
               "max_book_drawdown_usd": 2878468.4453058564,
-              "median_book_drawdown_usd": 692035.2368581826
+              "median_book_drawdown_usd": 283436.78206309746
             }
           },
           "policy_sign_survives": true,
@@ -4113,7 +4927,8 @@
     "units/carry-2024.json",
     "units/ordinary-mar-2024.json",
     "units/ordinary-jun-2025.json",
-    "units/chips-new-tickers.json"
+    "units/chips-new-tickers.json",
+    "units/chronological-2025.json"
   ],
   "provenance": {
     "registration_commit": "dec54d9496cfa02fdbb76932294e8a3b5b949f64",
@@ -4135,15 +4950,15 @@
     "stats_sources": {
       "__init__.py": "81686ecd542ce108fe319e2340cb756af5912fd345a97fac15aa6a9dac572786",
       "bootstrap.py": "efb022231270b18f7a8d124a08434f4b0a621e843f0f7d77f9dac02a5200543b",
-      "datasets.py": "677bfe1fdfcfa91d8536bf88aef10038b236bb47296aabb097a69b6fd63f1597",
-      "monitor.py": "b8be914be00e75cae57b6a88c79edf4995e24ceace3a095d8d9cc611d7ba1b94",
+      "datasets.py": "4f0eb31328bd61b022a96d3280f512637682349c89d9de7a276c21b5023cea3b",
+      "monitor.py": "23715a250b9b9fc98df905d635b6248c906537fa7df3f504351b981163fa95e0",
       "policy.py": "22a6095cc3eefc73bd2e53b51334321afdfd6bd1997956ed0b1da898e0beaefc",
       "policy_native.cpp": "625481c2d70c037d1f0438a6961293c02d5420f1b397995678294d8391479bbc",
       "pooling.py": "f3caf7a2c90e8863897f0215bbfeb601e3f5cd1b4616ae8403434d753e392bc1",
-      "protocol.py": "8e9f9781c1dc7ce00e9c0c11016f9c7fa64ad97ad6567f17052b190819823c3d",
+      "protocol.py": "e28eeab8358dd377e4c92072f7d2ca7becb71929eac0d701c99340a973a493a0",
       "randomization.py": "517d4bbea33044047da4deb06196f6835003473e3df2547e95f5d91a4aad5c6c",
-      "report.py": "c47d7a42f1813ec40486184b7653cbfac6e4cfea4d53838d037e11b6920c2625",
-      "run.py": "193012cc0ca161045bd6c468eb1460465a2d8aab26a5c55c4be38e07dca8ba87"
+      "report.py": "2b010d2fd4b9a05a5627aa422310c56de55039a2b98e1df8f2b433fa6a1d90d4",
+      "run.py": "52a9a06fd0ecab4483f52a03e5c0cbd46ebde3034bf124c207018dd004527f22"
     },
     "inputs": {
       "/Users/kamilshirinov/Desktop/stormscore/data/processed/EURUSD_SPOT.parquet": "1e9b0329652a8687670822638c5dd4ae25f504e9b62ac2e9b901c2154e61622d",
@@ -4182,7 +4997,45 @@
       "/private/tmp/stormscore-cx-chips/data/processed/chips/SOXX_1m.parquet": "49df32397ebaf837a0ec94d3e1760253b294a0f11631da847517d43a421a6bf9",
       "/private/tmp/stormscore-cx-chips/data/processed/chips/TSM_1m.parquet": "286cd5871392735ffacd4f32ea122f72febc9321f33719037a9eb03e6dd654fa",
       "/private/tmp/stormscore-cx-chips/data/processed/chips/acquisition.json": "7a2c6ac885a5327178439823fbdbf81d2d3ad41e229448dd98cb0f29891ffb46",
-      "/private/tmp/stormscore-cx-stats/docs/chips/results.json": "f4135e49aa7fd63fcd82fdfeb694b94638ec20a8b7052bed3a98a8f9dd24793e"
+      "/private/tmp/stormscore-cx-stats/docs/chips/results.json": "f4135e49aa7fd63fcd82fdfeb694b94638ec20a8b7052bed3a98a8f9dd24793e",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-01/processed/EURUSD_WARMUP.parquet": "2578e938a513f424a33ba02b1c87f7e6c38fbf3d8f7fdaf5966ef4dc3b40ed7f",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-01/processed/USDCHF_SPOT.parquet": "947421f20d6e5ca8429218d39aef1b7f1b573b822ae4eaab10489e883a40bb40",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-01/processed/USDCHF_WARMUP.parquet": "fcbdf193239f11a30ed46eee8c8378f873e43be72a74aa2845d7f18df3e8b369",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-01/processed/USDJPY_WARMUP.parquet": "1771872de81cfbc03ac7b2b153f5bc81da80923def6d6c796dac4f44e1a521f1",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-01/processed/USDSGD_SPOT.parquet": "604cbcd3949e15b5527b5f24c81ef349bdbf5f175bfbff5bb68eebfcfd6dedc2",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-01/processed/USDSGD_WARMUP.parquet": "7a5c626c17b10f36669787b62a8ab43d0cbc60074ba5188487e40eb1bbd4fafa",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-02/processed/AUDUSD_SPOT.parquet": "70dfb9231ae8874daa8cdfca2c5d6d1712a9331bf365dcd6d99fc342515e4e7b",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-02/processed/EURUSD_SPOT.parquet": "6c29b97d05b4104cb5dcc2385f79fc85f751bf2fe67ce69d7704dfd643493ef4",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-02/processed/GBPUSD_SPOT.parquet": "fb728e7e46756dfede71883166658ab972c8a6e21f01f9f49e22ee770fe03e65",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-02/processed/USDCHF_SPOT.parquet": "fbed882be35ba8e5fe9510f6cd5f9c8b9a6947d9f426cf759e1e3c3f5e154425",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-02/processed/USDJPY_SPOT.parquet": "1ea46dc8988690fde331ae31af4c45a014107734c0a1c633b472100ec5d3f9b9",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-02/processed/USDSGD_SPOT.parquet": "d14846233b2aebb938026ac67d54b6f7f1491f551cf4ce4a9fe270746605f155",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-03/processed/AUDUSD_SPOT.parquet": "4422c49510a62a8985e34bed8f071d0b996a51f6934a9373211a4feb84581df6",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-03/processed/EURUSD_SPOT.parquet": "7f32f5f886fb0d20ab6e9b98117d1cbc5212e307a8fd9461658ecfb4b691202b",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-03/processed/GBPUSD_SPOT.parquet": "0f7493ff83f42a165a0ce446c152dbc1d60ff450b26e131e5d8b4f7a727c4ccd",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-03/processed/USDCHF_SPOT.parquet": "10c2fda17e2eccbd194d7161cbc89939107b4f22056676f0d6cbdc5ad157c36a",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-03/processed/USDJPY_SPOT.parquet": "274865faaf1ee50656f936dc4ec7e186738dbee5cfe35f5c64bd0866f427af30",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-03/processed/USDSGD_SPOT.parquet": "40044501261ec119bb4a55ca9c6d39c4f4fc6b29be24ac2422ab442b83010e49",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-04/processed/EURUSD_SPOT.parquet": "3a1db3830317ab524ff4fa4badc12d7503dc032843cda2a3333e5657075d4253",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-04/processed/GBPUSD_SPOT.parquet": "e5ed3cfefe7f6e7380e4d65a6300eeae7141c03f46f0f9156f30d79719e5d1a5",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-04/processed/USDCHF_SPOT.parquet": "9dcea2f6d595c67cd5cfb05aa7059f24babc0b379a62da0886fb0ccd6e5e8b70",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-04/processed/USDJPY_SPOT.parquet": "8c453fedd3ff277c81830d2b766a35f2c8d5c5498c648ae14e86762441798004",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-04/processed/USDSGD_SPOT.parquet": "256f6ba99655667e3f757ed46a987776f8eee4bddf748fd5409bc5e612ce0e50",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-05/processed/AUDUSD_SPOT.parquet": "4e4a6a4d04e206d5f95cb17473566f93cbb38ced80adeba55cba1d544b0c7ed2",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-05/processed/EURUSD_SPOT.parquet": "3d3eb448e4d50741a328c93d927806ec9011a529970282a424aa803bf12a8f45",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-05/processed/USDJPY_SPOT.parquet": "0e3df3e0393b7204b5b19a5b0bbfd6ee9edcd4e1614fb9e14d51d942e2b27913",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-06/processed/AUDUSD_SPOT.parquet": "4dccded1fd9321611dfc3df2ae85e2346f20a50d8f0768692d8b10f32a849cd8",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-06/processed/EURUSD_SPOT.parquet": "f638208675ff6f85cb388b12805c0d5cf888ff7cb15e7f907cf9bcc6557987ee",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-06/processed/USDCHF_SPOT.parquet": "9dd1a5aab705185be777d2af65ef562975c1c5843894ec2f8ac6b57116a6da43",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-06/processed/USDJPY_SPOT.parquet": "95ec367fb31af77f7dd760ce56f7a96830f92fd120ac6afb1d954ff1569c7598",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-06/processed/USDSGD_SPOT.parquet": "43a215909bdd855d41c72bb987263c5553b3bd199c20feb5de8df50b6695c3a3",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-07/processed/EURUSD_SPOT.parquet": "6855aee23011ada6177c45a693798ad3813b9e5a59a072bfe753343be07a53a0",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-07/processed/GBPUSD_SPOT.parquet": "4c7800c1a87ac5e3c559342d87a2312eb3c52fbdd4ad19e1f266a3da240ab54d",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-07/processed/USDCHF_SPOT.parquet": "ced50b822fc23f899f614cb34db767f3a87fd06e02d8054368c2a83b1b834b95",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-07/processed/USDJPY_SPOT.parquet": "d6aa943e8d882460ea8078c25c7b4f08996671f763274ff09da7474fddbafbf1",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/2025-07/processed/USDSGD_SPOT.parquet": "c4b1f8dc9874354d340ea039cdfc1ec5678bc82c0be4692a0dcc6d7b7c88a536",
+      "/private/tmp/stormscore-cx-oos2/data/external/round2/manifest.json": "fc43d364f811b4b02efa2d9f761ce75b6d0191f5c5b5014a12d86cf8ded61e53",
+      "/private/tmp/stormscore-cx-stats/docs/stats/round2-source-results.json": "e0707f8dcd355110319a332e7669297592f7c481bc35a80678f251c1fca48828"
     },
     "seed": 20261115,
     "bootstrap_replicates": 10000,
@@ -4195,16 +5048,42 @@
       "pyarrow": "25.0.1"
     },
     "accelerator": "optional C++ (oracle-verified)",
-    "command": "python -m storm.stats.run",
+    "command": "python -m storm.stats.run --include-round2",
     "amendments": {
       "amendment-2026-11-15-censoring.md": "467338d4526bbc464f843b42793bb00f94dadca9b5cfe0b6cd1e75fb4bb7c8a1",
+      "amendment-2026-11-15-cutoff.md": "ece74a690b68cba43fffe074f4fde0e49c54ad1950fe5c0e3309d5b3b2d35d18",
       "amendment-2026-11-15-pooling.md": "edf038b844831b6a248ef3a24aa4b84f3fc1861491bfb863a1b9a7bb9caac450"
     },
-    "finished_at_utc": "2026-11-15T05:40:22.605688+00:00"
+    "effective_round2_cutoff_utc": "2026-11-15T08:30:00+00:00",
+    "finished_at_utc": "2026-11-15T07:46:35.486047+00:00"
   },
-  "round2_status": "pending; monitor until registered cutoff",
-  "round2_origin": null,
-  "coverage": {},
+  "round2_status": "included, partial chronological coverage; evaluated",
+  "round2_origin": {
+    "checked_at_utc": "2026-11-15T07:36:03.358969+00:00",
+    "commit": "8e6642d4a17a25e17433026372000540f26da0ca",
+    "available": true,
+    "fetched": true,
+    "sha256": "e0707f8dcd355110319a332e7669297592f7c481bc35a80678f251c1fca48828"
+  },
+  "coverage": {
+    "chronological-2025": {
+      "selected_months": [
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07"
+      ],
+      "partial": true,
+      "planned_pair_months": 72,
+      "usable_pair_months": 24,
+      "planned_pair_weeks": 318,
+      "usable_pair_weeks": 98,
+      "published_status": "chronological_prefix"
+    }
+  },
   "oracle_checks": [
     {
       "book": "sgx-august",
@@ -4469,6 +5348,1182 @@
       "rtol": 1e-09,
       "atol_usd": 1e-05,
       "passed": true
+    },
+    {
+      "book": "EURUSD/2025-02-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-02-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-02-24T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-03-03T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-03-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-03-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-03-24T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-03-31T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-04-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-04-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-04-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-04-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-05-05T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-05-12T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-05-19T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-05-26T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-06-02T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-06-09T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-06-16T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-06-23T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-06-30T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-07-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-07-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-07-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "EURUSD/2025-07-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-02-03T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-02-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-02-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-02-24T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-03-03T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-03-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-03-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-03-31T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-04-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-04-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-04-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-04-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-05-12T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-05-19T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-05-26T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-06-02T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-06-09T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-06-16T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-06-23T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-06-30T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-07-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-07-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-07-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDJPY/2025-07-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-01-06T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-01-20T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-01-27T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-02-03T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-02-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-02-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-02-24T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-03-03T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-03-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-03-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-03-31T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-04-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-04-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-04-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-04-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-06-02T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-06-09T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-06-16T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-06-23T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-06-30T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-07-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-07-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-07-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDSGD/2025-07-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-01-06T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-01-13T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-01-20T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-01-27T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-02-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-02-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-02-24T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-03-03T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-03-10T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-03-17T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-03-24T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-03-31T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-04-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-04-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-04-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-04-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-06-02T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-06-09T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-06-16T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-06-23T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-06-30T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-07-07T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-07-14T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-07-21T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
+    },
+    {
+      "book": "USDCHF/2025-07-28T00:00:00+00:00",
+      "checked_trials": [
+        0,
+        1,
+        501,
+        1001
+      ],
+      "rtol": 1e-09,
+      "atol_usd": 1e-05,
+      "passed": true
     }
   ],
   "published_detection_checks": {
@@ -4641,6 +6696,23 @@
       ],
       "differences": [],
       "passed": true
+    },
+    "chronological-2025": {
+      "checked_fields": [
+        "storms",
+        "alarmed",
+        "caught",
+        "caught_first_onset",
+        "median_move_ahead_pct",
+        "median_minutes_to_alarm",
+        "storm_alarms",
+        "false_alarms",
+        "false_alarm_episodes",
+        "false_alarm_episodes_per_day",
+        "days"
+      ],
+      "differences": [],
+      "passed": true
     }
   },
   "published_policy_comparison": {
@@ -4651,6 +6723,10 @@
     "oos_round1": {
       "published_difference_usd": 487286.3085006925,
       "frozen_main_difference_usd": 487286.308500684
+    },
+    "oos_round2": {
+      "published_difference_usd": -477176.9862609037,
+      "frozen_main_difference_usd": -477176.9862609095
     }
   },
   "pooling": {
@@ -4812,6 +6888,39 @@
       },
       "excluded_storm_ids": [],
       "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "chronological-2025": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURUSD": 27293,
+        "USDJPY": 27271,
+        "USDSGD": 0,
+        "USDCHF": 0
+      },
+      "excluded_storm_ids": [
+        "eurusd-2025-06-11",
+        "usdjpy-2025-06-11"
+      ],
+      "excluded_policy_books": [
+        "EURUSD/2025-05-26T00:00:00+00:00",
+        "EURUSD/2025-06-02T00:00:00+00:00",
+        "EURUSD/2025-06-09T00:00:00+00:00",
+        "EURUSD/2025-06-16T00:00:00+00:00",
+        "EURUSD/2025-06-23T00:00:00+00:00",
+        "EURUSD/2025-06-30T00:00:00+00:00",
+        "USDJPY/2025-05-26T00:00:00+00:00",
+        "USDJPY/2025-06-02T00:00:00+00:00",
+        "USDJPY/2025-06-09T00:00:00+00:00",
+        "USDJPY/2025-06-16T00:00:00+00:00",
+        "USDJPY/2025-06-23T00:00:00+00:00",
+        "USDJPY/2025-06-30T00:00:00+00:00"
+      ],
       "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
     }
   },
@@ -5013,6 +7122,32 @@
         "alarms": 9,
         "danger_alarms": 1,
         "feasible_offsets": 3,
+        "censored_detection_episodes": 0
+      }
+    },
+    "chronological-2025": {
+      "EURUSD": {
+        "alarms": 30,
+        "danger_alarms": 14,
+        "feasible_offsets": 198,
+        "censored_detection_episodes": 0
+      },
+      "USDJPY": {
+        "alarms": 21,
+        "danger_alarms": 12,
+        "feasible_offsets": 362,
+        "censored_detection_episodes": 0
+      },
+      "USDSGD": {
+        "alarms": 27,
+        "danger_alarms": 12,
+        "feasible_offsets": 77,
+        "censored_detection_episodes": 0
+      },
+      "USDCHF": {
+        "alarms": 19,
+        "danger_alarms": 9,
+        "feasible_offsets": 138,
         "censored_detection_episodes": 0
       }
     }
