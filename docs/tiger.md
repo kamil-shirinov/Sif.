@@ -1,10 +1,10 @@
-# StormScore on Tiger Data
+# Sif on Tiger Data
 
 For the Tiger Data prize. Everything below was measured on 15 November 2026 against the live Tiger Data service (PostgreSQL 18.6, TimescaleDB 2.32.0) by [scripts/tiger_bench.py](../scripts/tiger_bench.py); the raw numbers are in [docs/tiger_bench.json](tiger_bench.json). To repeat it: `cd backend && python ../scripts/tiger_bench.py` (read-only; the database URL stays in `.env` and is never printed).
 
 ## What we used
 
-| Tiger Data / TimescaleDB feature | Where in StormScore |
+| Tiger Data / TimescaleDB feature | Where in Sif |
 |---|---|
 | **Hypertables** with 7-day chunks | `spot_1m` (EURUSD, USDJPY, USDSGD one-minute bid/ask/mid bars), `forward_1m` (every forward tenor's mid, forward points and all-in price), and `equity_1m` (one-minute bars of 14 chip tickers, for the out-of-sample chip test) |
 | **Native compression**, `segmentby` the series (`symbol`, plus `tenor` for forwards), ordered by `ts` | all three hypertables; every chunk compressed, plus a 7-day compression policy so new data would compress by itself |

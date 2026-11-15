@@ -1,0 +1,299 @@
+# Sif: the detailed results
+
+Every table here is checked against the result files by `scripts/readme_results.py` (run by the test suite): `data/processed/metrics.json` (or its committed snapshot, [results_snapshot.json](results_snapshot.json)), [oos/results.json](oos/results.json), [oos/results-2.json](oos/results-2.json), [chips/results.json](chips/results.json) and [stats/results.json](stats/results.json). Metric definitions are in [metrics.md](metrics.md). The short version is in the [README](../README.md#what-we-tested).
+
+## Contents
+
+- [What the data showed](#what-the-data-showed)
+- [Results on August (which tuning never saw)](#results-on-august-which-tuning-never-saw)
+- [The 30 July case](#the-30-july-case-july-the-tuning-month-so-in-sample)
+- [Frozen out-of-sample tests](#frozen-out-of-sample-tests): [round 1](#round-1-famous-events-and-two-ordinary-months-another-vendors-data), [round 2](#round-2-january-to-july-2025-a-year-was-planned), [the chips](#the-chip-sector-frozen-detector-stocks)
+- [Statistical evidence](#statistical-evidence-against-chance-with-intervals)
+- [The AI crew bake-offs](#the-ai-crew-bake-offs) · [Tiger Data](#tiger-data)
+
+## What the data showed
+
+Two months of SGX one-minute bars (1 July to 31 August 2026; EURUSD, USDJPY, USDSGD) hold 13 storms, defined in [docs/metrics.md](metrics.md). **We found little advance warning in prices.** `scripts/no_warning_check.py` measures volatility, spread and forward points in the 90 minutes before each storm and ranks them against normal windows of the same pair at the same time of day, leaving out any window that overlaps a storm, from 60 minutes before its first onset to 60 minutes after its end (full method and per-storm table in [docs/no_warning_check.md](no_warning_check.md)):
+
+- **Volatility** in the 90 minutes before onset was above the 95th percentile of normal for **1 of 13** storms (chance alone gives about 0.65 of 13); the median storm sat at the 66.7th percentile. The one exception is the 3 August USDJPY storm, which began in the first hours after the Sunday-evening open.
+- **Spread** was above the 95th percentile for **3 of 13**: that same storm, and the EURUSD and USDSGD storms of 2 July, whose pre-window leads into the 12:30 US payrolls release. Spreads widen ahead of a release that is already on the calendar. That is the calendar's warning, not a price signal.
+- **Forward points** (1W, 1M, 3M) were above the 95th percentile for 1, 2 and 0 of 13 storms (and above the 90th for 4, 3 and 2).
+- Measured from `first_onset` instead (the stricter test: the 90 minutes before it hold none of the storm), volatility is again above the 95th percentile for 1 of 13, and 3M forward points for 2 of 13.
+
+Thirteen storms ranked against about 40 days each is a small test; "little" is what it can say, not "none".
+
+Whether a storm was **scheduled** is a different question, and the answer is mostly yes. A storm is scheduled when its onset is within 15 minutes of a release in [contracts/calendar.csv](../contracts/calendar.csv):
+
+<!-- metrics-table: -->
+| metric | `value` | meaning |
+|---|---|---|
+| `by_kind.all_months.combined.storms` | 13 | storms in July and August |
+| `by_kind.all_months.scheduled.storms` | 9 | onset within 15 min of a calendar release |
+| `by_kind.all_months.unscheduled.v1.storms` | 4 | no release nearby |
+
+Hence three defences, and no price predictions, ever:
+
+1. **Warn ahead** for scheduled events, from the calendar: a watch opens 30 minutes before a release.
+2. **Alarm in the first minutes** of unscheduled ones: the detector fires once the move is under way, with most of it still ahead.
+3. **Prepare the book**: exposure, margin buffer and stress tests, so the cut is already decided when the alarm sounds.
+
+## Results on August (which tuning never saw)
+
+The alarm was tuned on July only. August, 6 storms, is the test split. Every metric below is named exactly as in `data/processed/metrics.json` and defined in [docs/metrics.md](metrics.md). `v1` is the shipped detector; `naive` alarms on the first minute the 15-minute move already exceeds the storm threshold (the labelling rule itself). `caught` means at least 50% of the onset-to-trough move was still ahead when the alarm fired. Six storms is a small sample: one storm moves a share by 17 points.
+
+**Alarm** (direction-agnostic, scored on the pair of each storm):
+
+<!-- metrics-table: methods.{col}. -->
+| metric | `v1` | `naive` | meaning |
+|---|---|---|---|
+| `storms` | 6 | 6 | labelled storms in August |
+| `alarmed` | 6 | 6 | storms with a matching storm-level alarm |
+| `caught` | 4 | 1 | alarm with at least 50% of the move still ahead |
+| `median_move_ahead_pct` | 57.4 | 6.2 | % of the move still ahead at the alarm, vs onset |
+| `median_minutes_to_alarm` | 3.5 | 13.0 | minutes after onset, vs onset |
+| `caught_first_onset` | 4 | 1 | `caught`, measured from first_onset |
+| `median_move_ahead_pct_first_onset` | 57.6 | 6.3 | % ahead, vs first_onset |
+| `median_minutes_to_alarm_first_onset` | 9.0 | 15.0 | minutes after first_onset |
+| `days` | 21.52 | 21.52 | observed days (1,440 minutes with a bar on any pair) |
+| `false_alarms` | 11 | 0 | pair alarms outside every storm's window |
+| `false_alarms_per_day` | 0.51 | 0.0 | pair alarms per observed day: USDJPY and USDSGD alarming together count twice |
+| `false_alarm_episodes` | 7 | 0 | the same alarms, grouped when within 15 min of an episode's first |
+| `false_alarm_episodes_per_day` | 0.33 | 0.0 | distinct alert episodes per observed day |
+
+The naive baseline had no false alarms in August. That is what August's data showed, not a property of the rule: it fires when a 15-minute window crosses the storm threshold, and a crossing that the 6-hour merge later folds into a bigger storm, hours before that storm's onset, is a false alarm (a two-drop synthetic series gives one, `test_5_naive_baseline_false_alarms_on_the_two_drop_toy` in [backend/tests/test_audit2.py](../backend/tests/test_audit2.py)). It is a ruler for lateness, not a competitor. Onset is the start of the storm's strongest 15-minute window, which is known only in hindsight, so `first_onset` is reported next to it.
+
+**Watch and coverage** (the calendar defence):
+
+<!-- metrics-table: -->
+| metric | `value` | meaning |
+|---|---|---|
+| `watch_precision` | 0.29 | releases whose watch window held a storm / all releases |
+| `watch.august.releases` | 7 | calendar releases in August |
+| `watch.august.with_storm` | 2 | releases with a storm onset in their watch window |
+| `watch.august.quiet` | 5 | quiet watches |
+| `by_kind.test.scheduled.storms` | 4 | scheduled storms in August |
+| `by_kind.test.scheduled.watched_before_onset` | 4 | of them, watched before onset |
+| `by_kind.test.scheduled.median_warning_minutes` | 28.5 | minutes from first watch minute to onset |
+| `by_kind.test.scheduled.min_warning_minutes` | 20 | the shortest warning |
+| `by_kind.test.combined.storms` | 6 | all August storms |
+| `by_kind.test.combined.covered` | 6 | watched before onset, or caught |
+| `by_kind.test.combined.covered_pct` | 100.0 | coverage, % |
+
+Watch precision is low, and we say so: 5 of 7 August releases passed without a storm, so a watch means "be ready", not "a storm is coming".
+
+**Policy backtest** (synthetic three-pair book, $1,000,000 equity, 2 to 31 August; the prepared ship cuts 75% at each alarm and restores at the all-clear, filling at the next bar's open on the bid or ask):
+
+<!-- metrics-table: policy.{col}. -->
+| metric | `prepared` | `unprepared` | meaning |
+|---|---|---|---|
+| `final_equity_usd` | $1,033,659 | $993,889 | USD |
+| `max_drawdown_usd` | $191,261 | $226,151 | largest fall from a running peak |
+| `max_drawdown_pct` | 17.2 | 20.6 | %, maximised on its own, so it can come from a different peak |
+| `margin_calls` | 0 | 0 | neither book was closed out in August |
+| `cuts` | 11 | 0 | one per danger alarm |
+| `restores` | 11 | 0 | one per all-clear |
+| `fills` | 22 | 0 | cuts and restores |
+| `spread_cost_usd` | $7,038 | $0 | fills' cost against mid, USD |
+
+The defence costs spread and shows up as a shallower drawdown, not as a margin call avoided: one month, one invented book. It is a demonstration of the mechanism, not a performance claim.
+
+### The 30 July case (July: the tuning month, so in-sample)
+
+USDJPY fell 2.9% in 54 minutes (13:29 to 14:23 UTC) with no scheduled release nearby (the FOMC decision was 19 hours earlier). The alarm fired at 13:37, 8 minutes after onset, with 89.0% of the move still ahead. The prepared ship's cut filled at the 13:38 open bid, 162.263, and its restore at the 15:04 open ask, 159.379. The ship that ignored the alarm was closed out at 14:05.
+
+| | Final equity | |
+|---|---|---|
+| Followed the alarm | $762,899 | lost $237,101, not zero: a defence, not a profit |
+| Ignored it | $494,551 | margin call at 14:05 |
+
+**The earlier move, and why the alarm is +8 minutes from onset but +215 from first onset.** The storm label joins triggering windows 6 hours or less apart, so this storm's `first_onset` is 10:02, three and a half hours before the main fall. From 10:02 USDJPY dropped 0.4% in 15 minutes (163.27 to 162.59 at 10:17; the window's 41.6 bp crossed the 30 bp storm threshold), then steadied. The detector did raise its storm alarm for that drop, at 10:18, and gave the all-clear at 11:44 after 20 calm minutes. That alarm had already cleared when the main fall began at 13:29, so it is not credited to this storm, and July's scoring counts it as a false alarm. The 13:37 alarm is the one that caught the fall: 8 minutes after the onset with 89.0% of the move still ahead, or 215 minutes after the first onset with 80.6% ahead measured from there. The replay therefore starts at 10:08, ten minutes before that alarm, instead of at onset minus 3 hours (10:29): a replay that opened at 10:29 would have opened inside the alarm, in storm state, with the prepared ship still at full size when the policy had already cut. No replay may open inside an alarm, so the window widens until it does not. Both ships start at full size at 10:08 (mid 163.2685), the prepared ship cuts 75% at the 10:19 open bid, 162.734, and restores at the 11:45 open ask, 163.014, then cuts again at 13:38. The bundle's `storm.first_onset_i` is -6, still before its first frame.
+
+![USDJPY on 30 July 2026: price on top, the two ships' equity below, with the alarm, the cut, the margin call and the all-clear marked, and the earlier false alarm shaded](img/usdjpy-2026-07-30.png)
+
+The prepared ship ended $268,348 ahead. The figure is drawn by `scripts/make_figure.py` from the bundle; the minute-by-minute working is in [docs/metrics.md](metrics.md) section 9.
+
+## Frozen out-of-sample tests
+
+July tuned the alarm and August tested it, which is two months of one feed. So three further tests were **frozen first**: the detector's settings, the code's fingerprints and the list of windows were registered in a commit of their own, pushed before any data was downloaded, and nothing was tuned, substituted or dropped afterwards. Each can be recomputed from the hashed raw data with no network (`cd backend && python -m storm.oos.run --verify`; `python -m storm.chips.verify`). None is evidence that prices can be predicted; each is a historical test of how fast the alarm is and how often it is wrong, and every miss is in its tables.
+
+### Round 1: famous events and two ordinary months (another vendor's data)
+
+Six events chosen by name (the SNB floor removal in January 2015, the sterling flash crash of October 2016, the yen flash crash of January 2019, the two interventions of September and October 2022, the carry-trade unwind of August 2024) and two ordinary months (March 2024, June 2025), on Dukascopy's one-minute bid/ask feed. Full tables, every labelled storm and every false alarm: [docs/oos/results.md](oos/results.md).
+
+<!-- metrics-table[oos1]: display.totals.{col}.metrics. -->
+| metric | `events` | `ordinary` | `all` | meaning |
+|---|---|---|---|---|
+| `storms` | 11 | 12 | 23 | labelled storms in the windows |
+| `alarmed` | 9 | 10 | 19 | storms with a matching storm-level alarm |
+| `caught` | 5 | 4 | 9 | alarm with at least half the move still ahead |
+| `median_move_ahead_pct` | 57.3 | 42.8 | 43.4 | % of the move still ahead at the alarm |
+| `median_minutes_to_alarm` | 5.0 | 7.0 | 5.0 | minutes after onset |
+| `false_alarm_episodes` | 3 | 11 | 14 | alert episodes outside every storm's window |
+| `days` | 22.63 | 42.16 | 64.79 | observed days |
+| `false_alarm_episodes_per_day` | 0.13 | 0.26 | 0.22 | false episodes per observed day |
+
+The synthetic book, summed over independently reset books (USD pairs only; EURCHF and AUDJPY have no valued policy):
+
+<!-- metrics-table[oos1]: display.totals.events.policy.{col}. -->
+| metric | `prepared` | `unprepared` | meaning |
+|---|---|---|---|
+| `pnl_usd` | -802,978 | -1,297,798 | summed P&L, six event books |
+| `margin_calls` | 3 | 3 | neither ship avoided the margin calls |
+| `spread_cost_usd` | 74,723 | 56,479 | fills' cost against mid |
+
+<!-- metrics-table[oos1]: display.totals.ordinary.policy.{col}. -->
+| metric | `prepared` | `unprepared` | meaning |
+|---|---|---|---|
+| `pnl_usd` | -340,201 | -332,668 | summed P&L, two ordinary-month books |
+| `spread_cost_usd` | 4,746 | 0 | fills' cost against mid |
+
+**Honest limits.** The events are stress cases picked by name, so their catch rate (5 of 11) says how the alarm behaves in a crash, not how often it will catch one. The detector alarmed on 19 of 23 storms but caught only 9 with half the move still ahead. The prepared book lost less than the unprepared one over the six events in total, but not in every one: at the SNB event it ended slightly worse, and both books were margin-called. The ordinary months show the cost: 11 false alert episodes in 42.16 days. June 2025 is also inside round 2's year, so its three USD pairs are counted in both rounds.
+
+### Round 2: January to July 2025 (a year was planned)
+
+Registered and pushed before any download, on the same frozen detector: a chronological year of 2025 across six USD pairs, scored a month at a time, with an independent synthetic book reset every Monday. **It did not finish the year.** The run reached **January to July 2025**, so this is a prefix, not a full-year validation, and unavailable months are not counted as successes. Full tables, every miss and every false alarm: [docs/oos/results-2.md](oos/results-2.md).
+
+**Why only 24 of 72 pair-months are usable.** The plan was 6 pairs times 12 months. The 30 pair-months from August to December were not reached when the run stopped. Of the 42 reached, GBPUSD and AUDUSD have no usable month (no December history to warm the detector up, or an empty candle file from the feed), and four more are dropped: EURUSD and USDJPY in January (under half the weekdays had data), USDSGD in May and USDCHF in one month (empty candle files). What is left is EURUSD, USDJPY, USDSGD and USDCHF for six months each, and 98 usable pair-weeks of 318. June 2025 is also in round 1, so it is not new evidence.
+
+<!-- metrics-table[oos2]: display.metrics. -->
+| metric | `value` | meaning |
+|---|---|---|
+| `storms` | 38 | labelled storms in the usable pair-months |
+| `alarmed` | 32 | storms with a matching alarm |
+| `caught` | 10 | at least half the move still ahead |
+| `median_move_ahead_pct` | 29.3 | % of the move ahead at the alarm |
+| `median_minutes_to_alarm` | 6.0 | minutes from onset to alarm |
+| `false_alarm_episodes` | 49 | false alert episodes |
+| `days` | 146.07 | observed days |
+| `false_alarm_episodes_per_day` | 0.34 | false alert episodes per observed day |
+
+<!-- metrics-table[oos2]: display.policy. -->
+| metric | `value` | meaning |
+|---|---|---|
+| `usable_pair_weeks` | 98 | independent synthetic weekly books |
+| `helped` | 13 | books where following the alarm ended ahead |
+| `hurt` | 23 | books where following the alarm ended behind |
+| `ties` | 62 | no difference (no cut, or no effect) |
+| `total_difference_usd` | -477,177 | prepared minus unprepared, summed over the weekly books |
+| `margin_calls_avoided` | 1 | the prepared book was not margin-called, the unprepared one was |
+| `margin_calls_induced` | 0 | the reverse |
+| `both_margin_called` | 9 | both books were margin-called |
+
+**What it says, plainly.** On these ordinary months the alarm fired on 32 of 38 storms, but it caught only 10 with half the move still ahead, and that is **not better than random timing**: moving the same alarms to random minutes catches a median of 8, and the real 10 has p=0.37. The early-warning edge is a feature of big storms, the crisis events and SGX August, not of ordinary months. And the blunt response rule, cutting 75% of the book at the alarm and restoring at the all-clear, **lost money**: it helped in 13 of 98 weekly books, hurt in 23 and made no difference in 62, for **-$477,177** in total, paying $79,356 in spread; it avoided one margin call and induced none, and in nine weeks both books were called anyway. It stays negative at fills two and five bars after the signal (-$448,629 and -$313,963). A response rule that still needs work is what this round shows. The weekly books are synthetic and independent, not one investable portfolio, and the feed's missing files mean the result covers four pairs, not six.
+
+### The chip sector (frozen detector, stocks)
+
+The same detector, unchanged, on 14 chip-sector tickers (NVDA, which was used to build the equity path and is reported apart, and 13 new names) over every trading day Yahoo served, 19 October to 13 November 2026: one-minute **trade** bars, not quotes. Full tables, every storm and every detection: [docs/chips/results.md](chips/results.md).
+
+<!-- metrics-table[chips]: pooled.{col}. -->
+| metric | `new_tickers` | `nvda_in_sample` | meaning |
+|---|---|---|---|
+| `storms` | 19 | 2 | labelled storms |
+| `alarmed` | 16 | 1 | storms with a matching alarm |
+| `caught` | 6 | 1 | at least half the move still ahead |
+| `median_move_ahead_pct` | 25.2 | 100.0 | % of the move ahead at the alarm |
+| `false_alarms` | 47 | 6 | pair alerts outside every storm's window |
+| `days` | 20 | 20 | distinct trading dates |
+| `false_alarms_per_day` | 2.35 | 0.3 | false alerts per trading day |
+
+**Honest limits.** The FX detector does clearly worse on stocks: 6 of 19 caught, and 2.35 false alerts per trading day against 0.33 episodes a day on FX in August. The three new replays (INTC, SMCI, MRVL, the largest moves) were all missed in time; in INTC both ships were margin-called together. The universe and the November shock week were chosen with NVDA already observed, so this is a cross-ticker test, not a future-period one. Yahoo has trades, not quotes: no spread is measured, the replay fills at the next bar's open with no cost, and thin extended-hours bars, bad prints and sector correlation affect the numbers. A detector tuned on FX is not a detector for stocks.
+
+### Statistical evidence: against chance, with intervals
+
+This is our most credible evidence, and it is deliberately unflattering. The `cx-stats` analysis ([docs/stats/results.md](stats/results.md), preregistered in [docs/stats/preregistration.md](stats/preregistration.md)) re-reads the frozen tests, now including round 2, without changing the detector. Four datasets are scored apart: SGX August, round 1 (the historical FX events and months), round 2 (January to July 2025) and the 13 new chip tickers.
+
+**Do the alarms beat chance?** On big storms, yes; on ordinary months, no. We took every alarm train and moved it to random minutes (10,000 draws, keeping each pair's alarm count and timing within the pair) and counted how many storms the moved alarms would catch with half the move still ahead. Round 1 (the crisis events): the real alarms caught 9 of 23 where the moved ones caught a median of 0 (97.5th percentile 3), p=0.0001. SGX August: 4 of 6 against a median of 0, p=0.0006. Both stay significant after Holm's correction across all four datasets (0.0008 and 0.0042). **Round 2, ordinary months: 10 of 38 against a median of 8 (97.5th percentile 19), p=0.3704. Not distinguishable from random timing.** The chips: 6 of 19 against a median of 3, p=0.1081. Not distinguishable either.
+
+**How sure are the rates?** Barely, on August: 4 of 6 is 66.7% with a storm-bootstrap 95% interval of 33.3% to 100%, and 40.0% to 100% when resampling by event date. Round 1's 9 of 23 is 39.1% (21.7% to 60.9%), round 2's 10 of 38 is 26.3% (13.2% to 42.1%), the chips' 6 of 19 is 31.6% (10.5% to 52.6%).
+
+**Does the money result hold up?** No. The prepared synthetic book was ahead in August (+$39,770), round 1 (+$487,286) and the chips (+$660,809), but **behind in round 2 (-$477,177)**, and **0 of 4 datasets survive multiplicity correction**: the Holm-adjusted p-values are 0.1439, 0.2398, 1.0000 and 0.2398. The result is also sensitive to execution delay: with fills five bars after the signal, August's +$39,770 becomes -$10,269. The claim we stand behind is the detection one, on big storms; the response rule is not shown to make money.
+
+<!-- metrics-table[stats]: groups.{col}.point. -->
+| metric | `sgx_august` | `oos_round1` | `oos_round2` | `chips_new` | meaning |
+|---|---|---|---|---|---|
+| `storms` | 6 | 23 | 38 | 19 | labelled storms |
+| `caught` | 4 | 9 | 10 | 6 | at least half the move still ahead |
+| `false_alert_episodes_per_observed_day` | 0.33 | 0.22 | 0.34 | 2.65 | false alert episodes per observed day (chips: per 24 h of observed minutes, 1.75 per trading day) |
+
+<!-- metrics-table[stats]: groups.{col}.intervals. -->
+| metric | `sgx_august` | `oos_round1` | `oos_round2` | `chips_new` | meaning |
+|---|---|---|---|---|---|
+| `caught_share.estimate@pct` | 66.7 | 39.1 | 26.3 | 31.6 | % of storms caught |
+| `caught_share.ci95.0@pct` | 33.3 | 21.7 | 13.2 | 10.5 | lower end, storm bootstrap (10,000 draws) |
+| `caught_share.ci95.1@pct` | 100.0 | 60.9 | 42.1 | 52.6 | upper end, storm bootstrap |
+| `date_block.caught_share.ci95.0@pct` | 40.0 | 11.8 | 8.5 | 8.3 | lower end, resampling by event date |
+| `date_block.caught_share.ci95.1@pct` | 100.0 | 65.4 | 45.7 | 50.0 | upper end, resampling by event date |
+
+<!-- metrics-table[stats]: groups.{col}.chance. -->
+| metric | `sgx_august` | `oos_round1` | `oos_round2` | `chips_new` | meaning |
+|---|---|---|---|---|---|
+| `caught_storms.statistic` | 4 | 9 | 10 | 6 | storms caught, observed |
+| `caught_storms.null_median` | 0 | 0 | 8 | 3 | the same alarms at random times: median |
+| `caught_storms.null_ci95.1` | 3 | 3 | 19 | 7 | ... and its 97.5th percentile |
+| `caught_storms.p_value` | 0.0006 | 0.0001 | 0.3704 | 0.1081 | one-sided Monte Carlo p, detection |
+| `caught_storms.holm_p_value` | 0.0042 | 0.0008 | 0.7407 | 0.3243 | after Holm correction (eight tests) |
+| `policy_difference_usd.statistic` | 39,770 | 487,286 | -477,177 | 660,809 | prepared minus unprepared book, USD |
+| `policy_difference_usd.p_value` | 0.0490 | 0.0480 | 1.0000 | 0.0240 | one-sided p, money (1,000 draws) |
+| `policy_difference_usd.holm_p_value` | 0.2398 | 0.2398 | 1.0000 | 0.1439 | after Holm correction: none below 0.05 |
+
+Prepared minus unprepared book, in USD, when the cut and the restore fill later than the next bar (August falls below zero at five bars; round 2 is negative at every delay):
+
+<!-- metrics-table[stats]: groups.{col}.sensitivity. -->
+| metric | `sgx_august` | `oos_round1` | `oos_round2` | `chips_new` | meaning |
+|---|---|---|---|---|---|
+| `3.policy.prepared_minus_unprepared_usd` | 39,770 | 487,286 | -477,177 | 660,809 | fills at the next bar (frozen headline) |
+| `4.policy.prepared_minus_unprepared_usd` | 40,395 | 540,240 | -448,629 | 608,946 | fills two bars later |
+| `5.policy.prepared_minus_unprepared_usd` | -10,269 | 406,610 | -313,963 | 575,271 | fills five bars later |
+
+**Honest limits.** The timing null is conditional: it keeps each alarm's duration and each pair's alarm count, and it asks whether the alarms are placed better than random in time, not whether a random trader would do worse; it is not a causal experiment. The interval method assumes independent storms, which same-day storms on different pairs are not, so the date-block row is the cautious one. Round 2 is a prefix of the planned year (January to July, four usable pairs). The synthetic books are scenario totals: FX uses 20x gross with a 2.5% maintenance margin, the chips 4x with 15%, and the sums across weekly reset books are not one investable portfolio. Yahoo has trades, not quotes, so the chips have no spread cost and no spread sensitivity. Pooled rows exist in the file but are descriptive: pooling does not create a new holdout.
+
+## The AI crew bake-offs
+
+Live comparisons on the same frozen inputs, 15 November 2026; full tables, prompts and per-question results in [backend/reports/bakeoff.md](../backend/reports/bakeoff.md). These tables are copied from that report, not checked by `readme_results.py`.
+
+**Reports: the same 15 bundles** (13 SGX FX storms, NVDA and the labelled synthetic fixture), Kimi inspecting all four writers:
+
+| Report writer | Reports | First-draft numbers verified | Fallbacks | Errors | Inspector flags | Mean total | Cost / report |
+|---|---|---|---|---|---|---|---|
+| **GLM 5.3** (default) | 15 / 15 | 15 / 15 | 0 | 0 | 0 | 4.31 s | $0.0044 |
+| Meta Muse Spark 1.3 | 15 / 15 | 15 / 15 | 0 | 0 | 0 | 10.17 s | $0.0087 |
+| Meta Muse Wonder 1.0 | 15 / 15 | 15 / 15 | 0 | 0 | 0 | 6.73 s | $0.0165 |
+| Qwen 3.8 Max | 15 / 15 | 15 / 15 | 1 | 0 | 1 | 6.11 s | $0.0084 |
+
+GLM accepted all 15 first drafts; Spark accepted 14 and needed one format correction. GLM was also fastest and cheapest, so it replaced Spark as the default (restore it with `REPORT_WRITER_PROVIDER=meta REPORT_WRITER_MODEL=muse-spark-1.3`).
+
+**Navigator: a fixed ten-question comparison** (three symbols, rises and falls, short and long durations, 10x against 40x leverage, exposure then stress, two replay shapes):
+
+| Navigator | First-draft numbers | Final verified | Correct tools | Inspector ok | No-fallback successes | Mean latency | Under 15 s | Cost, ten questions |
+|---|---|---|---|---|---|---|---|---|
+| **Qwen 3.8 Max** (default) | 7 / 10 | 10 / 10 | 10 / 10 | 10 / 10 | 8 / 10 | 7.67 s | 10 / 10 | $0.133 |
+| Meta Muse Wonder 1.0 | 7 / 10 | 10 / 10 | 10 / 10 | 10 / 10 | 8 / 10 | 11.60 s | 8 / 10 | $0.411 |
+| Kimi k3p1-pro | 4 / 10 | 10 / 10 | 10 / 10 | 10 / 10 | 5 / 10 | 15.78 s | 4 / 10 | $0.145 |
+| GLM 5.3 | 4 / 10 | 10 / 10 | 10 / 10 | 10 / 10 | 7 / 10 | 26.40 s | 2 / 10 | $0.132 |
+| Meta Muse Spark 1.3 | 8 / 10 | 10 / 10 | 10 / 10 | 10 / 10 | 6 / 10 | 31.20 s | 0 / 10 | $0.195 |
+
+"Final verified" can include a template; a "no-fallback success" needs verified numbers, correct tools, an ok inspector and generated prose. Qwen 3.8 Max ties Wonder on those and is faster and cheaper, so it is the navigator default. **Two Qwen answers still fell back to the template**; no row is perfect generated-answer reliability. Kimi inspected every row except its own, which GLM inspected.
+
+**Private mode on Modal** (public weights, one H100, `LLM_PRIVATE_MODE=1`, writer and inspector both on Modal; 13 SGX FX bundles):
+
+| Private writer and inspector | First-draft numbers verified | Accepted first draft | Fallbacks | Errors | Mean writer / total |
+|---|---|---|---|---|---|
+| **gpt-oss-120b** (default) | 13 / 13 | 11 / 13 | 0 | 0 | 5.10 s / 8.50 s |
+| Qwen3-8B | 10 / 13 | 5 / 13 | 8 | 0 | 9.99 s / 10.81 s |
+
+The privacy is real and the inspector is a separate role on the same weights, not an independent model family. The first request after idle pays a cold start (a successful cached start was 69.74 s): **wake it three to five minutes before judging** ([tools/modal/README.md](../tools/modal/README.md#judging-warmth)). Code still checks every number, so a weaker private model shows up as plainer text, never as wrong figures. Spend on these comparisons, by uncached token accounting: Meta $1.48, Fireworks $1.24; Modal's $8.37 is a conservative wall-time estimate, not an invoice. Meta's Muse Spark Open is public, but its smallest official checkpoint is about 537 GB and cannot fit one available GPU.
+
+For the chip replays, a three-bundle check of the same crews (default GLM and Kimi; private gpt-oss-120b) verified all 3 reports first time on both ([docs/chips/results.md](chips/results.md)).
+
+## Tiger Data
+
+**Tiger Data (TimescaleDB).** SGX's bars are loaded into two hypertables, `spot_1m` and `forward_1m`, and the chip-sector bars into a third, `equity_1m`: 7-day chunks, compressed by series, with three continuous aggregates (`candles_5m`, `vol_1h`, `equity_5m`) behind the chart. Measured on 15 November against the live database by `scripts/tiger_bench.py` ([docs/tiger.md](tiger.md) has the method and every number; raw results in [docs/tiger_bench.json](tiger_bench.json)):
+
+| Hypertable | Rows | Before compression | After compression | Ratio |
+|---|---|---|---|---|
+| `spot_1m` | 193,049 | 47,579,136 B | 16,097,280 B | 2.96 |
+| `forward_1m` | 1,661,187 | 268,984,320 B | 26,853,376 B | 10.02 |
+| `equity_1m` | 211,948 | 31,309,824 B | 5,480,448 B | 5.71 |
+| all three | 2,066,184 | 347,873,280 B | 48,431,104 B | 7.18 |
+
+Candle queries on USDJPY (5-minute candles, median of 20 runs, from a laptop over the internet): a 1-hour window takes 20.4 ms from the raw hypertable and 19.3 ms from the continuous aggregate, a day 21.8 and 22.0 ms, a week 30.9 and 25.4 ms, a month (6,208 candles) 55.9 and 38.2 ms. The round trip alone is 19.4 ms, so up to a day the network hides the difference; on the server the aggregate does 2.8 to 5.5 times less work (a month: 29.6 ms against 5.4 ms). The two results are identical. The web app works without the database; with it, the HUD shows "Live · Tiger Data" and the chart's candles come from it. See [backend/storm/live/README.md](../backend/storm/live/README.md).

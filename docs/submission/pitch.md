@@ -1,4 +1,4 @@
-# StormScore pitch scripts
+# Sif pitch scripts
 
 Two scripts, word for word, that follow the landing page and the presenter keys: **landing, `1`, the false alarm and the real storm, `H`, the end card, `2` (Survive), `L`**. Words to say are in plain text. Keys and what is on screen are in `[brackets]`. Times are from the moment the key is pressed. Every number is in the table at the end with its source file.
 
@@ -15,7 +15,7 @@ Two scripts, word for word, that follow the landing page and the presenter keys:
 
 **[LANDING: the wide shot, the three figures showing: 6 of 6, 4 of 6, 0.33]** *(0:00)*
 
-Every trader knows the call that comes too late. StormScore is a storm defence for FX traders, shown as a live sea. We started from SGX's one-minute data and asked the honest question first: is there warning in the prices? Mostly, no. So we never predict. We warn ahead from a calendar, we sound the alarm in the first minutes, and we prepare the book.
+Every trader knows the call that comes too late. Sif is a storm defence for FX traders, shown as a live sea. We started from SGX's one-minute data and asked the honest question first: is there warning in the prices? Mostly, no. So we never predict. We warn ahead from a calendar, we sound the alarm in the first minutes, and we prepare the book.
 
 **[Press `1`. 30 July opens and plays at 2x.]** *(0:30)*
 
@@ -43,7 +43,7 @@ And for the beginner who has never met a margin call: Survive the storm. Pick a 
 
 **[Press `L`.]**
 
-Every number you saw was computed by code and checked by code. Tiger Data serves the chart, ElevenLabs makes the storm. StormScore: a warning you can see.
+Every number you saw was computed by code and checked by code. Tiger Data serves the chart, ElevenLabs makes the storm. Sif: a warning you can see.
 
 > *Cut if short on time:* drop the "Our test is August" sentence and the "On stocks it is worse" sentence.
 
@@ -55,7 +55,7 @@ Play it at **1x**. The 30 July replay then takes 95 seconds, and its key moments
 
 Every trader knows the call that comes too late: a fast move, a margin call, and the warning arrives after the loss.
 
-StormScore is a storm defence for FX traders, shown as a live sea. Volatility is the waves, risk is the sky, the alarm is a lighthouse, and the trader's book is a ship carrying crates. We built it for SGX's challenge, "Cloudy with a chance of margin calls".
+Sif is a storm defence for FX traders, shown as a live sea. Volatility is the waves, risk is the sky, the alarm is a lighthouse, and the trader's book is a ship carrying crates. We built it for SGX's challenge, "Cloudy with a chance of margin calls".
 
 First, the honest question: is there warning in the prices? We measured the ninety minutes before each of thirteen storms. Volatility was above the ninety-fifth percentile for one; chance alone gives about two thirds of one. So: little advance warning. Thirteen storms is a small test, so we say "little", not "none".
 
@@ -102,7 +102,7 @@ Cut when it sounds, restore when it clears, and the end card tells you in plain 
 
 **[Press `L`.]** *(about 3:40)*
 
-Models read, code judges: an AI writes the report, and code checks every number it wrote. Tiger Data serves the candles. ElevenLabs makes the storm. Nothing here predicts a price; it tells you a storm is under way, in the first minutes, while there is still a move to cut. StormScore: a warning you can see.
+Models read, code judges: an AI writes the report, and code checks every number it wrote. Tiger Data serves the candles. ElevenLabs makes the storm. Nothing here predicts a price; it tells you a storm is under way, in the first minutes, while there is still a move to cut. Sif: a warning you can see.
 
 > *If you run long:* cut "Nothing in the data tells you in advance…", the chip sentence, and the "honest part" sentences (keep the sentence that starts "So: a reliable alarm"). *To add NVDA (about 15 s):* press `3` after Survive and say "One more: NVDA, this week. Real prices, but Yahoo gives trades, not quotes, so there is no spread to measure, and we do not pretend there is." Then `L`. (The speed stays at 8x: set it back to 1x before the next show.)
 

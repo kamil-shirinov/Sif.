@@ -1,4 +1,4 @@
-# StormScore: a storm defence for FX traders, shown as a live 3D sea
+# Sif: a storm defence for FX traders, shown as a live 3D sea
 
 *Tagline: the alarm sounds in the first minutes of a fast move, and two ships show what heeding it saved.*
 
@@ -12,7 +12,7 @@ So the data became a sea. Volatility is the waves, risk is the sky, the alarm is
 
 ## What it does
 
-StormScore replays a real storm from SGX's one-minute FX data (EURUSD, USDJPY, USDSGD; spot and forwards from 1 July to 31 August 2026). The sea and sky turn, the alarm fires, the two ships diverge, and a short storm report appears whose every number was computed by code and checked by code.
+Sif replays a real storm from SGX's one-minute FX data (EURUSD, USDJPY, USDSGD; spot and forwards from 1 July to 31 August 2026). The sea and sky turn, the alarm fires, the two ships diverge, and a short storm report appears whose every number was computed by code and checked by code.
 
 - **Replay.** Press play on any of 13 SGX storms, or the NVDA and chip-sector storms. The HUD shows both ships' equity and margin buffer, a market chart with the alarm, cut and margin call marked, stress tests, and the report.
 - **A watch ahead of scheduled events.** A front appears on the horizon, labelled with the release ("US Employment Situation in 12 min"), from a calendar of 12 verified releases.

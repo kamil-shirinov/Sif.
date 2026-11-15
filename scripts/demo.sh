@@ -82,7 +82,7 @@ BUNDLES="no (only the committed mock storm will play; build them with the backen
 
 cat <<MSG
 
-  StormScore demo
+  Sif demo
     live API : $API_NOTE
     models   : $MODE
     bundles  : $BUNDLES
