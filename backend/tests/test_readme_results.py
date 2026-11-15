@@ -117,10 +117,30 @@ def test_readme_stats_tables_are_checked_against_docs_stats_results():
     """The statistics section's tables (against-chance p-values, intervals, five-bar fills) cite docs/stats/results.json."""
     assert "stats" in rr.EXTRA_SOURCES and rr.EXTRA_SOURCES["stats"].exists(), "docs/stats/results.json missing"
     cited = [p for p, *_ in rr.parse_tables(README.read_text()) if p.startswith("stats::")]
-    assert len(cited) >= 40, "the README's statistics tables are missing or were shortened"
+    assert len(cited) >= 60, "the README's statistics tables are missing or were shortened"
+    for group in ("sgx_august", "oos_round1", "oos_round2", "chips_new"):  # every dataset, round 2 included
+        assert any(f"groups.{group}." in p for p in cited), group
     for needle in ("chance.caught_storms.p_value", "chance.policy_difference_usd.holm_p_value",
                    "intervals.caught_share.ci95.0@pct", "sensitivity.5.policy.prepared_minus_unprepared_usd"):
         assert any(needle in p for p in cited), needle
     problems = rr.check(README.read_text(), {}, extra={"stats": json.loads(rr.EXTRA_SOURCES["stats"].read_text())})
     problems = [m for m in problems if "stats::" in m]
     assert not problems, "\n".join(problems)
+
+
+@needs_readme
+def test_readme_round_2_tables_equal_results_2_json_and_state_the_prefix():
+    """Round 2 (January to July 2025) is cited from docs/oos/results-2.json, and the README says it is a prefix."""
+    assert rr.EXTRA_SOURCES["oos2"].exists(), "docs/oos/results-2.json missing"
+    text = README.read_text()
+    cited = [p for p, *_ in rr.parse_tables(text) if p.startswith("oos2::")]
+    for needle in ("display.metrics.caught", "display.metrics.false_alarm_episodes_per_day",
+                   "display.policy.helped", "display.policy.hurt", "display.policy.ties", "display.policy.total_difference_usd",
+                   "display.policy.margin_calls_avoided"):
+        assert any(p.endswith(needle) for p in cited), needle
+    problems = rr.check(text, {}, extra={"oos2": json.loads(rr.EXTRA_SOURCES["oos2"].read_text())})
+    problems = [m for m in problems if "oos2::" in m]
+    assert not problems, "\n".join(problems)
+    results = json.loads(rr.EXTRA_SOURCES["oos2"].read_text())["display"]
+    assert results["status"] == "chronological_prefix" and f"{results['usable_pair_months']} of {results['planned_pair_months']}" in text
+    assert "not better than random timing" in text and "p=0.37" in text  # the unflattering reading stays in the README
