@@ -9,6 +9,10 @@ import { MIN_LEVERAGE, legFor, maxLeverageFor } from "../lib/survive";
 import { useApp } from "../state/app";
 import { useSurvive } from "../state/survive";
 import { useFrameIndex } from "../state/timeline";
+import { useState } from "react";
+import { Tutorial } from "./survive/Tutorial";
+import { tutorialGate } from "./survive/tutorial";
+import "../survive.css";
 
 const fmtMove = (bp: number) => `${bp >= 0 ? "+" : "-"}${(Math.abs(bp) / 100).toFixed(1)}%`;
 const dateOf = (e: StormIndexEntry) => {
@@ -20,13 +24,21 @@ const priceStr = (x: number, decimals: number) => (Number.isFinite(x) ? x.toFixe
 /** Survive mode's panel: pick a storm and a leverage, then sail; while sailing, the ship's books. */
 export function SurvivePanel({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
   const phase = useSurvive((s) => s.phase);
+  const landing = useApp((s) => s.landing);
+  // First run: the three tutorial cards, once (tutorial.ts guards the storage). "How to play" opens them again.
+  const [tutorial, setTutorial] = useState(() => tutorialGate().shouldShow());
+  const closeTutorial = () => {
+    tutorialGate().markSeen();
+    setTutorial(false);
+  };
   return (
     <div className="panel survive">
       <div className="panel-head">
         <span>Survive the storm</span>
         <span className="badge synthetic">synthetic book</span>
       </div>
-      {phase === "setup" ? <Setup bundle={bundle} derived={derived} /> : <Sailing bundle={bundle} derived={derived} />}
+      {phase === "setup" ? <Setup bundle={bundle} derived={derived} onHowTo={() => setTutorial(true)} /> : <Sailing bundle={bundle} derived={derived} />}
+      {tutorial && phase === "setup" && !landing && <Tutorial bundle={bundle} onClose={closeTutorial} />}
     </div>
   );
 }
@@ -71,7 +83,7 @@ function StormSelect({ bundle }: { bundle: Bundle }) {
   );
 }
 
-function Setup({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
+function Setup({ bundle, derived, onHowTo }: { bundle: Bundle; derived: Derived; onHowTo: () => void }) {
   const leverage = useSurvive((s) => s.leverage);
   const line = useSurvive((s) => s.line);
   const sim = useSurvive((s) => s.sim);
@@ -86,7 +98,10 @@ function Setup({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
   return (
     <>
       <p className="survive-intro">
-        Start with <b>{fmtUsd(sim.startEquity, true)}</b>. More cargo means bigger gains, and sinking faster.
+        Start with <b>{fmtUsd(sim.startEquity, true)}</b>. More cargo means bigger gains, and sinking faster.{" "}
+        <button className="survive-howto" onClick={onHowTo}>
+          How to play
+        </button>
       </p>
       <StormSelect bundle={bundle} />
       <div className="survive-storm">

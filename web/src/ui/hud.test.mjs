@@ -189,3 +189,6 @@ test("bound to a target, H toggles on and off again, and unbinding stops it", ()
   press("h");
   assert.equal(clean, false);
 });
+
+// Survive for beginners (tutorial, difficulty, coach, end card): src/ui/survive/survive.test.mjs, run with these.
+await import("./survive/survive.test.mjs");
