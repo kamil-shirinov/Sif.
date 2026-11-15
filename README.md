@@ -222,4 +222,4 @@ SGX one-minute FX data Â· React, three.js and react-three-fiber, Vite, zustand Â
 
 ## Team
 
-TBC
+Team: Phoo Myat Khine, Kamil Shirinov and Thant Pyae Sone Htoo
