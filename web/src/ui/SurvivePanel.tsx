@@ -12,6 +12,7 @@ import { Tutorial } from "./survive/Tutorial";
 import { tutorialGate } from "./survive/tutorial";
 import { StormList, useCurrentRating } from "./survive/StormList";
 import { DIFFICULTY_NAMES } from "./survive/difficulty";
+import { Coach } from "./survive/Coach";
 import "../survive.css";
 
 const priceStr = (x: number, decimals: number) => (Number.isFinite(x) ? x.toFixed(decimals) : "n/a");
@@ -148,6 +149,7 @@ function Sailing({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
         <span className="num survive-equity-big">{fmtUsd(Math.max(0, equity))}</span>
         <span className={`num ${chg >= 0 ? "up" : "down"}`}>{fmtPct(chg)}</span>
       </div>
+      <Coach bundle={bundle} sim={sim} frame={f} />
       <div className="manifest-row">
         <span>Leverage</span>
         <span className="num">{sim.leverage}x</span>

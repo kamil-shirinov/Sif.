@@ -161,3 +161,98 @@ test("difficulty: storms group Easy, Medium, Hard, the gentler first inside a le
     ],
   );
 });
+
+// ---------- 3. the coach reads only past frames ----------
+
+const coach = await load(new URL("./coach.ts", import.meta.url));
+const lineAt = (b, leverage, presses, f) => coach.coachLine(coach.pastOf(b, game.simulate(b, leverage, presses.filter((a) => a.i <= f)), f));
+
+test("coach: pastOf hands the coach frames 0..f only, and the margin call only once it has happened", async () => {
+  const b = await fixture("coach.fixture.json");
+  const sim = game.simulate(b, 25, []);
+  assert.ok(sim.marginCallI !== null && sim.marginCallI > 12, "at 25x the fixture's fall sinks the ship after the alarm");
+  for (const f of [0, 5, 12, sim.marginCallI - 1, sim.marginCallI, b.n - 1]) {
+    const p = coach.pastOf(b, sim, f);
+    for (const k of ["mid", "equity", "notional", "held", "liq", "restorable"]) assert.equal(p[k].length, f + 1, `${k} at ${f}`);
+    assert.ok(p.events.every((e) => e.i <= f));
+    assert.equal(p.sunkAt, f >= sim.marginCallI ? sim.marginCallI : null);
+  }
+});
+
+test("coach: the line at frame f is the same whatever the storm does after f", async () => {
+  const b = await fixture("coach.fixture.json");
+  const presses = [
+    { i: 12, kind: "cut" },
+    { i: 35, kind: "restore" },
+  ];
+  for (const leverage of [5, 10, 25]) {
+    for (const acts of [[], presses]) {
+      for (let f = 0; f < b.n - 1; f++) {
+        // Other futures: after f the price jumps 3% up or down (a margin call at f + 1 at 25x), spreads widen, a
+        // squall and an all-clear appear.
+        for (const jump of [1.03, 0.97]) {
+          const other = structuredClone(b);
+          for (let i = f + 1; i < b.n; i++) {
+            other.series.mid[i] = b.series.mid[f] * jump;
+            other.series.open[i] = b.series.mid[f] * jump;
+            other.series.spread_bp[i] = 9;
+          }
+          other.events = [...b.events.filter((e) => e.i <= f), { i: f + 1, type: "squall", text: "later" }, { i: f + 2, type: "all_clear", text: "later" }];
+          assert.deepEqual(lineAt(other, leverage, acts, f), lineAt(b, leverage, acts, f), `${leverage}x, ${acts.length} presses, frame ${f}, x${jump}`);
+        }
+      }
+    }
+  }
+});
+
+test("coach: plain words about the player's own state, numbers from the simulation", async () => {
+  const b = await fixture("coach.fixture.json");
+  const sim25 = game.simulate(b, 25, []);
+  const sinkAt0 = Math.abs((sim25.liq[0] / b.series.mid[0] - 1) * 100).toFixed(1);
+  const start = lineAt(b, 25, [], 0);
+  assert.equal(start.kind, "leverage");
+  assert.equal(start.text, `You're at 25x: a ${sinkAt0}% fall in USDJPY sinks you.`);
+  assert.equal(sinkAt0, "1.5");
+  const sim10 = game.simulate(b, 10, []);
+  assert.equal(lineAt(b, 10, [], 0).text, `You're at 10x: a ${Math.abs((sim10.liq[0] / b.series.mid[0] - 1) * 100).toFixed(1)}% fall in USDJPY sinks you.`);
+
+  const watch = lineAt(b, 10, [], 3);
+  assert.equal(watch.kind, "watch");
+  assert.equal(watch.text, "Storm watch: US CPI is due in 5 minutes. Scheduled news can move prices fast.");
+
+  const alarm = lineAt(b, 10, [], 12);
+  assert.equal(alarm.kind, "alarm");
+  assert.equal(alarm.tone, "warn");
+  assert.match(alarm.text, /^The alarm just sounded: a storm has started\. At 10x, a \d+\.\d% fall in USDJPY sinks you\. Cut \(C\) throws 75% overboard\.$/);
+  assert.notEqual(lineAt(b, 10, [], 11).kind, "alarm", "not before the alarm's own frame");
+
+  const calm = lineAt(b, 10, [{ i: 12, kind: "cut" }], 14);
+  assert.equal(calm.kind, "alarm");
+  assert.equal(calm.text, "The alarm just sounded, and your cargo is already cut. Hold steady.");
+  const afterCut = lineAt(b, 10, [{ i: 12, kind: "cut" }], 12 + coach.COACH_HOLD);
+  assert.equal(afterCut.kind, "cut");
+  assert.match(afterCut.text, /^Cargo cut to 25%\. Now it takes a \d+\.\d% fall in USDJPY to sink you\./);
+
+  const mc = sim25.marginCallI;
+  const sunk = lineAt(b, 25, [], mc);
+  assert.equal(sunk.kind, "sunk");
+  const hhmm = new Date((b.t0 + mc * 60) * 1000).toISOString().slice(11, 16);
+  assert.equal(sunk.text, `Margin call at ${hhmm} UTC: the broker closed your trade. You keep $${Math.round(sim25.equity[mc]).toLocaleString("en-US")}.`);
+  assert.notEqual(lineAt(b, 25, [], mc - 1).kind, "sunk");
+
+  assert.equal(lineAt(b, 10, [], 34).kind, "all_clear");
+  assert.equal(lineAt(b, 10, [{ i: 12, kind: "cut" }], 34).text, "All clear: the storm has passed. Restore (R) brings your cargo back aboard.");
+});
+
+test("coach: a thin safety margin is called out once no event line holds the stage", async () => {
+  const b = await fixture("coach.fixture.json");
+  b.events = []; // no alarm to speak over it
+  const sim = game.simulate(b, 25, []);
+  const f = sim.marginCallI - 1;
+  const l = lineAt(b, 25, [], f);
+  assert.equal(l.kind, "low_buffer");
+  assert.equal(l.tone, "danger");
+  const buf = (sim.equity[f] - sim.maintenance * sim.notional[f]) / sim.equity[f];
+  assert.ok(l.text.startsWith(`Your safety margin is down to ${Math.round(buf * 100)}% of your money.`), l.text);
+  assert.ok(l.text.endsWith("Cut (C) to lighten the ship."), l.text);
+});
