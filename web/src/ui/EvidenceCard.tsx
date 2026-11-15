@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useApp } from "../state/app";
 
 const MONTH_RE = /(January|February|March|April|May|June|July|August|September|October|November|December)/i;
@@ -5,11 +6,24 @@ const MONTH_RE = /(January|February|March|April|May|June|July|August|September|O
 const pct = (a: number, b: number) => `${Math.round((a / b) * 100)}%`;
 
 /**
+ * Open at first on screens 16:9 or wider. Narrower ones (16:10 laptops) frame the ships wider, and the open card would
+ * reach the prepared ship's stern, so it starts as one summary line there; a click opens it.
+ */
+function startOpen(): boolean {
+  try {
+    return window.matchMedia("(min-aspect-ratio: 17/10)").matches;
+  } catch {
+    return true;
+  }
+}
+
+/**
  * What the detector scored on data it never saw while it was tuned (index.json metrics).
  * Each row appears only when its number exists; the card is hidden when metrics is null.
  */
 export function EvidenceCard() {
   const m = useApp((s) => s.index?.metrics ?? null);
+  const [open, setOpen] = useState(startOpen);
   if (!m) return null;
 
   const rows: { label: string; value: string; hint?: string }[] = [];
@@ -33,20 +47,25 @@ export function EvidenceCard() {
   // the per-pair rate sits beside it (docs/metrics.md, section 6).
   const ep = m.false_alarm_episodes_per_day;
   const pair = m.false_alarms_per_day;
+  // Two lines at most: the main figure, then the per-pair rate under it. The full definitions are the tooltips.
   const falseRow =
     ep !== null || pair !== null ? (
       <div
-        className="evidence-row evidence-false"
+        className="evidence-false"
         title="False alarm: a storm alarm outside [onset - 60 min, end + 60 min] of every storm on its pair. Per observed day: 1,440 minutes with a bar on any pair."
       >
-        <span>
-          False alarms
-          <small>{ep !== null ? "distinct alert episodes per observed day" : "pair alarms per observed day"}</small>
-        </span>
-        <span className="num">
-          {(ep ?? pair)!.toFixed(2)}
-          {ep !== null && pair !== null && <small title="pair alarms per observed day: each pair's false alarm counts on its own">{pair.toFixed(2)} pair alarms per observed day</small>}
-        </span>
+        <div className="evidence-row" title={ep !== null ? "distinct alert episodes per observed day" : "pair alarms per observed day"}>
+          <span>
+            False alarms <small>{ep !== null ? "episodes / day" : "pair alarms / day"}</small>
+          </span>
+          <span className="num strong">{(ep ?? pair)!.toFixed(2)}</span>
+        </div>
+        {ep !== null && pair !== null && (
+          <div className="evidence-row evidence-sub" title="pair alarms per observed day: each pair's false alarm counts on its own">
+            <span>counting each pair on its own</span>
+            <span className="num">{pair.toFixed(2)}</span>
+          </div>
+        )}
       </div>
     ) : null;
   if (rows.length === 0 && !falseRow) return null;
@@ -57,17 +76,23 @@ export function EvidenceCard() {
 
   return (
     <div className="panel stack-item evidence" title={m.split ?? undefined}>
-      <div className="panel-head">
+      <button className="panel-head panel-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>
         <span>Evidence</span>
-      </div>
-      {rows.map((r) => (
+        <span className="evidence-summary">
+          {!open && rows[0] && <span className="num">{rows[0].value} alarmed</span>}
+          <span className="toggle-chevron" aria-hidden="true">
+            {open ? "▴" : "▾"}
+          </span>
+        </span>
+      </button>
+      {open && rows.map((r) => (
         <div className="evidence-row" key={r.label} title={r.hint}>
           <span>{r.label}</span>
           <span className="num">{r.value}</span>
         </div>
       ))}
-      {falseRow}
-      <div className="evidence-note">{label}</div>
+      {open && falseRow}
+      {open && <div className="evidence-note">{label}</div>}
     </div>
   );
 }

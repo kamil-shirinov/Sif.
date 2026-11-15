@@ -115,13 +115,13 @@ function StressTests({ rows }: { rows: StressRow[] }) {
           <li key={k} className="stress-line" title={s.full}>
             <span className="stress-what">
               {s.what}
-              {s.move && <span className="num stress-move"> {s.move}</span>}
+              {s.move && <span className="tnum stress-move"> {s.move}</span>}
             </span>
             <span className="stress-res">
               <span className="stress-arrow" aria-hidden="true">
                 →
               </span>{" "}
-              <span className={`num ${r.pnl_usd >= 0 ? "up" : "down"}`}>{s.pnl}</span>
+              <span className={`tnum ${r.pnl_usd >= 0 ? "up" : "down"}`}>{s.pnl}</span>
               <span className={s.marginCall ? "stress-mc" : "muted"}>, {s.marginCall ? "margin call" : "afloat"}</span>
             </span>
           </li>

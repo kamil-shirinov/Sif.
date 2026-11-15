@@ -16,6 +16,10 @@
   --controls-w: clamp(300px, 30vw, 440px);
   --chart-w: min(clamp(360px, 32vw, 480px), 100vw - 32px);
   --chart-h: clamp(220px, 34vh, 300px);
+  /* Left column: a little narrower below about 1450 px wide, so it clears the prepared ship at the default camera
+     (at 1280x720 her stern starts about 250 px from the left edge). The right column already clears the other ship. */
+  --left-w: clamp(232px, 18vw, 260px);
+  --right-w: 290px;
   color-scheme: dark;
 }
 
@@ -86,6 +90,11 @@ body,
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+/* Tabular figures in the text face, for figures inside a sentence or a short row. */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
 .up {
@@ -200,14 +209,14 @@ body,
 }
 .stack-left {
   left: 16px;
-  width: 260px;
+  width: var(--left-w);
   max-height: calc(100vh - 112px);
   overflow-y: auto;
   overflow-x: hidden;
 }
 .stack-right {
   right: 16px;
-  width: 290px;
+  width: var(--right-w);
   max-height: calc(100vh - var(--chart-h) - 44px);
   overflow-y: auto;
   overflow-x: hidden;
@@ -218,7 +227,11 @@ body,
 
 /* ---------- HUD (top left) ---------- */
 .hud {
-  padding: 12px 14px;
+  padding: 12px 12px 12px 14px;
+}
+.hud-symbol .badge {
+  padding: 2px 6px;
+  letter-spacing: 0.03em;
 }
 .hud-top {
   display: flex;
@@ -252,13 +265,12 @@ body,
   margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 .symbol {
   font-weight: 700;
   font-size: 14px;
-  margin-right: 2px;
 }
 .hud-price {
   margin-top: 6px;
@@ -442,40 +454,59 @@ body,
 
 /* ---------- evidence card ---------- */
 .evidence {
-  padding: 10px 14px 10px;
+  padding: 12px 12px 12px 14px;
+}
+.evidence .panel-toggle {
+  text-align: left;
+}
+.evidence .panel-toggle[aria-expanded="false"] {
+  margin-bottom: 0;
+}
+.evidence-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.evidence-summary .num {
+  color: var(--text);
+  font-size: 11.5px;
 }
 .evidence-row {
   display: flex;
   justify-content: space-between;
   gap: 8px;
   padding: 3px 0;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 .evidence-row > span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--muted);
 }
 .evidence-row .num {
   color: var(--text);
   white-space: nowrap;
 }
-.evidence-false {
-  align-items: flex-start;
-}
-.evidence-false small {
-  display: block;
+.evidence-row small {
   font-size: 10.5px;
   color: var(--muted);
   opacity: 0.85;
-  white-space: normal;
 }
-.evidence-false .num {
-  text-align: right;
-  font-size: 14px;
+.evidence-row .num.strong {
   font-weight: 600;
 }
-.evidence-false .num small {
-  font-weight: 400;
-  max-width: 110px;
+.evidence-sub {
+  padding-top: 0;
+  font-size: 11px;
+}
+.evidence-sub > span:first-child {
+  padding-left: 10px;
+}
+.evidence-sub .num {
+  color: #c4cfda;
 }
 .evidence-note {
   margin-top: 6px;
@@ -489,7 +520,7 @@ body,
 /* ---------- report and navigator ---------- */
 .report,
 .navigator {
-  padding: 10px 14px 12px;
+  padding: 12px 14px;
 }
 .panel-toggle {
   width: 100%;
@@ -851,8 +882,8 @@ body,
   flex-direction: column;
 }
 .chart.large {
-  left: 292px;
-  right: 322px;
+  left: calc(var(--left-w) + 32px);
+  right: calc(var(--right-w) + 32px);
   width: auto;
   top: 70px;
   height: auto;
@@ -1985,9 +2016,9 @@ kbd {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  column-gap: 8px;
+  column-gap: 6px;
   padding: 3px 0;
-  font-size: 11.5px;
+  font-size: 11px;
   line-height: 1.35;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
