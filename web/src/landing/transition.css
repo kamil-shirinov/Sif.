@@ -95,6 +95,15 @@
   opacity: 0;
   pointer-events: none;
 }
+/* Their layers are made while hidden, so the first frame of the arrival does not have to. */
+.overlay.hud-hidden > *,
+.overlay.hud-hidden > .stack-left > *,
+.overlay.hud-hidden > .stack-right > *,
+.overlay.hud-arrive > *,
+.overlay.hud-arrive > .stack-left > *,
+.overlay.hud-arrive > .stack-right > * {
+  will-change: opacity, translate;
+}
 .overlay.hud-leave > * {
   animation: tr-hud-out 380ms cubic-bezier(0.5, 0, 0.75, 0.3) both;
   animation-delay: calc((3 - var(--ho, 0)) * 60ms);

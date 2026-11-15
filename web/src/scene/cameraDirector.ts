@@ -45,5 +45,11 @@ export function flyCamera(to: CameraView, duration = FLIGHT_MS): Promise<void> {
   });
 }
 
+/**
+ * True while the scene's warm-up draw (Warmup.tsx) is still to come after a rebuild: the landing's transition waits for
+ * it before the camera moves. Here, in this import-free module, so the landing does not pull in the 3D code.
+ */
+export const warmupState = { pending: false };
+
 /** Ease in and out (cubic): a gentle take-off, a gentle landing. */
 export const easeInOutCubic = (u: number) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);

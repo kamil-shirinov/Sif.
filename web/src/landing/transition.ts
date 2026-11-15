@@ -11,7 +11,7 @@
 // and adds the classes in transition.css from `phase`.
 
 import { create } from "zustand";
-import { flyCamera, FLIGHT_MS } from "../scene/cameraDirector";
+import { flyCamera, FLIGHT_MS, warmupState } from "../scene/cameraDirector";
 
 export type TransitionPhase = "idle" | "opening" | "closing";
 
@@ -49,6 +49,11 @@ const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()
  */
 export async function settleFrames(n = 4) {
   for (let i = 0; i < n; i++) await nextFrame();
+  // The scene's warm-up draw (scene/Warmup.tsx) may come a few frames after React has committed the new scene: wait
+  // for it, so its long frame lands while the page still stands, not in the flight. Never more than 1.5 s.
+  const until = performance.now() + 1500;
+  while (warmupState.pending && performance.now() < until) await nextFrame();
+  await nextFrame();
 }
 
 /**
