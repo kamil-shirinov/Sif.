@@ -365,7 +365,7 @@ Candle queries on USDJPY (5-minute candles, median of 20 runs, from a laptop ove
 - **The out-of-sample tests are historical, and the misses are in the tables.** The famous events were chosen by name; the chip universe was chosen with NVDA already observed. See [Frozen out-of-sample tests](#frozen-out-of-sample-tests).
 - **The money result is not statistically established.** The prepared book was ahead in three datasets and behind in round 2 (-$477,177), 0 of 4 tests survive multiplicity correction, and with fills five bars after the signal August's +$39,770 becomes -$10,269 ([Statistical evidence](#statistical-evidence-against-chance-with-intervals)).
 - **A defence, not a profit.** On 30 July the prepared ship still lost $237,101. In August the defence cost $7,038 in spread and showed up as a shallower drawdown, with no margin call avoided.
-- **Known demo issues** are written up with repros in [docs/qa/report.md](docs/qa/report.md): a duplicate React key in the chart when both ships are margin-called on the same minute (INTC), a missing favicon, and toasts that pile up at 16x.
+- **Demo issues found by the QA run** (on main at 8f88b34; main has since changed the favicon link and the toast queue, and the QA run has **not** been repeated on the new build) are written up with repros in [docs/qa/report.md](docs/qa/report.md): a duplicate React key in the chart when both ships are margin-called on the same minute (INTC), a missing favicon, and toasts that pile up at 16x.
 - **Never a price prediction.** The detector says a storm is under way, and the calendar says one may be near.
 
 ## How to run
