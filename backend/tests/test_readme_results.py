@@ -49,6 +49,25 @@ def test_check_catches_a_changed_number_a_missing_path_and_a_non_number():
     assert rr.check("no tables here", ref), "a README without a results table must fail"
 
 
+def test_marker_can_name_another_source_and_compares_rounded_to_the_cells_decimals():
+    text = "\n".join([
+        "<!-- metrics-table[oos1]: display.totals.{col}.metrics. -->",
+        "| metric | `events` | `all` |",
+        "|---|---|---|",
+        "| `storms` | 11 | 23 |",
+        "| `median_move_ahead_pct` | 57.3 | 43.4 |",
+    ])
+    cells = [(p, n) for p, _, _, n in rr.parse_tables(text)]
+    assert cells[0] == ("oos1::display.totals.events.metrics.storms", 11.0)
+    extra = {"oos1": {"display": {"totals": {"events": {"metrics": {"storms": 11, "median_move_ahead_pct": 57.31}},
+                                             "all": {"metrics": {"storms": 23, "median_move_ahead_pct": 43.44}}}}}}
+    assert rr.check(text, {}, extra=extra) == []                      # 57.31 shows as 57.3
+    assert len(rr.check(text.replace("57.3", "57.4"), {}, extra=extra)) == 1
+    assert len(rr.check(text, {}, extra={})) == 4                     # a missing source is reported, not skipped
+    flat = {path: value for (path, _), value in zip(cells, [11, 23, 57.31, 43.44])}
+    assert rr.check(text, flat, flat=True) == []                      # the committed snapshot works the same way
+
+
 @needs_readme
 def test_readme_has_results_tables_and_links_the_definitions():
     text = README.read_text()
@@ -59,7 +78,7 @@ def test_readme_has_results_tables_and_links_the_definitions():
 @needs_readme
 @needs_metrics
 def test_readme_numbers_equal_metrics_json():
-    problems = rr.check(README.read_text(), json.loads(rr.METRICS.read_text()))
+    problems = rr.check(README.read_text(), json.loads(rr.METRICS.read_text()), extra=rr.load_extra())
     assert not problems, "\n".join(problems)
 
 
@@ -73,5 +92,55 @@ def test_readme_numbers_equal_the_committed_snapshot():
 @needs_readme
 @needs_metrics
 def test_snapshot_is_current_with_metrics_json():
-    want = rr.snapshot_from(json.loads(rr.METRICS.read_text()), README.read_text())
+    want = rr.snapshot_from(json.loads(rr.METRICS.read_text()), README.read_text(), rr.load_extra())
     assert json.loads(rr.SNAPSHOT.read_text()) == want, "stale: run scripts/readme_results.py --write-snapshot"
+
+
+def test_lookup_indexes_lists_and_scales_percent_shares():
+    ref = {"g": {"intervals": {"caught_share": {"estimate": 2 / 3, "ci95": [0.333, 1.0]}}, "sensitivity": [{"usd": 1}, {"usd": -10268.9}]}}
+    text = "\n".join([
+        "<!-- metrics-table[stats]: g. -->",
+        "| metric | `x` | meaning |",
+        "|---|---|---|",
+        "| `intervals.caught_share.estimate@pct` | 66.7 | share |",
+        "| `intervals.caught_share.ci95.0@pct` | 33.3 | lower |",
+        "| `sensitivity.1.usd` | -10,269 | five bars |",
+    ])
+    assert rr.check(text, {}, extra={"stats": ref}) == []
+    assert len(rr.check(text.replace("33.3", "34.3"), {}, extra={"stats": ref})) == 1
+    assert len(rr.check(text.replace("sensitivity.1.usd", "sensitivity.5.usd"), {}, extra={"stats": ref})) == 1  # index out of range
+    assert len(rr.check(text.replace("ci95.0@pct", "ci95.0"), {}, extra={"stats": ref})) == 1                  # 0.333 is not 33.3
+
+
+@needs_readme
+def test_readme_stats_tables_are_checked_against_docs_stats_results():
+    """The statistics section's tables (against-chance p-values, intervals, five-bar fills) cite docs/stats/results.json."""
+    assert "stats" in rr.EXTRA_SOURCES and rr.EXTRA_SOURCES["stats"].exists(), "docs/stats/results.json missing"
+    cited = [p for p, *_ in rr.parse_tables(README.read_text()) if p.startswith("stats::")]
+    assert len(cited) >= 60, "the README's statistics tables are missing or were shortened"
+    for group in ("sgx_august", "oos_round1", "oos_round2", "chips_new"):  # every dataset, round 2 included
+        assert any(f"groups.{group}." in p for p in cited), group
+    for needle in ("chance.caught_storms.p_value", "chance.policy_difference_usd.holm_p_value",
+                   "intervals.caught_share.ci95.0@pct", "sensitivity.5.policy.prepared_minus_unprepared_usd"):
+        assert any(needle in p for p in cited), needle
+    problems = rr.check(README.read_text(), {}, extra={"stats": json.loads(rr.EXTRA_SOURCES["stats"].read_text())})
+    problems = [m for m in problems if "stats::" in m]
+    assert not problems, "\n".join(problems)
+
+
+@needs_readme
+def test_readme_round_2_tables_equal_results_2_json_and_state_the_prefix():
+    """Round 2 (January to July 2025) is cited from docs/oos/results-2.json, and the README says it is a prefix."""
+    assert rr.EXTRA_SOURCES["oos2"].exists(), "docs/oos/results-2.json missing"
+    text = README.read_text()
+    cited = [p for p, *_ in rr.parse_tables(text) if p.startswith("oos2::")]
+    for needle in ("display.metrics.caught", "display.metrics.false_alarm_episodes_per_day",
+                   "display.policy.helped", "display.policy.hurt", "display.policy.ties", "display.policy.total_difference_usd",
+                   "display.policy.margin_calls_avoided"):
+        assert any(p.endswith(needle) for p in cited), needle
+    problems = rr.check(text, {}, extra={"oos2": json.loads(rr.EXTRA_SOURCES["oos2"].read_text())})
+    problems = [m for m in problems if "oos2::" in m]
+    assert not problems, "\n".join(problems)
+    results = json.loads(rr.EXTRA_SOURCES["oos2"].read_text())["display"]
+    assert results["status"] == "chronological_prefix" and f"{results['usable_pair_months']} of {results['planned_pair_months']}" in text
+    assert "not better than random timing" in text and "p=0.37" in text  # the unflattering reading stays in the README

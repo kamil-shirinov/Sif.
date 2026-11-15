@@ -1,0 +1,32 @@
+{
+  "cutoffs_per_pair": 40,
+  "seed": 20260815,
+  "pairs": {
+    "EURUSD": {
+      "bars": 64352,
+      "cutoffs_tested": 58,
+      "storm_alarms_in_full_run": 9,
+      "identical": true,
+      "negative_control_caught_at_every_cutoff": true,
+      "differences": []
+    },
+    "USDJPY": {
+      "bars": 64355,
+      "cutoffs_tested": 58,
+      "storm_alarms_in_full_run": 21,
+      "identical": true,
+      "negative_control_caught_at_every_cutoff": true,
+      "differences": []
+    },
+    "USDSGD": {
+      "bars": 64342,
+      "cutoffs_tested": 58,
+      "storm_alarms_in_full_run": 12,
+      "identical": true,
+      "negative_control_caught_at_every_cutoff": true,
+      "differences": []
+    }
+  },
+  "all_identical": true,
+  "negative_control_ok": true
+}

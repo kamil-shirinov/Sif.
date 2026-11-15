@@ -1,0 +1,282 @@
+{
+  "measured_at_utc": "2026-11-15T05:17:27Z",
+  "symbol": "USDJPY",
+  "candle_bucket": "5 minutes",
+  "timescaledb_version": "2.32.0",
+  "postgres_version": "18.6 (Ubuntu 18.6-1.pgdg22.04+2)",
+  "method": "20 runs per query after one warm-up, alternating raw and aggregate, on one open connection from this machine; wall clock around execute + fetchall (includes the network round trip). Server times are EXPLAIN (ANALYZE) over 20 runs. Raw and aggregate results are compared value by value first.",
+  "round_trip_ms": {
+    "median": 19.38,
+    "min": 16.82,
+    "p90": 41.33,
+    "max": 96.45
+  },
+  "windows": [
+    {
+      "window": "1 hour",
+      "from": "2026-07-30T13:00:00+00:00",
+      "to": "2026-07-30T14:00:00+00:00",
+      "one_minute_bars_in_window": 60,
+      "candles_returned": 12,
+      "identical_results": true,
+      "raw_hypertable_ms": {
+        "median": 20.36,
+        "min": 17.48,
+        "p90": 26.46,
+        "max": 37.9
+      },
+      "continuous_aggregate_ms": {
+        "median": 19.3,
+        "min": 17.48,
+        "p90": 37.84,
+        "max": 104.04
+      },
+      "speedup_median": 1.06,
+      "server_execution_ms_raw": {
+        "median": 0.15,
+        "min": 0.13,
+        "p90": 0.16,
+        "max": 0.17
+      },
+      "server_execution_ms_aggregate": {
+        "median": 0.03,
+        "min": 0.03,
+        "p90": 0.04,
+        "max": 0.04
+      },
+      "server_planning_ms_raw": {
+        "median": 0.28,
+        "min": 0.24,
+        "p90": 0.36,
+        "max": 0.38
+      },
+      "server_planning_ms_aggregate": {
+        "median": 0.17,
+        "min": 0.15,
+        "p90": 0.18,
+        "max": 0.2
+      },
+      "runs": 20
+    },
+    {
+      "window": "1 day",
+      "from": "2026-07-30T00:00:00+00:00",
+      "to": "2026-07-31T00:00:00+00:00",
+      "one_minute_bars_in_window": 1438,
+      "candles_returned": 288,
+      "identical_results": true,
+      "raw_hypertable_ms": {
+        "median": 21.82,
+        "min": 19.91,
+        "p90": 28.03,
+        "max": 32.46
+      },
+      "continuous_aggregate_ms": {
+        "median": 21.98,
+        "min": 19.91,
+        "p90": 28.7,
+        "max": 34.07
+      },
+      "speedup_median": 0.99,
+      "server_execution_ms_raw": {
+        "median": 0.77,
+        "min": 0.72,
+        "p90": 0.79,
+        "max": 0.79
+      },
+      "server_execution_ms_aggregate": {
+        "median": 0.28,
+        "min": 0.27,
+        "p90": 0.29,
+        "max": 0.29
+      },
+      "server_planning_ms_raw": {
+        "median": 0.28,
+        "min": 0.25,
+        "p90": 0.36,
+        "max": 0.37
+      },
+      "server_planning_ms_aggregate": {
+        "median": 0.22,
+        "min": 0.19,
+        "p90": 0.26,
+        "max": 0.26
+      },
+      "runs": 20
+    },
+    {
+      "window": "1 week",
+      "from": "2026-07-27T00:00:00+00:00",
+      "to": "2026-08-03T00:00:00+00:00",
+      "one_minute_bars_in_window": 7312,
+      "candles_returned": 1465,
+      "identical_results": true,
+      "raw_hypertable_ms": {
+        "median": 30.93,
+        "min": 26.18,
+        "p90": 35.95,
+        "max": 112.88
+      },
+      "continuous_aggregate_ms": {
+        "median": 25.39,
+        "min": 19.89,
+        "p90": 29.87,
+        "max": 32.31
+      },
+      "speedup_median": 1.22,
+      "server_execution_ms_raw": {
+        "median": 7.09,
+        "min": 7.04,
+        "p90": 7.13,
+        "max": 7.16
+      },
+      "server_execution_ms_aggregate": {
+        "median": 1.28,
+        "min": 1.26,
+        "p90": 1.3,
+        "max": 1.34
+      },
+      "server_planning_ms_raw": {
+        "median": 0.47,
+        "min": 0.44,
+        "p90": 0.58,
+        "max": 0.61
+      },
+      "server_planning_ms_aggregate": {
+        "median": 0.18,
+        "min": 0.15,
+        "p90": 0.21,
+        "max": 0.21
+      },
+      "runs": 20
+    },
+    {
+      "window": "1 month",
+      "from": "2026-08-01T00:00:00+00:00",
+      "to": "2026-09-01T00:00:00+00:00",
+      "one_minute_bars_in_window": 30985,
+      "candles_returned": 6208,
+      "identical_results": true,
+      "raw_hypertable_ms": {
+        "median": 55.92,
+        "min": 52.14,
+        "p90": 78.45,
+        "max": 139.64
+      },
+      "continuous_aggregate_ms": {
+        "median": 38.23,
+        "min": 30.22,
+        "p90": 72.16,
+        "max": 106.65
+      },
+      "speedup_median": 1.46,
+      "server_execution_ms_raw": {
+        "median": 29.56,
+        "min": 29.42,
+        "p90": 29.63,
+        "max": 29.66
+      },
+      "server_execution_ms_aggregate": {
+        "median": 5.42,
+        "min": 5.39,
+        "p90": 5.45,
+        "max": 5.46
+      },
+      "server_planning_ms_raw": {
+        "median": 0.8,
+        "min": 0.75,
+        "p90": 0.86,
+        "max": 0.87
+      },
+      "server_planning_ms_aggregate": {
+        "median": 0.27,
+        "min": 0.25,
+        "p90": 0.3,
+        "max": 0.32
+      },
+      "runs": 20
+    }
+  ],
+  "hypertables": [
+    {
+      "hypertable": "equity_1m",
+      "rows": 211948,
+      "chunks": 5,
+      "chunks_compressed": 5,
+      "size_now_bytes": 5627904,
+      "before_compression_bytes": {
+        "table": 21577728,
+        "index": 9691136,
+        "toast": 40960,
+        "total": 31309824
+      },
+      "after_compression_bytes": {
+        "table": 180224,
+        "index": 81920,
+        "toast": 5218304,
+        "total": 5480448
+      },
+      "ratio": 5.71
+    },
+    {
+      "hypertable": "forward_1m",
+      "rows": 1661187,
+      "chunks": 10,
+      "chunks_compressed": 10,
+      "size_now_bytes": 27123712,
+      "before_compression_bytes": {
+        "table": 128532480,
+        "index": 140369920,
+        "toast": 81920,
+        "total": 268984320
+      },
+      "after_compression_bytes": {
+        "table": 901120,
+        "index": 294912,
+        "toast": 25657344,
+        "total": 26853376
+      },
+      "ratio": 10.02
+    },
+    {
+      "hypertable": "spot_1m",
+      "rows": 193049,
+      "chunks": 10,
+      "chunks_compressed": 10,
+      "size_now_bytes": 16367616,
+      "before_compression_bytes": {
+        "table": 31170560,
+        "index": 16326656,
+        "toast": 81920,
+        "total": 47579136
+      },
+      "after_compression_bytes": {
+        "table": 425984,
+        "index": 163840,
+        "toast": 15507456,
+        "total": 16097280
+      },
+      "ratio": 2.96
+    }
+  ],
+  "continuous_aggregates": [
+    {
+      "view": "candles_5m",
+      "over": "spot_1m",
+      "materialized_only": true,
+      "rows": 38691
+    },
+    {
+      "view": "equity_5m",
+      "over": "equity_1m",
+      "materialized_only": true,
+      "rows": 49817
+    },
+    {
+      "view": "vol_1h",
+      "over": "spot_1m",
+      "materialized_only": true,
+      "rows": 3249
+    }
+  ]
+}

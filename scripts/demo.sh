@@ -68,8 +68,10 @@ if [ "$HAVE_TIGER" = "1" ]; then
 fi
 
 # Web dev server. Call vite directly so Ctrl+C reaches it (an npm wrapper can leave it running).
-if [ ! -x "$ROOT/web/node_modules/.bin/vite" ]; then
-  echo "demo: installing web dependencies (first run)..."
+# Install when node_modules is missing, or older than package-lock.json (a pull that added a dependency leaves
+# vite in place but the new package out: the app then fails to build with "could not be resolved").
+if [ ! -x "$ROOT/web/node_modules/.bin/vite" ] || [ "$ROOT/web/package-lock.json" -nt "$ROOT/web/node_modules/.package-lock.json" ]; then
+  echo "demo: installing web dependencies (first run, or package-lock.json changed)..."
   (cd "$ROOT/web" && npm ci --no-audit --no-fund) || die "npm ci failed"
 fi
 (cd "$ROOT/web" && exec ./node_modules/.bin/vite --port "$WEB_PORT" --strictPort) &

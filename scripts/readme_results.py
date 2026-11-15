@@ -4,6 +4,15 @@ A results table in the README is preceded by a marker line
 
     <!-- metrics-table: methods.{col}. -->
 
+A marker may name another reference file in square brackets, and the table is then checked against it
+(`oos1` = docs/oos/results.json, `oos2` = docs/oos/results-2.json, `chips` = docs/chips/results.json,
+`stats` = docs/stats/results.json):
+
+    <!-- metrics-table[oos1]: display.totals.{col}.metrics. -->
+
+Those references are rounded for display in the README, so a cell is compared with the reference value rounded
+to the cell's own number of decimals (a cell "25.2" stands for 25.2058...).
+
 and is an ordinary Markdown table whose header names the value columns in backticks, e.g.
 `v1` and `naive`, and whose first column holds the metric's name in backticks, e.g. `caught`.
 A cell's metric path is the marker's prefix, with {col} replaced by the column's name, followed by
@@ -30,7 +39,13 @@ README = ROOT / "README.md"
 METRICS = ROOT / "data" / "processed" / "metrics.json"
 SNAPSHOT = ROOT / "docs" / "results_snapshot.json"
 
-MARKER = re.compile(r"^<!--\s*metrics-table:\s*(.*?)\s*-->\s*$")
+MARKER = re.compile(r"^<!--\s*metrics-table(?:\[(\w+)\])?:\s*(.*?)\s*-->\s*$")
+EXTRA_SOURCES = {
+    "oos1": ROOT / "docs" / "oos" / "results.json",
+    "oos2": ROOT / "docs" / "oos" / "results-2.json",
+    "chips": ROOT / "docs" / "chips" / "results.json",
+    "stats": ROOT / "docs" / "stats" / "results.json",
+}
 CODE = re.compile(r"^`([^`]+)`$")
 
 
@@ -48,7 +63,8 @@ def parse_tables(text: str) -> list[tuple[str, int, str, float | None]]:
         i += 1
         if not m:
             continue
-        prefix = m.group(1)
+        source = m.group(1)
+        prefix = (f"{source}::" if source else "") + m.group(2)
         if i >= len(lines) or not lines[i].lstrip().startswith("|"):
             raise ValueError(f"line {i}: a metrics-table marker must be followed by a table")
         header = _cells(lines[i])
@@ -76,25 +92,56 @@ def to_number(cell: str) -> float | None:
         return None
 
 
+def decimals(cell: str) -> int:
+    """Digits after the decimal point in a cell, 0 for an integer ("$1,033,659" has none)."""
+    m = re.search(r"\.(\d+)", cell)
+    return len(m.group(1)) if m else 0
+
+
 def lookup(metrics: dict, path: str):
+    """Walk a dotted path; a number indexes a list ("ci95.0"); a trailing "@pct" multiplies by 100
+    (the stats file keeps shares as fractions, the README shows percentages)."""
+    scale = 1.0
+    if path.endswith("@pct"):
+        path, scale = path[: -len("@pct")], 100.0
     node = metrics
     for part in path.split("."):
-        if not isinstance(node, dict) or part not in node:
+        if isinstance(node, list) and part.isdigit() and int(part) < len(node):
+            node = node[int(part)]
+        elif isinstance(node, dict) and part in node:
+            node = node[part]
+        else:
             raise KeyError(path)
-        node = node[part]
+    if scale != 1.0:
+        if isinstance(node, bool) or not isinstance(node, (int, float)):
+            raise KeyError(path)
+        node = node * scale
     return node
 
 
-def check(readme_text: str, reference: dict, *, flat: bool = False) -> list[str]:
+def _reference_for(path: str, reference: dict, extra: dict[str, dict] | None, flat: bool):
+    """(value, rounded?) for a table path: `source::path` goes to that source's file, else to the metrics."""
+    if "::" in path:
+        source, inner = path.split("::", 1)
+        if flat:
+            return reference[path], True
+        if extra is None or source not in extra:
+            raise KeyError(path)
+        return lookup(extra[source], inner), True
+    return (reference[path] if flat else lookup(reference, path)), False
+
+
+def check(readme_text: str, reference: dict, *, flat: bool = False, extra: dict[str, dict] | None = None) -> list[str]:
     """Problems found, as messages; an empty list means every number matches.
-    `reference` is metrics.json, or (flat=True) the snapshot's {path: value}."""
+    `reference` is metrics.json, or (flat=True) the snapshot's {path: value}; `extra` maps a source name
+    (see the module docstring) to its loaded JSON."""
     cells = parse_tables(readme_text)
     problems = []
     if not cells:
         problems.append("README.md has no metrics-table; the results table is missing")
     for path, line, cell, number in cells:
         try:
-            want = reference[path] if flat else lookup(reference, path)
+            want, rounded = _reference_for(path, reference, extra, flat)
         except KeyError:
             problems.append(f"README.md:{line}: `{path}` is not in the reference")
             continue
@@ -102,25 +149,35 @@ def check(readme_text: str, reference: dict, *, flat: bool = False) -> list[str]
             problems.append(f"README.md:{line}: `{path}` is {want!r} in the reference, not a number")
         elif number is None:
             problems.append(f"README.md:{line}: `{path}`: {cell!r} is not a number (reference {want})")
-        elif number != float(want):
-            problems.append(f"README.md:{line}: `{path}`: README says {cell!r}, reference says {want}")
+        else:
+            expected = round(float(want), decimals(cell)) if rounded else float(want)
+            if number != expected:
+                problems.append(f"README.md:{line}: `{path}`: README says {cell!r}, reference says {want}")
     return problems
 
 
-def snapshot_from(metrics: dict, readme_text: str) -> dict:
-    return {path: lookup(metrics, path) for path, *_ in parse_tables(readme_text)}
+def load_extra() -> dict[str, dict]:
+    """The extra reference files that exist in this checkout."""
+    return {name: json.loads(path.read_text()) for name, path in EXTRA_SOURCES.items() if path.exists()}
+
+
+def snapshot_from(metrics: dict, readme_text: str, extra: dict[str, dict] | None = None) -> dict:
+    out = {}
+    for path, *_ in parse_tables(readme_text):
+        out[path] = _reference_for(path, metrics, extra, False)[0]
+    return out
 
 
 def main(argv: list[str]) -> int:
     text = README.read_text()
     if "--write-snapshot" in argv:
-        snap = snapshot_from(json.loads(METRICS.read_text()), text)
+        snap = snapshot_from(json.loads(METRICS.read_text()), text, load_extra())
         SNAPSHOT.write_text(json.dumps(snap, indent=2, sort_keys=True) + "\n")
         print(f"wrote {SNAPSHOT.relative_to(ROOT)} ({len(snap)} values)")
         return 0
     if METRICS.exists():
-        problems = check(text, json.loads(METRICS.read_text()))
-        source = "data/processed/metrics.json"
+        problems = check(text, json.loads(METRICS.read_text()), extra=load_extra())
+        source = "data/processed/metrics.json and " + ", ".join(sorted(load_extra())) + " (docs/oos, docs/chips)"
     else:
         problems = check(text, json.loads(SNAPSHOT.read_text()), flat=True)
         source = "docs/results_snapshot.json (metrics.json not present)"
