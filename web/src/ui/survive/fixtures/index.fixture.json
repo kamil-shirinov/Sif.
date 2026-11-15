@@ -1,0 +1,10 @@
+{
+ "schema_version": 1,
+ "storms": [
+  {"storm_id": "usdjpy-2026-07-30", "title": "USDJPY, 30 July 2026", "symbol": "USDJPY", "asset_class": "fx", "kind": "unscheduled", "move_bp": -290.4, "file": "usdjpy-2026-07-30.json"},
+  {"storm_id": "eurusd-2026-08-07", "title": "EURUSD, 7 August 2026", "symbol": "EURUSD", "asset_class": "fx", "kind": "scheduled", "move_bp": 47.0, "file": "eurusd-2026-08-07.json"},
+  {"storm_id": "usdsgd-2026-08-14", "title": "USDSGD, 14 August 2026", "symbol": "USDSGD", "asset_class": "fx", "kind": "unscheduled", "move_bp": -121.0, "file": "usdsgd-2026-08-14.json"},
+  {"storm_id": "nvda-2026-11-12", "title": "NVDA, 12 November 2026", "symbol": "NVDA", "asset_class": "equity", "kind": "unscheduled", "move_bp": -1440.0, "file": "nvda-2026-11-12.json"}
+ ],
+ "metrics": null
+}

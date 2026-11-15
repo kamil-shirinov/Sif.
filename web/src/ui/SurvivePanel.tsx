@@ -1,10 +1,8 @@
-import type { Bundle, StormIndexEntry } from "../types/bundle";
+import type { Bundle } from "../types/bundle";
 import type { Derived } from "../lib/derive";
 import { reopenFrame } from "../lib/derive";
 import { fmtClock, fmtPct, fmtUsd } from "../lib/format";
 import { chooseLeverage, sail, tradeState, tryAgain } from "../lib/surviveGame";
-import { DEFAULT_STORM_ID } from "../lib/loadBundle";
-import { openStorm } from "../lib/session";
 import { MIN_LEVERAGE, legFor, maxLeverageFor } from "../lib/survive";
 import { useApp } from "../state/app";
 import { useSurvive } from "../state/survive";
@@ -12,13 +10,10 @@ import { useFrameIndex } from "../state/timeline";
 import { useState } from "react";
 import { Tutorial } from "./survive/Tutorial";
 import { tutorialGate } from "./survive/tutorial";
+import { StormList, useCurrentRating } from "./survive/StormList";
+import { DIFFICULTY_NAMES } from "./survive/difficulty";
 import "../survive.css";
 
-const fmtMove = (bp: number) => `${bp >= 0 ? "+" : "-"}${(Math.abs(bp) / 100).toFixed(1)}%`;
-const dateOf = (e: StormIndexEntry) => {
-  const prefix = `${e.symbol}, `;
-  return e.symbol && e.title.startsWith(prefix) ? e.title.slice(prefix.length) : e.title;
-};
 const priceStr = (x: number, decimals: number) => (Number.isFinite(x) ? x.toFixed(decimals) : "n/a");
 
 /** Survive mode's panel: pick a storm and a leverage, then sail; while sailing, the ship's books. */
@@ -43,52 +38,13 @@ export function SurvivePanel({ bundle, derived }: { bundle: Bundle; derived: Der
   );
 }
 
-function StormSelect({ bundle }: { bundle: Bundle }) {
-  const index = useApp((s) => s.index);
-  const busy = useApp((s) => s.loadingStorm);
-  const loadError = useApp((s) => s.loadError);
-  const storms = index?.storms ?? [];
-  const hasMock = storms.some((s) => s.storm_id === DEFAULT_STORM_ID);
-  const scheduled = storms.filter((s) => s.kind === "scheduled");
-  const unscheduled = storms.filter((s) => s.kind !== "scheduled");
-  const isScenario = bundle.source === "scenario";
-  const all = [...storms, ...(hasMock ? [] : [{ storm_id: DEFAULT_STORM_ID, file: `${DEFAULT_STORM_ID}.json` } as StormIndexEntry])];
-  const row = (e: StormIndexEntry) => (
-    <option key={e.storm_id} value={e.storm_id}>
-      {e.storm_id === DEFAULT_STORM_ID ? "Synthetic example (mock data)" : `${e.symbol || "?"} · ${dateOf(e)} · ${fmtMove(e.move_bp)}`}
-    </option>
-  );
-  return (
-    <label className="survive-field">
-      <span className="survive-label">Storm</span>
-      <select
-        value={isScenario ? "" : bundle.storm_id}
-        disabled={busy !== null}
-        onChange={(e) => {
-          const pick = all.find((s) => s.storm_id === e.target.value);
-          if (pick) void openStorm(pick.storm_id, pick.file);
-        }}
-      >
-        {isScenario && (
-          <option value="" disabled>
-            What if · {bundle.title}
-          </option>
-        )}
-        {scheduled.length > 0 && <optgroup label="Scheduled events">{scheduled.map(row)}</optgroup>}
-        {unscheduled.length > 0 && <optgroup label="Unscheduled storms">{unscheduled.map(row)}</optgroup>}
-        {!hasMock && <optgroup label="Synthetic example">{row(all[all.length - 1])}</optgroup>}
-      </select>
-      {loadError && <span className="picker-error">{loadError}</span>}
-    </label>
-  );
-}
-
 function Setup({ bundle, derived, onHowTo }: { bundle: Bundle; derived: Derived; onHowTo: () => void }) {
   const leverage = useSurvive((s) => s.leverage);
   const line = useSurvive((s) => s.line);
   const sim = useSurvive((s) => s.sim);
   const max = maxLeverageFor(bundle);
   const leg = legFor(bundle);
+  const rating = useCurrentRating(bundle);
   if (!line || !sim) return null;
   const crateCount = Math.min(30, line.crates);
   const decimals = derived.priceDecimals;
@@ -103,9 +59,9 @@ function Setup({ bundle, derived, onHowTo }: { bundle: Bundle; derived: Derived;
           How to play
         </button>
       </p>
-      <StormSelect bundle={bundle} />
+      <StormList bundle={bundle} />
       <div className="survive-storm">
-        <span className="muted">The sea ahead</span> <b>{bundle.storm.label}</b>
+        <span className="muted">The sea ahead</span> {rating && <span className={`diff-chip lvl-${rating.level}`}>{DIFFICULTY_NAMES[rating.level]}</span>} <b>{bundle.storm.label}</b>
         {bundle.storm.kind === "scheduled" && bundle.storm.event ? <span className="muted"> · around {bundle.storm.event}</span> : null}
       </div>
       <label className="survive-field">
