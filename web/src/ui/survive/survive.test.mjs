@@ -272,7 +272,7 @@ test("end card: sunk at 25x, while the alarm-follower stayed afloat", async () =
   assert.equal(r.followed.cutI, 13, "the alarm at 12 fills its cut at the 13 open");
   assert.equal(
     endcard.whatHappened(b, r),
-    `At 25x the price moved ${r.worstAdversePct.toFixed(1)}% against you and the broker closed your trade at ${hm(b, r.marginCallI)}. You kept ${usd(r.score)} of your $1.0M. You kept the whole cargo aboard.`,
+    `At 25x the price moved ${r.worstAdversePct.toFixed(1)}% against you and the broker closed your trade at ${hm(b, r.marginCallI)}. You kept ${usd(r.score)} of your $1.0M. You never cut.`,
   );
   assert.equal(
     endcard.alarmFollower(b, r),

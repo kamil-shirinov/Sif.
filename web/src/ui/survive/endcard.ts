@@ -13,7 +13,8 @@ const share = Math.round(CUT_FRACTION * 100);
 /** One or two sentences: how the player's own run went. */
 export function whatHappened(b: Bundle, r: RunResult): string {
   const L = r.leverage;
-  const cut = r.cuts > 0 && r.firstCutI !== null ? ` You cut ${share}% of the cargo at ${clock(b, r.firstCutI)}.` : " You kept the whole cargo aboard.";
+  const cut =
+    r.cuts > 0 && r.firstCutI !== null ? ` You cut ${share}% of the cargo at ${clock(b, r.firstCutI)}.` : r.sunk ? " You never cut." : " You kept the whole cargo aboard.";
   if (r.sunk && r.marginCallI !== null) {
     return `At ${L}x the price moved ${pct(r.worstAdversePct)} against you and the broker closed your trade at ${clock(b, r.marginCallI)}. You kept ${fmtUsd(r.score)} of your ${fmtUsd(r.startEquity, true)}.${cut}`;
   }

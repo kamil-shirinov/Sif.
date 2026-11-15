@@ -21,7 +21,8 @@ export function SurviveCard({ bundle }: { bundle: Bundle }) {
   const mine = best.filter((e) => e.storm_id === bundle.storm_id).sort((a, b) => b.score - a.score);
   const url = result.scenario || typeof window === "undefined" ? "" : shareUrl(window.location.href, bundle.storm_id);
   const share = shareLine(bundle, result, rating ? DIFFICULTY_NAMES[rating.level] : null, url || undefined);
-  const newBest = !result.scenario && rank === 1;
+  // "New best" only when the run beats an earlier score on this storm, not on a first run.
+  const newBest = !result.scenario && rank === 1 && mine.length > 1;
   return (
     <div className="survive-card-wrap">
       <div className={`panel survive-card ${result.sunk ? "sunk" : "landed"}`} role="dialog" aria-label="Run summary">
