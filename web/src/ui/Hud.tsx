@@ -25,8 +25,8 @@ export function Hud({ bundle, derived, onSound }: { bundle: Bundle; derived: Der
   return (
     <div className="panel hud">
       <div className="hud-top">
-        <div className="wordmark">
-          Storm<span>Score</span>
+        <div className="wordmark" aria-label="Sif">
+          Sif<span aria-hidden="true">.</span>
         </div>
         <button
           className={`icon-btn ${soundOn ? "on" : ""}`}

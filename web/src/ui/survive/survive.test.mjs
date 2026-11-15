@@ -320,8 +320,8 @@ test("end card: the share line carries the storm, difficulty, leverage, result a
   assert.equal(url, "https://example.test/app/?mode=survive&storm=coach-fixture");
   assert.equal(
     endcard.shareLine(b, r, "Hard", url),
-    `StormScore Survive · USDJPY, coach fixture (Hard) · 25x · Sunk ${usd(r.score)} (${r.changePct.toFixed(1)}%) · alarm-follower ${usd(r.followed.equity)} · ${url}`,
+    `Sif Survive · USDJPY, coach fixture (Hard) · 25x · Sunk ${usd(r.score)} (${r.changePct.toFixed(1)}%) · alarm-follower ${usd(r.followed.equity)} · ${url}`,
   );
   const ok = runOf(b, 10, [{ i: 12, kind: "cut" }]);
-  assert.ok(endcard.shareLine(b, ok, null).startsWith(`StormScore Survive · USDJPY, coach fixture · 10x · Land ho! ${usd(ok.score)}`));
+  assert.ok(endcard.shareLine(b, ok, null).startsWith(`Sif Survive · USDJPY, coach fixture · 10x · Land ho! ${usd(ok.score)}`));
 });

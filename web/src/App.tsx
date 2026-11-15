@@ -220,8 +220,8 @@ export function App() {
   if (error) {
     return (
       <div className="fatal">
-        <div className="wordmark">
-          Storm<span>Score</span>
+        <div className="wordmark" aria-label="Sif">
+          Sif<span aria-hidden="true">.</span>
         </div>
         <p>Could not load the storm replay.</p>
         <pre>{error}</pre>

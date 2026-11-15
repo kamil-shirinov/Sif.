@@ -31,7 +31,7 @@ export function applyBundle(b: Bundle, opts: ApplyOptions) {
   useTimeline.getState().reset(b.n, base.closed);
   useApp.getState().setBundle(b, d);
   if (opts.at !== null && opts.at !== undefined && Number.isFinite(opts.at)) useTimeline.getState().seek(opts.at);
-  document.title = `StormScore · ${b.title}`;
+  document.title = `Sif · ${b.title}`;
   if (opts.autoplayMs !== null && !survive) {
     autoplayTimer = window.setTimeout(() => useTimeline.getState().play(), opts.autoplayMs);
   }
