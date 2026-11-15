@@ -7,10 +7,25 @@ import subprocess
 
 import pandas as pd
 
-from .acquire import OHLC
+from .acquire import OHLC, read_side
 from .acquire2 import convert_month
 from .protocol import DOCS, sha256
 from .protocol2 import DATA2, check_frozen2
+
+
+def convert_warmup(bid, ask, output):
+    b,a=read_side(bid),read_side(ask)
+    f=b.join(a,how='inner',lsuffix='_bid',rsuffix='_ask')
+    if ((f.index<pd.Timestamp('2024-12-27',tz='UTC'))|(f.index>=pd.Timestamp('2025-01-01',tz='UTC'))).any():
+        raise ValueError('warm-up outside registered December interval')
+    if len(f)<720: raise ValueError(f'insufficient initial warm-up: {len(f)} < 720')
+    if (f[['open_ask','close_ask']].to_numpy()<f[['open_bid','close_bid']].to_numpy()).any():
+        raise ValueError('negative warm-up open/close spread')
+    for col in OHLC: f[col+'_mid']=(f[col+'_bid']+f[col+'_ask'])/2
+    f.insert(0,'settlement_date',f.index.tz_localize(None).normalize())
+    output.parent.mkdir(parents=True,exist_ok=True)
+    f.reset_index().to_parquet(output,index=False)
+    return {'status':'usable','path':str(output.relative_to(DATA2)),'sha256':sha256(output),'rows':len(f)}
 
 
 def main():
@@ -38,6 +53,14 @@ def main():
             record['acquisition_reason']=record['reason']
             record['initial_raw']=record['raw']
             record['raw']={}
+            if window['id']=='2025-01':
+                try:
+                    if rec['status']!='decoded': raise ValueError('saved-body decode failed')
+                    warm=DATA2/window['id']/'processed'/f"{record['pair']}_WARMUP.parquet"
+                    record['warmup']=convert_warmup(DATA2/rec['sides']['bid']['warmup_path'],
+                        DATA2/rec['sides']['ask']['warmup_path'],warm)
+                except (ValueError,KeyError,OSError) as exc:
+                    record['warmup']={'status':'unusable','reason':str(exc)}
             try:
                 if rec['status']!='decoded': raise ValueError('saved-body decoder: '+rec['reason'])
                 for side,item in rec['sides'].items():

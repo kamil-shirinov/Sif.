@@ -56,6 +56,8 @@ def inventory(manifest):
             artifacts = list(r["raw"].values())
             if r["status"] == "usable":
                 artifacts.append(r["parquet"])
+            if r.get("warmup", {}).get("status") == "usable":
+                artifacts.append(r["warmup"])
             for item in artifacts:
                 if files.get(item["path"]) != item["sha256"]:
                     raise ValueError("missing/changed round-two artifact: " + item["path"])
@@ -92,9 +94,13 @@ def transport_audit(manifest):
 def load_features(spec, manifest, selected):
     feats = {}
     for pair in spec["pairs"]:
+        warmups = [r["warmup"] for w in manifest["months"] if w["id"] == "2025-01" and w["id"] in selected
+                   for r in w["pairs"] if r["pair"] == pair and r.get("warmup", {}).get("status") == "usable"]
         parts = [pd.read_parquet(DATA2 / r["parquet"]["path"])
                  for w in manifest["months"] if w["id"] in selected
                  for r in w["pairs"] if r["pair"] == pair and r["status"] == "usable"]
+        if warmups:
+            parts = [pd.read_parquet(DATA2 / warmups[0]["path"])] + [f[f["timestamp"] >= START] for f in parts]
         # A missing initial warm-up makes this pair unavailable for detection,
         # rather than treating January's first returns as warmed-up observations.
         if not parts:

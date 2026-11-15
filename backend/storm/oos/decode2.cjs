@@ -31,6 +31,12 @@ for(const month of manifest.months){
     if(fs.existsSync(target)) throw new Error('refusing a second decode');
     fs.writeFileSync(target,'timestamp,open,high,low,close,volume\n'+rows.map(r=>r.join(',')).join('\n')+(rows.length?'\n':''));
     row.sides[side]={path:path.relative(root,target),saved_daily_artifacts:saved,missing_daily_artifacts:missing,rows:rows.length};
+    if(month.id==='2025-01'){
+      const warm=rows.filter(r=>r[0]<Date.parse('2025-01-01T00:00:00Z'));
+      const warmTarget=path.join(folder,rec.pair+'_'+side+'_warmup.csv');
+      fs.writeFileSync(warmTarget,'timestamp,open,high,low,close,volume\n'+warm.map(r=>r.join(',')).join('\n')+(warm.length?'\n':''));
+      row.sides[side].warmup_path=path.relative(root,warmTarget);
+    }
    }
   }catch(error){row.status='unusable';row.reason=error.message;}
   records.push(row);
