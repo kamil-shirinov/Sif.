@@ -179,35 +179,41 @@ void main() {
   // Billowing, eroded edge: two octaves of noise drifting slowly, different on every puff.
   vec2 q = vUv * 0.55 + vSeed * 7.31;
   float n = texture2D(uNoise, q + vec2(uTime * 0.004, 0.0)).r * 0.65 + texture2D(uNoise, q * 2.7 - vec2(0.0, uTime * 0.007)).r * 0.35;
-  float body = 1.0 - smoothstep(0.42, 1.0, r + (n - 0.5) * 0.85);
+  // Cauliflower edge: a narrow fall-off pushed in and out by the noise.
+  float body = 1.0 - smoothstep(0.5, 0.92, r + (n - 0.5) * 0.9);
   // Fair-weather heaps have flat bottoms.
   if (vKind > 0.5) body *= smoothstep(-0.55, -0.2, p.y + (n - 0.5) * 0.2);
   float a = body * vAlpha;
   if (a < 0.01) discard;
-  // Shade it as a sphere, roughened by the noise: lit on the sun's side, dark underneath.
+  // Shade it as a sphere, roughened by the noise: lit on the sun's side and on top, dark underneath.
   vec3 nrm = normalize(vec3(p + (n - 0.5) * 0.7, sqrt(max(0.0, 1.0 - min(r * r, 1.0))) + 0.25));
   float sun = clamp(dot(nrm, uSunView) * 0.55 + 0.5, 0.0, 1.0);
   float under = clamp(-nrm.y * 0.5 + 0.5, 0.0, 1.0);
-  // Tops catch the sky's light whatever side the sun is on; with the sun behind the cloud its edges glow (silver lining).
   float top = smoothstep(-0.2, 0.9, nrm.y);
+  // With the sun behind the cloud its edges glow (silver lining).
   float rim = smoothstep(0.45, 1.0, r) * max(0.0, -uSunView.z) * body;
-  vec3 col = mix(uShade, uLit, clamp(max(sun * sun, top * 0.75) + rim * 0.6, 0.0, 1.0));
-  // The storm cell: a dark base (darker with power), a pale tower, a grey-white anvil.
+  vec3 col;
   if (vKind < 0.5) {
-    float baseDark = (1.0 - smoothstep(0.0, 0.3, vH)) * (0.5 + 0.5 * uPower);
-    col = mix(col, uBase, clamp(baseDark + under * 0.35 * (1.0 - vH), 0.0, 1.0));
-    col *= 0.86 + 0.14 * n;
+    // The storm cell. Height decides most of it: a near-black shelf (blacker with power), slate lower turrets,
+    // then a tower and an anvil that stand white in the sun above the murk. Each puff is lighter on top than
+    // underneath, which is what makes the billows read.
+    float high = smoothstep(0.18, 0.7, vH);
+    float light = clamp(high * (0.6 + 0.4 * sun) + top * 0.22 + rim * 0.5, 0.0, 1.0);
+    col = mix(uShade, uLit, light);
+    col *= 0.74 + 0.36 * (1.0 - under) + 0.1 * (n - 0.5);
+    float baseDark = (1.0 - smoothstep(0.0, 0.34, vH)) * (0.55 + 0.45 * uPower);
+    col = mix(col, uBase, clamp(baseDark, 0.0, 1.0));
     // Lightning inside the cloud lights it from within.
     float fl = uFlash * exp(-distance(vCenter, uFlashPos) / 320.0);
     col += vec3(0.75, 0.82, 1.0) * fl * (0.6 + 0.8 * n);
   } else {
     // Fair-weather cumulus: white heaps with a blue-grey underside.
-    col = mix(mix(uShade, uLit, 0.55), uLit, clamp(max(sun * sun, top), 0.0, 1.0));
+    col = mix(mix(uShade, uLit, 0.55), uLit, clamp(max(sun * sun, top) + rim * 0.6, 0.0, 1.0));
     col = mix(col, uShade, under * under * 0.7);
   }
   // Aerial perspective: far clouds take the haze colour, but never vanish into it.
   float fogF = 1.0 - exp(-pow(vDist * uFogDensity, 2.0));
-  col = mix(col, uFog, min(fogF, 0.72) * (vKind > 0.5 ? 0.3 : 0.75));
+  col = mix(col, uFog, min(fogF, 0.72) * (vKind > 0.5 ? 0.3 : 0.55));
   gl_FragColor = vec4(max(col, 0.0), clamp(a, 0.0, 1.0));
 }`;
 
@@ -380,7 +386,7 @@ export function StormCell({ bundle, derived }: { bundle: Bundle; derived: Derive
     const day = vis.dayFactor;
     _sun.copy(vis.sunDir).transformDirection(camera.matrixWorldInverse);
     (u.uSunView.value as Vector3).copy(_sun);
-    const light = (0.07 + 0.93 * day) * (1 - 0.3 * vis.risk);
+    const light = (0.07 + 0.93 * day) * (1 - 0.18 * vis.risk);
     (u.uLit.value as Color).copy(LIT_DAY).multiplyScalar(light).lerp(NIGHT_TINT, (1 - day) * 0.6);
     (u.uShade.value as Color).copy(SHADE_DAY).lerp(SHADE_STORM, Math.min(1, vis.risk + st.power * 0.5)).multiplyScalar(light).lerp(NIGHT_TINT, (1 - day) * 0.4);
     (u.uBase.value as Color).copy(BASE_DARK).multiplyScalar(0.25 + 0.75 * day);
