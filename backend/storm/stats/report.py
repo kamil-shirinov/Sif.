@@ -35,7 +35,7 @@ def ci(row, is_share=False, digits=2):
 def judge_sentences(result):
     groups = result["groups"]
     sgx, oos, chips, pooled = (groups[k] for k in ("sgx_august", "oos_round1", "chips_new", "pooled_all"))
-    policy_tests = [g['chance']['policy_difference_usd'] for n,g in groups.items() if not n.startswith('pooled') and 'chance' in g]
+    policy_tests = [g['chance']['policy_difference_usd'] for n,g in groups.items() if not n.startswith('pooled') and 'policy_difference_usd' in g.get('chance',{})]
     surviving = sum(t.get('holm_p_value',1) <= .05 for t in policy_tests)
     sgx_delay = next(r for r in sgx['sensitivity'] if r['factor']=='fill_delay_bars' and r['value']==5)
     sentences = [
@@ -60,6 +60,9 @@ def render(result):
     for name, group in result["groups"].items():
         u = group["intervals"]
         lines.append(f"| {LABELS[name]} | {group['point']['storms']} | {ci(u['alarmed_share'],True)} | {ci(u['caught_share'],True)} | {ci(u['median_share_ahead_pct'])} | {ci(u['median_minutes_to_alarm'])} | {ci(u['false_alert_episodes_per_observed_day'])} |")
+    if result.get("round2_origin"):
+        origin = result["round2_origin"]
+        lines += ["", f"Round-two snapshot: `{origin['commit']}`, first captured `{origin['checked_at_utc']}`. Served coverage: `{json.dumps(result.get('coverage',{}),sort_keys=True)}`. A partial chronological prefix is not a full-year validation; unavailable observations/books are not scored as successes."]
     lines += ["", "Storm resampling assumes independent storms; the date-block intervals below jointly resample storms across pairs on the same event date. They remain weak with few independent event dates. An all-success sample produces a degenerate empirical bootstrap interval (SGX alarmed share is 100% to 100%); that cannot establish perfect population sensitivity or account for misses absent from the sample. Dataset strata and their actual storm counts are retained in pooled resamples. False-alert intervals resample whole days jointly across pairs, including zero-alarm and partial days; unrelated historical windows are separate timelines.", "",
               "| Dataset | Event-date blocks | Alarmed share, date-block [95%] | Caught share, date-block [95%] | Caught share, first onset [95%] | First-onset median minutes [95%] | Undefined conditional-median replicates |",
               "|---|---:|---|---|---|---|---:|"]
@@ -69,7 +72,7 @@ def render(result):
     chips = result["groups"]["chips_new"]
     lines += ["", f"Chips additionally retains the original ET trading-day denominator: {ci(chips['intervals']['false_alert_episodes_per_trading_day'])} false episodes per trading day, over {chips['point']['trading_days']} dates. Observed days mean 1,440 union observed minutes; the two rates are not interchangeable. NVDA is excluded from every headline and pooled row. Its original in-sample and all-ticker descriptive splits remain in results.json.", "",
               "![Catch-rate intervals](caught-intervals.svg)", "", "## Against chance", "",
-              "The null uniformly translates each complete pair/window alarm train over feasible integer-minute offsets, preserving alarm count, clock duration and within-pair timing. It rejects boundary-crossing episodes, undefined/off-market alarm starts and unobserved closed endpoints. Detection and danger trains share offsets; pairs move independently. Open episodes retain administrative observed duration and schedule no invented restore. Feasible offset counts and their hashes, sampled offsets, full null arrays, per-storm hit arrays and oracle checks are retained under nulls/ and units/.", "",
+              "The null uniformly translates each complete pair/window alarm train over feasible integer-minute offsets, preserving alarm count, clock duration and within-pair timing. It rejects boundary-crossing episodes, undefined/off-market alarm starts and unobserved closed endpoints. Detection and danger trains share offsets; pairs move independently. Book-danger labels travel with the alarms and are not reclassified from prices at the new time: the policy null tests the observed direction-and-timing schedule, rather than timing conditional on an adverse price move. Open episodes retain administrative observed duration and schedule no invented restore. Feasible offset counts and their hashes, sampled offsets, full null arrays, per-storm hit arrays and oracle checks are retained under nulls/ and units/.", "",
               "One-sided Monte Carlo p=(1+null values at least observed)/(B+1). Detection uses 10,000 draws; policy uses the same first 1,000 draws and full execution/margin paths. Holm adjustment covers both primary tests across the available individual datasets; pooled tests are descriptive and excluded from this family. This is a conditional timing null, not a causal randomization, a uniform distribution over all possible alarm schedules, or a deployable random-trader benchmark. Independent pair shifts remove cross-pair timing dependence. Duration conditioning and sparse feasible offsets can limit power.", "",
               "| Dataset | Statistic | Observed | Null median [2.5%, 97.5%] | B | Exceedances | Raw p | Holm p | Monte Carlo SE | Degenerate |",
               "|---|---|---:|---|---:|---:|---:|---:|---:|---|"]
@@ -94,7 +97,7 @@ def render(result):
         for pair, row in pairs.items():
             lines.append(f"| {unit} | {pair} | {row['alarms']} | {row['danger_alarms']} | {row['feasible_offsets']} | {row['censored_detection_episodes']} |")
     lines += ["", "## Synthetic policy outcomes", "",
-              "Current-main policy is frozen at the registered base, without tuning. FX books start with USD 1m equity, 20x total gross exposure, 2.5% maintenance; chip secondary books are independent long-stock books per new ticker, 4x exposure and 15% maintenance. All cut 75% on book-danger alarms and restore at all-clear, filling next observed open. USD crosses without a registered conversion leg are excluded from policy only. Round two retains its usable independent weekly reset books and carry-in convention. Policy sums across reset books are scenario totals, not the return of one investable portfolio. Maximum book drawdown is the worst individual reset book, not an aggregate portfolio drawdown.", "",
+              "Current-main policy is frozen at the registered base, without tuning. FX books start with USD 1m equity, 20x total gross exposure, 2.5% maintenance; chip secondary books are independent long-stock books per new ticker, 4x exposure and 15% maintenance. All cut 75% on book-danger alarms and restore at all-clear, filling next observed open. Non-USD crosses without a registered conversion leg are excluded from policy only. Round two retains its usable independent weekly reset books and carry-in convention. Policy sums across reset books are scenario totals, not the return of one investable portfolio. Maximum book drawdown is the worst individual reset book, not an aggregate portfolio drawdown.", "",
               "| Dataset | Reset books | Prepared − unprepared, USD | Prepared P&L, USD | Holding P&L, USD | Prepared / holding margin calls | Prepared / holding spread cost, USD | Worst prepared / holding book drawdown, USD |",
               "|---|---:|---:|---:|---:|---|---|---|"]
     for name, group in result["groups"].items():
@@ -170,7 +173,7 @@ def write_charts(result):
     fig.tight_layout()
     save_svg(fig, DOCS / "caught-intervals.svg")
     plt.close(fig)
-    available = [n for n in names if "chance" in result["groups"][n]]
+    available = [n for n in names if result["groups"][n].get("chance")]
     if not available:
         return
     fig, axes = plt.subplots(len(available), 2, figsize=(10, 2.1*len(available)), squeeze=False)
@@ -179,6 +182,9 @@ def write_charts(result):
         for x, statistic in enumerate(("caught_counts", "policy_difference_usd")):
             ax = axes[y,x]
             field = "caught_storms" if x==0 else "policy_difference_usd"
+            if field not in result["groups"][name]["chance"]:
+                ax.set_visible(False)
+                continue
             test = result["groups"][name]["chance"][field]
             ax.hist(data[statistic], bins=30, color="#73a8be", edgecolor="#eaf2f5")
             ax.axvline(test["statistic"],color="#b93825",lw=2,label="Observed")

@@ -1,5 +1,5 @@
 {
-  "cache_tag": "5b686757c9e34c1e8bf457a823b182001450a913166e7353d29a57b93565fd38",
+  "cache_tag": "e17d8e0ec80fd262dcf98037068aaebb105ef191e0d7934445163309543165dd",
   "result": {
     "dataset": "sgx_august",
     "unit": "sgx-august",
@@ -320,6 +320,7 @@
       ]
     },
     "descriptive_splits": null,
+    "coverage": {},
     "methods": {
       "v1": {
         "storms": 6,
@@ -3730,6 +3731,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 4.609418292006012
+    "elapsed_seconds": 4.625688749998517
   }
 }

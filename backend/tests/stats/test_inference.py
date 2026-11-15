@@ -12,7 +12,7 @@ from storm.exposure import Quotes
 from storm.labels import STORM_COLUMNS
 from storm.stats.bootstrap import uncertainty, paired_caught_difference
 from storm.stats.datasets import Unit, evaluate_unit
-from storm.stats.policy import PolicyInput, batch, oracle, check_batch
+from storm.stats.policy import PolicyInput, batch, oracle, check_batch, real_actions, null_schedules
 from storm.stats.protocol import rng_for
 from storm.stats.pooling import prepare_pooling, pooled_metric
 from storm.stats.randomization import prepare_train, caught_counts, alarms_at, null_summary, holm
@@ -121,6 +121,24 @@ def test_frozen_policy_restore_and_initial_margin_are_exercised():
     result = batch(inp,[actions])[0]
     assert result == pytest.approx(oracle(inp,actions),rel=1e-9,abs=1e-5)
     assert result["margin_calls"] == 1 and result["cuts"] == 0
+
+
+def test_zero_policy_translation_preserves_actions_censoring_and_weekly_carry():
+    unit, detection = fixture_unit()
+    idx = unit.feats["EURUSD"].index
+    detection.events.append({"type":"all_clear","time":idx[90]})
+    detection.events.sort(key=lambda e:e["time"])
+    train = prepare_train(unit,"EURUSD",detection)
+    q = Quotes.from_mid(unit.feats["EURUSD"].mid)
+    book = {"equity_usd":1e6,"legs":[{"pair":"EURUSD","usd_notional":20e6}],"maintenance_margin":.025,"cut_fraction":.75}
+    inp = PolicyInput("full",["EURUSD"],idx,{"EURUSD":q},book,False,unit.start,unit.end)
+    actual = real_actions(inp,{"EURUSD":detection})
+    shifted = null_schedules(inp,{"EURUSD":train},{"EURUSD":np.asarray([0])},1)[0]
+    assert actual == shifted == [(65,"EURUSD","cut"),(91,"EURUSD","restore"),(132,"EURUSD","cut")]
+    # A reset inside a closed episode gets one carry-in cut at the first bar.
+    q2 = Quotes.from_mid(unit.feats["EURUSD"].mid.iloc[70:])
+    inp = replace(inp,index=idx[70:],quotes={"EURUSD":q2},start=idx[70],carry_in=True)
+    assert real_actions(inp,{"EURUSD":detection}) == null_schedules(inp,{"EURUSD":train},{"EURUSD":np.asarray([0])},1)[0]
 
 
 @pytest.mark.parametrize("stock", [False, True])

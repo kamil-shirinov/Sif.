@@ -107,7 +107,11 @@ def analyze_unit(unit, spec, do_null=True, do_sensitivity=True):
         null_books = {}
         for window in unit.policy_windows:
             inp = inputs_for(unit, window)
-            schedules = [real_actions(inp, detection), []] + null_schedules(inp, trains, offsets, spec["policy_shuffles"])
+            observed_actions = real_actions(inp, detection)
+            zero_actions = null_schedules(inp, trains, {p: np.asarray([0]) for p in trains}, 1)[0]
+            if zero_actions != observed_actions:
+                raise ValueError(f"Original timing does not reproduce policy actions: {inp.name}; boundary/carry review required")
+            schedules = [observed_actions, []] + null_schedules(inp, trains, offsets, spec["policy_shuffles"])
             results = batch(inp, schedules)
             checks.append(check_batch(inp, schedules, results))
             paths.append({"name": inp.name, "pairs": inp.pairs, "start": inp.start, "end": inp.end,
@@ -166,6 +170,7 @@ def analyze_unit(unit, spec, do_null=True, do_sensitivity=True):
             "pairs": list(unit.feats), "published_detection_check": checked,
             "published_policy": published_policy,
             "descriptive_splits": unit.metadata.get("descriptive_splits"),
+            "coverage": {key:unit.metadata[key] for key in ("selected_months","partial") if key in unit.metadata},
             "methods": methods, "pooled_methods": pooled_methods, "pooling": unit.metadata["pooling_summary"],
             "policy": policy, "policy_books": paths,
             "sensitivity": sensitivity, "oracle_checks": checks,
@@ -198,7 +203,8 @@ def aggregate(results, nulls, spec):
                             "v1_minus_baseline_caught_share": paired_caught_difference(rows, br, group + "/" + method, spec["bootstrap_replicates"])}
         picked = [r for r in results if r["dataset"] in names]
         policy = totals([book for r in picked for book in r["policy_books"] if not is_pooled or book["include_in_pooled"]])
-        row = {**estimate, "baselines": base, "policy": policy, "inferential": not group.startswith("pooled")}
+        row = {**estimate, "baselines": base, "policy": policy, "inferential": not group.startswith("pooled"),
+               "status":"evaluated" if estimate["point"]["observed_days"] > 0 else "unassessed_no_usable_observations"}
         if nulls:
             selected = [n for n in nulls if n["dataset"] in names]
             counts = np.sum([n["pooled_caught_counts" if is_pooled else "caught_counts"] for n in selected], axis=0)
@@ -206,6 +212,12 @@ def aggregate(results, nulls, spec):
             degenerate = all(t["feasible_offset_count"] <= 1 for n in selected for t in n["trains"].values())
             row["chance"] = {"caught_storms": null_summary(row["point"]["caught"], counts, degenerate),
                              "policy_difference_usd": null_summary(policy["prepared_minus_unprepared_usd"], pnl, degenerate)}
+            if row["status"] != "evaluated":
+                row["chance"] = {}
+            elif not policy["independent_reset_books"]:
+                del row["chance"]["policy_difference_usd"]
+            if not row["point"]["storms"] and "caught_storms" in row["chance"]:
+                row["chance"]["caught_storms"]["limitation"] = "uninformative: no labelled storms in observed data"
             save(DOCS / "nulls" / (group + ".json"), {"caught_counts": counts, "policy_difference_usd": pnl})
         sensitivity = []
         for factor, values in spec["sensitivity"].items():
@@ -258,7 +270,8 @@ def main():
     units, hashes = load_all(args.include_round2)
     prepare_pooling(units)
     signature = source_signature()
-    cache_tag = hashlib.sha256(canonical({"sources": signature, "inputs": hashes, "registration": sha256(DOCS / "preregistration.md")}).encode()).hexdigest()
+    cache_tag = hashlib.sha256(canonical({"sources": signature, "inputs": hashes, "nulls":not args.no_null,
+                                          "registration": sha256(DOCS / "preregistration.md")}).encode()).hexdigest()
     results, nulls = [], []
     for unit in units:
         if args.only_unit and args.only_unit != unit.name:
@@ -282,6 +295,14 @@ def main():
     if args.only_unit:
         return
     groups = aggregate(results, nulls, spec)
+    # Refuse any input mutation during calculation, including another worktree's
+    # acquisition update after it was hashed. All reads were on original paths.
+    check_frozen()
+    if source_signature() != signature:
+        raise ValueError("Statistical source changed during the analysis")
+    for filename, expected in hashes.items():
+        if sha256(Path(filename)) != expected:
+            raise ValueError("Input changed during the analysis: " + filename)
     historical_policy = {}
     for row in results:
         original = row["published_policy"]
@@ -296,8 +317,17 @@ def main():
         item = historical_policy.setdefault(row["dataset"], {"published_difference_usd":0,"frozen_main_difference_usd":0})
         item["published_difference_usd"] += difference
         item["frozen_main_difference_usd"] += row["policy"]["prepared_minus_unprepared_usd"]
+    round2_origin = None
+    round2_status = "pending; monitor until registered cutoff"
+    if args.include_round2:
+        polls = json.loads((DOCS / "round2-polls.json").read_text())
+        round2_origin = next(p for p in polls if p["available"])
+        r2 = next(r for r in results if r["dataset"] == "oos_round2")
+        coverage = r2["coverage"]
+        round2_status = ("included, partial chronological coverage" if coverage.get("partial") else "included, full year")
+        round2_status += "; " + groups["oos_round2"]["status"]
     result = {"schema_version": 1, "analysis": "secondary retrospective; no tuning",
-              "config": spec["config"], "groups": groups, "units": [str(p.relative_to(DOCS)) for p in sorted((DOCS / "units").glob("*.json"))],
+              "config": spec["config"], "groups": groups, "units": ["units/"+r["unit"]+".json" for r in results],
               "provenance": {"registration_commit": spec["registration_commit"], "registration_sha256": sha256(DOCS / "preregistration.md"),
                              "base_commit": spec["base_commit"], "config_sha256": spec["config_sha256"],
                              "code_fingerprint": spec["code_fingerprint"], "stats_sources": signature,
@@ -308,7 +338,8 @@ def main():
                              "command": "python -m storm.stats.run" + (" --include-round2" if args.include_round2 else ""),
                              "amendments": {p.name: sha256(p) for p in sorted(DOCS.glob("amendment-*.md"))},
                              "finished_at_utc": datetime.now(timezone.utc).isoformat()},
-              "round2_status": "included" if args.include_round2 else "pending; monitor until registered cutoff",
+              "round2_status": round2_status, "round2_origin":round2_origin,
+              "coverage": {r["unit"]: r["coverage"] for r in results if r["coverage"]},
               "oracle_checks": [c for r in results for c in r["oracle_checks"]],
               "published_detection_checks": {r["unit"]: r["published_detection_check"] for r in results},
               "published_policy_comparison": historical_policy,

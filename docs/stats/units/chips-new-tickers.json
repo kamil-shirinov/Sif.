@@ -1,5 +1,5 @@
 {
-  "cache_tag": "5b686757c9e34c1e8bf457a823b182001450a913166e7353d29a57b93565fd38",
+  "cache_tag": "e17d8e0ec80fd262dcf98037068aaebb105ef191e0d7934445163309543165dd",
   "result": {
     "dataset": "chips_new",
     "unit": "chips-new-tickers",
@@ -619,6 +619,7 @@
         "scheduled_watch_metrics": null
       }
     },
+    "coverage": {},
     "methods": {
       "v1": {
         "storms": 19,
@@ -10384,6 +10385,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 18.951320457999827
+    "elapsed_seconds": 18.632222958993225
   }
 }

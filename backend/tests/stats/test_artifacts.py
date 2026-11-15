@@ -28,6 +28,8 @@ def test_full_null_arrays_reproduce_pvalues_and_holm_family():
     for name, group in result["groups"].items():
         data = json.loads((DOCS / "nulls" / (name + ".json")).read_text())
         for statistic, values_key in (("caught_storms", "caught_counts"), ("policy_difference_usd", "policy_difference_usd")):
+            if statistic not in group["chance"]:
+                continue
             test = group["chance"][statistic]
             values = data[values_key]
             assert len(values) == (10000 if statistic == "caught_storms" else 1000)

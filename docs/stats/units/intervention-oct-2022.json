@@ -1,5 +1,5 @@
 {
-  "cache_tag": "5b686757c9e34c1e8bf457a823b182001450a913166e7353d29a57b93565fd38",
+  "cache_tag": "e17d8e0ec80fd262dcf98037068aaebb105ef191e0d7934445163309543165dd",
   "result": {
     "dataset": "oos_round1",
     "unit": "intervention-oct-2022",
@@ -123,6 +123,7 @@
       }
     },
     "descriptive_splits": null,
+    "coverage": {},
     "methods": {
       "v1": {
         "storms": 2,
@@ -2115,6 +2116,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 0.3401480829998036
+    "elapsed_seconds": 0.337634709001577
   }
 }
