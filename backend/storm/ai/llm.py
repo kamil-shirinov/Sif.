@@ -77,7 +77,7 @@ def resolve_model(provider: str, model: str | None = None) -> str:
     if provider == "mock":
         return "mock"
     if provider == "meta":
-        return os.getenv("META_MODEL") or "muse-spark-1.1"
+        return os.getenv("META_MODEL") or "muse-spark-1.3"
     if provider == "modal":
         return os.getenv("MODAL_MODEL") or "Qwen/Qwen3-8B"
     variable = {"fireworks": "FIREWORKS_MODEL_CHECKER", "modal": "MODAL_MODEL"}[provider]
@@ -187,7 +187,7 @@ def complete(messages, *, provider="mock", model=None, max_tokens, purpose,
             kwargs = {"model": selected, "messages": messages, "max_tokens": max_tokens}
             if tools is not None:
                 kwargs["tools"] = tools
-            if provider == "modal":
+            if provider == "modal" and "qwen" in selected.lower():
                 kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
             elif reasoning_effort is not None:
                 # extra_body also works with SDK versions predating the named

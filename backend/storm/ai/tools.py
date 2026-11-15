@@ -53,7 +53,9 @@ TOOL_SCHEMAS = [
             {"storm_id": {"type": "string"}}, ["storm_id"]),
     _schema("list_storms", "List available replay bundles, with explicit data source labels", {}, []),
     _schema("stress_test", "Deterministic endpoint P&L before liquidation; not a price forecast",
-            {"symbol": _SYMBOL, "move_pct": _MOVE, "minutes": _MINUTES},
+            {"symbol": _SYMBOL, "move_pct": _MOVE, "minutes": _MINUTES,
+             "leverage": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000,
+                          "description": "Optional synthetic notional divided by starting equity"}},
             ["symbol", "move_pct", "minutes"]),
     _schema("scenario", "Resize a replay path, simulate both ships and return a what-if bundle. "
             "Alarm timing is inherited, not predicted. Base and scenario symbols must match.",

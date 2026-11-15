@@ -9,6 +9,8 @@ from contextlib import contextmanager
 from decimal import Decimal
 import json
 import math
+import os
+import re
 from pathlib import Path
 import sqlite3
 import sys
@@ -100,7 +102,31 @@ def reserve(provider: str, model: str, input_tokens: int, max_tokens: int,
     cap = None if provider == "modal" else _cap(provider)
     estimate = cost_usd(model, input_tokens, max_tokens, provider=provider)
     call_id = uuid.uuid4().hex
+    task = os.getenv("STORM_TASK_ID")
+    limits = os.getenv("STORM_TASK_LIMITS_JSON")
+    if bool(task) != bool(limits):
+        raise BudgetError("Task ID and provider limits must be configured together")
+    task_limit = None
+    if task:
+        try:
+            if not re.fullmatch(r"[a-zA-Z0-9-]{1,48}", task):
+                raise ValueError
+            task_limit = float(json.loads(limits)[provider])
+            if not math.isfinite(task_limit) or task_limit <= 0:
+                raise ValueError
+        except (ValueError, TypeError, KeyError):
+            raise BudgetError("Invalid task provider ceiling") from None
+        purpose = f"{task}:{purpose}"
     with _ledger() as db:
+        if task_limit is not None:
+            task_used = sum((Decimal(str(row[0])) for row in db.execute(
+                "SELECT cost_usd FROM ai_calls WHERE provider=? AND substr(purpose,1,?)=?",
+                (provider, len(task) + 1, task + ":"))), Decimal(0))
+            projected_task = task_used + Decimal(str(estimate))
+            if projected_task >= Decimal(str(task_limit)) * Decimal("0.90"):
+                raise BudgetExceeded(f"{provider} task call refused: 90% stop threshold reached")
+            if projected_task >= Decimal(str(task_limit)) * Decimal("0.75"):
+                print(f"Warning: {provider} task budget at or above 75%", file=sys.stderr)
         rows = db.execute(
             "SELECT cost_usd FROM ai_calls WHERE provider = ?",
             (provider,),
@@ -147,3 +173,10 @@ def spent(provider: str) -> float:
     with _ledger() as db:
         return db.execute("SELECT COALESCE(SUM(cost_usd), 0) FROM ai_calls WHERE provider=?",
                           (provider,)).fetchone()[0]
+
+
+def task_spent(provider: str, task: str) -> float:
+    with _ledger() as db:
+        return db.execute(
+            "SELECT COALESCE(SUM(cost_usd),0) FROM ai_calls WHERE provider=? AND substr(purpose,1,?)=?",
+            (provider, len(task) + 1, task + ":")).fetchone()[0]

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 
@@ -126,21 +127,24 @@ def _format_issues(text: str) -> list[str]:
     return issues
 
 
-def ask(question: str, storm_id: str | None = None, live: bool = False) -> dict:
+def ask(question: str, storm_id: str | None = None, live: bool = False, *,
+        provider: str | None = None, model: str | None = None) -> dict:
     if not isinstance(question, str) or not question.strip() or len(question) > 4000:
         raise ValueError("question must contain between one and four thousand characters")
     if storm_id is not None and (not isinstance(storm_id, str)
                                 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,159}", storm_id)):
         raise ValueError("Invalid storm_id")
     llm.load_environment()
+    provider = provider or os.getenv("NAVIGATOR_PROVIDER", "meta")
+    model = model or os.getenv("NAVIGATOR_MODEL") or ("muse-spark-1.3" if provider == "meta" else None)
     if llm.live_enabled(live):
-        validate_model_families()
+        validate_model_families(model, provider)
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": json.dumps({"question": question, "storm_id": storm_id})}]
     calls, scenario_bundle = [], None
     text = ""
     for _ in range(MAX_TOOL_ROUNDS):
-        response = llm.complete(messages, provider="meta", max_tokens=4096, purpose="storm-navigator",
+        response = llm.complete(messages, provider=provider, model=model, max_tokens=4096, purpose="storm-navigator",
                                 tools=tools.TOOL_SCHEMAS, live=live, reasoning_effort="low")
         pending = response["tool_calls"]
         if not pending:
@@ -182,19 +186,19 @@ def ask(question: str, storm_id: str | None = None, live: bool = False) -> dict:
         response = llm.complete(
             [{"role": "system", "content": SYSTEM}, {"role": "user", "content": json.dumps({
                 "question": question, "facts": facts, "correction": correction})}],
-            provider="meta", max_tokens=4096, purpose="navigator-answer", live=live,
+            provider=provider, model=model, max_tokens=4096, purpose="navigator-answer", live=live,
             reasoning_effort="low")
         text = response["text"]
         verification = verify_numbers(text, facts, allow_direction_words=True)
         if not verification["verified"] or _format_issues(text) or not calls:
             text = deterministic_answer(facts)
     verification = verify_numbers(text, facts, allow_direction_words=True)
-    audit = inspect_report(text, facts, live=live, purpose="navigator-inspector")
+    audit = inspect_report(text, facts, live=live, purpose="navigator-inspector", writer_model=model, writer_provider=provider)
     if audit["verdict"] == "flag" and text != deterministic_answer(facts):
         initial = audit
         text = deterministic_answer(facts)
         verification = verify_numbers(text, facts, allow_direction_words=True)
-        audit = inspect_report(text, facts, live=live, purpose="navigator-inspector")
+        audit = inspect_report(text, facts, live=live, purpose="navigator-inspector", writer_model=model, writer_provider=provider)
         audit["initial_audit"] = initial
     if not verification["verified"]:
         raise RuntimeError("Deterministic navigator template contains unsupported numbers")

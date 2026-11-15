@@ -6,6 +6,9 @@ import re
 
 CONSERVATIVE_PRICE = (3.00, 15.00)
 PRICES = {
+    "muse-wonder-1.0": (4.00, 20.00),
+    "qwen3p8-max": (2.00, 6.00),
+    "glm-5p3": (1.40, 4.40),
     "muse-spark-1.1": (1.25, 4.25),
     "muse-spark-1.2": (1.25, 4.25),
     "muse-spark-1.3": (1.25, 4.25),
