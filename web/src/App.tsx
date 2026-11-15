@@ -22,6 +22,8 @@ import { StormPicker } from "./ui/StormPicker";
 import { EvidenceCard } from "./ui/EvidenceCard";
 import { ReportPanel } from "./ui/ReportPanel";
 import { NavigatorPanel } from "./ui/NavigatorPanel";
+import { Landing } from "./landing/Landing";
+import { usePresenterKeys } from "./landing/usePresenterKeys";
 
 const StormScene = lazy(() => import("./scene/Scene").then((m) => ({ default: m.StormScene })));
 
@@ -62,6 +64,7 @@ export function App() {
   const audio = audioEngine;
   const mode = useApp((s) => s.mode);
   const sunkAnnounced = useSurvive((s) => s.phase === "sailing" && s.sunkAnnounced);
+  const landing = useApp((s) => s.landing);
 
   // Start: read index.json and ask the server for its health (both optional), then load the storm
   // named by ?storm=, else the largest move in the index, else mock_storm.
@@ -93,7 +96,8 @@ export function App() {
         if (cancelled) return;
         const at = Number(params.get("at"));
         applyBundle(b, {
-          autoplayMs: params.get("autoplay") === "0" ? null : COLD_OPEN_MS, // cold open: calm water, then auto-play
+          // cold open: calm water, then auto-play; the landing page keeps the water calm until a storm is opened
+          autoplayMs: params.get("autoplay") === "0" || useApp.getState().landing ? null : COLD_OPEN_MS,
           at: params.has("at") ? at : null,
         });
         useApp.getState().setBaseStormId(b.storm_id);
@@ -177,6 +181,7 @@ export function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  usePresenterKeys(); // L, 1, 2, 3, Esc (web/src/landing/keys.ts)
   useReplayDriver(bundle, derived, audio);
   useSurviveDriver();
 
@@ -206,6 +211,9 @@ export function App() {
       ) : (
         <div className="no-webgl-note">3D view unavailable (WebGL failed). Showing the market chart and HUD.</div>
       )}
+      {landing ? (
+        <Landing />
+      ) : (
       <div className="overlay">
         {webglOk && <ShipLabels bundle={bundle} derived={derived} />}
         {webglOk && <FrontLabels bundle={bundle} derived={derived} />}
@@ -233,6 +241,7 @@ export function App() {
         <Controls derived={derived} />
         {webglOk && <div className="hint">drag to orbit · scroll to zoom · double-click to reset</div>}
       </div>
+      )}
     </div>
   );
 }

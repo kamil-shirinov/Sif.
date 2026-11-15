@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { Bundle, BundleEventType, StormIndex } from "../types/bundle";
 import type { Derived } from "../lib/derive";
+import { landingFromUrl } from "../landing/route";
 
 export interface Toast {
   id: number;
@@ -54,6 +55,8 @@ export type Mode = "replay" | "survive";
 
 export interface AppState {
   mode: Mode;
+  /** The landing page (web/src/landing/) is showing over the sea, HUD hidden. */
+  landing: boolean;
   bundle: Bundle | null;
   derived: Derived | null;
   /** Increments on every loaded bundle (a new storm, a scenario). */
@@ -76,6 +79,7 @@ export interface AppState {
   live: LiveCandles | null;
   liveStatus: LiveStatus;
   setMode(m: Mode): void;
+  setLanding(v: boolean): void;
   setBundle(b: Bundle, d: Derived): void;
   /** Swap the derived data for the loaded bundle (the player's ship changed) without loading anything. */
   setDerived(d: Derived): void;
@@ -110,6 +114,7 @@ function initialLowQuality(): boolean {
 
 export const useApp = create<AppState>((set, get) => ({
   mode: "replay",
+  landing: landingFromUrl(),
   bundle: null,
   derived: null,
   bundleSeq: 0,
@@ -127,6 +132,7 @@ export const useApp = create<AppState>((set, get) => ({
   live: null,
   liveStatus: "idle",
   setMode: (mode) => set({ mode }),
+  setLanding: (landing) => set({ landing }),
   setDerived: (derived) => set({ derived }),
   setBundle: (bundle, derived) =>
     set({ bundle, derived, error: null, bundleSeq: get().bundleSeq + 1, toasts: [], live: null, liveStatus: "idle", loadError: null }),
