@@ -20,7 +20,6 @@ import { ShipLabels } from "./ui/ShipLabels";
 import { FrontLabels } from "./ui/FrontLabels";
 import { StormPicker } from "./ui/StormPicker";
 import { EvidenceCard } from "./ui/EvidenceCard";
-import { ReportPanel } from "./ui/ReportPanel";
 import { NavigatorPanel } from "./ui/NavigatorPanel";
 import { Landing } from "./landing/Landing";
 import { usePresenterKeys } from "./landing/usePresenterKeys";
@@ -69,10 +68,19 @@ export function App() {
   // Landing <-> replay is one move (landing/transition.ts): while it runs, the page and the HUD are both mounted, one
   // leaving and the other arriving.
   const phase = useTransition((s) => s.phase);
+  const preparing = useTransition((s) => s.preparing);
   const showLandingPage = landing || phase === "opening";
   // The HUD stays mounted under the landing page (hidden and inert), so opening the replay only starts its arrival:
   // mounting it then (the chart, the panels) cost a 60 ms frame at take-off.
   const hudClass = phase === "opening" ? "hud-arrive" : phase === "closing" ? "hud-leave" : landing ? "hud-hidden" : "";
+  // The captions and the end card are portalled to <body> (ui/Presenter.tsx), outside the overlay: the phase is mirrored
+  // on the root element so landing/transition.css can keep them out of the flight.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("tr-hud-hidden", hudClass === "hud-hidden");
+    root.classList.toggle("tr-hud-arrive", hudClass === "hud-arrive");
+    root.classList.toggle("tr-hud-leave", hudClass === "hud-leave");
+  }, [hudClass]);
 
   // Start: read index.json and ask the server for its health (both optional), then load the storm
   // named by ?storm=, else the largest move in the index, else mock_storm.
@@ -236,7 +244,6 @@ export function App() {
           ) : (
             <>
               <Manifest bundle={bundle} derived={derived} />
-              <ReportPanel report={bundle.report} />
               <NavigatorPanel />
             </>
           )}
@@ -245,7 +252,9 @@ export function App() {
         {mode === "survive" && <SurviveActions />}
         {mode === "survive" && <SurviveCard bundle={bundle} />}
         {sunkAnnounced && <div className="sunk-vignette" aria-hidden="true" />}
-        <Controls derived={derived} />
+        {/* Not under the landing page: Controls binds the presenter's H key and mounts the captions and end card, which
+            belong to the replay (unmounting it there also ends the clean view, as L should). */}
+        {(hudClass !== "hud-hidden" || preparing) && <Controls derived={derived} />}
         {webglOk && <div className="hint">drag to orbit · scroll to zoom · double-click to reset</div>}
       </div>
       )}

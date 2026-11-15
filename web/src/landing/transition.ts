@@ -17,6 +17,12 @@ export type TransitionPhase = "idle" | "opening" | "closing";
 
 interface TransitionState {
   phase: TransitionPhase;
+  /**
+   * An opening is being made ready behind the page (a storm loading, the scene settling). App.tsx mounts the replay's
+   * Controls then, still hidden, so its mount (the timeline, the captions' layer) is not paid at take-off.
+   */
+  preparing: boolean;
+  setPreparing(v: boolean): void;
   /** Increments with every transition, so a stale one (a key pressed again mid-flight) cannot finish a newer one. */
   seq: number;
   set(phase: TransitionPhase): number;
@@ -25,6 +31,8 @@ interface TransitionState {
 export const useTransition = create<TransitionState>((set, get) => ({
   phase: "idle",
   seq: 0,
+  preparing: false,
+  setPreparing: (preparing) => set({ preparing }),
   set: (phase) => {
     const seq = get().seq + 1;
     set({ phase, seq });
@@ -62,6 +70,7 @@ export async function settleFrames(n = 4) {
  */
 export async function runOpening(enterReplay: () => void, onSettled: () => void): Promise<boolean> {
   const seq = useTransition.getState().set("opening");
+  useTransition.getState().setPreparing(false);
   enterReplay(); // landing false: the HUD mounts (arriving), the page stays mounted (leaving) while phase is opening
   await flyCamera("home", reducedMotion() ? 1 : FLIGHT_MS);
   if (useTransition.getState().seq !== seq) return false;
