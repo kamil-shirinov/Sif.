@@ -190,5 +190,30 @@ test("bound to a target, H toggles on and off again, and unbinding stops it", ()
   assert.equal(clean, false);
 });
 
+// ---------- chart labels: unique keys ----------
+
+const chart = await load(new URL("./chartMarkers.ts", import.meta.url));
+
+test("chart: both ships margin-called on the same minute get unique keys and one shared label", async () => {
+  const b = await json("story-two-calls.fixture.json"); // both ships' margin calls at minute 18, as on INTC (189)
+  const d = derive(b);
+  const markers = chart.chartMarkers(b, d, null, 1);
+  const keys = markers.map((m) => m.key);
+  assert.equal(new Set(keys).size, keys.length, `duplicate key in ${keys.join(", ")}`);
+  const calls = markers.filter((m) => m.text === "Margin call");
+  assert.deepEqual(
+    calls.map((m) => [m.i, m.key, m.repeat]),
+    [
+      [18, "18-Margin call", false],
+      [18, "18-Margin call#1", true],
+    ],
+  );
+  // The keys are stable: building the markers again gives the same ones.
+  assert.deepEqual(chart.chartMarkers(b, d, null, 1).map((m) => m.key), keys);
+  // Every other storm keeps its plain "minute-text" keys.
+  const a = await json("story-a.fixture.json");
+  for (const m of chart.chartMarkers(a, derive(a), null, 1)) assert.equal(m.key, `${m.i}-${m.text}`);
+});
+
 // Survive for beginners (tutorial, difficulty, coach, end card): src/ui/survive/survive.test.mjs, run with these.
 await import("./survive/survive.test.mjs");
