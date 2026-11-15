@@ -6,7 +6,7 @@ import { useApp } from "../state/app";
 import { useFrameIndex, useTimeline } from "../state/timeline";
 import { fmtPct, fmtUsd } from "../lib/format";
 import { showLanding } from "../landing/actions";
-import { crossed, endFacts, frameClock, STORY_COLORS, type StoryEvent, type StoryKind } from "./story";
+import { bindCleanViewKey, crossed, endFacts, frameClock, STORY_COLORS, type StoryEvent, type StoryKind } from "./story";
 
 /**
  * What the presenter sees on top of the replay, mounted from Controls (always on screen with the overlay) and portalled
@@ -15,14 +15,39 @@ import { crossed, endFacts, frameClock, STORY_COLORS, type StoryEvent, type Stor
  */
 export function PresenterLayer({ bundle, events }: { bundle: Bundle; derived: Derived; events: StoryEvent[] }) {
   const replay = useApp((s) => s.mode === "replay");
+  const clean = useCleanView();
   if (typeof document === "undefined") return null;
   return createPortal(
     <>
+      {clean && <div className="clean-note">Clean view · <kbd>H</kbd> shows the panels</div>}
       {replay && <Captions bundle={bundle} events={events} />}
       {replay && <EndCard bundle={bundle} />}
     </>,
     document.body,
   );
+}
+
+/** Root class of the clean view: styles.css hides every panel except the captions, the ship labels and the timeline. */
+export const CLEAN_VIEW_CLASS = "clean-view";
+
+/**
+ * H toggles the presenter's clean view (ui/story.ts: isCleanViewKey has the rules). Bound while the replay's overlay
+ * is up (Controls is mounted with it), so it never fires on the landing page; leaving the overlay restores the panels.
+ */
+function useCleanView(): boolean {
+  const [clean, setClean] = useState(false);
+  useEffect(() => {
+    const root = document.documentElement;
+    const unbind = bindCleanViewKey(window, () => setClean((c) => !c));
+    return () => {
+      unbind();
+      root.classList.remove(CLEAN_VIEW_CLASS);
+    };
+  }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle(CLEAN_VIEW_CLASS, clean);
+  }, [clean]);
+  return clean;
 }
 
 /**
