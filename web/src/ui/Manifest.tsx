@@ -1,17 +1,77 @@
+import { useState } from "react";
 import type { Bundle, ShipKey, StressRow } from "../types/bundle";
 import type { Derived } from "../lib/derive";
 import { useFrameIndex } from "../state/timeline";
 import { fmtPct, fmtUsd } from "../lib/format";
+import { ReportBody } from "./ReportPanel";
+import { shortStress } from "./story";
 
+type Tab = "cargo" | "stress" | "report";
+
+/**
+ * The right column's card. The two ships are the story and always show (equity, change, notional, margin buffer).
+ * The book's cargo, the stress tests and the storm report sit behind tabs of the same card, all collapsed at first;
+ * a second click on the open tab collapses it again.
+ */
 export function Manifest({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
   const i = useFrameIndex();
+  const [tab, setTab] = useState<Tab | null>(null);
   const ex = bundle.exposure;
+  const report = bundle.report;
+  const reportOk = report !== null && report.verified && report.unverified_numbers.length === 0;
+  const tabs: { id: Tab; label: string; extra?: string; title: string }[] = [
+    { id: "cargo", label: "Cargo", extra: `${ex.positions.length}`, title: "The book both ships carry: positions, leverage, net exposure" },
+    { id: "stress", label: "Stress tests", extra: `${bundle.stress.length}`, title: "This book through earlier storms" },
+  ];
+  if (report) tabs.push({ id: "report", label: "Report", extra: reportOk ? "✓" : "!", title: reportOk ? "Storm report: numbers checked by code" : "Storm report: some numbers not verified" });
+  const open = tab !== null && tabs.some((t) => t.id === tab) ? tab : null;
+
   return (
     <div className="panel manifest">
       <div className="panel-head">
-        <span>Cargo manifest</span>
+        <span>Two ships, one book</span>
         {bundle.book_is_synthetic && <span className="badge synthetic">synthetic book</span>}
       </div>
+      {(["prepared", "unprepared"] as ShipKey[]).map((k) => (
+        <ShipRow key={k} k={k} i={i} derived={derived} />
+      ))}
+      <div className="book-line" title="Book notional, leverage and maintenance margin (exposure)">
+        <span>{ex.positions.map((p) => p.instrument).join(" · ")}</span>
+        <span className="num">
+          {fmtUsd(derived.bookNotional, true)} · {ex.leverage.toFixed(1)}x
+        </span>
+      </div>
+      <div className="card-tabs" role="tablist" aria-label="More about this book">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={open === t.id}
+            aria-expanded={open === t.id}
+            className={`card-tab ${open === t.id ? "on" : ""} ${t.id === "report" ? (reportOk ? "ok" : "warn") : ""}`}
+            onClick={() => setTab(open === t.id ? null : t.id)}
+            title={t.title}
+          >
+            {t.label}
+            {t.extra && <span className="card-tab-extra">{t.extra}</span>}
+          </button>
+        ))}
+      </div>
+      {open === "cargo" && <Cargo bundle={bundle} derived={derived} />}
+      {open === "stress" && <StressTests rows={bundle.stress} />}
+      {open === "report" && report && (
+        <div className="card-section report">
+          <ReportBody report={report} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Cargo({ bundle, derived }: { bundle: Bundle; derived: Derived }) {
+  const ex = bundle.exposure;
+  return (
+    <div className="card-section">
       <table className="positions">
         <tbody>
           {ex.positions.map((p, k) => (
@@ -40,35 +100,34 @@ export function Manifest({ bundle, derived }: { bundle: Bundle; derived: Derived
       <div className="manifest-note">
         1 crate ≈ {fmtUsd(derived.crates[0]?.notionalUsd ?? 0, true)} notional · maintenance {(derived.maintenance * 100).toFixed(1)}%
       </div>
-      {(["prepared", "unprepared"] as ShipKey[]).map((k) => (
-        <ShipRow key={k} k={k} i={i} derived={derived} />
-      ))}
-      <StressTests rows={bundle.stress} />
     </div>
   );
 }
 
 /** bundle.stress: this book through earlier storms (only storms whose trough came before the book's as-of frame). */
 function StressTests({ rows }: { rows: StressRow[] }) {
+  if (rows.length === 0) return <div className="card-section stress-empty">No earlier storms to test against yet</div>;
   return (
-    <div className="stress">
-      <div className="stress-head">Stress tests</div>
-      {rows.length === 0 ? (
-        <div className="stress-empty">No earlier storms to test against yet</div>
-      ) : (
-        <table className="stress-table">
-          <tbody>
-            {rows.map((r, k) => (
-              <tr key={k}>
-                <td className="stress-name">{r.scenario}</td>
-                <td className={`num ${r.pnl_usd >= 0 ? "up" : "down"}`}>{fmtUsd(r.pnl_usd, true)}</td>
-                <td className="stress-mc">{r.margin_call ? <span className="badge mc">margin call</span> : <span className="muted">afloat</span>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+    <ul className="card-section stress-list">
+      {rows.map((r, k) => {
+        const s = shortStress(r);
+        return (
+          <li key={k} className="stress-line" title={s.full}>
+            <span className="stress-what">
+              {s.what}
+              {s.move && <span className="tnum stress-move"> {s.move}</span>}
+            </span>
+            <span className="stress-res">
+              <span className="stress-arrow" aria-hidden="true">
+                →
+              </span>{" "}
+              <span className={`tnum ${r.pnl_usd >= 0 ? "up" : "down"}`}>{s.pnl}</span>
+              <span className={s.marginCall ? "stress-mc" : "muted"}>, {s.marginCall ? "margin call" : "afloat"}</span>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -88,8 +147,18 @@ function ShipRow({ k, i, derived }: { k: ShipKey; i: number; derived: Derived })
         </span>
       </div>
       <div className="ship-row-sub">
-        <span>Notional {fmtUsd(s.notional[i], true)}</span>
-        <span>{closed ? "Margin call: closed" : `Margin buffer ${(buf * 100).toFixed(1)}%`}</span>
+        <span>
+          Notional <span className="num">{fmtUsd(s.notional[i], true)}</span>
+        </span>
+        <span>
+          {closed ? (
+            "Margin call: closed"
+          ) : (
+            <>
+              Margin buffer <span className="num">{(buf * 100).toFixed(1)}%</span>
+            </>
+          )}
+        </span>
       </div>
       <div className="bar">
         <div className={`bar-fill ${tone}`} style={{ width: `${closed ? 0 : buf * 100}%` }} />

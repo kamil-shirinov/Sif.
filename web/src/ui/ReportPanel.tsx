@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { Inspector, Report } from "../types/bundle";
 
 /** The inspector's verdict: "ok" or "flag" from the backend; anything else is shown as it came. */
@@ -33,39 +32,36 @@ export function VerifiedBadge({ verified, unverified }: { verified: boolean; unv
   );
 }
 
-/** Report text, a badge when code verified every number, and the inspector's verdict. Hidden when report is null. */
-export function ReportPanel({ report }: { report: Report | null }) {
-  const [open, setOpen] = useState(true);
-  if (!report) return null;
+/** Report text, a badge when code verified every number, and the inspector's verdict. */
+export function ReportBody({ report }: { report: Report }) {
   const paragraphs = report.text
     .split(/\n+/)
     .map((p) => p.trim())
     .filter(Boolean);
   return (
-    <div className="panel stack-item report">
-      <button className="panel-head panel-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <span>Storm report</span>
-        <span className="toggle-chevron" aria-hidden="true">
-          {open ? "▴" : "▾"}
-        </span>
-      </button>
-      {open && (
-        <>
-          <div className="badges">
-            <VerifiedBadge verified={report.verified} unverified={report.unverified_numbers} />
-          </div>
-          {!report.verified && report.unverified_numbers.length > 0 && (
-            <div className="report-unverified">Not matched to the data: {report.unverified_numbers.map(String).join(", ")}</div>
-          )}
-          <div className="report-text">
-            {paragraphs.map((p, k) => (
-              <p key={k}>{p}</p>
-            ))}
-          </div>
-          {report.inspector && <InspectorLine inspector={report.inspector} />}
-          {report.model && <div className="report-model">written by: {report.model}</div>}
-        </>
+    <>
+      <div className="badges">
+        <VerifiedBadge verified={report.verified} unverified={report.unverified_numbers} />
+      </div>
+      {!report.verified && report.unverified_numbers.length > 0 && (
+        <div className="report-unverified">Not matched to the data: {report.unverified_numbers.map(String).join(", ")}</div>
       )}
-    </div>
+      <div className="report-text">
+        {paragraphs.map((p, k) => (
+          <p key={k}>{p}</p>
+        ))}
+      </div>
+      {report.inspector && <InspectorLine inspector={report.inspector} />}
+      {report.model && <div className="report-model">written by: {report.model}</div>}
+    </>
   );
+}
+
+/**
+ * The storm report now lives in the right column's card, under its "Report" tab (ui/Manifest.tsx), collapsed at
+ * first. App.tsx still mounts this standalone panel; it renders nothing so the report is not shown twice.
+ * Kamil / the App.tsx owner can drop the mount at the next merge.
+ */
+export function ReportPanel(_props: { report: Report | null }) {
+  return null;
 }

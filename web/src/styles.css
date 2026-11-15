@@ -12,6 +12,14 @@
   --accent: #7cc4ff;
   --font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Bottom row: the controls (left) and the chart (right); the captions sit in the gap between them. */
+  --controls-w: clamp(300px, 30vw, 440px);
+  --chart-w: min(clamp(360px, 32vw, 480px), 100vw - 32px);
+  --chart-h: clamp(220px, 34vh, 300px);
+  /* Left column: a little narrower below about 1450 px wide, so it clears the prepared ship at the default camera
+     (at 1280x720 her stern starts about 250 px from the left edge). The right column already clears the other ship. */
+  --left-w: clamp(232px, 18vw, 260px);
+  --right-w: 290px;
   color-scheme: dark;
 }
 
@@ -82,6 +90,11 @@ body,
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+/* Tabular figures in the text face, for figures inside a sentence or a short row. */
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
 .up {
@@ -196,15 +209,15 @@ body,
 }
 .stack-left {
   left: 16px;
-  width: 260px;
+  width: var(--left-w);
   max-height: calc(100vh - 112px);
   overflow-y: auto;
   overflow-x: hidden;
 }
 .stack-right {
   right: 16px;
-  width: 290px;
-  max-height: calc(100vh - 312px);
+  width: var(--right-w);
+  max-height: calc(100vh - var(--chart-h) - 44px);
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -214,7 +227,11 @@ body,
 
 /* ---------- HUD (top left) ---------- */
 .hud {
-  padding: 12px 14px;
+  padding: 12px 12px 12px 14px;
+}
+.hud-symbol .badge {
+  padding: 2px 6px;
+  letter-spacing: 0.03em;
 }
 .hud-top {
   display: flex;
@@ -248,13 +265,12 @@ body,
   margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 .symbol {
   font-weight: 700;
   font-size: 14px;
-  margin-right: 2px;
 }
 .hud-price {
   margin-top: 6px;
@@ -438,40 +454,59 @@ body,
 
 /* ---------- evidence card ---------- */
 .evidence {
-  padding: 10px 14px 10px;
+  padding: 12px 12px 12px 14px;
+}
+.evidence .panel-toggle {
+  text-align: left;
+}
+.evidence .panel-toggle[aria-expanded="false"] {
+  margin-bottom: 0;
+}
+.evidence-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.evidence-summary .num {
+  color: var(--text);
+  font-size: 11.5px;
 }
 .evidence-row {
   display: flex;
   justify-content: space-between;
   gap: 8px;
   padding: 3px 0;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 .evidence-row > span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--muted);
 }
 .evidence-row .num {
   color: var(--text);
   white-space: nowrap;
 }
-.evidence-false {
-  align-items: flex-start;
-}
-.evidence-false small {
-  display: block;
+.evidence-row small {
   font-size: 10.5px;
   color: var(--muted);
   opacity: 0.85;
-  white-space: normal;
 }
-.evidence-false .num {
-  text-align: right;
-  font-size: 14px;
+.evidence-row .num.strong {
   font-weight: 600;
 }
-.evidence-false .num small {
-  font-weight: 400;
-  max-width: 110px;
+.evidence-sub {
+  padding-top: 0;
+  font-size: 11px;
+}
+.evidence-sub > span:first-child {
+  padding-left: 10px;
+}
+.evidence-sub .num {
+  color: #c4cfda;
 }
 .evidence-note {
   margin-top: 6px;
@@ -485,7 +520,7 @@ body,
 /* ---------- report and navigator ---------- */
 .report,
 .navigator {
-  padding: 10px 14px 12px;
+  padding: 12px 14px;
 }
 .panel-toggle {
   width: 100%;
@@ -777,6 +812,11 @@ body,
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
+.manifest .panel-head + .ship-row {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
 .ship-row-head {
   display: flex;
   justify-content: space-between;
@@ -835,15 +875,15 @@ body,
 .chart {
   right: 16px;
   bottom: 16px;
-  width: min(480px, calc(100vw - 32px));
-  height: 270px;
+  width: var(--chart-w);
+  height: var(--chart-h);
   padding: 10px 10px 6px;
   display: flex;
   flex-direction: column;
 }
 .chart.large {
-  left: 292px;
-  right: 322px;
+  left: calc(var(--left-w) + 32px);
+  right: calc(var(--right-w) + 32px);
   width: auto;
   top: 70px;
   height: auto;
@@ -908,8 +948,7 @@ body,
 .controls {
   left: 16px;
   bottom: 16px;
-  width: min(440px, calc(100vw - 530px));
-  min-width: 300px;
+  width: var(--controls-w);
   padding: 10px 12px;
   display: flex;
   align-items: center;
@@ -935,9 +974,149 @@ body,
   flex: 1;
   min-width: 0;
 }
-.scrub input {
+/* The scrubber: a drawn track and thumb (same size in every browser), so the event ticks above it line up with the
+   thumb's centre: a tick at fraction f sits at thumb / 2 + (width - thumb) × f, as the thumb does. */
+.scrub-track {
+  --thumb: 14px;
+  position: relative;
+  padding-top: 10px;
+}
+.scrub input[type="range"] {
+  display: block;
   width: 100%;
-  accent-color: var(--accent);
+  height: 16px;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.scrub input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent) var(--p, 0%), rgba(255, 255, 255, 0.16) var(--p, 0%));
+}
+.scrub input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+}
+.scrub input[type="range"]::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.scrub input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: var(--thumb);
+  height: var(--thumb);
+  margin-top: -5px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 196, 255, 0.18);
+}
+.scrub input[type="range"]::-moz-range-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+}
+.scrub input[type="range"]:focus-visible {
+  outline: none;
+}
+.scrub input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(124, 196, 255, 0.55);
+}
+.scrub input[type="range"]:disabled {
+  cursor: default;
+}
+/* Event ticks above the track. Each is a few pixels wide but takes clicks over 12 px. */
+.ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 10px;
+}
+.tick {
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 9px;
+  margin-left: -2px;
+  padding: 0;
+  border: none;
+  border-radius: 1px;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  opacity: 0.6;
+  cursor: pointer;
+}
+.tick::before {
+  content: "";
+  position: absolute;
+  inset: -3px -5px -2px;
+}
+.tick.passed,
+.tick:hover,
+.tick:focus-visible {
+  opacity: 1;
+}
+.tick:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+.tick-seg {
+  flex: 1;
+  min-height: 2px;
+  border-radius: 1px;
+}
+.tick-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(8, 13, 20, 0.94);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+.tick.tip-l .tick-tip {
+  left: -8px;
+  transform: none;
+}
+.tick.tip-r .tick-tip {
+  left: auto;
+  right: -8px;
+  transform: none;
+}
+.tick:hover .tick-tip,
+.tick:focus-visible .tick-tip {
+  display: flex;
+}
+.tick-tip-row i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 2px;
+  vertical-align: 0;
 }
 .scrub-meta {
   display: flex;
@@ -964,6 +1143,230 @@ body,
   color: rgba(230, 237, 244, 0.45);
   pointer-events: none !important;
   white-space: nowrap;
+}
+
+/* ---------- captions (bottom centre, between the controls and the chart) ---------- */
+.caption-bar {
+  position: fixed;
+  left: calc(28px + var(--controls-w));
+  right: calc(28px + var(--chart-w));
+  bottom: 34px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.caption {
+  max-width: 640px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent);
+  background: rgba(8, 13, 20, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  text-wrap: balance;
+  animation: caption-in 0.35s ease-out;
+  transition: opacity 0.45s ease-in, transform 0.45s ease-in;
+}
+.caption.leaving {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.caption-time {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: #c4cfda;
+}
+.caption-dot {
+  margin: 0 6px;
+  color: var(--muted);
+}
+@keyframes caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ---------- presenter clean view (H): only the captions, the ship labels and the timeline stay ---------- */
+.overlay > .stack,
+.overlay > .chart,
+.overlay > .toasts,
+.overlay > .hint,
+.survive-actions,
+.survive-card-wrap,
+.end-card {
+  transition: opacity 0.3s ease, visibility 0s linear 0s;
+}
+.clean-view .overlay > .stack,
+.clean-view .overlay > .chart,
+.clean-view .overlay > .toasts,
+.clean-view .overlay > .hint,
+.clean-view .survive-actions,
+.clean-view .survive-card-wrap,
+.clean-view .end-card {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none !important;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+/* With the chart hidden, the captions centre on the screen. */
+.clean-view .caption-bar {
+  right: calc(28px + var(--controls-w));
+}
+.clean-note {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(8, 13, 20, 0.7);
+  border: 1px solid var(--panel-border);
+  color: #c4cfda;
+  font-size: 11.5px;
+  pointer-events: none;
+  animation: clean-note 2.6s ease forwards;
+}
+@keyframes clean-note {
+  0% {
+    opacity: 0;
+  }
+  12%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- end card (bottom centre, above the captions, at the replay's last frame) ---------- */
+.end-card {
+  position: fixed;
+  left: calc(28px + var(--controls-w));
+  right: calc(28px + var(--chart-w));
+  bottom: 96px;
+  z-index: 30;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(10, 16, 24, 0.9);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: end-in 0.35s ease-out;
+}
+@keyframes end-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.end-title {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.end-ships {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.end-ship {
+  min-width: 0;
+  padding-left: 8px;
+  border-left: 3px solid #2c8a6a;
+}
+.end-ship.unprepared {
+  border-left-color: #b3402c;
+}
+.end-name {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.end-eq {
+  margin-top: 2px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.end-eq .num:first-child {
+  color: var(--text);
+  font-size: 13px;
+}
+.end-mc,
+.end-afloat {
+  margin-top: 2px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.end-mc {
+  color: #ff8a80;
+  font-weight: 600;
+}
+.end-afloat {
+  color: var(--muted);
+}
+.end-diff {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 13px;
+  font-weight: 600;
+}
+.end-diff .num {
+  font-size: 15px;
+  color: var(--text);
+}
+.end-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.end-actions .sail-btn {
+  flex: 1;
+  width: auto;
+  margin: 0;
+  padding: 8px 0;
+  font-size: 13px;
+}
+.end-actions .ghost-btn {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 12.5px;
+}
+kbd {
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 16px;
+  text-align: center;
+  color: #c4cfda;
 }
 
 /* ---------- ship labels (in 3D) ---------- */
@@ -1069,6 +1472,12 @@ body,
   }
   .hint {
     display: none;
+  }
+  .caption-bar,
+  .end-card {
+    left: 16px;
+    right: 16px;
+    bottom: 372px;
   }
 }
 
@@ -1296,8 +1705,7 @@ body,
 .survive-actions {
   left: 16px;
   bottom: 84px;
-  width: min(440px, calc(100vw - 530px));
-  min-width: 300px;
+  width: var(--controls-w);
   padding: 8px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1516,46 +1924,129 @@ body,
   color: #ffd27a;
 }
 
-/* ---------- stress tests (manifest) ---------- */
-.stress {
+/* ---------- right card: tabs (cargo, stress tests, report), collapsed at first ---------- */
+.book-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
   margin-top: 10px;
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
-}
-.stress-head {
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 11px;
   color: var(--muted);
-  margin-bottom: 4px;
+}
+.book-line > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.book-line .num {
+  white-space: nowrap;
+  color: #c4cfda;
+}
+.card-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.card-tab {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.card-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+.card-tab.on {
+  color: var(--text);
+  border-color: rgba(124, 196, 255, 0.5);
+  background: rgba(124, 196, 255, 0.12);
+}
+.card-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.card-tab-extra {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10.5px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+.card-tab.ok .card-tab-extra {
+  color: var(--calm);
+  opacity: 1;
+}
+.card-tab.warn .card-tab-extra {
+  color: #ffc46b;
+  opacity: 1;
+}
+.card-section {
+  margin: 8px 0 0;
+  padding: 0;
+  animation: section-in 0.18s ease-out;
+}
+@keyframes section-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+.card-section.report {
+  padding: 0;
+}
+.stress-list {
+  list-style: none;
+}
+.stress-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 6px;
+  padding: 3px 0;
+  font-size: 11px;
+  line-height: 1.35;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.stress-line:last-child {
+  border-bottom: none;
+}
+.stress-what {
+  color: var(--text);
+  white-space: nowrap;
+}
+.stress-move {
+  color: #c4cfda;
+}
+.stress-res {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.stress-arrow {
+  color: var(--muted);
+}
+.stress-mc {
+  color: #ff8a80;
+  font-weight: 600;
 }
 .stress-empty {
   font-size: 12px;
   color: var(--muted);
   font-style: italic;
-  padding: 2px 0;
-}
-.stress-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.stress-table td {
-  padding: 2px 0;
-  vertical-align: baseline;
-}
-.stress-table .num {
-  text-align: right;
-  padding: 0 8px;
-  white-space: nowrap;
-}
-.stress-name {
-  color: var(--text);
-}
-.stress-mc {
-  text-align: right;
-  white-space: nowrap;
-  font-size: 11px;
 }
 .badge.mc {
   background: rgba(239, 83, 80, 0.18);
