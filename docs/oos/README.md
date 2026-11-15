@@ -42,6 +42,12 @@ no fallback to current main. The temporary checkout is removed afterwards and do
 not change the caller's files, index, refs or worktree registration. Later amendments
 are not inserted retroactively into the original results' provenance.
 
+Exact runtime fingerprints also require CPython 3.10.0, NumPy 2.2.6, pandas 2.3.3 and
+PyArrow 24.0.0, as recorded in the original execution. Under other versions, only the
+runtime-sensitive frozen-core pytest tests skip with the registered/running version
+differences; the rest of the suite still runs. `--verify` remains strict. See the
+[runtime amendment](amendment-2026-11-15-runtime.md) for the compatibility rule.
+
 From another checkout, point at the existing original acquisition directory:
 
 ```sh

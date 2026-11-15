@@ -42,8 +42,8 @@ def test_registration_remains_immutable_without_pinning_current_main():
     assert sum(len(w["pairs"]) for w in spec["windows"]) == 14
 
 
-@pytest.fixture(scope="module")
-def registered_checkout():
+@pytest.fixture
+def registered_checkout(registered_runtime):
     with frozen_checkout() as root:
         yield root
 
@@ -65,6 +65,19 @@ def test_core_constant_change_in_registered_core_is_refused(registered_checkout)
     result = snapshot_python(registered_checkout,
                              "import storm.labels; storm.labels.MIN_MOVE_BP = 31.0; "
                              "from storm.oos.protocol import check_frozen; check_frozen()")
+    assert result.returncode != 0
+    assert "frozen core code fingerprint mismatch" in result.stderr
+
+
+def test_core_source_change_in_registered_core_is_refused(registered_checkout):
+    source = registered_checkout / "backend" / "storm" / "detector.py"
+    original = source.read_bytes()
+    try:
+        source.write_bytes(original + b"\n# Deliberate source drift in the disposable test checkout.\n")
+        result = snapshot_python(registered_checkout,
+                                 "from storm.oos.protocol import check_frozen; check_frozen()")
+    finally:
+        source.write_bytes(original)
     assert result.returncode != 0
     assert "frozen core code fingerprint mismatch" in result.stderr
 

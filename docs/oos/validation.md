@@ -65,3 +65,18 @@ missing original data, and temporary-checkout cleanup. Their registration guard 
 longer requires the caller's current core or metric definitions to equal the old ones.
 No new primary run was performed. `preregistration.md`, `results.json`, `results.md`
 and `run_started.json` are byte-for-byte identical to the published `9b34226` artifacts.
+
+## Runtime portability check
+
+The [runtime amendment](amendment-2026-11-15-runtime.md) records CPython 3.10.0,
+NumPy 2.2.6, pandas 2.3.3 and PyArrow 24.0.0 as the exact historical runtime.
+After adding the test-only version guard, the whole backend suite on this OOS branch
+passed with **314 passed, 6 skipped** under those versions. The fingerprint tests ran,
+including deliberate constant and source changes that were correctly rejected.
+
+A fresh CPython 3.12.13 venv installed only `backend/requirements.txt` and resolved
+NumPy 2.5.4, pandas 2.3.3 and PyArrow 26.0.1. Its whole suite passed with **311 passed,
+9 skipped**. The three additional skips were exclusively the historical runtime
+fingerprint tests; each reported the registered/running differences. Artifact,
+source-byte, report, pipeline and other backend checks remained active. No production
+verification or calculation code, dependency requirement or published artifact changed.
