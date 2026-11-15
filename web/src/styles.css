@@ -777,6 +777,11 @@ body,
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
+.manifest .panel-head + .ship-row {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
 .ship-row-head {
   display: flex;
   justify-content: space-between;
@@ -1516,46 +1521,129 @@ body,
   color: #ffd27a;
 }
 
-/* ---------- stress tests (manifest) ---------- */
-.stress {
+/* ---------- right card: tabs (cargo, stress tests, report), collapsed at first ---------- */
+.book-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
   margin-top: 10px;
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
-}
-.stress-head {
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 11px;
   color: var(--muted);
-  margin-bottom: 4px;
+}
+.book-line > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.book-line .num {
+  white-space: nowrap;
+  color: #c4cfda;
+}
+.card-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.card-tab {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.card-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+.card-tab.on {
+  color: var(--text);
+  border-color: rgba(124, 196, 255, 0.5);
+  background: rgba(124, 196, 255, 0.12);
+}
+.card-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.card-tab-extra {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10.5px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+.card-tab.ok .card-tab-extra {
+  color: var(--calm);
+  opacity: 1;
+}
+.card-tab.warn .card-tab-extra {
+  color: #ffc46b;
+  opacity: 1;
+}
+.card-section {
+  margin: 8px 0 0;
+  padding: 0;
+  animation: section-in 0.18s ease-out;
+}
+@keyframes section-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+.card-section.report {
+  padding: 0;
+}
+.stress-list {
+  list-style: none;
+}
+.stress-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 8px;
+  padding: 3px 0;
+  font-size: 11.5px;
+  line-height: 1.35;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.stress-line:last-child {
+  border-bottom: none;
+}
+.stress-what {
+  color: var(--text);
+  white-space: nowrap;
+}
+.stress-move {
+  color: #c4cfda;
+}
+.stress-res {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.stress-arrow {
+  color: var(--muted);
+}
+.stress-mc {
+  color: #ff8a80;
+  font-weight: 600;
 }
 .stress-empty {
   font-size: 12px;
   color: var(--muted);
   font-style: italic;
-  padding: 2px 0;
-}
-.stress-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.stress-table td {
-  padding: 2px 0;
-  vertical-align: baseline;
-}
-.stress-table .num {
-  text-align: right;
-  padding: 0 8px;
-  white-space: nowrap;
-}
-.stress-name {
-  color: var(--text);
-}
-.stress-mc {
-  text-align: right;
-  white-space: nowrap;
-  font-size: 11px;
 }
 .badge.mc {
   background: rgba(239, 83, 80, 0.18);
