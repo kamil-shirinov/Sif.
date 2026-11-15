@@ -94,3 +94,33 @@ def test_readme_numbers_equal_the_committed_snapshot():
 def test_snapshot_is_current_with_metrics_json():
     want = rr.snapshot_from(json.loads(rr.METRICS.read_text()), README.read_text(), rr.load_extra())
     assert json.loads(rr.SNAPSHOT.read_text()) == want, "stale: run scripts/readme_results.py --write-snapshot"
+
+
+def test_lookup_indexes_lists_and_scales_percent_shares():
+    ref = {"g": {"intervals": {"caught_share": {"estimate": 2 / 3, "ci95": [0.333, 1.0]}}, "sensitivity": [{"usd": 1}, {"usd": -10268.9}]}}
+    text = "\n".join([
+        "<!-- metrics-table[stats]: g. -->",
+        "| metric | `x` | meaning |",
+        "|---|---|---|",
+        "| `intervals.caught_share.estimate@pct` | 66.7 | share |",
+        "| `intervals.caught_share.ci95.0@pct` | 33.3 | lower |",
+        "| `sensitivity.1.usd` | -10,269 | five bars |",
+    ])
+    assert rr.check(text, {}, extra={"stats": ref}) == []
+    assert len(rr.check(text.replace("33.3", "34.3"), {}, extra={"stats": ref})) == 1
+    assert len(rr.check(text.replace("sensitivity.1.usd", "sensitivity.5.usd"), {}, extra={"stats": ref})) == 1  # index out of range
+    assert len(rr.check(text.replace("ci95.0@pct", "ci95.0"), {}, extra={"stats": ref})) == 1                  # 0.333 is not 33.3
+
+
+@needs_readme
+def test_readme_stats_tables_are_checked_against_docs_stats_results():
+    """The statistics section's tables (against-chance p-values, intervals, five-bar fills) cite docs/stats/results.json."""
+    assert "stats" in rr.EXTRA_SOURCES and rr.EXTRA_SOURCES["stats"].exists(), "docs/stats/results.json missing"
+    cited = [p for p, *_ in rr.parse_tables(README.read_text()) if p.startswith("stats::")]
+    assert len(cited) >= 40, "the README's statistics tables are missing or were shortened"
+    for needle in ("chance.caught_storms.p_value", "chance.policy_difference_usd.holm_p_value",
+                   "intervals.caught_share.ci95.0@pct", "sensitivity.5.policy.prepared_minus_unprepared_usd"):
+        assert any(needle in p for p in cited), needle
+    problems = rr.check(README.read_text(), {}, extra={"stats": json.loads(rr.EXTRA_SOURCES["stats"].read_text())})
+    problems = [m for m in problems if "stats::" in m]
+    assert not problems, "\n".join(problems)

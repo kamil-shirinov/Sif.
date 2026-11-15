@@ -5,7 +5,8 @@ A results table in the README is preceded by a marker line
     <!-- metrics-table: methods.{col}. -->
 
 A marker may name another reference file in square brackets, and the table is then checked against it
-(`oos1` = docs/oos/results.json, `oos2` = docs/oos/results-2.json, `chips` = docs/chips/results.json):
+(`oos1` = docs/oos/results.json, `oos2` = docs/oos/results-2.json, `chips` = docs/chips/results.json,
+`stats` = docs/stats/results.json):
 
     <!-- metrics-table[oos1]: display.totals.{col}.metrics. -->
 
@@ -43,6 +44,7 @@ EXTRA_SOURCES = {
     "oos1": ROOT / "docs" / "oos" / "results.json",
     "oos2": ROOT / "docs" / "oos" / "results-2.json",
     "chips": ROOT / "docs" / "chips" / "results.json",
+    "stats": ROOT / "docs" / "stats" / "results.json",
 }
 CODE = re.compile(r"^`([^`]+)`$")
 
@@ -97,11 +99,23 @@ def decimals(cell: str) -> int:
 
 
 def lookup(metrics: dict, path: str):
+    """Walk a dotted path; a number indexes a list ("ci95.0"); a trailing "@pct" multiplies by 100
+    (the stats file keeps shares as fractions, the README shows percentages)."""
+    scale = 1.0
+    if path.endswith("@pct"):
+        path, scale = path[: -len("@pct")], 100.0
     node = metrics
     for part in path.split("."):
-        if not isinstance(node, dict) or part not in node:
+        if isinstance(node, list) and part.isdigit() and int(part) < len(node):
+            node = node[int(part)]
+        elif isinstance(node, dict) and part in node:
+            node = node[part]
+        else:
             raise KeyError(path)
-        node = node[part]
+    if scale != 1.0:
+        if isinstance(node, bool) or not isinstance(node, (int, float)):
+            raise KeyError(path)
+        node = node * scale
     return node
 
 

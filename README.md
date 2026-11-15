@@ -191,6 +191,55 @@ The same detector, unchanged, on 14 chip-sector tickers (NVDA, which was used to
 
 **Honest limits.** The FX detector does clearly worse on stocks: 6 of 19 caught, and 2.35 false alerts per trading day against 0.33 episodes a day on FX in August. The three new replays (INTC, SMCI, MRVL, the largest moves) were all missed in time; in INTC both ships were margin-called together. The universe and the November shock week were chosen with NVDA already observed, so this is a cross-ticker test, not a future-period one. Yahoo has trades, not quotes: no spread is measured, the replay fills at the next bar's open with no cost, and thin extended-hours bars, bad prints and sector correlation affect the numbers. A detector tuned on FX is not a detector for stocks.
 
+### Statistical evidence: against chance, with intervals
+
+This is our most credible evidence, and it is deliberately unflattering. The `cx-stats` analysis ([docs/stats/results.md](docs/stats/results.md), preregistered in [docs/stats/preregistration.md](docs/stats/preregistration.md)) re-reads the frozen tests without changing the detector. Three datasets are scored apart: SGX August, round 1 (the historical FX events and months) and the 13 new chip tickers.
+
+**Do the alarms beat chance?** For detection, yes, on FX. We took every alarm train and moved it to random minutes (10,000 draws, keeping each pair's alarm count and timing within the pair) and counted how many storms the moved alarms would catch with half the move still ahead. The real alarms caught 9 of 23 in round 1 where the moved ones caught a median of 0 (97.5th percentile 3), p=0.0001; and 4 of 6 on SGX August against a median of 0, p=0.0006. Both stay significant after Holm's correction (0.0006 and 0.0030). On the chips the real 6 of 19 against a median of 3 is **not** distinguishable from chance (p=0.1081; 0.1439 after correction).
+
+**How sure are the rates?** Barely, on August: 4 of 6 is 66.7% with a storm-bootstrap 95% interval of 33.3% to 100%, and 40.0% to 100% when resampling by event date (four dates). Six storms cannot say more. Round 1's 9 of 23 is 39.1% (21.7% to 60.9%); the chips' 6 of 19 is 31.6% (10.5% to 52.6%).
+
+**Does the money result hold up?** Not by the standard we set. The prepared synthetic book beat the unprepared one in every dataset, and pooled over FX it is +$527,056 across nine reset books, but this is a scenario total and descriptive. Against the same timing null the raw p-values are 0.0240 (chips), 0.0480 (round 1) and 0.0490 (August), and **after multiplicity correction 0 of 3 datasets survive** (0.0959, 0.1439, 0.1439). It is also sensitive to how fast you trade: with fills five bars after the signal, August's +$39,770 becomes -$10,269.
+
+<!-- metrics-table[stats]: groups.{col}.point. -->
+| metric | `sgx_august` | `oos_round1` | `chips_new` | meaning |
+|---|---|---|---|---|
+| `storms` | 6 | 23 | 19 | labelled storms |
+| `caught` | 4 | 9 | 6 | at least half the move still ahead |
+| `false_alert_episodes_per_observed_day` | 0.33 | 0.22 | 2.65 | false alert episodes per observed day (chips: per 24 h of observed minutes, 1.75 per trading day) |
+
+<!-- metrics-table[stats]: groups.{col}.intervals. -->
+| metric | `sgx_august` | `oos_round1` | `chips_new` | meaning |
+|---|---|---|---|---|
+| `caught_share.estimate@pct` | 66.7 | 39.1 | 31.6 | % of storms caught |
+| `caught_share.ci95.0@pct` | 33.3 | 21.7 | 10.5 | lower end, storm bootstrap (10,000 draws) |
+| `caught_share.ci95.1@pct` | 100.0 | 60.9 | 52.6 | upper end, storm bootstrap |
+| `date_block.caught_share.ci95.0@pct` | 40.0 | 11.8 | 8.3 | lower end, resampling by event date |
+| `date_block.caught_share.ci95.1@pct` | 100.0 | 65.4 | 50.0 | upper end, resampling by event date |
+
+<!-- metrics-table[stats]: groups.{col}.chance. -->
+| metric | `sgx_august` | `oos_round1` | `chips_new` | meaning |
+|---|---|---|---|---|
+| `caught_storms.statistic` | 4 | 9 | 6 | storms caught, observed |
+| `caught_storms.null_median` | 0 | 0 | 3 | the same alarms at random times: median |
+| `caught_storms.null_ci95.1` | 3 | 3 | 7 | ... and its 97.5th percentile |
+| `caught_storms.p_value` | 0.0006 | 0.0001 | 0.1081 | one-sided Monte Carlo p, detection |
+| `caught_storms.holm_p_value` | 0.0030 | 0.0006 | 0.1439 | after Holm correction |
+| `policy_difference_usd.statistic` | 39,770 | 487,286 | 660,809 | prepared minus unprepared book, USD |
+| `policy_difference_usd.p_value` | 0.0490 | 0.0480 | 0.0240 | one-sided p, money (1,000 draws) |
+| `policy_difference_usd.holm_p_value` | 0.1439 | 0.1439 | 0.0959 | after Holm correction: none below 0.05 |
+
+Prepared minus unprepared book, in USD, when the cut and the restore fill later than the next bar (August fell below zero at five bars; round 1 and the chips stayed positive):
+
+<!-- metrics-table[stats]: groups.{col}.sensitivity. -->
+| metric | `sgx_august` | `oos_round1` | `chips_new` | meaning |
+|---|---|---|---|---|
+| `3.policy.prepared_minus_unprepared_usd` | 39,770 | 487,286 | 660,809 | fills at the next bar (frozen headline) |
+| `4.policy.prepared_minus_unprepared_usd` | 40,395 | 540,240 | 608,946 | fills two bars later |
+| `5.policy.prepared_minus_unprepared_usd` | -10,269 | 406,610 | 575,271 | fills five bars later |
+
+**Honest limits.** The timing null is conditional: it keeps each alarm's duration and each pair's alarm count, and it asks whether the alarms are placed better than random in time, not whether a random trader would do worse; it is not a causal experiment. The interval method assumes independent storms, which same-day storms on different pairs are not, so the date-block row is the cautious one. The synthetic books are scenario totals: FX uses 20x gross with a 2.5% maintenance margin, the chips 4x with 15%, and the sums across weekly reset books are not one investable portfolio. Yahoo has trades, not quotes, so the chips have no spread cost and no spread sensitivity. Pooling the datasets does not create a new holdout. Round 2 was still pending when this analysis was written.
+
 ## The replay
 
 The 3D scene is driven by bundle fields, nothing is decoration; [web/README.md](web/README.md) has the full table. In short:
