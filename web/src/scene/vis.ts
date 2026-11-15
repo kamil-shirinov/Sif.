@@ -23,6 +23,7 @@ export interface Vis {
   lantern: number; // 0..1: the ships' lanterns, lit as daylight fails
   alarm: number; // 0..1 smoothed alarmActive
   flash: number; // lightning flash 0..1 (set by Lightning)
+  flashPos: Vector3; // where the last bolt came out of the cloud (lights the cloud base around it)
   squall: number; // 0..1: lighthouse amber flash after a squall event
   fairWind: number; // 0..1: sun breaking through and sails filling after a fair_wind event
   elapsed: number; // wall-clock seconds
@@ -36,7 +37,7 @@ export const vis: Vis = {
   risk: 0,
   state: 0,
   wind: 0.15,
-  wave: { amp: 0.35, chop: 0.2, time: 0 },
+  wave: { amp: 0.35, chop: 0.2, steep: 0.4, time: 0 },
   sunDir: new Vector3(0, 1, -1).normalize(),
   dayFactor: 1,
   utcHours: 12,
@@ -45,6 +46,7 @@ export const vis: Vis = {
   lantern: 0,
   alarm: 0,
   flash: 0,
+  flashPos: new Vector3(0, 500, -300),
   squall: 0,
   fairWind: 0,
   elapsed: 0,
@@ -60,6 +62,11 @@ export function waveAmpFromVol(v: number): number {
 /** Chop (short steep waves, foam, normal-map distortion) from vol_ratio. */
 export function chopFromVol(v: number): number {
   return Math.min(1.6, Math.max(0.1, (v - 0.4) * 0.22));
+}
+
+/** Gerstner steepness (how sharp the crests are) from vol_ratio: 0.44 at 1x normal, 1 from about 7x. */
+export function steepFromVol(v: number): number {
+  return Math.min(1, Math.max(0.35, 0.35 + 0.09 * v));
 }
 
 /** Sun direction from UTC time of day: rises in the east (-x) at 06:00, south (-z) at 12:00, sets west (+x) at 18:00. */
@@ -123,9 +130,11 @@ export function updateVis(b: Bundle, d: Derived, t: number, dt: number) {
   vis.wind = damp(vis.wind, WIND_BY_STATE[vis.state] ?? 0.15, 0.8, dt);
   vis.wave.amp = damp(vis.wave.amp, waveAmpFromVol(vis.volRatio), 1.2, dt);
   vis.wave.chop = damp(vis.wave.chop, chopFromVol(vis.volRatio), 1.2, dt);
+  vis.wave.steep = damp(vis.wave.steep, steepFromVol(vis.volRatio), 1.2, dt);
   vis.wave.time += dt * (0.8 + 0.7 * vis.wind);
   waveUniforms.uWaveAmp.value = vis.wave.amp;
   waveUniforms.uWaveChop.value = vis.wave.chop;
+  waveUniforms.uWaveSteep.value = vis.wave.steep;
   waveUniforms.uWaveTime.value = vis.wave.time;
   const time = sampleAt(d.times, t);
   const hourOf = (sec: number) => (((sec % 86400) + 86400) % 86400) / 3600;

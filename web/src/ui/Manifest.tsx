@@ -1,4 +1,4 @@
-import type { Bundle, ShipKey } from "../types/bundle";
+import type { Bundle, ShipKey, StressRow } from "../types/bundle";
 import type { Derived } from "../lib/derive";
 import { useFrameIndex } from "../state/timeline";
 import { fmtPct, fmtUsd } from "../lib/format";
@@ -43,6 +43,31 @@ export function Manifest({ bundle, derived }: { bundle: Bundle; derived: Derived
       {(["prepared", "unprepared"] as ShipKey[]).map((k) => (
         <ShipRow key={k} k={k} i={i} derived={derived} />
       ))}
+      <StressTests rows={bundle.stress} />
+    </div>
+  );
+}
+
+/** bundle.stress: this book through earlier storms (only storms whose trough came before the book's as-of frame). */
+function StressTests({ rows }: { rows: StressRow[] }) {
+  return (
+    <div className="stress">
+      <div className="stress-head">Stress tests</div>
+      {rows.length === 0 ? (
+        <div className="stress-empty">No earlier storms to test against yet</div>
+      ) : (
+        <table className="stress-table">
+          <tbody>
+            {rows.map((r, k) => (
+              <tr key={k}>
+                <td className="stress-name">{r.scenario}</td>
+                <td className={`num ${r.pnl_usd >= 0 ? "up" : "down"}`}>{fmtUsd(r.pnl_usd, true)}</td>
+                <td className="stress-mc">{r.margin_call ? <span className="badge mc">margin call</span> : <span className="muted">afloat</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

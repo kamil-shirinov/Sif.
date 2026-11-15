@@ -197,7 +197,10 @@ export interface IndexMetrics {
   caught: number | null;
   median_move_ahead_pct: number | null;
   median_minutes_to_alarm: number | null;
+  /** Pair alarms per observed day: each pair's false alarm counts on its own. */
   false_alarms_per_day: number | null;
+  /** Distinct alert episodes per observed day: false alarms on any pair within 15 min of an episode's first count as one. */
+  false_alarm_episodes_per_day: number | null;
 }
 
 export interface StormIndex {

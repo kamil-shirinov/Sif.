@@ -55,7 +55,7 @@ export function SurviveCard({ bundle }: { bundle: Bundle }) {
               <tr>
                 <td>Cut at the alarm</td>
                 <td className="num">{fmtUsd(Math.max(0, result.followed.equity))}</td>
-                <td className="muted">{result.followed.sunk && result.followed.marginCallI !== null ? `sunk at ${when(bundle, result.followed.marginCallI)}` : `alarm ${when(bundle, result.followed.cutI)}`}</td>
+                <td className="muted">{result.followed.sunk && result.followed.marginCallI !== null ? `sunk at ${when(bundle, result.followed.marginCallI)}` : result.followed.cutI !== null ? `cut filled ${when(bundle, result.followed.cutI)}` : "afloat"}</td>
               </tr>
             )}
           </tbody>
