@@ -49,6 +49,25 @@ def test_check_catches_a_changed_number_a_missing_path_and_a_non_number():
     assert rr.check("no tables here", ref), "a README without a results table must fail"
 
 
+def test_marker_can_name_another_source_and_compares_rounded_to_the_cells_decimals():
+    text = "\n".join([
+        "<!-- metrics-table[oos1]: display.totals.{col}.metrics. -->",
+        "| metric | `events` | `all` |",
+        "|---|---|---|",
+        "| `storms` | 11 | 23 |",
+        "| `median_move_ahead_pct` | 57.3 | 43.4 |",
+    ])
+    cells = [(p, n) for p, _, _, n in rr.parse_tables(text)]
+    assert cells[0] == ("oos1::display.totals.events.metrics.storms", 11.0)
+    extra = {"oos1": {"display": {"totals": {"events": {"metrics": {"storms": 11, "median_move_ahead_pct": 57.31}},
+                                             "all": {"metrics": {"storms": 23, "median_move_ahead_pct": 43.44}}}}}}
+    assert rr.check(text, {}, extra=extra) == []                      # 57.31 shows as 57.3
+    assert len(rr.check(text.replace("57.3", "57.4"), {}, extra=extra)) == 1
+    assert len(rr.check(text, {}, extra={})) == 4                     # a missing source is reported, not skipped
+    flat = {path: value for (path, _), value in zip(cells, [11, 23, 57.31, 43.44])}
+    assert rr.check(text, flat, flat=True) == []                      # the committed snapshot works the same way
+
+
 @needs_readme
 def test_readme_has_results_tables_and_links_the_definitions():
     text = README.read_text()
@@ -59,7 +78,7 @@ def test_readme_has_results_tables_and_links_the_definitions():
 @needs_readme
 @needs_metrics
 def test_readme_numbers_equal_metrics_json():
-    problems = rr.check(README.read_text(), json.loads(rr.METRICS.read_text()))
+    problems = rr.check(README.read_text(), json.loads(rr.METRICS.read_text()), extra=rr.load_extra())
     assert not problems, "\n".join(problems)
 
 
@@ -73,5 +92,5 @@ def test_readme_numbers_equal_the_committed_snapshot():
 @needs_readme
 @needs_metrics
 def test_snapshot_is_current_with_metrics_json():
-    want = rr.snapshot_from(json.loads(rr.METRICS.read_text()), README.read_text())
+    want = rr.snapshot_from(json.loads(rr.METRICS.read_text()), README.read_text(), rr.load_extra())
     assert json.loads(rr.SNAPSHOT.read_text()) == want, "stale: run scripts/readme_results.py --write-snapshot"
