@@ -66,7 +66,7 @@ import pandas as pd
 
 from .detector import load_calendar, load_config, run_detector
 from .evaluate import alarm_matches, move_ahead_pct
-from .exposure import BookPath, fill_frame, max_drawdown, policy_actions
+from .exposure import BookPath, cut_since, fill_frame, max_drawdown, policy_actions
 from .export import (SCHEMA_VERSION, SHIP_LABELS, EVENT_ORDER, STEP_S, StaleMetrics, _event_text, _grid, _r,
                      _visible_events, attach_report, load_index_metrics, storm_alarm_fields, trade_events,
                      write_bundle, write_index)
@@ -331,6 +331,10 @@ def build_bundle(run: EquityRun, start: pd.Timestamp = WINDOW_START,
     if not (0 <= onset_i < trough_i < n):
         raise ValueError("onset or trough outside the window")
 
+    if (since := cut_since(res.events, idx[0])) is not None:
+        raise ValueError(f"the replay starts at {idx[0]:%d %b %H:%M} UTC inside the danger alarm raised at "
+                         f"{since:%d %b %H:%M} UTC; the prepared ship would hold shares the policy cut. "
+                         "Start WINDOW_START before the alarm")
     win = _visible_events([e for e in res.events if idx[0] <= e["time"] <= idx[-1]], g["state"], frame_of)
     mid = g["mid"].to_numpy(dtype=float)
     actions = policy_actions({sym: win}, frame_of)

@@ -336,6 +336,23 @@ def policy_actions(events: dict[str, list[dict]], frame_of) -> list[tuple[int, s
     return sorted(out)
 
 
+def cut_since(events: list[dict], before: pd.Timestamp) -> pd.Timestamp | None:
+    """When the cut that policy v1 holds just before `before` began, or None if the book is
+    at full size then. It runs the same rule as policy_actions (cut at the first danger alarm,
+    restore at the next all-clear) over the events with time < before, so an alarm raised
+    before a replay window and still in force at its first frame is found. A replay that
+    opens inside one would show an alarm over a ship that still holds the cargo the policy
+    would have cut: its window has to start before the alarm."""
+    since = None
+    for e in sorted((e for e in events if e["type"] in ("alarm", "all_clear") and e["time"] < before),
+                    key=lambda e: e["time"]):
+        if e["type"] == "alarm" and since is None:
+            since = e["time"]
+        elif e["type"] == "all_clear" and since is not None:
+            since = None
+    return since
+
+
 def ships(mids: dict, book: dict, actions) -> dict[str, BookPath]:
     return {"prepared": simulate_book(mids, book, actions), "unprepared": simulate_book(mids, book, [])}
 
