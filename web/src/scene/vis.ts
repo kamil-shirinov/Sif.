@@ -24,6 +24,11 @@ export interface Vis {
   alarm: number; // 0..1 smoothed alarmActive
   flash: number; // lightning flash 0..1 (set by Lightning)
   flashPos: Vector3; // where the last bolt came out of the cloud (lights the cloud base around it)
+  // The storm cell (StormCell.tsx, from stormTrack.ts): where it stands, how built it is, how nearly overhead (0..1).
+  cellX: number;
+  cellZ: number;
+  cellLife: number;
+  cellNear: number;
   squall: number; // 0..1: lighthouse amber flash after a squall event
   fairWind: number; // 0..1: sun breaking through and sails filling after a fair_wind event
   elapsed: number; // wall-clock seconds
@@ -47,6 +52,10 @@ export const vis: Vis = {
   alarm: 0,
   flash: 0,
   flashPos: new Vector3(0, 500, -300),
+  cellX: 0,
+  cellZ: -1500,
+  cellLife: 0,
+  cellNear: 0,
   squall: 0,
   fairWind: 0,
   elapsed: 0,

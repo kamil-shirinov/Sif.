@@ -27,6 +27,7 @@ import { Particles } from "./Particles";
 import { Stats, statsEnabled } from "./Stats";
 import { show } from "./debugFlags";
 import { Warmup } from "./Warmup";
+import { StormCell } from "./StormCell";
 
 /** Far plane well beyond the sky sphere (radius SKY_SCALE / 2), so nothing of the sky can be clipped. */
 const CAMERA_FAR = 2_000_000;
@@ -90,6 +91,7 @@ function World({ bundle, derived, lowQuality, tier }: { bundle: Bundle; derived:
       <Atmosphere />
       {show("clouds") && <Clouds lowQuality={lowQuality} />}
       {show("stars") && <Stars />}
+      {show("cell") && <StormCell bundle={bundle} derived={derived} />}
       {show("sea") && <Sea lowQuality={lowQuality} reflect={TIERS[tier].reflect} />}
       {show("front") && <StormFronts key={`f${seq}`} watches={derived.watches} />}
       {show("lighthouse") && <Lighthouse />}
