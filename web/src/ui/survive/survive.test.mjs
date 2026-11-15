@@ -256,3 +256,72 @@ test("coach: a thin safety margin is called out once no event line holds the sta
   assert.ok(l.text.startsWith(`Your safety margin is down to ${Math.round(buf * 100)}% of your money.`), l.text);
   assert.ok(l.text.endsWith("Cut (C) to lighten the ship."), l.text);
 });
+
+// ---------- 4. the end card's words come from the run ----------
+
+const endcard = await load(new URL("./endcard.ts", import.meta.url));
+const runOf = (b, leverage, presses) => game.summarize(b, game.simulate(b, leverage, presses));
+const usd = (x) => `$${Math.round(x).toLocaleString("en-US")}`;
+const hm = (b, i) => `${new Date((b.t0 + i * b.step_s) * 1000).toISOString().slice(11, 16)} UTC`;
+
+test("end card: sunk at 25x, while the alarm-follower stayed afloat", async () => {
+  const b = await fixture("coach.fixture.json");
+  const r = runOf(b, 25, []);
+  assert.equal(r.sunk, true);
+  assert.equal(r.followed.sunk, false);
+  assert.equal(r.followed.cutI, 13, "the alarm at 12 fills its cut at the 13 open");
+  assert.equal(
+    endcard.whatHappened(b, r),
+    `At 25x the price moved ${r.worstAdversePct.toFixed(1)}% against you and the broker closed your trade at ${hm(b, r.marginCallI)}. You kept ${usd(r.score)} of your $1.0M. You kept the whole cargo aboard.`,
+  );
+  assert.equal(
+    endcard.alarmFollower(b, r),
+    `The alarm sounded at ${hm(b, 12)}. The alarm-follower cut 75% at the ${hm(b, 13)} open and came home with ${usd(r.followed.equity)}, ${usd(r.followed.equity - r.score)} more than you.`,
+  );
+  assert.equal(endcard.lessonFor(b, r), `When the alarm sounds, lighten the ship first and think second: here a cut at the alarm would have kept ${usd(r.followed.equity)} afloat.`);
+});
+
+test("end card: afloat at 10x after a cut at the alarm; the lesson counts what the cut kept", async () => {
+  const b = await fixture("coach.fixture.json");
+  const r = runOf(b, 10, [{ i: 12, kind: "cut" }]);
+  assert.equal(r.sunk, false);
+  assert.ok(r.score > r.held.equity);
+  assert.equal(
+    endcard.whatHappened(b, r),
+    `You rode out the storm at 10x and came home with ${usd(r.score)} (${r.changePct.toFixed(1)}%). At the worst moment, ${hm(b, r.worstAdverseI)}, the price was ${r.worstAdversePct.toFixed(1)}% against you. You cut 75% of the cargo at ${hm(b, 13)}.`,
+  );
+  assert.equal(endcard.lessonFor(b, r), `Cutting when the sea turned kept ${usd(r.score - r.held.equity)} more than holding everything.`);
+  assert.ok(endcard.alarmFollower(b, r).endsWith("than you.") || endcard.alarmFollower(b, r).endsWith("the same as you."));
+});
+
+test("end card: other runs give other lessons, each from the numbers", async () => {
+  const b = await fixture("coach.fixture.json");
+  const held = runOf(b, 10, []);
+  assert.equal(endcard.lessonFor(b, held), `At 10x you rode out a ${held.worstAdversePct.toFixed(1)}% move against you with room to spare: your leverage decides how much room you have.`);
+  // The same storm upside down (USDJPY rises): it blew the player's way.
+  const up = structuredClone(b);
+  const m0 = b.series.mid[0];
+  up.series.mid = b.series.mid.map((m) => 2 * m0 - m);
+  up.series.open = b.series.open.map((m) => 2 * m0 - m);
+  const lucky = runOf(up, 10, []);
+  assert.equal(lucky.worstAdversePct, 0);
+  assert.equal(endcard.lessonFor(up, lucky), `This storm blew your way, but leverage works both ways: at 10x a ${Math.abs(lucky.line.movePct).toFixed(1)}% move against you would have sunk you.`);
+  // No alarm in the bundle: nothing for the follower to act on, and the lesson is about leverage.
+  const quiet = { ...b, events: [] };
+  const sunk = runOf(quiet, 25, []);
+  assert.equal(endcard.alarmFollower(quiet, sunk), "This storm raised no alarm, so the alarm-follower had nothing to act on.");
+  assert.ok(endcard.lessonFor(quiet, sunk).startsWith("At 25x a 1.5% move against you was enough to sink you"), endcard.lessonFor(quiet, sunk));
+});
+
+test("end card: the share line carries the storm, difficulty, leverage, result and the follower; the link opens Survive", async () => {
+  const b = await fixture("coach.fixture.json");
+  const r = runOf(b, 25, []);
+  const url = endcard.shareUrl("https://example.test/app/?storm=other&at=12#x", b.storm_id);
+  assert.equal(url, "https://example.test/app/?mode=survive&storm=coach-fixture");
+  assert.equal(
+    endcard.shareLine(b, r, "Hard", url),
+    `StormScore Survive · USDJPY, coach fixture (Hard) · 25x · Sunk ${usd(r.score)} (${r.changePct.toFixed(1)}%) · alarm-follower ${usd(r.followed.equity)} · ${url}`,
+  );
+  const ok = runOf(b, 10, [{ i: 12, kind: "cut" }]);
+  assert.ok(endcard.shareLine(b, ok, null).startsWith(`StormScore Survive · USDJPY, coach fixture · 10x · Land ho! ${usd(ok.score)}`));
+});

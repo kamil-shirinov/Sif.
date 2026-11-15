@@ -264,3 +264,87 @@
 .coach.tone-danger .coach-who {
   color: #ff8a84;
 }
+
+/* ---------- end card: what happened, the alarm-follower, the lesson, the share line ---------- */
+.survive-card .card-section p,
+.card-lesson p {
+  margin: 0 0 6px;
+  line-height: 1.45;
+  color: #d3dce6;
+}
+.card-section {
+  margin-top: 8px;
+}
+.card-h {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.card-lesson {
+  margin: 6px 0 10px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  border-left: 3px solid var(--accent);
+  background: rgba(124, 196, 255, 0.1);
+}
+.card-lesson .card-h {
+  color: var(--accent);
+}
+.card-lesson p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+.new-best {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  vertical-align: middle;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #06121c;
+  background: linear-gradient(180deg, #ffe08a, #f5a623);
+}
+.card-share {
+  margin: 4px 0 8px;
+}
+.share-row {
+  display: flex;
+  gap: 6px;
+}
+.share-text {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.share-copy {
+  flex: none;
+  padding: 6px 12px;
+}
+.share-note {
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+.card-more {
+  margin: 4px 0 6px;
+  font-size: 12px;
+}
+.card-more summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+.card-more .card-lines {
+  margin-top: 6px;
+}
