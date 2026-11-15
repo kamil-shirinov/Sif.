@@ -150,6 +150,21 @@ def test_missing_all_source_data_is_explicit_and_does_not_swap_periods():
     assert all(w["status"] == "unavailable" for w in result["weeks"])
 
 
+def test_prefix_keeps_the_rest_of_years_planned_weeks_visible():
+    spec = registration2()
+    manifest = fake_manifest(spec)
+    for month in manifest["months"][1:]:
+        month["completed"] = False
+    manifest["selected_months"] = ["2025-01"]
+    manifest["selected_end"] = "2025-02-01"
+    result = evaluate_year(spec, manifest)
+    assert len(result["weeks"]) == 318
+    assert result["policy"]["planned_pair_weeks"] == 318
+    assert any(w["status"] == "not_completed_by_deadline" for w in result["weeks"])
+    assert all(w["status"] == "not_completed_by_deadline" for w in result["weeks"]
+               if pd.Timestamp(w["from_utc"]) >= pd.Timestamp("2025-02-01", tz="UTC"))
+
+
 def test_one_detector_pass_feeds_monthly_scoring_and_all_weekly_books(tmp_path, monkeypatch):
     import storm.oos.round2 as module
     monkeypatch.setattr(module, "DATA2", tmp_path)

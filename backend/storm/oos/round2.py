@@ -228,13 +228,20 @@ def evaluate_year(spec, manifest):
         pm = metrics_for([pair])
         own_weeks = []
         monday = START.normalize() - pd.Timedelta(days=START.weekday())
-        while monday < end:
-            a, b = max(START, monday), min(end, monday + pd.Timedelta(days=7))
-            if pair in feats:
+        planned_end = pd.Timestamp("2026-01-01", tz="UTC")
+        while monday < planned_end:
+            a = max(START, monday)
+            planned_week_end = min(planned_end, monday + pd.Timedelta(days=7))
+            b = min(end, planned_week_end) if a < end else planned_week_end
+            if a >= end:
+                row = {"pair": pair, "from_utc": a.isoformat(), "to_utc": b.isoformat(),
+                       "status": "not_completed_by_deadline", "reason": "outside selected chronological prefix"}
+            elif pair in feats:
                 row = weekly_book(pair, feats[pair], detections[pair].events, a, b)
             else:
                 row = {"pair": pair, "from_utc": a.isoformat(), "to_utc": b.isoformat(),
                        "status": "unavailable", "reason": "pair lacks registered initial warm-up/data"}
+            row["planned_to_utc"] = planned_week_end.isoformat()
             own_weeks.append(row)
             monday += pd.Timedelta(days=7)
         weeks.extend(own_weeks)

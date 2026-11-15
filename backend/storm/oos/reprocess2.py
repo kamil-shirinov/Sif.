@@ -48,7 +48,8 @@ def main():
                         previous=pd.read_csv(prior).set_index('timestamp')[list(OHLC)]
                         current=pd.read_csv(path).set_index('timestamp')[list(OHLC)]
                         overlap=previous.index.intersection(current.index)
-                        pd.testing.assert_frame_equal(previous.loc[overlap],current.loc[overlap],check_exact=True)
+                        if len(overlap):
+                            pd.testing.assert_frame_equal(previous.loc[overlap],current.loc[overlap],check_exact=True)
                         checked_rows+=len(overlap)
                 out=DATA2/window['id']/'processed'/f"{record['pair']}_SPOT.parquet"
                 if out.exists():
