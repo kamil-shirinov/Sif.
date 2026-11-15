@@ -1,9 +1,10 @@
-/* Acquisition-only HTTPS transport for the pinned decoder's fetch(url).
- * Node's native fetch connects with a 10s limit; this feed needed >10s.
- * No changes to requests, responses, candles or the decoder. Core HTTPS
- * verifies TLS normally. The downloader owns the three bounded retries.
+/* Acquisition-only transport for the pinned decoder's fetch(url).
+ * See both dated transport amendments. Dukascopy's own redirect targets
+ * this HTTP endpoint; the HTTPS service repeatedly failed. No changes
+ * to artifact paths, response bodies, candles or the pinned decoder.
+ * The downloader owns the three bounded retries.
  */
-const https = require('node:https');
+const http = require('node:http');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
@@ -13,14 +14,20 @@ globalThis.fetch = async function dukascopyFetch(input) {
       !/^\/datafeed\/[A-Z]{6}\/\d{4}\/\d{2}\/\d{2}\/(BID|ASK)_candles_min_1\.bi5$/.test(url.pathname)) {
     throw new Error('OOS transport accepts only registered-feed minute candle URLs');
   }
+  url.protocol = 'http:';
   return new Promise((resolve, reject) => {
-    const request = https.get(url, { timeout: 60_000 }, response => {
+    const request = http.get(url, { timeout: 60_000 }, response => {
       const chunks = [];
       response.on('data', chunk => chunks.push(chunk));
       response.on('error', reject);
       response.on('end', async () => {
         try {
           const body = Buffer.concat(chunks);
+          if (process.env.OOS_TRANSPORT_LOG) {
+            await fs.appendFile(process.env.OOS_TRANSPORT_LOG,
+              JSON.stringify({utc: new Date().toISOString(), url: url.href,
+                              status: response.statusCode, bytes: body.length}) + '\n');
+          }
           if (response.statusCode === 200) {
             const target = path.join(process.env.OOS_FEED_CACHE, ...url.pathname.split('/').filter(Boolean));
             await fs.mkdir(path.dirname(target), { recursive: true });
@@ -30,7 +37,7 @@ globalThis.fetch = async function dukascopyFetch(input) {
         } catch (error) { reject(error); }
       });
     });
-    request.on('timeout', () => request.destroy(new Error('Dukascopy HTTPS transport timed out after 60000ms')));
+    request.on('timeout', () => request.destroy(new Error('Dukascopy HTTP transport timed out after 60000ms')));
     request.on('error', reject);
   });
 };
