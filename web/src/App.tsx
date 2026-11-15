@@ -1,6 +1,6 @@
 import { Component, lazy, Suspense, useCallback, useEffect, type ReactNode } from "react";
 import { createAudioEngine } from "./audio/engine";
-import { BundleError, DEFAULT_STORM_ID, loadBundle, loadIndex, stormIdFromUrl } from "./lib/loadBundle";
+import { BundleError, DEFAULT_STORM_ID, isWithheld, loadBundle, loadIndex, stormIdFromUrl, WITHHELD_NOTE } from "./lib/loadBundle";
 import { fetchCandles, fetchHealth } from "./lib/api";
 import { applyBundle, COLD_OPEN_MS, defaultStorm } from "./lib/session";
 import { useReplayDriver } from "./lib/useReplayDriver";
@@ -112,7 +112,13 @@ export function App() {
         useApp.getState().setIndex(index);
         const params = new URLSearchParams(window.location.search);
         if (params.get("mode") === "survive") useApp.getState().setMode("survive"); // ?mode=survive opens the game
-        const named = stormIdFromUrl();
+        let named = stormIdFromUrl();
+        let withheldNote: string | null = null;
+        if (named !== null && isWithheld(index, named)) {
+          // A link to a real storm on the public build: play the synthetic example and say why.
+          withheldNote = `${named}: ${WITHHELD_NOTE}`;
+          named = null;
+        }
         let pick = named !== null ? { id: named, file: index?.storms.find((s) => s.storm_id === named)?.file } : defaultStorm(index);
         let b;
         try {
@@ -130,6 +136,7 @@ export function App() {
           autoplayMs: params.get("autoplay") === "0" || useApp.getState().landing ? null : COLD_OPEN_MS,
           at: params.has("at") ? at : null,
         });
+        if (withheldNote) useApp.getState().setLoadError(withheldNote);
         useApp.getState().setBaseStormId(b.storm_id);
       } catch (e) {
         if (!cancelled) useApp.getState().setError(e instanceof BundleError ? e.message : String(e));

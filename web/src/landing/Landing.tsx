@@ -120,7 +120,7 @@ const KEYS: [string, string][] = [
 
 /** `motion`: "leave" while the page gives way to the replay, "enter" while it comes back (landing/transition.ts). */
 export function Landing({ motion = null }: { motion?: "leave" | "enter" | null }) {
-  const { metrics, story } = useLandingData();
+  const { metrics, story, storyWithheld } = useLandingData();
   const index = useApp((s) => s.index);
   const busy = useApp((s) => s.loadingStorm);
   const figures = headlineFigures(metrics ?? null);
@@ -187,7 +187,13 @@ export function Landing({ motion = null }: { motion?: "leave" | "enter" | null }
               <Ledger s={story} />
             </div>
           ) : (
-            <p className="lp-quiet">{story === undefined ? "Reading the bundle…" : "The headline bundle is not on this machine, so its story is not shown."}</p>
+            <p className="lp-quiet">
+              {story === undefined
+                ? "Reading the bundle…"
+                : storyWithheld
+                  ? "The 30 July storm replays in the local demo: SGX's market data is not redistributed, so this public page carries no price series. Its results are in the Explorer (Start), and the synthetic example storm plays here."
+                  : "The headline bundle is not on this machine, so its story is not shown."}
+            </p>
           )}
         </section>
 

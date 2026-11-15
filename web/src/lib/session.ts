@@ -3,7 +3,7 @@
 
 import type { Bundle, StormIndex } from "../types/bundle";
 import { derive } from "./derive";
-import { BundleError, DEFAULT_STORM_ID, loadBundle } from "./loadBundle";
+import { BundleError, DEFAULT_STORM_ID, isWithheld, loadBundle, WITHHELD_NOTE } from "./loadBundle";
 import { useApp } from "../state/app";
 import { useSurvive } from "../state/survive";
 import { useTimeline } from "../state/timeline";
@@ -67,6 +67,11 @@ export function defaultStorm(index: StormIndex | null): { id: string; file?: str
 export async function openStorm(id: string, file?: string): Promise<boolean> {
   const token = ++loadToken;
   const app = useApp.getState();
+  if (isWithheld(app.index, id)) {
+    // The public build lists this storm without its bundle: say so, keep what is loaded.
+    app.setLoadError(`${id}: ${WITHHELD_NOTE}`);
+    return false;
+  }
   app.setLoadingStorm(id);
   app.setLoadError(null);
   try {

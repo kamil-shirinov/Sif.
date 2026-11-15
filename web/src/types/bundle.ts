@@ -206,8 +206,14 @@ export interface IndexMetrics {
 
 export interface StormIndex {
   schema_version: 1;
+  /** Storms whose bundle can be fetched from this build. */
   storms: StormIndexEntry[];
   metrics: IndexMetrics | null;
+  /**
+   * Storms listed without their bundle: the public (GitHub Pages) build ships an index marked
+   * `"bundles": "withheld"`, because SGX's market data is not redistributed. They replay in the local demo only.
+   */
+  withheld?: StormIndexEntry[];
 }
 
 export const SERIES_KEYS: (keyof BundleSeries)[] = [

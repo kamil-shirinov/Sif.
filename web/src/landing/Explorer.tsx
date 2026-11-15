@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { WITHHELD_NOTE } from "../lib/loadBundle";
 import { useApp } from "../state/app";
 import { openFromExplorer, showLanding } from "./actions";
 import "./explorer.css";
@@ -94,6 +95,8 @@ export function Explorer({ leaving }: { leaving: boolean }) {
   }, []);
   // A replay can be opened only when its bundle is on this machine (index.json lists it).
   const playable = useMemo(() => new Set((index?.storms ?? []).map((s) => s.storm_id)), [index]);
+  // The public build lists these storms without their bundles (market data not redistributed).
+  const withheld = useMemo(() => new Set((index?.withheld ?? []).map((s) => s.storm_id)), [index]);
   const instruments = useMemo(() => {
     const set = new Set<string>();
     for (const d of ev?.datasets ?? []) if (ds === "all" || d.id === ds) for (const r of d.storms) set.add(r.instrument);
@@ -149,7 +152,7 @@ export function Explorer({ leaving }: { leaving: boolean }) {
             {ev.datasets
               .filter((d) => ds === "all" || d.id === ds)
               .map((d) => (
-                <DatasetBlock key={d.id} d={d} inst={inst} playable={playable} />
+                <DatasetBlock key={d.id} d={d} inst={inst} playable={playable} withheld={withheld} />
               ))}
 
             {ds === "all" && inst === "all" && <StatsBlock stats={ev.stats} />}
@@ -160,7 +163,7 @@ export function Explorer({ leaving }: { leaving: boolean }) {
   );
 }
 
-function DatasetBlock({ d, inst, playable }: { d: Dataset; inst: string; playable: Set<string> }) {
+function DatasetBlock({ d, inst, playable, withheld }: { d: Dataset; inst: string; playable: Set<string>; withheld: Set<string> }) {
   const rows = d.storms.filter((r) => inst === "all" || r.instrument === inst);
   if (rows.length === 0) return null;
   const h = d.headline;
@@ -225,6 +228,8 @@ function DatasetBlock({ d, inst, playable }: { d: Dataset; inst: string; playabl
                           Survive this storm
                         </button>
                       </>
+                    ) : withheld.has(r.id) ? (
+                      <span className="dim">{WITHHELD_NOTE}</span>
                     ) : (
                       <span className="dim">results only</span>
                     )}
