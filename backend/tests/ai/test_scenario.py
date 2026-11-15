@@ -54,6 +54,47 @@ def test_real_source_gets_real_shape_title(bundle):
     assert 'shaped like 30 July' in result['title']
 
 
+@pytest.mark.parametrize('history', [
+    [('alarm', 10), ('all_clear', 20)],
+    [('all_clear', 0)],
+    [('all_clear', 0), ('alarm', 10), ('alarm', 15), ('all_clear', 20),
+     ('alarm', 30), ('all_clear', 40)],
+])
+def test_completed_pre_onset_episodes_do_not_change_scenario(bundle, history):
+    expected = module.scenario(base_bundle=bundle)
+    bundle['events'] = [
+        {'i': i, 'type': kind, 'text': 'Earlier replay policy event',
+         **({'move_ahead_pct': 100.0} if kind == 'alarm' else {})}
+        for kind, i in history
+    ] + bundle['events']
+    original = deepcopy(bundle)
+
+    result = module.scenario(base_bundle=bundle)
+
+    # Closed history must not create a frame-zero alarm or frame-one fills,
+    # or alter the actual episode's policy, equity paths or exposure.
+    assert result == expected
+    assert bundle == original
+
+
+@pytest.mark.parametrize('clear_offset', [None, 0, 10])
+def test_alarm_still_active_at_onset_is_retained(bundle, clear_offset):
+    onset = bundle['storm']['onset_i']
+    bundle['events'] = [{'i': onset - 10, 'type': 'alarm',
+                         'text': 'Earlier alarm remains active', 'move_ahead_pct': 100.0}]
+    if clear_offset is not None:
+        bundle['events'].append({'i': onset + clear_offset, 'type': 'all_clear',
+                                 'text': 'Cleared at or after onset'})
+
+    result = module.scenario(base_bundle=bundle)
+
+    alarms = [event for event in result['events'] if event['type'] == 'alarm']
+    assert len(alarms) == 1 and alarms[0]['i'] == 0
+    assert result['ships']['prepared']['cut_i'] == 1
+    clears = [event for event in result['events'] if event['type'] == 'all_clear']
+    assert bool(clears) == (clear_offset is not None)
+
+
 @pytest.mark.parametrize('symbol,move,minutes', [
     ('GBPUSD', -3, 30), ('USDJPY', -100, 30), ('USDJPY', float('nan'), 30),
     ('USDJPY', float('inf'), 30), ('USDJPY', True, 30), ('USDJPY', -3, 0),
