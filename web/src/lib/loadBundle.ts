@@ -217,7 +217,9 @@ export function validateBundle(raw: unknown): Bundle {
       case "alarm":
         frameIn(int(e, "i", w), n, `${w}.i`);
         str(e, "text", w);
-        num(e, "move_ahead_pct", w);
+        // null (or absent) for an alarm that no storm followed: a false alarm has no move ahead of it.
+        if (e.move_ahead_pct === null || e.move_ahead_pct === undefined) e.move_ahead_pct = null;
+        else num(e, "move_ahead_pct", w);
         events.push(e as unknown as BundleEvent);
         return;
       case "margin_call": {
