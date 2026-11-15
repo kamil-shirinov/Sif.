@@ -73,6 +73,41 @@ These are detection baselines, not retrofitted trading policies. Paired interval
 | Pooled all (descriptive) | naive | 45 / 48 | 9 / 48 | 0.07 | 20.8% [6.2%, 35.4%] |
 | Pooled all (descriptive) | v0 | 45 / 48 | 27 / 48 | 2.20 | -16.7% [-29.2%, -4.2%] |
 
+### Conditional timing design
+
+| Independent window | Instrument | Detection alarms | Danger alarms | Feasible minute offsets | Administratively censored detection episodes |
+|---|---|---:|---:|---:|---:|
+| sgx-august | EURUSD | 4 | 2 | 8798 | 0 |
+| sgx-august | USDJPY | 8 | 5 | 1806 | 0 |
+| sgx-august | USDSGD | 5 | 4 | 8559 | 0 |
+| snb-2015 | EURCHF | 1 | 0 | 5231 | 0 |
+| snb-2015 | USDCHF | 2 | 2 | 5314 | 0 |
+| gbp-flash-2016 | GBPUSD | 1 | 1 | 4103 | 0 |
+| jpy-flash-2019 | USDJPY | 1 | 1 | 4202 | 0 |
+| jpy-flash-2019 | AUDJPY | 1 | 0 | 4242 | 0 |
+| intervention-sep-2022 | USDJPY | 3 | 3 | 4887 | 0 |
+| intervention-oct-2022 | USDJPY | 2 | 2 | 2266 | 0 |
+| carry-2024 | USDJPY | 1 | 1 | 7063 | 0 |
+| ordinary-mar-2024 | EURUSD | 7 | 5 | 2490 | 0 |
+| ordinary-mar-2024 | USDJPY | 6 | 5 | 3940 | 0 |
+| ordinary-mar-2024 | GBPUSD | 4 | 3 | 7044 | 0 |
+| ordinary-jun-2025 | EURUSD | 3 | 3 | 13437 | 0 |
+| ordinary-jun-2025 | USDJPY | 4 | 4 | 15072 | 0 |
+| ordinary-jun-2025 | GBPUSD | 2 | 2 | 16199 | 0 |
+| chips-new-tickers | AMD | 5 | 1 | 108 | 0 |
+| chips-new-tickers | AVGO | 4 | 0 | 18 | 1 |
+| chips-new-tickers | TSM | 11 | 2 | 2 | 0 |
+| chips-new-tickers | MU | 7 | 3 | 99 | 0 |
+| chips-new-tickers | ARM | 2 | 1 | 1015 | 0 |
+| chips-new-tickers | SMCI | 6 | 1 | 17 | 0 |
+| chips-new-tickers | INTC | 5 | 1 | 594 | 0 |
+| chips-new-tickers | QCOM | 2 | 1 | 362 | 0 |
+| chips-new-tickers | MRVL | 4 | 1 | 40 | 0 |
+| chips-new-tickers | AMAT | 2 | 0 | 1058 | 0 |
+| chips-new-tickers | LRCX | 2 | 1 | 290 | 0 |
+| chips-new-tickers | SMH | 4 | 1 | 31 | 0 |
+| chips-new-tickers | SOXX | 9 | 1 | 3 | 0 |
+
 ## Synthetic policy outcomes
 
 Current-main policy is frozen at the registered base, without tuning. FX books start with USD 1m equity, 20x total gross exposure, 2.5% maintenance; chip secondary books are independent long-stock books per new ticker, 4x exposure and 15% maintenance. All cut 75% on book-danger alarms and restore at all-clear, filling next observed open. USD crosses without a registered conversion leg are excluded from policy only. Round two retains its usable independent weekly reset books and carry-in convention. Policy sums across reset books are scenario totals, not the return of one investable portfolio. Maximum book drawdown is the worst individual reset book, not an aggregate portfolio drawdown.
@@ -86,6 +121,11 @@ Current-main policy is frozen at the registered base, without tuning. FX books s
 | Pooled all (descriptive) | 22 | 1,187,865 | -8,933,763 | -10,121,628 | 15 / 16 | 86,507 / 56,479 | 2,820,442 / 2,878,468 |
 
 Round 1's published policy used an older valuation implementation. Original per-window policy results are preserved beside current-main recomputation in units/; they are not silently revised. Chip full-period policies here are new secondary analyses, rather than the original selected replay outcomes. Yahoo bars contain trades, not measured quotes: zero simulated spread is not evidence of free execution, and spread sensitivities are unavailable for chips.
+
+| Dataset | Published prepared − holding, USD | Frozen-main prepared − holding, USD |
+|---|---:|---:|
+| SGX August | 39,770 | 39,770 |
+| FX historical round 1 | 487,286 | 487,286 |
 
 ## Sensitivity beside the frozen headline
 
@@ -209,3 +249,20 @@ python -m pytest -q
 ```
 
 results.json contains runtime/core/config/source/document/data hashes and all estimates. units/ contains per-storm rows, zero/partial-day exposure blocks, original policy results, all policy books and sensitivity outcomes. nulls/ contains complete 10,000-draw detection and 1,000-draw policy arrays plus every sampled offset. Source data remain uncommitted at their original read-only locations. The Markdown is rendered deterministically from JSON and checked byte-for-byte by a test. The preregistration and dated amendments record the exact estimands, censoring, denominators and limitations.
+
+### Pooled overlap accounting
+
+Duplicate scored observations use fixed priority SGX, round 1, round 2, chips and exact source/instrument/UTC minute identity. Lower-priority storms are assigned by onset minute; original label/matching histories remain intact. False episodes are rebuilt after removing duplicate alarm starts, using original full labels for false classification. An overlapping lower-priority reset book is excluded in its entirety. Dataset-specific tables retain all original observations/books.
+
+| Window | Duplicate instrument-minutes excluded | Storms excluded | Whole policy books excluded |
+|---|---:|---:|---:|
+| sgx-august | 0 | 0 | 0 |
+| snb-2015 | 0 | 0 | 0 |
+| gbp-flash-2016 | 0 | 0 | 0 |
+| jpy-flash-2019 | 0 | 0 | 0 |
+| intervention-sep-2022 | 0 | 0 | 0 |
+| intervention-oct-2022 | 0 | 0 | 0 |
+| carry-2024 | 0 | 0 | 0 |
+| ordinary-mar-2024 | 0 | 0 | 0 |
+| ordinary-jun-2025 | 0 | 0 | 0 |
+| chips-new-tickers | 0 | 0 | 0 |

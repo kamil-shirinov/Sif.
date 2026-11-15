@@ -81,10 +81,18 @@ def render(result):
               "These are detection baselines, not retrofitted trading policies. Paired intervals resample the same storm indices for v1 and each baseline. Naive waits for the label-sized 15-minute price move; v0 uses its unchanged hand-set settings. Baselines retain their existing gap/session behavior, so chip comparisons inherit that implementation's limitations.", "",
               "| Dataset | Baseline | Alarmed / storms | Caught / storms | False episodes / observed day | v1 − baseline caught share [95%] |",
               "|---|---|---:|---:|---:|---|"]
+    # The feasible-offset design is displayed after the baseline table below so all
+    # rows in each Markdown table remain contiguous.
     for name, group in result["groups"].items():
         for method, baseline in group["baselines"].items():
             p = baseline["point"]
             lines.append(f"| {LABELS[name]} | {method} | {p['alarmed']} / {p['storms']} | {p['caught']} / {p['storms']} | {number(p['false_alert_episodes_per_observed_day'])} | {ci(baseline['v1_minus_baseline_caught_share'],True)} |")
+    lines += ["", "### Conditional timing design", "",
+              "| Independent window | Instrument | Detection alarms | Danger alarms | Feasible minute offsets | Administratively censored detection episodes |",
+              "|---|---|---:|---:|---:|---:|"]
+    for unit, pairs in result.get("timing_design",{}).items():
+        for pair, row in pairs.items():
+            lines.append(f"| {unit} | {pair} | {row['alarms']} | {row['danger_alarms']} | {row['feasible_offsets']} | {row['censored_detection_episodes']} |")
     lines += ["", "## Synthetic policy outcomes", "",
               "Current-main policy is frozen at the registered base, without tuning. FX books start with USD 1m equity, 20x total gross exposure, 2.5% maintenance; chip secondary books are independent long-stock books per new ticker, 4x exposure and 15% maintenance. All cut 75% on book-danger alarms and restore at all-clear, filling next observed open. USD crosses without a registered conversion leg are excluded from policy only. Round two retains its usable independent weekly reset books and carry-in convention. Policy sums across reset books are scenario totals, not the return of one investable portfolio. Maximum book drawdown is the worst individual reset book, not an aggregate portfolio drawdown.", "",
               "| Dataset | Reset books | Prepared − unprepared, USD | Prepared P&L, USD | Holding P&L, USD | Prepared / holding margin calls | Prepared / holding spread cost, USD | Worst prepared / holding book drawdown, USD |",
@@ -93,7 +101,12 @@ def render(result):
         p = group["policy"]
         a, b = p["prepared"], p["unprepared"]
         lines.append(f"| {LABELS[name]} | {p['independent_reset_books']} | {number(p['prepared_minus_unprepared_usd'],0)} | {number(a['pnl_usd'],0)} | {number(b['pnl_usd'],0)} | {a['margin_calls']} / {b['margin_calls']} | {number(a['spread_cost_usd'],0)} / {number(b['spread_cost_usd'],0)} | {number(a['max_book_drawdown_usd'],0)} / {number(b['max_book_drawdown_usd'],0)} |")
-    lines += ["", "Round 1's published policy used an older valuation implementation. Original per-window policy results are preserved beside current-main recomputation in units/; they are not silently revised. Chip full-period policies here are new secondary analyses, rather than the original selected replay outcomes. Yahoo bars contain trades, not measured quotes: zero simulated spread is not evidence of free execution, and spread sensitivities are unavailable for chips.", "", "## Sensitivity beside the frozen headline", "",
+    lines += ["", "Round 1's published policy used an older valuation implementation. Original per-window policy results are preserved beside current-main recomputation in units/; they are not silently revised. Chip full-period policies here are new secondary analyses, rather than the original selected replay outcomes. Yahoo bars contain trades, not measured quotes: zero simulated spread is not evidence of free execution, and spread sensitivities are unavailable for chips.", "",
+              "| Dataset | Published prepared − holding, USD | Frozen-main prepared − holding, USD |",
+              "|---|---:|---:|"]
+    for name, row in result.get("published_policy_comparison",{}).items():
+        lines.append(f"| {LABELS[name]} | {number(row['published_difference_usd'],0)} | {number(row['frozen_main_difference_usd'],0)} |")
+    lines += ["", "## Sensitivity beside the frozen headline", "",
               "Every row changes one factor only. There is no search, selection or replacement of the headline. Invalid storm_on=0.70 remains invalid because frozen squall_on=0.75 would exceed it. Fill delays count observed traded bars after the signal and apply to cuts and restores. Leverage 10x/20x/30x is an additional stress for chip books whose headline is 4x; unchanged 15% maintenance can force immediate liquidation. No sensitivity p-values were run and headline null distributions are not reused to infer significance for a changed policy."]
     for name, group in result["groups"].items():
         p = group["point"]
@@ -115,6 +128,13 @@ def render(result):
               f"Seed: `{result['provenance']['seed']}`. Independent random streams are SHA-256-keyed by dataset/unit/pair/task, so adding round two does not change earlier draws. Runtime: `{json.dumps(result['provenance']['runtime'],sort_keys=True)}`. Accelerator: {result['provenance']['accelerator']}; representative real and shuffled paths are checked against the original simulator with USD absolute tolerance 0.00001 and relative tolerance 1e-9. Timing ties use >=; no null or undefined metric is converted to zero.", "",
               "```sh", "cd backend", result["provenance"]["command"], "python -m pytest -q", "```", "",
               "results.json contains runtime/core/config/source/document/data hashes and all estimates. units/ contains per-storm rows, zero/partial-day exposure blocks, original policy results, all policy books and sensitivity outcomes. nulls/ contains complete 10,000-draw detection and 1,000-draw policy arrays plus every sampled offset. Source data remain uncommitted at their original read-only locations. The Markdown is rendered deterministically from JSON and checked byte-for-byte by a test. The preregistration and dated amendments record the exact estimands, censoring, denominators and limitations.", ""]
+    lines += ["### Pooled overlap accounting", "",
+              "Duplicate scored observations use fixed priority SGX, round 1, round 2, chips and exact source/instrument/UTC minute identity. Lower-priority storms are assigned by onset minute; original label/matching histories remain intact. False episodes are rebuilt after removing duplicate alarm starts, using original full labels for false classification. An overlapping lower-priority reset book is excluded in its entirety. Dataset-specific tables retain all original observations/books.", "",
+              "| Window | Duplicate instrument-minutes excluded | Storms excluded | Whole policy books excluded |",
+              "|---|---:|---:|---:|"]
+    for unit, row in result.get("pooling",{}).items():
+        lines.append(f"| {unit} | {sum(row['duplicate_minutes_by_pair'].values())} | {len(row['excluded_storm_ids'])} | {len(row['excluded_policy_books'])} |")
+    lines.append("")
     return "\n".join(lines)
 
 

@@ -1,5 +1,5 @@
 {
-  "cache_tag": "4d553a2500c5963d5f3fbb4a7434fa97cc3f4ad0e14014975c11b2543a9be44d",
+  "cache_tag": "5b686757c9e34c1e8bf457a823b182001450a913166e7353d29a57b93565fd38",
   "result": {
     "dataset": "oos_round1",
     "unit": "jpy-flash-2019",
@@ -371,6 +371,299 @@
         "trading_daily": []
       }
     },
+    "pooled_methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 63.44196154495431,
+        "median_minutes_to_alarm": 11.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 62.363401436807195,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 2,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 3.0,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2019-01-02",
+            "alarm_utc": "2019-01-02 22:35",
+            "move_ahead_pct": 57.29655172413788,
+            "minutes": 12,
+            "caught": true,
+            "move_ahead_pct_first_onset": 56.29489090662672,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2019-01-02T22:23:00+00:00",
+            "first_onset_utc": "2019-01-02T22:19:00+00:00",
+            "trough_utc": "2019-01-02T22:38:00+00:00",
+            "end_utc": "2019-01-02T22:54:00+00:00",
+            "move_bp": -333.32567067423713,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "block": "2019-01-02"
+          },
+          {
+            "storm_id": "audjpy-2019-01-02",
+            "alarm_utc": "2019-01-02 22:35",
+            "move_ahead_pct": 69.58737136577074,
+            "minutes": 11,
+            "caught": true,
+            "move_ahead_pct_first_onset": 68.43191196698767,
+            "minutes_first_onset": 16,
+            "caught_first_onset": true,
+            "pair": "AUDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2019-01-02T22:24:00+00:00",
+            "first_onset_utc": "2019-01-02T22:19:00+00:00",
+            "trough_utc": "2019-01-02T22:39:00+00:00",
+            "end_utc": "2019-01-02T22:55:00+00:00",
+            "move_bp": -659.7934066803346,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "block": "2019-01-02"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-01",
+            "observed_minutes": 120,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-02",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-03",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-04",
+            "observed_minutes": 1320,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 87.41722174181169,
+        "median_minutes_to_alarm": 10.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 85.92885438490171,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 3.0,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2019-01-02",
+            "alarm_utc": "2019-01-02 22:34",
+            "move_ahead_pct": 83.9862068965517,
+            "minutes": 11,
+            "caught": true,
+            "move_ahead_pct_first_onset": 82.51795636265054,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2019-01-02T22:23:00+00:00",
+            "first_onset_utc": "2019-01-02T22:19:00+00:00",
+            "trough_utc": "2019-01-02T22:38:00+00:00",
+            "end_utc": "2019-01-02T22:54:00+00:00",
+            "move_bp": -333.32567067423713,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "block": "2019-01-02"
+          },
+          {
+            "storm_id": "audjpy-2019-01-02",
+            "alarm_utc": "2019-01-02 22:34",
+            "move_ahead_pct": 90.84823658707168,
+            "minutes": 10,
+            "caught": true,
+            "move_ahead_pct_first_onset": 89.33975240715289,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "AUDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2019-01-02T22:24:00+00:00",
+            "first_onset_utc": "2019-01-02T22:19:00+00:00",
+            "trough_utc": "2019-01-02T22:39:00+00:00",
+            "end_utc": "2019-01-02T22:55:00+00:00",
+            "move_bp": -659.7934066803346,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "block": "2019-01-02"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-01",
+            "observed_minutes": 120,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-02",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-03",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-04",
+            "observed_minutes": 1320,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 2,
+        "median_move_ahead_pct": 87.41722174181169,
+        "median_minutes_to_alarm": 10.5,
+        "caught_first_onset": 2,
+        "median_move_ahead_pct_first_onset": 85.92885438490171,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 7,
+        "false_alarms": 5,
+        "false_alarms_per_day": 1.6666666666666667,
+        "false_alarm_episodes": 3,
+        "false_alarm_episodes_per_day": 1.0,
+        "squalls_per_day": null,
+        "days": 3.0,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2019-01-02",
+            "alarm_utc": "2019-01-02 22:34",
+            "move_ahead_pct": 83.9862068965517,
+            "minutes": 11,
+            "caught": true,
+            "move_ahead_pct_first_onset": 82.51795636265054,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2019-01-02T22:23:00+00:00",
+            "first_onset_utc": "2019-01-02T22:19:00+00:00",
+            "trough_utc": "2019-01-02T22:38:00+00:00",
+            "end_utc": "2019-01-02T22:54:00+00:00",
+            "move_bp": -333.32567067423713,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "block": "2019-01-02"
+          },
+          {
+            "storm_id": "audjpy-2019-01-02",
+            "alarm_utc": "2019-01-02 22:34",
+            "move_ahead_pct": 90.84823658707168,
+            "minutes": 10,
+            "caught": true,
+            "move_ahead_pct_first_onset": 89.33975240715289,
+            "minutes_first_onset": 15,
+            "caught_first_onset": true,
+            "pair": "AUDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2019-01-02T22:24:00+00:00",
+            "first_onset_utc": "2019-01-02T22:19:00+00:00",
+            "trough_utc": "2019-01-02T22:39:00+00:00",
+            "end_utc": "2019-01-02T22:55:00+00:00",
+            "move_bp": -659.7934066803346,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "block": "2019-01-02"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-01",
+            "observed_minutes": 120,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-02",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-03",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "jpy-flash-2019",
+            "date": "2019-01-04",
+            "observed_minutes": 1320,
+            "episodes": 1
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0,
+        "AUDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
     "policy": {
       "independent_reset_books": 1,
       "synthetic": true,
@@ -404,6 +697,7 @@
         ],
         "start": "2019-01-01 00:00:00+00:00",
         "end": "2019-01-05 00:00:00+00:00",
+        "include_in_pooled": true,
         "prepared": {
           "final_equity_usd": 406392.69406392786,
           "max_drawdown_usd": 603085.849339142,
@@ -480,6 +774,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -501,7 +796,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -556,6 +867,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 378451.614113059,
               "max_drawdown_usd": 631026.9292900108,
@@ -577,7 +889,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -632,6 +960,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 350510.5341621901,
               "max_drawdown_usd": 658968.0092408797,
@@ -653,7 +982,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -708,6 +1053,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -729,7 +1075,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -784,6 +1146,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -805,7 +1168,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -860,6 +1239,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -881,7 +1261,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "cut_fraction",
@@ -936,6 +1332,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -957,7 +1354,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "cut_fraction",
@@ -1012,6 +1425,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -1033,7 +1447,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "cut_fraction",
@@ -1088,6 +1518,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -1109,7 +1540,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "leverage",
@@ -1164,6 +1611,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 809439.3513613117,
               "max_drawdown_usd": 364680.44844761584,
@@ -1185,7 +1633,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "leverage",
@@ -1240,6 +1704,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -1261,7 +1726,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "leverage",
@@ -1316,6 +1797,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 739947.3916562442,
               "max_drawdown_usd": 274270.42344836064,
@@ -1337,7 +1819,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "storm_on",
@@ -1398,6 +1896,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -1419,7 +1918,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       },
       {
         "factor": "storm_on",
@@ -1474,6 +1989,7 @@
             ],
             "start": "2019-01-01 00:00:00+00:00",
             "end": "2019-01-05 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 406392.69406392786,
               "max_drawdown_usd": 603085.849339142,
@@ -1495,7 +2011,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 2,
+          "caught": 2,
+          "caught_first_onset": 2,
+          "alarmed_share": 1.0,
+          "caught_share": 1.0,
+          "caught_share_first_onset": 1.0,
+          "median_share_ahead_pct": 63.44196154495431,
+          "median_minutes_to_alarm": 11.5,
+          "median_share_ahead_pct_first_onset": 62.363401436807195,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 3.0,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
       }
     ],
     "oracle_checks": [
@@ -1512,6 +2044,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 0.2678961670026183
+    "elapsed_seconds": 0.29959237499861047
   }
 }

@@ -4130,14 +4130,15 @@
     "stats_sources": {
       "__init__.py": "81686ecd542ce108fe319e2340cb756af5912fd345a97fac15aa6a9dac572786",
       "bootstrap.py": "efb022231270b18f7a8d124a08434f4b0a621e843f0f7d77f9dac02a5200543b",
-      "datasets.py": "551ffd9a9475c3ba33a5a545ddb3fe2e2550c25ca0864176c9ec75b4b5a0adf3",
+      "datasets.py": "677bfe1fdfcfa91d8536bf88aef10038b236bb47296aabb097a69b6fd63f1597",
       "monitor.py": "b8be914be00e75cae57b6a88c79edf4995e24ceace3a095d8d9cc611d7ba1b94",
       "policy.py": "22a6095cc3eefc73bd2e53b51334321afdfd6bd1997956ed0b1da898e0beaefc",
       "policy_native.cpp": "625481c2d70c037d1f0438a6961293c02d5420f1b397995678294d8391479bbc",
+      "pooling.py": "f3caf7a2c90e8863897f0215bbfeb601e3f5cd1b4616ae8403434d753e392bc1",
       "protocol.py": "8e9f9781c1dc7ce00e9c0c11016f9c7fa64ad97ad6567f17052b190819823c3d",
       "randomization.py": "517d4bbea33044047da4deb06196f6835003473e3df2547e95f5d91a4aad5c6c",
-      "report.py": "9b376a9bec40d2b1d40c4ae3718617d4fa978d5211932a74de0e9ace9fa0ab61",
-      "run.py": "dedab68d2803de6dd30cd3d097be49ba4a92ded15759fa49743879808a17d12c"
+      "report.py": "f2a8b21b517c39d0fab34f61148b150a4277ba5a436dd7831c93824c8b678c11",
+      "run.py": "db639deb4830460c5d80c1eeac03b96d8bbc1ee2e9ee5e6bf0fe632d2bd3803e"
     },
     "inputs": {
       "/Users/kamilshirinov/Desktop/stormscore/data/processed/EURUSD_SPOT.parquet": "1e9b0329652a8687670822638c5dd4ae25f504e9b62ac2e9b901c2154e61622d",
@@ -4191,9 +4192,10 @@
     "accelerator": "optional C++ (oracle-verified)",
     "command": "python -m storm.stats.run",
     "amendments": {
-      "amendment-2026-11-15-censoring.md": "467338d4526bbc464f843b42793bb00f94dadca9b5cfe0b6cd1e75fb4bb7c8a1"
+      "amendment-2026-11-15-censoring.md": "467338d4526bbc464f843b42793bb00f94dadca9b5cfe0b6cd1e75fb4bb7c8a1",
+      "amendment-2026-11-15-pooling.md": "edf038b844831b6a248ef3a24aa4b84f3fc1861491bfb863a1b9a7bb9caac450"
     },
-    "finished_at_utc": "2026-11-15T05:26:25.738740+00:00"
+    "finished_at_utc": "2026-11-15T05:31:22.672292+00:00"
   },
   "round2_status": "pending; monitor until registered cutoff",
   "oracle_checks": [
@@ -4632,6 +4634,380 @@
       ],
       "differences": [],
       "passed": true
+    }
+  },
+  "published_policy_comparison": {
+    "sgx_august": {
+      "published_difference_usd": 39770,
+      "frozen_main_difference_usd": 39769.70088879205
+    },
+    "oos_round1": {
+      "published_difference_usd": 487286.3085006925,
+      "frozen_main_difference_usd": 487286.308500684
+    }
+  },
+  "pooling": {
+    "sgx-august": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURUSD": 0,
+        "USDJPY": 0,
+        "USDSGD": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "snb-2015": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURCHF": 0,
+        "USDCHF": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "gbp-flash-2016": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "GBPUSD": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "jpy-flash-2019": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0,
+        "AUDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "intervention-sep-2022": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "intervention-oct-2022": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "carry-2024": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "ordinary-mar-2024": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURUSD": 0,
+        "USDJPY": 0,
+        "GBPUSD": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "ordinary-jun-2025": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURUSD": 0,
+        "USDJPY": 0,
+        "GBPUSD": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "chips-new-tickers": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "AMD": 0,
+        "AVGO": 0,
+        "TSM": 0,
+        "MU": 0,
+        "ARM": 0,
+        "SMCI": 0,
+        "INTC": 0,
+        "QCOM": 0,
+        "MRVL": 0,
+        "AMAT": 0,
+        "LRCX": 0,
+        "SMH": 0,
+        "SOXX": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    }
+  },
+  "timing_design": {
+    "sgx-august": {
+      "EURUSD": {
+        "alarms": 4,
+        "danger_alarms": 2,
+        "feasible_offsets": 8798,
+        "censored_detection_episodes": 0
+      },
+      "USDJPY": {
+        "alarms": 8,
+        "danger_alarms": 5,
+        "feasible_offsets": 1806,
+        "censored_detection_episodes": 0
+      },
+      "USDSGD": {
+        "alarms": 5,
+        "danger_alarms": 4,
+        "feasible_offsets": 8559,
+        "censored_detection_episodes": 0
+      }
+    },
+    "snb-2015": {
+      "EURCHF": {
+        "alarms": 1,
+        "danger_alarms": 0,
+        "feasible_offsets": 5231,
+        "censored_detection_episodes": 0
+      },
+      "USDCHF": {
+        "alarms": 2,
+        "danger_alarms": 2,
+        "feasible_offsets": 5314,
+        "censored_detection_episodes": 0
+      }
+    },
+    "gbp-flash-2016": {
+      "GBPUSD": {
+        "alarms": 1,
+        "danger_alarms": 1,
+        "feasible_offsets": 4103,
+        "censored_detection_episodes": 0
+      }
+    },
+    "jpy-flash-2019": {
+      "USDJPY": {
+        "alarms": 1,
+        "danger_alarms": 1,
+        "feasible_offsets": 4202,
+        "censored_detection_episodes": 0
+      },
+      "AUDJPY": {
+        "alarms": 1,
+        "danger_alarms": 0,
+        "feasible_offsets": 4242,
+        "censored_detection_episodes": 0
+      }
+    },
+    "intervention-sep-2022": {
+      "USDJPY": {
+        "alarms": 3,
+        "danger_alarms": 3,
+        "feasible_offsets": 4887,
+        "censored_detection_episodes": 0
+      }
+    },
+    "intervention-oct-2022": {
+      "USDJPY": {
+        "alarms": 2,
+        "danger_alarms": 2,
+        "feasible_offsets": 2266,
+        "censored_detection_episodes": 0
+      }
+    },
+    "carry-2024": {
+      "USDJPY": {
+        "alarms": 1,
+        "danger_alarms": 1,
+        "feasible_offsets": 7063,
+        "censored_detection_episodes": 0
+      }
+    },
+    "ordinary-mar-2024": {
+      "EURUSD": {
+        "alarms": 7,
+        "danger_alarms": 5,
+        "feasible_offsets": 2490,
+        "censored_detection_episodes": 0
+      },
+      "USDJPY": {
+        "alarms": 6,
+        "danger_alarms": 5,
+        "feasible_offsets": 3940,
+        "censored_detection_episodes": 0
+      },
+      "GBPUSD": {
+        "alarms": 4,
+        "danger_alarms": 3,
+        "feasible_offsets": 7044,
+        "censored_detection_episodes": 0
+      }
+    },
+    "ordinary-jun-2025": {
+      "EURUSD": {
+        "alarms": 3,
+        "danger_alarms": 3,
+        "feasible_offsets": 13437,
+        "censored_detection_episodes": 0
+      },
+      "USDJPY": {
+        "alarms": 4,
+        "danger_alarms": 4,
+        "feasible_offsets": 15072,
+        "censored_detection_episodes": 0
+      },
+      "GBPUSD": {
+        "alarms": 2,
+        "danger_alarms": 2,
+        "feasible_offsets": 16199,
+        "censored_detection_episodes": 0
+      }
+    },
+    "chips-new-tickers": {
+      "AMD": {
+        "alarms": 5,
+        "danger_alarms": 1,
+        "feasible_offsets": 108,
+        "censored_detection_episodes": 0
+      },
+      "AVGO": {
+        "alarms": 4,
+        "danger_alarms": 0,
+        "feasible_offsets": 18,
+        "censored_detection_episodes": 1
+      },
+      "TSM": {
+        "alarms": 11,
+        "danger_alarms": 2,
+        "feasible_offsets": 2,
+        "censored_detection_episodes": 0
+      },
+      "MU": {
+        "alarms": 7,
+        "danger_alarms": 3,
+        "feasible_offsets": 99,
+        "censored_detection_episodes": 0
+      },
+      "ARM": {
+        "alarms": 2,
+        "danger_alarms": 1,
+        "feasible_offsets": 1015,
+        "censored_detection_episodes": 0
+      },
+      "SMCI": {
+        "alarms": 6,
+        "danger_alarms": 1,
+        "feasible_offsets": 17,
+        "censored_detection_episodes": 0
+      },
+      "INTC": {
+        "alarms": 5,
+        "danger_alarms": 1,
+        "feasible_offsets": 594,
+        "censored_detection_episodes": 0
+      },
+      "QCOM": {
+        "alarms": 2,
+        "danger_alarms": 1,
+        "feasible_offsets": 362,
+        "censored_detection_episodes": 0
+      },
+      "MRVL": {
+        "alarms": 4,
+        "danger_alarms": 1,
+        "feasible_offsets": 40,
+        "censored_detection_episodes": 0
+      },
+      "AMAT": {
+        "alarms": 2,
+        "danger_alarms": 0,
+        "feasible_offsets": 1058,
+        "censored_detection_episodes": 0
+      },
+      "LRCX": {
+        "alarms": 2,
+        "danger_alarms": 1,
+        "feasible_offsets": 290,
+        "censored_detection_episodes": 0
+      },
+      "SMH": {
+        "alarms": 4,
+        "danger_alarms": 1,
+        "feasible_offsets": 31,
+        "censored_detection_episodes": 0
+      },
+      "SOXX": {
+        "alarms": 9,
+        "danger_alarms": 1,
+        "feasible_offsets": 3,
+        "censored_detection_episodes": 0
+      }
     }
   },
   "chips_descriptive_splits": {

@@ -1,5 +1,5 @@
 {
-  "cache_tag": "4d553a2500c5963d5f3fbb4a7434fa97cc3f4ad0e14014975c11b2543a9be44d",
+  "cache_tag": "5b686757c9e34c1e8bf457a823b182001450a913166e7353d29a57b93565fd38",
   "result": {
     "dataset": "oos_round1",
     "unit": "ordinary-mar-2024",
@@ -1489,6 +1489,1140 @@
         "trading_daily": []
       }
     },
+    "pooled_methods": {
+      "v1": {
+        "storms": 8,
+        "alarmed": 7,
+        "caught": 4,
+        "median_move_ahead_pct": 64.15954415954297,
+        "median_minutes_to_alarm": 4.0,
+        "caught_first_onset": 4,
+        "median_move_ahead_pct_first_onset": 66.70616113743982,
+        "median_minutes_to_alarm_first_onset": 5.0,
+        "storm_alarms": 17,
+        "false_alarms": 10,
+        "false_alarms_per_day": 0.4752632100069309,
+        "false_alarm_episodes": 7,
+        "false_alarm_episodes_per_day": 0.3326842470048516,
+        "squalls_per_day": null,
+        "days": 21.040972222222223,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2024-03-08",
+            "alarm_utc": "2024-03-08 13:31",
+            "move_ahead_pct": 0.0,
+            "minutes": 15,
+            "caught": false,
+            "move_ahead_pct_first_onset": 0.0,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-08T13:16:00+00:00",
+            "first_onset_utc": "2024-03-08T13:16:00+00:00",
+            "trough_utc": "2024-03-08T13:31:00+00:00",
+            "end_utc": "2024-03-08T13:31:00+00:00",
+            "move_bp": 30.874411614696395,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-08"
+          },
+          {
+            "storm_id": "eurusd-2024-03-08",
+            "alarm_utc": "2024-03-08 13:31",
+            "move_ahead_pct": 33.578792341676184,
+            "minutes": 4,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.88811188810867,
+            "minutes_first_onset": 5,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-08T13:27:00+00:00",
+            "first_onset_utc": "2024-03-08T13:26:00+00:00",
+            "trough_utc": "2024-03-08T13:42:00+00:00",
+            "end_utc": "2024-03-08T13:43:00+00:00",
+            "move_bp": 31.021564327484707,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-08"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-12",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-12T12:30:00+00:00",
+            "first_onset_utc": "2024-03-12T12:30:00+00:00",
+            "trough_utc": "2024-03-12T12:40:00+00:00",
+            "end_utc": "2024-03-12T12:45:00+00:00",
+            "move_bp": -40.615872005850264,
+            "duration_min": 10,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-12"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-19",
+            "alarm_utc": "2024-03-19 03:36",
+            "move_ahead_pct": 90.94827586206759,
+            "minutes": 11,
+            "caught": true,
+            "move_ahead_pct_first_onset": 90.94827586206759,
+            "minutes_first_onset": 11,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-19T03:25:00+00:00",
+            "first_onset_utc": "2024-03-19T03:25:00+00:00",
+            "trough_utc": "2024-03-19T03:40:00+00:00",
+            "end_utc": "2024-03-19T03:45:00+00:00",
+            "move_bp": 38.84327408617993,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-19"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-20",
+            "alarm_utc": "2024-03-20 18:36",
+            "move_ahead_pct": 64.15954415954297,
+            "minutes": 4,
+            "caught": true,
+            "move_ahead_pct_first_onset": 66.70616113743982,
+            "minutes_first_onset": 14,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:32:00+00:00",
+            "first_onset_utc": "2024-03-20T18:22:00+00:00",
+            "trough_utc": "2024-03-20T18:45:00+00:00",
+            "end_utc": "2024-03-20T18:51:00+00:00",
+            "move_bp": -57.85663422739118,
+            "duration_min": 13,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "eurusd-2024-03-20",
+            "alarm_utc": "2024-03-20 18:01",
+            "move_ahead_pct": 100.0,
+            "minutes": -33,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": -32,
+            "caught_first_onset": true,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:34:00+00:00",
+            "first_onset_utc": "2024-03-20T18:33:00+00:00",
+            "trough_utc": "2024-03-20T18:55:00+00:00",
+            "end_utc": "2024-03-20T18:55:00+00:00",
+            "move_bp": 45.4589374203418,
+            "duration_min": 21,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "gbpusd-2024-03-20",
+            "alarm_utc": "2024-03-20 18:01",
+            "move_ahead_pct": 100.0,
+            "minutes": -33,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": -31,
+            "caught_first_onset": true,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:34:00+00:00",
+            "first_onset_utc": "2024-03-20T18:32:00+00:00",
+            "trough_utc": "2024-03-20T18:48:00+00:00",
+            "end_utc": "2024-03-20T18:51:00+00:00",
+            "move_bp": 40.75697132863265,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-27",
+            "alarm_utc": "2024-03-27 09:02",
+            "move_ahead_pct": 35.86538461537948,
+            "minutes": 2,
+            "caught": false,
+            "move_ahead_pct_first_onset": 36.00386100385652,
+            "minutes_first_onset": 3,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-27T09:00:00+00:00",
+            "first_onset_utc": "2024-03-27T08:59:00+00:00",
+            "trough_utc": "2024-03-27T09:15:00+00:00",
+            "end_utc": "2024-03-27T09:15:00+00:00",
+            "move_bp": -34.25875904233489,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-27"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-01",
+            "observed_minutes": 1320,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-03",
+            "observed_minutes": 120,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-04",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-05",
+            "observed_minutes": 1439,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-06",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-07",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-08",
+            "observed_minutes": 1320,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-10",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-11",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-12",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-13",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-14",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-15",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-17",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-18",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-20",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-21",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-22",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-24",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-25",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-26",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-27",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-28",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-29",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-31",
+            "observed_minutes": 180,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 8,
+        "alarmed": 7,
+        "caught": 0,
+        "median_move_ahead_pct": 8.541973490430642,
+        "median_minutes_to_alarm": 14.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 8.111888111891325,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 8,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 21.040972222222223,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2024-03-08",
+            "alarm_utc": "2024-03-08 13:31",
+            "move_ahead_pct": 0.0,
+            "minutes": 15,
+            "caught": false,
+            "move_ahead_pct_first_onset": 0.0,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-08T13:16:00+00:00",
+            "first_onset_utc": "2024-03-08T13:16:00+00:00",
+            "trough_utc": "2024-03-08T13:31:00+00:00",
+            "end_utc": "2024-03-08T13:31:00+00:00",
+            "move_bp": 30.874411614696395,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-08"
+          },
+          {
+            "storm_id": "eurusd-2024-03-08",
+            "alarm_utc": "2024-03-08 13:41",
+            "move_ahead_pct": 8.541973490430642,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 8.111888111891325,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-08T13:27:00+00:00",
+            "first_onset_utc": "2024-03-08T13:26:00+00:00",
+            "trough_utc": "2024-03-08T13:42:00+00:00",
+            "end_utc": "2024-03-08T13:43:00+00:00",
+            "move_bp": 31.021564327484707,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-08"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-12",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-12T12:30:00+00:00",
+            "first_onset_utc": "2024-03-12T12:30:00+00:00",
+            "trough_utc": "2024-03-12T12:40:00+00:00",
+            "end_utc": "2024-03-12T12:45:00+00:00",
+            "move_bp": -40.615872005850264,
+            "duration_min": 10,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-12"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-19",
+            "alarm_utc": "2024-03-19 03:40",
+            "move_ahead_pct": 0.0,
+            "minutes": 15,
+            "caught": false,
+            "move_ahead_pct_first_onset": 0.0,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-19T03:25:00+00:00",
+            "first_onset_utc": "2024-03-19T03:25:00+00:00",
+            "trough_utc": "2024-03-19T03:40:00+00:00",
+            "end_utc": "2024-03-19T03:45:00+00:00",
+            "move_bp": 38.84327408617993,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-19"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-20",
+            "alarm_utc": "2024-03-20 18:37",
+            "move_ahead_pct": 37.60683760683589,
+            "minutes": 5,
+            "caught": false,
+            "move_ahead_pct_first_onset": 39.0995260663491,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:32:00+00:00",
+            "first_onset_utc": "2024-03-20T18:22:00+00:00",
+            "trough_utc": "2024-03-20T18:45:00+00:00",
+            "end_utc": "2024-03-20T18:51:00+00:00",
+            "move_bp": -57.85663422739118,
+            "duration_min": 13,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "eurusd-2024-03-20",
+            "alarm_utc": "2024-03-20 18:48",
+            "move_ahead_pct": 17.510121457492417,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 20.233918128656487,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:34:00+00:00",
+            "first_onset_utc": "2024-03-20T18:33:00+00:00",
+            "trough_utc": "2024-03-20T18:55:00+00:00",
+            "end_utc": "2024-03-20T18:55:00+00:00",
+            "move_bp": 45.4589374203418,
+            "duration_min": 21,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "gbpusd-2024-03-20",
+            "alarm_utc": "2024-03-20 18:47",
+            "move_ahead_pct": 5.593056894891251,
+            "minutes": 13,
+            "caught": false,
+            "move_ahead_pct_first_onset": 6.359649122809559,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:34:00+00:00",
+            "first_onset_utc": "2024-03-20T18:32:00+00:00",
+            "trough_utc": "2024-03-20T18:48:00+00:00",
+            "end_utc": "2024-03-20T18:51:00+00:00",
+            "move_bp": 40.75697132863265,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-27",
+            "alarm_utc": "2024-03-27 09:14",
+            "move_ahead_pct": 8.846153846152669,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 8.880308880307863,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-27T09:00:00+00:00",
+            "first_onset_utc": "2024-03-27T08:59:00+00:00",
+            "trough_utc": "2024-03-27T09:15:00+00:00",
+            "end_utc": "2024-03-27T09:15:00+00:00",
+            "move_bp": -34.25875904233489,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-27"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-01",
+            "observed_minutes": 1320,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-03",
+            "observed_minutes": 120,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-04",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-05",
+            "observed_minutes": 1439,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-06",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-07",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-08",
+            "observed_minutes": 1320,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-10",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-11",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-12",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-13",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-14",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-15",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-17",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-18",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-20",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-21",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-22",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-24",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-25",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-26",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-27",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-28",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-29",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-31",
+            "observed_minutes": 180,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 8,
+        "alarmed": 8,
+        "caught": 5,
+        "median_move_ahead_pct": 99.20833333333314,
+        "median_minutes_to_alarm": -3.5,
+        "caught_first_onset": 5,
+        "median_move_ahead_pct_first_onset": 99.20833333333314,
+        "median_minutes_to_alarm_first_onset": -3.5,
+        "storm_alarms": 61,
+        "false_alarms": 53,
+        "false_alarms_per_day": 2.518895013036734,
+        "false_alarm_episodes": 36,
+        "false_alarm_episodes_per_day": 1.7109475560249512,
+        "squalls_per_day": null,
+        "days": 21.040972222222223,
+        "per_storm": [
+          {
+            "storm_id": "gbpusd-2024-03-08",
+            "alarm_utc": "2024-03-08 13:31",
+            "move_ahead_pct": 0.0,
+            "minutes": 15,
+            "caught": false,
+            "move_ahead_pct_first_onset": 0.0,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-08T13:16:00+00:00",
+            "first_onset_utc": "2024-03-08T13:16:00+00:00",
+            "trough_utc": "2024-03-08T13:31:00+00:00",
+            "end_utc": "2024-03-08T13:31:00+00:00",
+            "move_bp": 30.874411614696395,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-08"
+          },
+          {
+            "storm_id": "eurusd-2024-03-08",
+            "alarm_utc": "2024-03-08 13:31",
+            "move_ahead_pct": 33.578792341676184,
+            "minutes": 4,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.88811188810867,
+            "minutes_first_onset": 5,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-08T13:27:00+00:00",
+            "first_onset_utc": "2024-03-08T13:26:00+00:00",
+            "trough_utc": "2024-03-08T13:42:00+00:00",
+            "end_utc": "2024-03-08T13:43:00+00:00",
+            "move_bp": 31.021564327484707,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-08"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-12",
+            "alarm_utc": "2024-03-12 12:31",
+            "move_ahead_pct": 98.41666666666627,
+            "minutes": 1,
+            "caught": true,
+            "move_ahead_pct_first_onset": 98.41666666666627,
+            "minutes_first_onset": 1,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-12T12:30:00+00:00",
+            "first_onset_utc": "2024-03-12T12:30:00+00:00",
+            "trough_utc": "2024-03-12T12:40:00+00:00",
+            "end_utc": "2024-03-12T12:45:00+00:00",
+            "move_bp": -40.615872005850264,
+            "duration_min": 10,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-12"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-19",
+            "alarm_utc": "2024-03-19 03:17",
+            "move_ahead_pct": 100.0,
+            "minutes": -8,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": -8,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-19T03:25:00+00:00",
+            "first_onset_utc": "2024-03-19T03:25:00+00:00",
+            "trough_utc": "2024-03-19T03:40:00+00:00",
+            "end_utc": "2024-03-19T03:45:00+00:00",
+            "move_bp": 38.84327408617993,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-19"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-20",
+            "alarm_utc": "2024-03-20 18:07",
+            "move_ahead_pct": 100.0,
+            "minutes": -25,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": -15,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:32:00+00:00",
+            "first_onset_utc": "2024-03-20T18:22:00+00:00",
+            "trough_utc": "2024-03-20T18:45:00+00:00",
+            "end_utc": "2024-03-20T18:51:00+00:00",
+            "move_bp": -57.85663422739118,
+            "duration_min": 13,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "eurusd-2024-03-20",
+            "alarm_utc": "2024-03-20 18:01",
+            "move_ahead_pct": 100.0,
+            "minutes": -33,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": -32,
+            "caught_first_onset": true,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:34:00+00:00",
+            "first_onset_utc": "2024-03-20T18:33:00+00:00",
+            "trough_utc": "2024-03-20T18:55:00+00:00",
+            "end_utc": "2024-03-20T18:55:00+00:00",
+            "move_bp": 45.4589374203418,
+            "duration_min": 21,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "gbpusd-2024-03-20",
+            "alarm_utc": "2024-03-20 18:01",
+            "move_ahead_pct": 100.0,
+            "minutes": -33,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": -31,
+            "caught_first_onset": true,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-20T18:34:00+00:00",
+            "first_onset_utc": "2024-03-20T18:32:00+00:00",
+            "trough_utc": "2024-03-20T18:48:00+00:00",
+            "end_utc": "2024-03-20T18:51:00+00:00",
+            "move_bp": 40.75697132863265,
+            "duration_min": 14,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-20"
+          },
+          {
+            "storm_id": "usdjpy-2024-03-27",
+            "alarm_utc": "2024-03-27 09:02",
+            "move_ahead_pct": 35.86538461537948,
+            "minutes": 2,
+            "caught": false,
+            "move_ahead_pct_first_onset": 36.00386100385652,
+            "minutes_first_onset": 3,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-03-27T09:00:00+00:00",
+            "first_onset_utc": "2024-03-27T08:59:00+00:00",
+            "trough_utc": "2024-03-27T09:15:00+00:00",
+            "end_utc": "2024-03-27T09:15:00+00:00",
+            "move_bp": -34.25875904233489,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "block": "2024-03-27"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-01",
+            "observed_minutes": 1320,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-03",
+            "observed_minutes": 120,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-04",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-05",
+            "observed_minutes": 1439,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-06",
+            "observed_minutes": 1440,
+            "episodes": 4
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-07",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-08",
+            "observed_minutes": 1320,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-10",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-11",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-12",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-13",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-14",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-15",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-17",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-18",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-19",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-20",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-21",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-22",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-24",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-25",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-26",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-27",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-28",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-29",
+            "observed_minutes": 1260,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-mar-2024",
+            "date": "2024-03-31",
+            "observed_minutes": 180,
+            "episodes": 2
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURUSD": 0,
+        "USDJPY": 0,
+        "GBPUSD": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
     "policy": {
       "independent_reset_books": 1,
       "synthetic": true,
@@ -1524,6 +2658,7 @@
         ],
         "start": "2024-03-01 00:00:00+00:00",
         "end": "2024-04-01 00:00:00+00:00",
+        "include_in_pooled": true,
         "prepared": {
           "final_equity_usd": 1104863.8505359495,
           "max_drawdown_usd": 436899.2889190165,
@@ -1602,6 +2737,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1104863.8505359495,
               "max_drawdown_usd": 436899.2889190165,
@@ -1623,7 +2759,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -1680,6 +2832,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1102311.301296871,
               "max_drawdown_usd": 437847.54515171645,
@@ -1701,7 +2854,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -1758,6 +2927,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1099758.7520578115,
               "max_drawdown_usd": 438795.80138440814,
@@ -1779,7 +2949,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -1836,6 +3022,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1104863.8505359495,
               "max_drawdown_usd": 436899.2889190165,
@@ -1857,7 +3044,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -1914,6 +3117,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1106622.1979124933,
               "max_drawdown_usd": 428306.6824202349,
@@ -1935,7 +3139,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -1992,6 +3212,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1102860.0822499986,
               "max_drawdown_usd": 419294.0759115254,
@@ -2013,7 +3234,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "cut_fraction",
@@ -2070,6 +3307,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1089703.702808522,
               "max_drawdown_usd": 442002.2381290002,
@@ -2091,7 +3329,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "cut_fraction",
@@ -2148,6 +3402,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1104863.8505359495,
               "max_drawdown_usd": 436899.2889190165,
@@ -2169,7 +3424,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "cut_fraction",
@@ -2226,6 +3497,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1120023.9982633574,
               "max_drawdown_usd": 431796.33970904304,
@@ -2247,7 +3519,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "leverage",
@@ -2304,6 +3592,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1052431.9252679744,
               "max_drawdown_usd": 218449.64445950964,
@@ -2325,7 +3614,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "leverage",
@@ -2382,6 +3687,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1104863.8505359495,
               "max_drawdown_usd": 436899.2889190165,
@@ -2403,7 +3709,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "leverage",
@@ -2460,6 +3782,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 752817.6727247934,
               "max_drawdown_usd": 312715.26858127257,
@@ -2481,7 +3804,23 @@
               "fills": 3
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "storm_on",
@@ -2544,6 +3883,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1104863.8505359495,
               "max_drawdown_usd": 436899.2889190165,
@@ -2565,7 +3905,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 4,
+          "caught_first_onset": 4,
+          "alarmed_share": 0.875,
+          "caught_share": 0.5,
+          "caught_share_first_onset": 0.5,
+          "median_share_ahead_pct": 64.15954415954297,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 66.70616113743982,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 7,
+          "false_alert_episodes_per_observed_day": 0.33268424700485166
+        }
       },
       {
         "factor": "storm_on",
@@ -2622,6 +3978,7 @@
             ],
             "start": "2024-03-01 00:00:00+00:00",
             "end": "2024-04-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1099060.357767143,
               "max_drawdown_usd": 446569.9765558054,
@@ -2643,7 +4000,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 8,
+          "alarmed": 7,
+          "caught": 3,
+          "caught_first_onset": 3,
+          "alarmed_share": 0.875,
+          "caught_share": 0.375,
+          "caught_share_first_onset": 0.375,
+          "median_share_ahead_pct": 35.86538461537948,
+          "median_minutes_to_alarm": 4.0,
+          "median_share_ahead_pct_first_onset": 36.00386100385652,
+          "median_minutes_to_alarm_first_onset": 5.0,
+          "observed_days": 21.040972222222223,
+          "false_episodes": 3,
+          "false_alert_episodes_per_observed_day": 0.14257896300207928
+        }
       }
     ],
     "oracle_checks": [
@@ -2660,6 +4033,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 3.2755511249997653
+    "elapsed_seconds": 3.4860924579988932
   }
 }

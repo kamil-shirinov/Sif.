@@ -1,5 +1,5 @@
 {
-  "cache_tag": "4d553a2500c5963d5f3fbb4a7434fa97cc3f4ad0e14014975c11b2543a9be44d",
+  "cache_tag": "5b686757c9e34c1e8bf457a823b182001450a913166e7353d29a57b93565fd38",
   "result": {
     "dataset": "oos_round1",
     "unit": "ordinary-jun-2025",
@@ -1149,6 +1149,888 @@
         "trading_daily": []
       }
     },
+    "pooled_methods": {
+      "v1": {
+        "storms": 4,
+        "alarmed": 3,
+        "caught": 0,
+        "median_move_ahead_pct": 42.12034383954097,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 41.13166485310044,
+        "median_minutes_to_alarm_first_onset": 14.0,
+        "storm_alarms": 9,
+        "false_alarms": 6,
+        "false_alarms_per_day": 0.2840797001380943,
+        "false_alarm_episodes": 4,
+        "false_alarm_episodes_per_day": 0.18938646675872953,
+        "squalls_per_day": null,
+        "days": 21.120833333333334,
+        "per_storm": [
+          {
+            "storm_id": "eurusd-2025-06-05",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-05T13:07:00+00:00",
+            "first_onset_utc": "2025-06-05T13:03:00+00:00",
+            "trough_utc": "2025-06-05T13:23:00+00:00",
+            "end_utc": "2025-06-05T13:23:00+00:00",
+            "move_bp": 47.89816718428375,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-05"
+          },
+          {
+            "storm_id": "eurusd-2025-06-11",
+            "alarm_utc": "2025-06-11 12:31",
+            "move_ahead_pct": 42.12034383954097,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 41.25350795135716,
+            "minutes_first_onset": 14,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:44:00+00:00",
+            "move_bp": 45.776695421020364,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          },
+          {
+            "storm_id": "gbpusd-2025-06-11",
+            "alarm_utc": "2025-06-11 12:31",
+            "move_ahead_pct": 33.39552238806287,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.850533807831365,
+            "minutes_first_onset": 14,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:41:00+00:00",
+            "move_bp": 39.71650124299231,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          },
+          {
+            "storm_id": "usdjpy-2025-06-11",
+            "alarm_utc": "2025-06-11 12:31",
+            "move_ahead_pct": 43.39839265212333,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 41.13166485310044,
+            "minutes_first_onset": 14,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:44:00+00:00",
+            "move_bp": -59.972595759915095,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-01",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-02",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-03",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-04",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-05",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-06",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-08",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-09",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-10",
+            "observed_minutes": 1439,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-11",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-12",
+            "observed_minutes": 1439,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-13",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-15",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-16",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-17",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-18",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-20",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-22",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-23",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-24",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-25",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-26",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-27",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-29",
+            "observed_minutes": 179,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-30",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 4,
+        "alarmed": 4,
+        "caught": 0,
+        "median_move_ahead_pct": 30.99967431960657,
+        "median_minutes_to_alarm": 11.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 29.82844459754559,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 4,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 21.120833333333334,
+        "per_storm": [
+          {
+            "storm_id": "eurusd-2025-06-05",
+            "alarm_utc": "2025-06-05 13:18",
+            "move_ahead_pct": 38.44748858447355,
+            "minutes": 11,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.582895723928377,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-05T13:07:00+00:00",
+            "first_onset_utc": "2025-06-05T13:03:00+00:00",
+            "trough_utc": "2025-06-05T13:23:00+00:00",
+            "end_utc": "2025-06-05T13:23:00+00:00",
+            "move_bp": 47.89816718428375,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-05"
+          },
+          {
+            "storm_id": "eurusd-2025-06-11",
+            "alarm_utc": "2025-06-11 12:32",
+            "move_ahead_pct": 32.37822349570143,
+            "minutes": 11,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.711880261927472,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:44:00+00:00",
+            "move_bp": 45.776695421020364,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          },
+          {
+            "storm_id": "gbpusd-2025-06-11",
+            "alarm_utc": "2025-06-11 12:32",
+            "move_ahead_pct": 23.880597014928405,
+            "minutes": 11,
+            "caught": false,
+            "move_ahead_pct_first_onset": 22.775800711746065,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:41:00+00:00",
+            "move_bp": 39.71650124299231,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          },
+          {
+            "storm_id": "usdjpy-2025-06-11",
+            "alarm_utc": "2025-06-11 12:32",
+            "move_ahead_pct": 29.621125143511712,
+            "minutes": 11,
+            "caught": false,
+            "move_ahead_pct_first_onset": 28.073993471162805,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:44:00+00:00",
+            "move_bp": -59.972595759915095,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-01",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-02",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-03",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-04",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-06",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-08",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-09",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-10",
+            "observed_minutes": 1439,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-11",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-12",
+            "observed_minutes": 1439,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-13",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-15",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-16",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-17",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-18",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-20",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-22",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-23",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-24",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-25",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-26",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-27",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-29",
+            "observed_minutes": 179,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-30",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 4,
+        "alarmed": 4,
+        "caught": 1,
+        "median_move_ahead_pct": 42.75936824583215,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 1,
+        "median_move_ahead_pct_first_onset": 41.1925864022288,
+        "median_minutes_to_alarm_first_onset": 14.0,
+        "storm_alarms": 70,
+        "false_alarms": 66,
+        "false_alarms_per_day": 3.124876701519037,
+        "false_alarm_episodes": 44,
+        "false_alarm_episodes_per_day": 2.0832511343460247,
+        "squalls_per_day": null,
+        "days": 21.120833333333334,
+        "per_storm": [
+          {
+            "storm_id": "eurusd-2025-06-05",
+            "alarm_utc": "2025-06-05 12:16",
+            "move_ahead_pct": 100.0,
+            "minutes": -51,
+            "caught": true,
+            "move_ahead_pct_first_onset": 100.0,
+            "minutes_first_onset": -47,
+            "caught_first_onset": true,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-05T13:07:00+00:00",
+            "first_onset_utc": "2025-06-05T13:03:00+00:00",
+            "trough_utc": "2025-06-05T13:23:00+00:00",
+            "end_utc": "2025-06-05T13:23:00+00:00",
+            "move_bp": 47.89816718428375,
+            "duration_min": 16,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-05"
+          },
+          {
+            "storm_id": "eurusd-2025-06-11",
+            "alarm_utc": "2025-06-11 12:31",
+            "move_ahead_pct": 42.12034383954097,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 41.25350795135716,
+            "minutes_first_onset": 14,
+            "caught_first_onset": false,
+            "pair": "EURUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:44:00+00:00",
+            "move_bp": 45.776695421020364,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          },
+          {
+            "storm_id": "gbpusd-2025-06-11",
+            "alarm_utc": "2025-06-11 12:31",
+            "move_ahead_pct": 33.39552238806287,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.850533807831365,
+            "minutes_first_onset": 14,
+            "caught_first_onset": false,
+            "pair": "GBPUSD",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:41:00+00:00",
+            "move_bp": 39.71650124299231,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          },
+          {
+            "storm_id": "usdjpy-2025-06-11",
+            "alarm_utc": "2025-06-11 12:31",
+            "move_ahead_pct": 43.39839265212333,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 41.13166485310044,
+            "minutes_first_onset": 14,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2025-06-11T12:21:00+00:00",
+            "first_onset_utc": "2025-06-11T12:17:00+00:00",
+            "trough_utc": "2025-06-11T12:36:00+00:00",
+            "end_utc": "2025-06-11T12:44:00+00:00",
+            "move_bp": -59.972595759915095,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "block": "2025-06-11"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-01",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-02",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-03",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-04",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-05",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-06",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-08",
+            "observed_minutes": 180,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-09",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-10",
+            "observed_minutes": 1439,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-11",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-12",
+            "observed_minutes": 1439,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-13",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-15",
+            "observed_minutes": 180,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-16",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-17",
+            "observed_minutes": 1438,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-18",
+            "observed_minutes": 1440,
+            "episodes": 4
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-19",
+            "observed_minutes": 1440,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-20",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-22",
+            "observed_minutes": 180,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-23",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-24",
+            "observed_minutes": 1440,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-25",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-26",
+            "observed_minutes": 1440,
+            "episodes": 4
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-27",
+            "observed_minutes": 1260,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-29",
+            "observed_minutes": 179,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "ordinary-jun-2025",
+            "date": "2025-06-30",
+            "observed_minutes": 1439,
+            "episodes": 1
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "EURUSD": 0,
+        "USDJPY": 0,
+        "GBPUSD": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
     "policy": {
       "independent_reset_books": 1,
       "synthetic": true,
@@ -1184,6 +2066,7 @@
         ],
         "start": "2025-06-01 00:00:00+00:00",
         "end": "2025-07-01 00:00:00+00:00",
+        "include_in_pooled": true,
         "prepared": {
           "final_equity_usd": 554934.8909302885,
           "max_drawdown_usd": 559406.3146934678,
@@ -1262,6 +2145,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 554934.8909302885,
               "max_drawdown_usd": 559406.3146934678,
@@ -1283,7 +2167,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -1340,6 +2240,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 552743.3292432382,
               "max_drawdown_usd": 559429.3879871623,
@@ -1361,7 +2262,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -1418,6 +2335,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 550551.7675561871,
               "max_drawdown_usd": 559452.461280857,
@@ -1439,7 +2357,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -1496,6 +2430,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 554934.8909302885,
               "max_drawdown_usd": 559406.3146934678,
@@ -1517,7 +2452,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -1574,6 +2525,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 567281.3681628535,
               "max_drawdown_usd": 559411.9652960052,
@@ -1595,7 +2547,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -1652,6 +2620,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 564011.6139163328,
               "max_drawdown_usd": 559446.8106783195,
@@ -1673,7 +2642,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "cut_fraction",
@@ -1730,6 +2715,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 572606.2396030471,
               "max_drawdown_usd": 559152.3515016462,
@@ -1751,7 +2737,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "cut_fraction",
@@ -1808,6 +2810,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 554934.8909302885,
               "max_drawdown_usd": 559406.3146934678,
@@ -1829,7 +2832,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "cut_fraction",
@@ -1886,6 +2905,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 537263.5422575261,
               "max_drawdown_usd": 559660.2778852897,
@@ -1907,7 +2927,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "leverage",
@@ -1964,6 +3000,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 777467.4454651442,
               "max_drawdown_usd": 279703.15734673396,
@@ -1985,7 +3022,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "leverage",
@@ -2042,6 +3095,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 554934.8909302885,
               "max_drawdown_usd": 559406.3146934678,
@@ -2063,7 +3117,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "leverage",
@@ -2120,6 +3190,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 752409.8434307363,
               "max_drawdown_usd": 261074.6922949875,
@@ -2141,7 +3212,23 @@
               "fills": 3
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "storm_on",
@@ -2204,6 +3291,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 554934.8909302885,
               "max_drawdown_usd": 559406.3146934678,
@@ -2225,7 +3313,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 4,
+          "false_alert_episodes_per_observed_day": 0.18938646675872953
+        }
       },
       {
         "factor": "storm_on",
@@ -2282,6 +3386,7 @@
             ],
             "start": "2025-06-01 00:00:00+00:00",
             "end": "2025-07-01 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 584585.3346055021,
               "max_drawdown_usd": 558995.7042424137,
@@ -2303,7 +3408,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 4,
+          "alarmed": 3,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.75,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 42.12034383954097,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 41.13166485310044,
+          "median_minutes_to_alarm_first_onset": 14.0,
+          "observed_days": 21.120833333333334,
+          "false_episodes": 2,
+          "false_alert_episodes_per_observed_day": 0.09469323337936476
+        }
       }
     ],
     "oracle_checks": [
@@ -2320,6 +3441,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 3.2550814999995055
+    "elapsed_seconds": 3.460097291004786
   }
 }

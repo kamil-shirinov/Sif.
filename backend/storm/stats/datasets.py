@@ -136,7 +136,15 @@ def load_oos2(root: Path, document: dict):
         raise FileNotFoundError("No round-two monthly manifest")
     folder = manifest_path.parent
     manifest = json.loads(manifest_path.read_text())
+    expected_manifest = document.get("provenance", {}).get("data_file_sha256", {}).get("manifest.json")
+    if expected_manifest is None or sha256(manifest_path) != expected_manifest:
+        raise ValueError("Round-two acquisition manifest differs from published provenance")
+    from .protocol import registration
+    if document["config"] != registration()["config"]:
+        raise ValueError("Round-two configuration differs from the frozen headline")
     selected = manifest["selected_months"]
+    if document["exact"]["selected_months"] != selected:
+        raise ValueError("Round-two served prefix differs from published result")
     start = utc("2025-01-01")
     end = utc(manifest["selected_end"]) if selected else start
     pair_names = list(dict.fromkeys(r["pair"] for w in manifest["months"] for r in w["pairs"]))

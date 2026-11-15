@@ -17,6 +17,7 @@ from storm.evaluate import for_display
 from .bootstrap import uncertainty, paired_caught_difference, summarize
 from .datasets import load_all, detect, alarms_for, evaluate_unit
 from .policy import inputs_for, real_actions, batch, oracle, check_batch, null_schedules, totals, native_library
+from .pooling import prepare_pooling, pooled_metric
 from .protocol import DOCS, REPO_ROOT, check_frozen, rng_for, save, sha256, canonical
 from .randomization import prepare_train, draw_offsets, caught_counts, null_summary, holm
 
@@ -33,6 +34,7 @@ def policy_books(unit, detections, **options):
         actions = real_actions(inp, detections, options.get("delay", 1))
         prepared, unprepared = batch(inp, [actions, []])
         books.append({"name": inp.name, "pairs": inp.pairs, "start": inp.start, "end": inp.end,
+                      "include_in_pooled": unit.metadata["pool_keep_book"][inp.name],
                       "prepared": prepared, "unprepared": unprepared})
     return books
 
@@ -80,6 +82,7 @@ def analyze_unit(unit, spec, do_null=True, do_sensitivity=True):
     cfg = spec["config"]
     detection = detect(unit, cfg)
     methods = {method: evaluate_unit(unit, alarms_for(unit, detection, method)) for method in ("v1", "naive", "v0")}
+    pooled_methods = {method: pooled_metric(unit, alarms_for(unit, detection, method), metric) for method, metric in methods.items()}
     checked = comparison_to_published(unit, methods["v1"])
     print(f"{unit.name}: reproduced {methods['v1']['caught']}/{methods['v1']['storms']} caught", flush=True)
     trains, offsets = {}, {}
@@ -100,15 +103,28 @@ def analyze_unit(unit, spec, do_null=True, do_sensitivity=True):
             if evaluate_unit(unit, shuffled)["caught"] != counts[trial]:
                 raise ValueError("Shuffled detection differs from original scorer")
         null_policy = np.zeros(spec["policy_shuffles"])
+        pooled_null_policy = np.zeros(spec["policy_shuffles"])
+        null_books = {}
         for window in unit.policy_windows:
             inp = inputs_for(unit, window)
             schedules = [real_actions(inp, detection), []] + null_schedules(inp, trains, offsets, spec["policy_shuffles"])
             results = batch(inp, schedules)
             checks.append(check_batch(inp, schedules, results))
             paths.append({"name": inp.name, "pairs": inp.pairs, "start": inp.start, "end": inp.end,
+                          "include_in_pooled": unit.metadata["pool_keep_book"][inp.name],
                           "prepared": results[0], "unprepared": results[1]})
-            null_policy += np.asarray([r["final_equity_usd"] - results[1]["final_equity_usd"] for r in results[2:]])
+            book_null = np.asarray([r["final_equity_usd"] - results[1]["final_equity_usd"] for r in results[2:]])
+            null_books[inp.name] = book_null
+            null_policy += book_null
+            if unit.metadata["pool_keep_book"][inp.name]:
+                pooled_null_policy += book_null
+        retained_counts = np.zeros(spec["detection_shuffles"], int)
+        for sid, hit in per_storm.items():
+            if unit.metadata["pool_keep_storm"][sid]:
+                retained_counts += hit
         null_data.update(caught_counts=counts, policy_difference_usd=null_policy,
+                         pooled_caught_counts=retained_counts, pooled_policy_difference_usd=pooled_null_policy,
+                         policy_books=null_books,
                          per_storm_caught=per_storm, offsets_minutes=offsets,
                          trains={p: {"alarms": t.alarms, "durations": t.durations, "censored": t.censored,
                                      "danger": t.danger, "danger_durations": t.danger_durations,
@@ -131,31 +147,37 @@ def analyze_unit(unit, spec, do_null=True, do_sensitivity=True):
                 else:
                     variant = detect(unit, {**cfg, "storm_on": value}) if factor == "storm_on" else detection
                     metric = evaluate_unit(unit, alarms_for(unit, variant)) if factor == "storm_on" else methods["v1"]
+                    pooled = pooled_metric(unit, alarms_for(unit, variant), metric) if factor == "storm_on" else pooled_methods["v1"]
                     options = {"spread_multiplier": "spread", "fill_delay_bars": "delay",
                                "cut_fraction": "cut_fraction", "leverage": "leverage"}
                     books = policy_books(unit, variant, **({options[factor]: value} if factor in options else {}))
-                    row.update(detection=summarize(metric["per_storm"], metric["daily"]), policy=totals(books), books=books)
+                    row.update(detection=summarize(metric["per_storm"], metric["daily"]), policy=totals(books), books=books,
+                               pooled_detection=summarize(pooled["per_storm"], pooled["daily"]))
                 sensitivity.append(row)
     published_policy = None
     if unit.dataset == "sgx_august":
         published_policy = unit.metadata["published"]["policy"]
     elif unit.dataset == "oos_round1":
         published_policy = unit.metadata["published"]["policy"]
+    elif unit.dataset == "oos_round2":
+        published_policy = unit.metadata["published"]["exact"]["policy"]
     return {"dataset": unit.dataset, "unit": unit.name, "stock": unit.stock,
             "group": unit.metadata["group"], "start": unit.start, "end": unit.end,
             "pairs": list(unit.feats), "published_detection_check": checked,
             "published_policy": published_policy,
             "descriptive_splits": unit.metadata.get("descriptive_splits"),
-            "methods": methods, "policy": policy, "policy_books": paths,
+            "methods": methods, "pooled_methods": pooled_methods, "pooling": unit.metadata["pooling_summary"],
+            "policy": policy, "policy_books": paths,
             "sensitivity": sensitivity, "oracle_checks": checks,
             "elapsed_seconds": time.monotonic() - started}, null_data
 
 
-def collect_units(results, names, method="v1"):
+def collect_units(results, names, method="v1", pooled=False):
     picked = [r for r in results if r["dataset"] in names]
-    rows = [row for r in picked for row in r["methods"][method]["per_storm"]]
-    daily = [row for r in picked for row in r["methods"][method]["daily"]]
-    trading = [row for r in picked for row in r["methods"][method]["trading_daily"]]
+    field = "pooled_methods" if pooled else "methods"
+    rows = [row for r in picked for row in r[field][method]["per_storm"]]
+    daily = [row for r in picked for row in r[field][method]["daily"]]
+    trading = [row for r in picked for row in r[field][method]["trading_daily"]]
     return rows, daily, trading
 
 
@@ -166,20 +188,21 @@ def aggregate(results, nulls, spec):
     groups["pooled_all"] = datasets
     output = {}
     for group, names in groups.items():
-        rows, daily, trading = collect_units(results, names)
+        is_pooled = group.startswith("pooled")
+        rows, daily, trading = collect_units(results, names, pooled=is_pooled)
         estimate = uncertainty(rows, daily, group, spec["bootstrap_replicates"], trading if group == "chips_new" else ())
         base = {}
         for method in ("naive", "v0"):
-            br, bd, bt = collect_units(results, names, method)
+            br, bd, bt = collect_units(results, names, method, pooled=is_pooled)
             base[method] = {"point": summarize(br, bd, bt if group == "chips_new" else ()),
                             "v1_minus_baseline_caught_share": paired_caught_difference(rows, br, group + "/" + method, spec["bootstrap_replicates"])}
         picked = [r for r in results if r["dataset"] in names]
-        policy = totals([book for r in picked for book in r["policy_books"]])
+        policy = totals([book for r in picked for book in r["policy_books"] if not is_pooled or book["include_in_pooled"]])
         row = {**estimate, "baselines": base, "policy": policy, "inferential": not group.startswith("pooled")}
         if nulls:
             selected = [n for n in nulls if n["dataset"] in names]
-            counts = np.sum([n["caught_counts"] for n in selected], axis=0)
-            pnl = np.sum([n["policy_difference_usd"] for n in selected], axis=0)
+            counts = np.sum([n["pooled_caught_counts" if is_pooled else "caught_counts"] for n in selected], axis=0)
+            pnl = np.sum([n["pooled_policy_difference_usd" if is_pooled else "policy_difference_usd"] for n in selected], axis=0)
             degenerate = all(t["feasible_offset_count"] <= 1 for n in selected for t in n["trains"].values())
             row["chance"] = {"caught_storms": null_summary(row["point"]["caught"], counts, degenerate),
                              "policy_difference_usd": null_summary(policy["prepared_minus_unprepared_usd"], pnl, degenerate)}
@@ -187,7 +210,12 @@ def aggregate(results, nulls, spec):
         sensitivity = []
         for factor, values in spec["sensitivity"].items():
             for value in values:
-                choices = [(r, next(s for s in r["sensitivity"] if s["factor"] == factor and s["value"] == value)) for r in picked]
+                choices = [(r, dict(next(s for s in r["sensitivity"] if s["factor"] == factor and s["value"] == value))) for r in picked]
+                if is_pooled:
+                    for r, s in choices:
+                        if s["status"] == "evaluated":
+                            s["detection"] = s["pooled_detection"]
+                            s["books"] = [b for b in s["books"] if b["include_in_pooled"]]
                 statuses = {s["status"] for _, s in choices}
                 item = {"factor": factor, "value": value, "status": "evaluated" if statuses == {"evaluated"} else
                         "partial" if "evaluated" in statuses else next(iter(statuses)),
@@ -201,9 +229,10 @@ def aggregate(results, nulls, spec):
                     days = sum(s["detection"]["observed_days"] for _, s in valid)
                     episodes = sum(s["detection"]["false_episodes"] for _, s in valid)
                     bp = totals([b for _, s in valid for b in s["books"]])
-                    naive_caught = sum(r["methods"]["naive"]["caught"] for r, _ in valid)
-                    headline_pnl = sum(r["policy"]["prepared_minus_unprepared_usd"] for r, _ in valid)
-                    headline_delta = sum(r["methods"]["v1"]["caught"] - r["methods"]["naive"]["caught"] for r, _ in valid)
+                    mf = "pooled_methods" if is_pooled else "methods"
+                    naive_caught = sum(r[mf]["naive"]["caught"] for r, _ in valid)
+                    headline_pnl = totals([b for r, _ in valid for b in r["policy_books"] if not is_pooled or b["include_in_pooled"]])["prepared_minus_unprepared_usd"]
+                    headline_delta = sum(r[mf]["v1"]["caught"] - r[mf]["naive"]["caught"] for r, _ in valid)
                     item.update(storms=storms, caught=caught, alarmed=alarmed, caught_share=caught/storms if storms else None,
                                 alarmed_share=alarmed/storms if storms else None,
                                 false_alert_episodes_per_observed_day=episodes/days if days else None, policy=bp,
@@ -227,6 +256,7 @@ def main():
     args = parser.parse_args()
     spec = check_frozen()
     units, hashes = load_all(args.include_round2)
+    prepare_pooling(units)
     signature = source_signature()
     cache_tag = hashlib.sha256(canonical({"sources": signature, "inputs": hashes, "registration": sha256(DOCS / "preregistration.md")}).encode()).hexdigest()
     results, nulls = [], []
@@ -252,6 +282,20 @@ def main():
     if args.only_unit:
         return
     groups = aggregate(results, nulls, spec)
+    historical_policy = {}
+    for row in results:
+        original = row["published_policy"]
+        if original is None:
+            continue
+        if "status" in original:
+            original = original.get("result")
+        if original is None:
+            continue
+        difference = (original["total_difference_usd"] if "total_difference_usd" in original else
+                      original["prepared"]["final_equity_usd"] - original["unprepared"]["final_equity_usd"])
+        item = historical_policy.setdefault(row["dataset"], {"published_difference_usd":0,"frozen_main_difference_usd":0})
+        item["published_difference_usd"] += difference
+        item["frozen_main_difference_usd"] += row["policy"]["prepared_minus_unprepared_usd"]
     result = {"schema_version": 1, "analysis": "secondary retrospective; no tuning",
               "config": spec["config"], "groups": groups, "units": [str(p.relative_to(DOCS)) for p in sorted((DOCS / "units").glob("*.json"))],
               "provenance": {"registration_commit": spec["registration_commit"], "registration_sha256": sha256(DOCS / "preregistration.md"),
@@ -267,6 +311,12 @@ def main():
               "round2_status": "included" if args.include_round2 else "pending; monitor until registered cutoff",
               "oracle_checks": [c for r in results for c in r["oracle_checks"]],
               "published_detection_checks": {r["unit"]: r["published_detection_check"] for r in results},
+              "published_policy_comparison": historical_policy,
+              "pooling": {r["unit"]: r["pooling"] for r in results},
+              "timing_design": {n["unit"]: {pair: {"alarms":len(t["alarms"]), "danger_alarms":len(t["danger"]),
+                                                   "feasible_offsets":t["feasible_offset_count"],
+                                                   "censored_detection_episodes":sum(t["censored"])}
+                                             for pair,t in n["trains"].items()} for n in nulls},
               "chips_descriptive_splits": next((r["descriptive_splits"] for r in results if r["stock"]), None)}
     save(DOCS / "results.json", result)
     from .report import render, write_charts

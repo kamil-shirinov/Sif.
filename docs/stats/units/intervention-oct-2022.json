@@ -1,5 +1,5 @@
 {
-  "cache_tag": "4d553a2500c5963d5f3fbb4a7434fa97cc3f4ad0e14014975c11b2543a9be44d",
+  "cache_tag": "5b686757c9e34c1e8bf457a823b182001450a913166e7353d29a57b93565fd38",
   "result": {
     "dataset": "oos_round1",
     "unit": "intervention-oct-2022",
@@ -422,6 +422,319 @@
         "trading_daily": []
       }
     },
+    "pooled_methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 35.175427322966215,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 35.27516432529988,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.25148445686342996,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.25148445686342996,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 1,
+        "median_move_ahead_pct": 67.58771366148311,
+        "median_minutes_to_alarm": -8.5,
+        "caught_first_onset": 1,
+        "median_move_ahead_pct_first_onset": 56.56591691603439,
+        "median_minutes_to_alarm_first_onset": 64.0,
+        "storm_alarms": 4,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.25148445686342996,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.25148445686342996,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": "2022-10-21 14:39",
+            "move_ahead_pct": 100.0,
+            "minutes": -27,
+            "caught": true,
+            "move_ahead_pct_first_onset": 77.8566695067689,
+            "minutes_first_onset": 113,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 35.175427322966215,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 35.27516432529988,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 7,
+        "false_alarms": 6,
+        "false_alarms_per_day": 1.5089067411805799,
+        "false_alarm_episodes": 6,
+        "false_alarm_episodes_per_day": 1.5089067411805799,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
     "policy": {
       "independent_reset_books": 1,
       "synthetic": true,
@@ -455,6 +768,7 @@
         ],
         "start": "2022-10-19 00:00:00+00:00",
         "end": "2022-10-25 00:00:00+00:00",
+        "include_in_pooled": true,
         "prepared": {
           "final_equity_usd": 1224290.0894608123,
           "max_drawdown_usd": 409077.81807960174,
@@ -531,6 +845,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1224290.0894608123,
               "max_drawdown_usd": 409077.81807960174,
@@ -552,7 +867,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -607,6 +938,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1218849.9046288535,
               "max_drawdown_usd": 412411.20147177903,
@@ -628,7 +960,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "spread_multiplier",
@@ -683,6 +1031,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1213409.7197968948,
               "max_drawdown_usd": 415744.58486395725,
@@ -704,7 +1053,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -759,6 +1124,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1224290.0894608123,
               "max_drawdown_usd": 409077.81807960174,
@@ -780,7 +1146,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -835,6 +1217,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1179660.4250060397,
               "max_drawdown_usd": 463831.54713647347,
@@ -856,7 +1239,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "fill_delay_bars",
@@ -911,6 +1310,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1120926.5776535932,
               "max_drawdown_usd": 508082.3653693119,
@@ -932,7 +1332,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "cut_fraction",
@@ -987,6 +1403,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1137079.2252102145,
               "max_drawdown_usd": 478047.6772785643,
@@ -1008,7 +1425,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "cut_fraction",
@@ -1063,6 +1496,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1224290.0894608123,
               "max_drawdown_usd": 409077.81807960174,
@@ -1084,7 +1518,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "cut_fraction",
@@ -1139,6 +1589,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1311500.95371141,
               "max_drawdown_usd": 386964.2773480527,
@@ -1160,7 +1611,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "leverage",
@@ -1215,6 +1682,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1112145.044730406,
               "max_drawdown_usd": 204538.90903980087,
@@ -1236,7 +1704,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "leverage",
@@ -1291,6 +1775,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1224290.0894608123,
               "max_drawdown_usd": 409077.81807960174,
@@ -1312,7 +1797,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "leverage",
@@ -1367,6 +1868,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1336435.1341912167,
               "max_drawdown_usd": 613616.727119402,
@@ -1388,7 +1890,23 @@
               "fills": 1
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "storm_on",
@@ -1449,6 +1967,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1224290.0894608123,
               "max_drawdown_usd": 409077.81807960174,
@@ -1470,7 +1989,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       },
       {
         "factor": "storm_on",
@@ -1525,6 +2060,7 @@
             ],
             "start": "2022-10-19 00:00:00+00:00",
             "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
             "prepared": {
               "final_equity_usd": 1186712.516454875,
               "max_drawdown_usd": 410126.3565639572,
@@ -1546,7 +2082,23 @@
               "fills": 0
             }
           }
-        ]
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
       }
     ],
     "oracle_checks": [
@@ -1563,6 +2115,6 @@
         "passed": true
       }
     ],
-    "elapsed_seconds": 0.2953973749972647
+    "elapsed_seconds": 0.3401480829998036
   }
 }

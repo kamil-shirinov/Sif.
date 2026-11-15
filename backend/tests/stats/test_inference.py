@@ -1,5 +1,6 @@
 """Independent statistical invariants and scorer/oracle agreement, not snapshots."""
 import copy
+from dataclasses import replace
 
 import numpy as np
 import pandas as pd
@@ -13,6 +14,7 @@ from storm.stats.bootstrap import uncertainty, paired_caught_difference
 from storm.stats.datasets import Unit, evaluate_unit
 from storm.stats.policy import PolicyInput, batch, oracle, check_batch
 from storm.stats.protocol import rng_for
+from storm.stats.pooling import prepare_pooling, pooled_metric
 from storm.stats.randomization import prepare_train, caught_counts, alarms_at, null_summary, holm
 
 
@@ -78,6 +80,47 @@ def test_bootstrap_paired_and_stable_streams():
     result = paired_caught_difference(rows, other, "paired", 40)
     assert result["estimate"] == 1 and result["ci95"] == [1, 1]
     assert np.array_equal(rng_for("a").integers(100, size=20), rng_for("a").integers(100, size=20))
+
+
+def test_pooled_overlap_removes_duplicate_exposure_storms_and_whole_books_without_relabelling():
+    from dataclasses import replace
+    unit, _ = fixture_unit()
+    idx = unit.feats["EURUSD"].index
+    prior = replace(unit, dataset="oos_round1", name="prior", end=idx[100], metadata={"source":"Dukascopy"})
+    later = replace(unit, dataset="oos_round2", name="later", metadata={"source":"Dukascopy"}, policy_windows=[
+        {"name":"overlap", "pairs":["EURUSD"], "start":idx[0], "end":idx[-1]},
+        {"name":"distinct", "pairs":["EURUSD"], "start":idx[150], "end":unit.end}])
+    prepare_pooling([later, prior])  # Priority must not depend on input order.
+    assert later.metadata["pooling_summary"]["duplicate_minutes_by_pair"] == {"EURUSD":100}
+    assert later.metadata["pool_keep_book"] == {"overlap":False,"distinct":True}
+    assert later.metadata["pool_keep_storm"] == {"s":False}
+    # This retained alarm is in the original storm's false-exclusion buffer. Removing
+    # that storm from the pooled contribution must not turn the alarm false.
+    alarms = {"EURUSD":[(idx[100],idx[120])]}
+    original = evaluate_unit(later, alarms)
+    pooled = pooled_metric(later, alarms, original)
+    assert original["storms"] == 1 and pooled["storms"] == 0
+    assert sum(r["observed_minutes"] for r in pooled["daily"]) == 80
+    assert pooled["false_alarm_episodes"] == 0
+    assert prior.metadata["pooling_summary"]["duplicate_minutes_by_pair"] == {"EURUSD":0}
+
+
+def test_frozen_policy_restore_and_initial_margin_are_exercised():
+    n = 8
+    idx = pd.date_range("2026-08-01", periods=n, freq="min", tz="UTC")
+    price = np.array([100,100,100,95,90,95,120,121.])
+    q = Quotes.from_mid(price)
+    book = {"equity_usd":1e6,"position_usd":4e6,"symbol":"NVDA","maintenance_margin":.15,"cut_fraction":.75}
+    inp = PolicyInput("restore",["NVDA"],idx,{"NVDA":q},book,True,idx[0],idx[-1])
+    actions = [(1,"NVDA","cut"),(5,"NVDA","restore")]
+    result = batch(inp,[actions])[0]
+    assert result == pytest.approx(oracle(inp,actions),rel=1e-9,abs=1e-5)
+    assert result["cuts"] == result["restores"] == 1
+    book = {**book,"position_usd":10e6}
+    inp = replace(inp, book=book)
+    result = batch(inp,[actions])[0]
+    assert result == pytest.approx(oracle(inp,actions),rel=1e-9,abs=1e-5)
+    assert result["margin_calls"] == 1 and result["cuts"] == 0
 
 
 @pytest.mark.parametrize("stock", [False, True])
