@@ -15,6 +15,7 @@ from storm.oos.protocol2 import REGISTRATION2, check_registration2, registration
 from storm.oos.report2 import render2
 from storm.oos.round2 import (START, evaluate_year, monthly_metrics, policy_summary,
                               selected_prefix, weekly_book, transport_audit)
+from storm.oos.round2 import load_features
 
 
 def features(start="2025-01-06", days=5):
@@ -80,6 +81,17 @@ def test_weekly_policy_matches_core_without_a_carry_in():
     for ship in ("prepared", "unprepared"):
         for key in ("final_equity_usd", "max_drawdown_usd", "max_drawdown_pct", "margin_calls", "spread_cost_usd"):
             assert weekly[ship][key] == original[ship][key]
+
+
+def test_book_aware_pass_preserves_direction_agnostic_detections():
+    feat = features()
+    feat.loc[feat.index[2000]:, "mid"] *= 0.97
+    cfg, cal = registration2()["config"], load_calendar()
+    neutral = run_detector(feat, cal, cfg, exposure=0)
+    book = run_detector(feat, cal, cfg, exposure=1)
+    assert book.storm_alarms() == neutral.storm_alarms()
+    assert len(book.storm_alarms()) > 0
+    pd.testing.assert_frame_equal(book.frame, neutral.frame)
 
 
 def test_week_reset_pays_for_carry_in_alarm_and_restores():
@@ -212,6 +224,29 @@ def test_exhausted_artifacts_cannot_be_queried_again(tmp_path, monkeypatch):
     log.write_text(json.dumps({"url": url, "status": 200}) + "\n")
     with pytest.raises(ValueError, match="queried again"):
         transport_audit(manifest)
+
+
+def test_good_december_warmup_survives_unusable_january(tmp_path, monkeypatch):
+    import storm.oos.round2 as module
+    monkeypatch.setattr(module, "DATA2", tmp_path)
+    spec = registration2()
+    manifest = fake_manifest(spec)
+    def bars_from(feat):
+        frame = pd.DataFrame({"timestamp": feat.index})
+        for col in ("open", "high", "low", "close"):
+            for side, spread in (("mid", 0), ("bid", -0.0005), ("ask", 0.0005)):
+                frame[col + "_" + side] = feat["mid"].to_numpy() + spread
+        return frame
+    warm = bars_from(features("2024-12-30", days=2))
+    later = bars_from(features("2025-02-03", days=5))
+    warm.to_parquet(tmp_path / "warm.parquet", index=False)
+    later.to_parquet(tmp_path / "feb.parquet", index=False)
+    manifest["months"][0]["pairs"][1]["warmup"] = {"status": "usable", "path": "warm.parquet"}
+    manifest["months"][1]["pairs"][1].update(status="usable", reason=None, parquet={"path": "feb.parquet"})
+    feat = load_features(spec, manifest, ["2025-01", "2025-02"])["USDJPY"]
+    assert len(feat) == len(warm) + len(later)
+    assert not ((feat.index >= START) & (feat.index < pd.Timestamp("2025-02-01", tz="UTC"))).any()
+    assert np.isnan(feat.loc[pd.Timestamp("2025-02-03", tz="UTC"), "ret_bp"])
 
 
 def test_results2_markdown_and_json_agree():

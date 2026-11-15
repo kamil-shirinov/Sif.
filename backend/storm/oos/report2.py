@@ -44,6 +44,10 @@ def render2(result):
              "## Detector totals", ""]
     lines += table(["Metric", "All six pairs", "SGX pairs"],
                    [[label, d["metrics"].get(key), d["sgx_metrics"].get(key)] for label, key in METRICS])
+    lines += ["## Initial December warm-up eligibility", "",
+              "A valid warm-up interval is separate from January evaluation coverage; no substitute history is inferred for a missing initial warm-up.", ""]
+    lines += table(["Pair", "Warm-up status", "Joined warm-up bars", "Reason"],
+                   [[r["pair"], r["warmup"]["status"], r["warmup"].get("rows"), r["warmup"].get("reason")] for r in d["pairs"]])
     lines += ["## Independent Monday-reset policy books", "",
               "SYNTHETIC: each pair-week starts with $1M equity and a long-USD $20M leg; maintenance 2.5%, "
               "cut 75%, side-correct next-bar execution. Positive difference means prepared final equity exceeded "

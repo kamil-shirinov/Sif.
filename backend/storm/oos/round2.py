@@ -110,6 +110,8 @@ def load_features(spec, manifest, selected):
             raise ValueError("duplicate monthly joined timestamps for " + pair)
         if int((bars["timestamp"] < START).sum()) < 720:
             continue
+        if not (bars["timestamp"] >= START).any():
+            continue
         feats[pair] = pair_features(bars, pair)
     return add_comove(feats) if feats else {}
 
@@ -265,7 +267,11 @@ def evaluate_year(spec, manifest):
                 row["metrics"] = monthly_metrics(pm, [r for r in false if r["pair"] == pair],
                     {pair: alarms[pair]}, {pair: detections[pair]}, {pair: feats[pair]}, a, b)
             months.append(row)
-        pair_results.append({"pair": pair, "metrics": pm, "months": months, "policy": policy_summary(own_weeks)})
+        initial = manifest["months"][0]
+        initial_record = next(r for r in initial["pairs"] if r["pair"] == pair)
+        warmup = initial_record.get("warmup", {"status": "not_recorded", "reason": "see initial acquisition status"})
+        pair_results.append({"pair": pair, "metrics": pm, "months": months, "warmup": warmup,
+                             "policy": policy_summary(own_weeks)})
         print(pair, "storms:", pm["storms"], "weekly books:", len(own_weeks), flush=True)
     return {"status": "unassessed_no_usable_observations" if not feats else "full_year" if len(selected) == 12 else "chronological_prefix",
             "selected_months": selected, "selected_end": manifest["selected_end"],
