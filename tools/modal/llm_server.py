@@ -32,7 +32,12 @@ image = (
         "HF_HUB_DISABLE_TELEMETRY": "1",
         "DO_NOT_TRACK": "1",
         "VLLM_NO_USAGE_STATS": "1",
+        "TIKTOKEN_CACHE_DIR": "/opt/tiktoken-cache",
+        "TIKTOKEN_ENCODINGS_BASE": "/opt/tiktoken-cache",
     })
+    .add_local_file(os.path.join(os.path.dirname(__file__), "tokenizer_cache.py"),
+                    remote_path="/opt/tokenizer_cache.py", copy=True)
+    .run_commands("timeout 90 python /opt/tokenizer_cache.py")
     .add_local_file(__file__, remote_path="/root/llm_server.py", copy=True)
 )
 
@@ -40,8 +45,8 @@ image = (
 @app.function(
     image=image,
     gpu=GPU,
-    cpu=4,
-    memory=16384,
+    cpu=(4, 4),
+    memory=(16384, 65536),
     volumes={"/weights": weights},
     secrets=[modal.Secret.from_name(SECRET_NAME, required_keys=["MODAL_API_KEY"])],
     min_containers=int(KEEP_WARM),

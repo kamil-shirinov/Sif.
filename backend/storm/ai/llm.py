@@ -79,7 +79,7 @@ def resolve_model(provider: str, model: str | None = None) -> str:
     if provider == "meta":
         return os.getenv("META_MODEL") or "muse-spark-1.3"
     if provider == "modal":
-        return os.getenv("MODAL_MODEL") or "Qwen/Qwen3-8B"
+        return os.getenv("MODAL_MODEL") or "openai/gpt-oss-120b"
     variable = {"fireworks": "FIREWORKS_MODEL_CHECKER", "modal": "MODAL_MODEL"}[provider]
     value = os.getenv(variable)
     if not value:

@@ -20,7 +20,8 @@ from storm.ai.prices import cost_usd
 def offline(monkeypatch, tmp_path):
     monkeypatch.setenv("LLM_MODE", "mock")
     monkeypatch.setenv("LLM_PRIVATE_MODE", "0")
-    for name in ("MODAL_MODEL", "MODAL_BASE_URL", "MODAL_API_KEY"):
+    monkeypatch.setenv("MODAL_MODEL", "Qwen/Qwen3-8B")
+    for name in ("MODAL_BASE_URL", "MODAL_API_KEY"):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setattr(llm, "load_environment", lambda: None)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -71,6 +72,23 @@ def test_modal_sends_credential_and_never_charges_tokens(monkeypatch):
     assert cost_usd("anything", 1000, 1000, provider="modal") == 0
     with pytest.raises(ValueError):
         cost_usd("anything", -1, 0, provider="modal")
+
+
+def test_measured_private_default_uses_gpt_oss_reasoning_not_qwen_template(monkeypatch):
+    monkeypatch.delenv("MODAL_MODEL")
+    assert llm.resolve_model("modal") == "openai/gpt-oss-120b"
+
+    def handler(request):
+        payload = json.loads(request.content)
+        assert payload["model"] == "openai/gpt-oss-120b"
+        assert payload["reasoning_effort"] == "low"
+        assert "chat_template_kwargs" not in payload
+        return httpx.Response(200, json=completion())
+
+    fake_sdk(monkeypatch, handler)
+    result = llm.complete([{"role": "user", "content": "Hello"}], provider="modal",
+                          max_tokens=64, purpose="test", live=True, reasoning_effort="low")
+    assert result["model"] == "openai/gpt-oss-120b" and result["cost_usd"] == 0
 
 
 def test_private_report_keeps_writer_and_inspector_on_modal(monkeypatch):

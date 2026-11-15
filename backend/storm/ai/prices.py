@@ -1,4 +1,9 @@
-"""USD per million tokens, always charged at the uncached rate."""
+"""USD per million tokens, always charged at the uncached rate.
+
+New bake-off IDs checked 15 Nov 2026 against:
+https://dev.meta.ai/docs/pricing-rate-limits
+https://docs.fireworks.ai/serverless/pricing
+"""
 
 from decimal import Decimal
 import re

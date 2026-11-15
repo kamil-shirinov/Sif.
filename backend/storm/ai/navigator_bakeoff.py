@@ -118,6 +118,7 @@ def evaluate(model_id, *, live=False):
         details.append(row)
         print(json.dumps({"progress": model_id, **row}), flush=True)
     return {"model": model_id, "private_mode": llm.private_mode(), "questions": len(details),
+            "policy": "minimum requested tools; explicit no-policy-cuts stress assumption",
             **{key: sum(bool(r.get(key)) for r in details) for key in
                ("verified", "first_try_verified", "correct_tool_use", "inspector_ok", "initial_inspector_ok", "fallback")},
             "success": sum(r["verified"] and r["correct_tool_use"] and r["inspector_ok"] and not r["fallback"] for r in details),

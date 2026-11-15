@@ -5,6 +5,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from decimal import Decimal
 import json
+import os
 from pathlib import Path
 import time
 
@@ -99,10 +100,16 @@ def _format_issues(text: str) -> list[str]:
 
 
 def write_report(facts: dict, live: bool = False, *, model: str | None = None,
-                 provider: str = "meta") -> dict:
+                 provider: str | None = None) -> dict:
     from .inspector import inspect_report, validate_model_families
 
     llm.load_environment()
+    if provider is None:
+        # Keep explicit model-only callers on the historical Meta route.
+        provider = "meta" if model else os.getenv("REPORT_WRITER_PROVIDER", "fireworks")
+        if model is None:
+            model = os.getenv("REPORT_WRITER_MODEL") or (
+                "accounts/fireworks/models/glm-5p3" if provider == "fireworks" else "muse-spark-1.3")
     if llm.live_enabled(live):
         validate_model_families(model, provider)
     total_cost = 0.0

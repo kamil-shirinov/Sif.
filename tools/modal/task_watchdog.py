@@ -24,7 +24,7 @@ def main():
             time.sleep(min(5, max(0, deadline - time.monotonic())))
     finally:
         subprocess.run([sys.executable, "-m", "modal", "app", "stop",
-                        "stormscore-private-llm"], check=True)
+                        "stormscore-private-llm", "--yes"], check=True)
 
 
 if __name__ == "__main__":

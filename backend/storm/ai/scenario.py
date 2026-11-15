@@ -95,7 +95,7 @@ def stress_test(symbol: str, move_pct: float, minutes: int, leverage: float | No
             "book_is_synthetic": True, "start_equity_usd": book["equity_usd"],
             "notional_usd": sum(leg["usd_notional"] for leg in book["legs"]),
             "leverage": sum(leg["usd_notional"] for leg in book["legs"]) / book["equity_usd"],
-            "assumptions": "Endpoint stress before liquidation; no spread or slippage; duration does not change endpoint P&L",
+            "assumptions": "Endpoint stress before liquidation; no policy cuts, spread or slippage; duration does not change endpoint P&L",
             **result}
 
 

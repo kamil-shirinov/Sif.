@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from storm.ai import budget, navigator, scenario
+from storm.ai import budget, llm, navigator, report, scenario
 from storm.ai.navigator_bakeoff import cases, correct_tools
 
 
@@ -51,3 +51,19 @@ def test_fixed_ten_cases_and_tool_scoring_reject_wrong_sign_or_missing_step():
     assert not correct_tools(actual[:1], expected)
     actual[0] = {**actual[0], 'arguments': {**actual[0]['arguments'], 'move_pct': 2}}
     assert not correct_tools(actual, expected)
+
+
+def test_report_default_uses_measured_winner_and_keeps_explicit_meta_route(bundle, monkeypatch):
+    complete = llm.complete
+    seen = []
+
+    def track(*args, **kwargs):
+        if kwargs['purpose'] == 'storm-report':
+            seen.append((kwargs['provider'], kwargs['model']))
+        return complete(*args, **kwargs)
+
+    monkeypatch.setattr(llm, 'complete', track)
+    facts = report.facts_from_bundle(bundle)
+    report.write_report(facts)
+    report.write_report(facts, model='muse-spark-1.3')
+    assert seen == [('fireworks', 'accounts/fireworks/models/glm-5p3'), ('meta', 'muse-spark-1.3')]
