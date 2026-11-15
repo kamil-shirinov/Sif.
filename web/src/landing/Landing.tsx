@@ -126,20 +126,23 @@ export function Landing({ motion = null }: { motion?: "leave" | "enter" | null }
   const figures = headlineFigures(metrics ?? null);
   const others = pickerEntries(index?.storms ?? [], HEADLINE_STORM_ID);
   useEffect(() => {
-    document.title = "StormScore";
+    document.title = "Sif";
   }, []);
 
   return (
-    <div className={`lp ${motion === "leave" ? "lp-leave" : motion === "enter" ? "lp-enter" : ""}`} role="dialog" aria-modal="false" aria-label="StormScore">
+    <div className={`lp ${motion === "leave" ? "lp-leave" : motion === "enter" ? "lp-enter" : ""}`} role="dialog" aria-modal="false" aria-label="Sif">
       <div className="lp-scrim" aria-hidden="true" />
       <div className="lp-scroll">
         <section className="lp-hero">
           <p className="lp-kicker lp-rise" style={delay(0)}>
             SGX FX · Cloudy with a chance of margin calls
           </p>
-          <h1 className="lp-title lp-rise" style={delay(1)}>
-            Storm<span>Score</span>
+          <h1 className="lp-title lp-rise" style={delay(1)} aria-label="Sif">
+            Sif<span aria-hidden="true">.</span>
           </h1>
+          <p className="lp-name lp-rise" style={delay(1)}>
+            Named after Sif, whose farmers prayed for weather kind to their crops.
+          </p>
           <p className="lp-lede lp-rise" style={delay(2)}>
             A storm defence for FX traders: the alarm sounds in the first minutes of a fast move, and two ships show what heeding it saved.
           </p>

@@ -45,17 +45,26 @@
   outline-offset: 3px;
 }
 
+/* Key caps: a solid cap with its own fill, so they read on the dark sheet and on the light-blue Start button alike. */
 .lp kbd {
   display: inline-block;
   min-width: 1.6em;
   padding: 0.05em 0.4em;
-  border: 1px solid currentColor;
+  border: 1px solid rgba(230, 237, 244, 0.5);
+  border-bottom-width: 2px;
   border-radius: 0.3em;
+  background: rgba(4, 8, 13, 0.55);
+  color: var(--text);
   font-family: var(--mono);
   font-size: 0.72em;
   line-height: 1.4;
   text-align: center;
-  opacity: 0.7;
+}
+/* On the light-blue primary button: a dark cap with a light glyph (about 15:1 against the cap). */
+.lp-btn.primary kbd {
+  background: var(--lp-ink);
+  border-color: var(--lp-ink);
+  color: #e6edf4;
 }
 
 /* ---------- hero: first screen ---------- */
@@ -86,6 +95,14 @@
 }
 .lp-title span {
   color: var(--accent);
+}
+/* One line on the name, under the wordmark. */
+.lp-name {
+  margin: 0.55em 0 0;
+  font-size: 0.95em;
+  font-style: italic;
+  color: var(--lp-dim);
+  text-shadow: 0 1px 0.5em rgba(0, 0, 0, 0.6);
 }
 
 .lp-lede {

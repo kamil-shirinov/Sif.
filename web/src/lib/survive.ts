@@ -463,9 +463,9 @@ export function explain(b: Bundle, r: RunResult): string[] {
     out.push(
       r.followed.sunk
         ? r.followed.cutI === null
-          ? `StormScore's alarm fired at ${clock(b, r.alarmI)}. At ${L}x the margin call came before a cut could fill at the next minute's open.`
-          : `StormScore's alarm fired at ${clock(b, r.alarmI)}. Even cutting at the next minute's open would not have saved this ship at ${L}x.`
-        : `StormScore's alarm fired at ${clock(b, r.alarmI)}. Cutting ${Math.round(CUT_FRACTION * 100)}% at the next minute's open would have left you with ${fmtUsd(r.followed.equity)}.`,
+          ? `Sif's alarm fired at ${clock(b, r.alarmI)}. At ${L}x the margin call came before a cut could fill at the next minute's open.`
+          : `Sif's alarm fired at ${clock(b, r.alarmI)}. Even cutting at the next minute's open would not have saved this ship at ${L}x.`
+        : `Sif's alarm fired at ${clock(b, r.alarmI)}. Cutting ${Math.round(CUT_FRACTION * 100)}% at the next minute's open would have left you with ${fmtUsd(r.followed.equity)}.`,
     );
   }
   if (r.scenario) out.push("This was a what-if scenario, not real history.");
