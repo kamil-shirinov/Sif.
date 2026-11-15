@@ -1,0 +1,15 @@
+{
+  "checked_at_utc": "2026-11-15T05:37:32.223601+00:00",
+  "whole_backend": {
+    "command": "/Users/kamilshirinov/.venvs/stormscore/bin/python -m pytest -q",
+    "exit_code": 0,
+    "passed": 361,
+    "skipped": 9,
+    "elapsed_seconds": 40.13742979199742
+  },
+  "stats_only": {
+    "command": "/Users/kamilshirinov/.venvs/stormscore/bin/python -m pytest -q tests/stats",
+    "passed": 12
+  },
+  "scope": "backend/storm/stats/**, backend/tests/stats/**, docs/stats/** only; no data committed"
+}

@@ -1,0 +1,2121 @@
+{
+  "cache_tag": "e17d8e0ec80fd262dcf98037068aaebb105ef191e0d7934445163309543165dd",
+  "result": {
+    "dataset": "oos_round1",
+    "unit": "intervention-oct-2022",
+    "stock": false,
+    "group": "events",
+    "start": "2022-10-19 00:00:00+00:00",
+    "end": "2022-10-25 00:00:00+00:00",
+    "pairs": [
+      "USDJPY"
+    ],
+    "published_detection_check": {
+      "checked_fields": [
+        "storms",
+        "alarmed",
+        "caught",
+        "caught_first_onset",
+        "median_move_ahead_pct",
+        "median_minutes_to_alarm",
+        "storm_alarms",
+        "false_alarms",
+        "false_alarm_episodes",
+        "false_alarm_episodes_per_day",
+        "days"
+      ],
+      "differences": [],
+      "passed": true
+    },
+    "published_policy": {
+      "status": "supported",
+      "pairs": [
+        "USDJPY"
+      ],
+      "excluded_pairs": [],
+      "result": {
+        "book": {
+          "synthetic": true,
+          "legs": [
+            "long USD 20,000,000 via USDJPY"
+          ],
+          "equity_usd": 1000000.0,
+          "maintenance_margin": 0.025,
+          "cut_fraction": 0.75,
+          "from_utc": "2022-10-19 00:00",
+          "to_utc": "2022-10-24 23:59",
+          "execution": "signal at bar t's close, fill at the next bar's open, bid or ask (side-correct)"
+        },
+        "alerts": {
+          "danger_alarms": 2,
+          "squalls": 5,
+          "fair_winds": 1,
+          "all_clears": 5
+        },
+        "prepared": {
+          "final_equity_usd": 1224290.0894608125,
+          "max_drawdown_usd": 409077.8180796029,
+          "max_drawdown_pct": 27.570129702874063,
+          "margin_calls": 0,
+          "margin_call_utc": null,
+          "cuts": 2,
+          "restores": 2,
+          "fills": 4,
+          "spread_cost_usd": 5477.886890629137
+        },
+        "unprepared": {
+          "final_equity_usd": 962657.496709019,
+          "max_drawdown_usd": 855329.7081314847,
+          "max_drawdown_pct": 62.702828644123954,
+          "margin_calls": 0,
+          "margin_call_utc": null,
+          "cuts": 0,
+          "restores": 0,
+          "fills": 0,
+          "spread_cost_usd": 0.0
+        },
+        "trades": [
+          {
+            "utc": "2022-10-21 13:00",
+            "signal_utc": "2022-10-21 12:59",
+            "pair": "USDJPY",
+            "action": "cut",
+            "side": "sell",
+            "at": "open",
+            "fill_price": 151.473,
+            "mid_price": 151.4805,
+            "cost_usd": 742.6698485936981
+          },
+          {
+            "utc": "2022-10-21 17:06",
+            "signal_utc": "2022-10-21 17:05",
+            "pair": "USDJPY",
+            "action": "restore",
+            "side": "buy",
+            "at": "open",
+            "fill_price": 147.323,
+            "mid_price": 147.3175,
+            "cost_usd": 560.0149337327932
+          },
+          {
+            "utc": "2022-10-23 23:39",
+            "signal_utc": "2022-10-23 23:38",
+            "pair": "USDJPY",
+            "action": "cut",
+            "side": "sell",
+            "at": "open",
+            "fill_price": 146.937,
+            "mid_price": 146.969,
+            "cost_usd": 3265.9948696645824
+          },
+          {
+            "utc": "2022-10-24 00:27",
+            "signal_utc": "2022-10-24 00:26",
+            "pair": "USDJPY",
+            "action": "restore",
+            "side": "buy",
+            "at": "open",
+            "fill_price": 148.49,
+            "mid_price": 148.481,
+            "cost_usd": 909.2072386380634
+          }
+        ]
+      }
+    },
+    "descriptive_splits": null,
+    "coverage": {},
+    "methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 35.175427322966215,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 35.27516432529988,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.25148445686342996,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.25148445686342996,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 1,
+        "median_move_ahead_pct": 67.58771366148311,
+        "median_minutes_to_alarm": -8.5,
+        "caught_first_onset": 1,
+        "median_move_ahead_pct_first_onset": 56.56591691603439,
+        "median_minutes_to_alarm_first_onset": 64.0,
+        "storm_alarms": 4,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.25148445686342996,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.25148445686342996,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": "2022-10-21 14:39",
+            "move_ahead_pct": 100.0,
+            "minutes": -27,
+            "caught": true,
+            "move_ahead_pct_first_onset": 77.8566695067689,
+            "minutes_first_onset": 113,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 35.175427322966215,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 35.27516432529988,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 7,
+        "false_alarms": 6,
+        "false_alarms_per_day": 1.5089067411805799,
+        "false_alarm_episodes": 6,
+        "false_alarm_episodes_per_day": 1.5089067411805799,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooled_methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 35.175427322966215,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 35.27516432529988,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.25148445686342996,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.25148445686342996,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 1,
+        "median_move_ahead_pct": 67.58771366148311,
+        "median_minutes_to_alarm": -8.5,
+        "caught_first_onset": 1,
+        "median_move_ahead_pct_first_onset": 56.56591691603439,
+        "median_minutes_to_alarm_first_onset": 64.0,
+        "storm_alarms": 4,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.25148445686342996,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.25148445686342996,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": "2022-10-21 14:39",
+            "move_ahead_pct": 100.0,
+            "minutes": -27,
+            "caught": true,
+            "move_ahead_pct_first_onset": 77.8566695067689,
+            "minutes_first_onset": 113,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 35.175427322966215,
+        "median_minutes_to_alarm": 10.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 35.27516432529988,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 7,
+        "false_alarms": 6,
+        "false_alarms_per_day": 1.5089067411805799,
+        "false_alarm_episodes": 6,
+        "false_alarm_episodes_per_day": 1.5089067411805799,
+        "squalls_per_day": null,
+        "days": 3.9763888888888888,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2022-10-21",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-21T15:06:00+00:00",
+            "first_onset_utc": "2022-10-21T12:46:00+00:00",
+            "trough_utc": "2022-10-21T15:54:00+00:00",
+            "end_utc": "2022-10-21T15:57:00+00:00",
+            "move_bp": -225.76578259245306,
+            "duration_min": 48,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-21"
+          },
+          {
+            "storm_id": "usdjpy-2022-10-23",
+            "alarm_utc": "2022-10-23 23:38",
+            "move_ahead_pct": 35.175427322966215,
+            "minutes": 10,
+            "caught": false,
+            "move_ahead_pct_first_onset": 35.27516432529988,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2022-10-23T23:28:00+00:00",
+            "first_onset_utc": "2022-10-23T23:23:00+00:00",
+            "trough_utc": "2022-10-23T23:43:00+00:00",
+            "end_utc": "2022-10-23T23:48:00+00:00",
+            "move_bp": -260.26109730440504,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "block": "2022-10-23"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-19",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-20",
+            "observed_minutes": 1429,
+            "episodes": 2
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-21",
+            "observed_minutes": 1260,
+            "episodes": 3
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-23",
+            "observed_minutes": 169,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "intervention-oct-2022",
+            "date": "2022-10-24",
+            "observed_minutes": 1428,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "policy": {
+      "independent_reset_books": 1,
+      "synthetic": true,
+      "prepared_minus_unprepared_usd": 261632.59275179333,
+      "prepared": {
+        "margin_calls": 0,
+        "cuts": 2,
+        "restores": 2,
+        "fills": 4,
+        "spread_cost_usd": 5477.886890629137,
+        "pnl_usd": 224290.08946081228,
+        "max_book_drawdown_usd": 409077.81807960174,
+        "median_book_drawdown_usd": 409077.81807960174
+      },
+      "unprepared": {
+        "margin_calls": 0,
+        "cuts": 0,
+        "restores": 0,
+        "fills": 0,
+        "spread_cost_usd": 0.0,
+        "pnl_usd": -37342.503290981054,
+        "max_book_drawdown_usd": 855329.7081314847,
+        "median_book_drawdown_usd": 855329.7081314847
+      }
+    },
+    "policy_books": [
+      {
+        "name": "intervention-oct-2022",
+        "pairs": [
+          "USDJPY"
+        ],
+        "start": "2022-10-19 00:00:00+00:00",
+        "end": "2022-10-25 00:00:00+00:00",
+        "include_in_pooled": true,
+        "prepared": {
+          "final_equity_usd": 1224290.0894608123,
+          "max_drawdown_usd": 409077.81807960174,
+          "max_drawdown_pct": 27.570129702873984,
+          "margin_calls": 0,
+          "cuts": 2,
+          "restores": 2,
+          "spread_cost_usd": 5477.886890629137,
+          "fills": 4
+        },
+        "unprepared": {
+          "final_equity_usd": 962657.496709019,
+          "max_drawdown_usd": 855329.7081314847,
+          "max_drawdown_pct": 62.70282864412391,
+          "margin_calls": 0,
+          "cuts": 0,
+          "restores": 0,
+          "spread_cost_usd": 0.0,
+          "fills": 0
+        }
+      }
+    ],
+    "sensitivity": [
+      {
+        "factor": "spread_multiplier",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 261632.59275179333,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 5477.886890629137,
+            "pnl_usd": 224290.08946081228,
+            "max_book_drawdown_usd": 409077.81807960174,
+            "median_book_drawdown_usd": 409077.81807960174
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1224290.0894608123,
+              "max_drawdown_usd": 409077.81807960174,
+              "max_drawdown_pct": 27.570129702873984,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 5477.886890629137,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 256192.4079198346,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 10955.773781258275,
+            "pnl_usd": 218849.90462885355,
+            "max_book_drawdown_usd": 412411.20147177903,
+            "median_book_drawdown_usd": 412411.20147177903
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1218849.9046288535,
+              "max_drawdown_usd": 412411.20147177903,
+              "max_drawdown_pct": 27.819211878650112,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 10955.773781258275,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 3,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 250752.22308787587,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 16433.66067188741,
+            "pnl_usd": 213409.71979689482,
+            "max_book_drawdown_usd": 415744.58486395725,
+            "median_book_drawdown_usd": 415744.58486395725
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1213409.7197968948,
+              "max_drawdown_usd": 415744.58486395725,
+              "max_drawdown_pct": 28.068732227294586,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 16433.66067188741,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 261632.59275179333,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 5477.886890629137,
+            "pnl_usd": 224290.08946081228,
+            "max_book_drawdown_usd": 409077.81807960174,
+            "median_book_drawdown_usd": 409077.81807960174
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1224290.0894608123,
+              "max_drawdown_usd": 409077.81807960174,
+              "max_drawdown_pct": 27.570129702873984,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 5477.886890629137,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 217002.92829702073,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 8515.4655619447,
+            "pnl_usd": 179660.42500603967,
+            "max_book_drawdown_usd": 463831.54713647347,
+            "median_book_drawdown_usd": 463831.54713647347
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1179660.4250060397,
+              "max_drawdown_usd": 463831.54713647347,
+              "max_drawdown_pct": 31.218131514422204,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 8515.4655619447,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 158269.0809445742,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 4219.371148515698,
+            "pnl_usd": 120926.57765359315,
+            "max_book_drawdown_usd": 508082.3653693119,
+            "median_book_drawdown_usd": 508082.3653693119
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1120926.5776535932,
+              "max_drawdown_usd": 508082.3653693119,
+              "max_drawdown_pct": 34.40995451917949,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 4219.371148515698,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 174421.72850119555,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 3651.924593752758,
+            "pnl_usd": 137079.2252102145,
+            "max_book_drawdown_usd": 478047.6772785643,
+            "median_book_drawdown_usd": 478047.6772785643
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1137079.2252102145,
+              "max_drawdown_usd": 478047.6772785643,
+              "max_drawdown_pct": 35.044897081385365,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 3651.924593752758,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.75,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 261632.59275179333,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 5477.886890629137,
+            "pnl_usd": 224290.08946081228,
+            "max_book_drawdown_usd": 409077.81807960174,
+            "median_book_drawdown_usd": 409077.81807960174
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1224290.0894608123,
+              "max_drawdown_usd": 409077.81807960174,
+              "max_drawdown_pct": 27.570129702873984,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 5477.886890629137,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 1.0,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 348843.4570023911,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 7303.849187505516,
+            "pnl_usd": 311500.95371141005,
+            "max_book_drawdown_usd": 386964.2773480527,
+            "median_book_drawdown_usd": 386964.2773480527
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1311500.95371141,
+              "max_drawdown_usd": 386964.2773480527,
+              "max_drawdown_pct": 23.851307910994972,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 7303.849187505516,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 10,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 130816.29637589655,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 2738.9434453145686,
+            "pnl_usd": 112145.04473040602,
+            "max_book_drawdown_usd": 204538.90903980087,
+            "median_book_drawdown_usd": 204538.90903980087
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -18671.251645490527,
+            "max_book_drawdown_usd": 427664.85406574234,
+            "median_book_drawdown_usd": 427664.85406574234
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1112145.044730406,
+              "max_drawdown_usd": 204538.90903980087,
+              "max_drawdown_pct": 16.470024062049436,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 2738.9434453145686,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 981328.7483545095,
+              "max_drawdown_usd": 427664.85406574234,
+              "max_drawdown_pct": 36.17991896664329,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 20,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 261632.59275179333,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 5477.886890629137,
+            "pnl_usd": 224290.08946081228,
+            "max_book_drawdown_usd": 409077.81807960174,
+            "median_book_drawdown_usd": 409077.81807960174
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1224290.0894608123,
+              "max_drawdown_usd": 409077.81807960174,
+              "max_drawdown_pct": 27.570129702873984,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 5477.886890629137,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 30,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 639095.0886229557,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 8216.830335943705,
+            "pnl_usd": 336435.13419121667,
+            "max_book_drawdown_usd": 613616.727119402,
+            "median_book_drawdown_usd": 613616.727119402
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 2132.838605051594,
+            "pnl_usd": -302659.95443173905,
+            "max_book_drawdown_usd": 848810.9653837144,
+            "median_book_drawdown_usd": 848810.9653837144
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1336435.1341912167,
+              "max_drawdown_usd": 613616.727119402,
+              "max_drawdown_pct": 35.55842569553887,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 8216.830335943705,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 697340.045568261,
+              "max_drawdown_usd": 848810.9653837144,
+              "max_drawdown_pct": 54.89832230948101,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 2132.838605051594,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.7,
+        "status": "invalid",
+        "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.8,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 261632.59275179333,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 5477.886890629137,
+            "pnl_usd": 224290.08946081228,
+            "max_book_drawdown_usd": 409077.81807960174,
+            "median_book_drawdown_usd": 409077.81807960174
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1224290.0894608123,
+              "max_drawdown_usd": 409077.81807960174,
+              "max_drawdown_pct": 27.570129702873984,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 5477.886890629137,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.9,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 224055.01974585606,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 2,
+            "restores": 2,
+            "fills": 4,
+            "spread_cost_usd": 5628.611876226599,
+            "pnl_usd": 186712.516454875,
+            "max_book_drawdown_usd": 410126.3565639572,
+            "median_book_drawdown_usd": 410126.3565639572
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -37342.503290981054,
+            "max_book_drawdown_usd": 855329.7081314847,
+            "median_book_drawdown_usd": 855329.7081314847
+          }
+        },
+        "books": [
+          {
+            "name": "intervention-oct-2022",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2022-10-19 00:00:00+00:00",
+            "end": "2022-10-25 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 1186712.516454875,
+              "max_drawdown_usd": 410126.3565639572,
+              "max_drawdown_pct": 28.355139795642415,
+              "margin_calls": 0,
+              "cuts": 2,
+              "restores": 2,
+              "spread_cost_usd": 5628.611876226599,
+              "fills": 4
+            },
+            "unprepared": {
+              "final_equity_usd": 962657.496709019,
+              "max_drawdown_usd": 855329.7081314847,
+              "max_drawdown_pct": 62.70282864412391,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 35.175427322966215,
+          "median_minutes_to_alarm": 10.0,
+          "median_share_ahead_pct_first_onset": 35.27516432529988,
+          "median_minutes_to_alarm_first_onset": 15.0,
+          "observed_days": 3.9763888888888888,
+          "false_episodes": 1,
+          "false_alert_episodes_per_observed_day": 0.25148445686342996
+        }
+      }
+    ],
+    "oracle_checks": [
+      {
+        "book": "intervention-oct-2022",
+        "checked_trials": [
+          0,
+          1,
+          501,
+          1001
+        ],
+        "rtol": 1e-09,
+        "atol_usd": 1e-05,
+        "passed": true
+      }
+    ],
+    "elapsed_seconds": 0.337634709001577
+  }
+}

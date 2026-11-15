@@ -1,0 +1,2152 @@
+{
+  "cache_tag": "e17d8e0ec80fd262dcf98037068aaebb105ef191e0d7934445163309543165dd",
+  "result": {
+    "dataset": "oos_round1",
+    "unit": "carry-2024",
+    "stock": false,
+    "group": "events",
+    "start": "2024-08-01 00:00:00+00:00",
+    "end": "2024-08-08 00:00:00+00:00",
+    "pairs": [
+      "USDJPY"
+    ],
+    "published_detection_check": {
+      "checked_fields": [
+        "storms",
+        "alarmed",
+        "caught",
+        "caught_first_onset",
+        "median_move_ahead_pct",
+        "median_minutes_to_alarm",
+        "storm_alarms",
+        "false_alarms",
+        "false_alarm_episodes",
+        "false_alarm_episodes_per_day",
+        "days"
+      ],
+      "differences": [],
+      "passed": true
+    },
+    "published_policy": {
+      "status": "supported",
+      "pairs": [
+        "USDJPY"
+      ],
+      "excluded_pairs": [],
+      "result": {
+        "book": {
+          "synthetic": true,
+          "legs": [
+            "long USD 20,000,000 via USDJPY"
+          ],
+          "equity_usd": 1000000.0,
+          "maintenance_margin": 0.025,
+          "cut_fraction": 0.75,
+          "from_utc": "2024-08-01 00:00",
+          "to_utc": "2024-08-07 23:59",
+          "execution": "signal at bar t's close, fill at the next bar's open, bid or ask (side-correct)"
+        },
+        "alerts": {
+          "danger_alarms": 1,
+          "squalls": 2,
+          "fair_winds": 0,
+          "all_clears": 2
+        },
+        "prepared": {
+          "final_equity_usd": 472994.6634107528,
+          "max_drawdown_usd": 694443.1274179558,
+          "max_drawdown_pct": 59.484379628057404,
+          "margin_calls": 1,
+          "margin_call_utc": "2024-08-04 23:31",
+          "cuts": 1,
+          "restores": 1,
+          "fills": 3,
+          "spread_cost_usd": 1331.323251497356
+        },
+        "unprepared": {
+          "final_equity_usd": 476081.37955633603,
+          "max_drawdown_usd": 691356.4112723726,
+          "max_drawdown_pct": 59.21997871780488,
+          "margin_calls": 1,
+          "margin_call_utc": "2024-08-04 23:31",
+          "cuts": 0,
+          "restores": 0,
+          "fills": 1,
+          "spread_cost_usd": 823.1243054888984
+        },
+        "trades": [
+          {
+            "utc": "2024-08-02 12:32",
+            "signal_utc": "2024-08-02 12:31",
+            "pair": "USDJPY",
+            "action": "cut",
+            "side": "sell",
+            "at": "open",
+            "fill_price": 147.561,
+            "mid_price": 147.5625,
+            "cost_usd": 152.47776365874984
+          },
+          {
+            "utc": "2024-08-02 13:31",
+            "signal_utc": "2024-08-02 13:30",
+            "pair": "USDJPY",
+            "action": "restore",
+            "side": "buy",
+            "at": "open",
+            "fill_price": 147.591,
+            "mid_price": 147.5875,
+            "cost_usd": 355.7211823497079
+          },
+          {
+            "utc": "2024-08-04 23:31",
+            "signal_utc": "2024-08-04 23:31",
+            "pair": "USDJPY",
+            "action": "margin_call",
+            "side": "sell",
+            "at": "close",
+            "fill_price": 145.78,
+            "mid_price": 145.786,
+            "cost_usd": 823.1243054888984
+          }
+        ]
+      }
+    },
+    "descriptive_splits": null,
+    "coverage": {},
+    "methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 24.980564913190037,
+        "median_minutes_to_alarm": 5.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 26.33879781420743,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 1,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 4.99375,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2024-08-02",
+            "alarm_utc": "2024-08-02 12:31",
+            "move_ahead_pct": 24.980564913190037,
+            "minutes": 5,
+            "caught": false,
+            "move_ahead_pct_first_onset": 26.33879781420743,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-02T12:26:00+00:00",
+            "first_onset_utc": "2024-08-02T12:15:00+00:00",
+            "trough_utc": "2024-08-02T12:41:00+00:00",
+            "end_utc": "2024-08-02T12:44:00+00:00",
+            "move_bp": -129.49403703281126,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-02"
+          },
+          {
+            "storm_id": "usdjpy-2024-08-07",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-07T01:31:00+00:00",
+            "first_onset_utc": "2024-08-07T01:30:00+00:00",
+            "trough_utc": "2024-08-07T01:46:00+00:00",
+            "end_utc": "2024-08-07T01:47:00+00:00",
+            "move_bp": 161.69188540531732,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-07"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-01",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-02",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-04",
+            "observed_minutes": 177,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-06",
+            "observed_minutes": 1437,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-07",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 0,
+        "median_move_ahead_pct": 28.46606750174414,
+        "median_minutes_to_alarm": 9.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 28.150341744180118,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 4.99375,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2024-08-02",
+            "alarm_utc": "2024-08-02 12:30",
+            "move_ahead_pct": 29.463591604042662,
+            "minutes": 4,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.065573770491607,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-02T12:26:00+00:00",
+            "first_onset_utc": "2024-08-02T12:15:00+00:00",
+            "trough_utc": "2024-08-02T12:41:00+00:00",
+            "end_utc": "2024-08-02T12:44:00+00:00",
+            "move_bp": -129.49403703281126,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-02"
+          },
+          {
+            "storm_id": "usdjpy-2024-08-07",
+            "alarm_utc": "2024-08-07 01:45",
+            "move_ahead_pct": 27.468543399445615,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 25.235109717868625,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-07T01:31:00+00:00",
+            "first_onset_utc": "2024-08-07T01:30:00+00:00",
+            "trough_utc": "2024-08-07T01:46:00+00:00",
+            "end_utc": "2024-08-07T01:47:00+00:00",
+            "move_bp": 161.69188540531732,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-07"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-01",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-02",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-04",
+            "observed_minutes": 177,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-06",
+            "observed_minutes": 1437,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-07",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 1,
+        "median_move_ahead_pct": 40.7052536658081,
+        "median_minutes_to_alarm": 7.0,
+        "caught_first_onset": 1,
+        "median_move_ahead_pct_first_onset": 39.09024530208826,
+        "median_minutes_to_alarm_first_onset": 13.0,
+        "storm_alarms": 3,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.2002503128911139,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.2002503128911139,
+        "squalls_per_day": null,
+        "days": 4.99375,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2024-08-02",
+            "alarm_utc": "2024-08-02 12:31",
+            "move_ahead_pct": 24.980564913190037,
+            "minutes": 5,
+            "caught": false,
+            "move_ahead_pct_first_onset": 26.33879781420743,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-02T12:26:00+00:00",
+            "first_onset_utc": "2024-08-02T12:15:00+00:00",
+            "trough_utc": "2024-08-02T12:41:00+00:00",
+            "end_utc": "2024-08-02T12:44:00+00:00",
+            "move_bp": -129.49403703281126,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-02"
+          },
+          {
+            "storm_id": "usdjpy-2024-08-07",
+            "alarm_utc": "2024-08-07 01:40",
+            "move_ahead_pct": 56.42994241842617,
+            "minutes": 9,
+            "caught": true,
+            "move_ahead_pct_first_onset": 51.841692789969095,
+            "minutes_first_onset": 10,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-07T01:31:00+00:00",
+            "first_onset_utc": "2024-08-07T01:30:00+00:00",
+            "trough_utc": "2024-08-07T01:46:00+00:00",
+            "end_utc": "2024-08-07T01:47:00+00:00",
+            "move_bp": 161.69188540531732,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-07"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-01",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-02",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-04",
+            "observed_minutes": 177,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-05",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-06",
+            "observed_minutes": 1437,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-07",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooled_methods": {
+      "v1": {
+        "storms": 2,
+        "alarmed": 1,
+        "caught": 0,
+        "median_move_ahead_pct": 24.980564913190037,
+        "median_minutes_to_alarm": 5.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 26.33879781420743,
+        "median_minutes_to_alarm_first_onset": 16.0,
+        "storm_alarms": 1,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 4.99375,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2024-08-02",
+            "alarm_utc": "2024-08-02 12:31",
+            "move_ahead_pct": 24.980564913190037,
+            "minutes": 5,
+            "caught": false,
+            "move_ahead_pct_first_onset": 26.33879781420743,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-02T12:26:00+00:00",
+            "first_onset_utc": "2024-08-02T12:15:00+00:00",
+            "trough_utc": "2024-08-02T12:41:00+00:00",
+            "end_utc": "2024-08-02T12:44:00+00:00",
+            "move_bp": -129.49403703281126,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-02"
+          },
+          {
+            "storm_id": "usdjpy-2024-08-07",
+            "alarm_utc": null,
+            "move_ahead_pct": null,
+            "minutes": null,
+            "caught": false,
+            "move_ahead_pct_first_onset": null,
+            "minutes_first_onset": null,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-07T01:31:00+00:00",
+            "first_onset_utc": "2024-08-07T01:30:00+00:00",
+            "trough_utc": "2024-08-07T01:46:00+00:00",
+            "end_utc": "2024-08-07T01:47:00+00:00",
+            "move_bp": 161.69188540531732,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-07"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-01",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-02",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-04",
+            "observed_minutes": 177,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-06",
+            "observed_minutes": 1437,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-07",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "naive": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 0,
+        "median_move_ahead_pct": 28.46606750174414,
+        "median_minutes_to_alarm": 9.0,
+        "caught_first_onset": 0,
+        "median_move_ahead_pct_first_onset": 28.150341744180118,
+        "median_minutes_to_alarm_first_onset": 15.0,
+        "storm_alarms": 2,
+        "false_alarms": 0,
+        "false_alarms_per_day": 0.0,
+        "false_alarm_episodes": 0,
+        "false_alarm_episodes_per_day": 0.0,
+        "squalls_per_day": null,
+        "days": 4.99375,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2024-08-02",
+            "alarm_utc": "2024-08-02 12:30",
+            "move_ahead_pct": 29.463591604042662,
+            "minutes": 4,
+            "caught": false,
+            "move_ahead_pct_first_onset": 31.065573770491607,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-02T12:26:00+00:00",
+            "first_onset_utc": "2024-08-02T12:15:00+00:00",
+            "trough_utc": "2024-08-02T12:41:00+00:00",
+            "end_utc": "2024-08-02T12:44:00+00:00",
+            "move_bp": -129.49403703281126,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-02"
+          },
+          {
+            "storm_id": "usdjpy-2024-08-07",
+            "alarm_utc": "2024-08-07 01:45",
+            "move_ahead_pct": 27.468543399445615,
+            "minutes": 14,
+            "caught": false,
+            "move_ahead_pct_first_onset": 25.235109717868625,
+            "minutes_first_onset": 15,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-07T01:31:00+00:00",
+            "first_onset_utc": "2024-08-07T01:30:00+00:00",
+            "trough_utc": "2024-08-07T01:46:00+00:00",
+            "end_utc": "2024-08-07T01:47:00+00:00",
+            "move_bp": 161.69188540531732,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-07"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-01",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-02",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-04",
+            "observed_minutes": 177,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-05",
+            "observed_minutes": 1440,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-06",
+            "observed_minutes": 1437,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-07",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      },
+      "v0": {
+        "storms": 2,
+        "alarmed": 2,
+        "caught": 1,
+        "median_move_ahead_pct": 40.7052536658081,
+        "median_minutes_to_alarm": 7.0,
+        "caught_first_onset": 1,
+        "median_move_ahead_pct_first_onset": 39.09024530208826,
+        "median_minutes_to_alarm_first_onset": 13.0,
+        "storm_alarms": 3,
+        "false_alarms": 1,
+        "false_alarms_per_day": 0.2002503128911139,
+        "false_alarm_episodes": 1,
+        "false_alarm_episodes_per_day": 0.2002503128911139,
+        "squalls_per_day": null,
+        "days": 4.99375,
+        "per_storm": [
+          {
+            "storm_id": "usdjpy-2024-08-02",
+            "alarm_utc": "2024-08-02 12:31",
+            "move_ahead_pct": 24.980564913190037,
+            "minutes": 5,
+            "caught": false,
+            "move_ahead_pct_first_onset": 26.33879781420743,
+            "minutes_first_onset": 16,
+            "caught_first_onset": false,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-02T12:26:00+00:00",
+            "first_onset_utc": "2024-08-02T12:15:00+00:00",
+            "trough_utc": "2024-08-02T12:41:00+00:00",
+            "end_utc": "2024-08-02T12:44:00+00:00",
+            "move_bp": -129.49403703281126,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-02"
+          },
+          {
+            "storm_id": "usdjpy-2024-08-07",
+            "alarm_utc": "2024-08-07 01:40",
+            "move_ahead_pct": 56.42994241842617,
+            "minutes": 9,
+            "caught": true,
+            "move_ahead_pct_first_onset": 51.841692789969095,
+            "minutes_first_onset": 10,
+            "caught_first_onset": true,
+            "pair": "USDJPY",
+            "kind": "unscheduled",
+            "onset_utc": "2024-08-07T01:31:00+00:00",
+            "first_onset_utc": "2024-08-07T01:30:00+00:00",
+            "trough_utc": "2024-08-07T01:46:00+00:00",
+            "end_utc": "2024-08-07T01:47:00+00:00",
+            "move_bp": 161.69188540531732,
+            "duration_min": 15,
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "block": "2024-08-07"
+          }
+        ],
+        "daily": [
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-01",
+            "observed_minutes": 1438,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-02",
+            "observed_minutes": 1260,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-04",
+            "observed_minutes": 177,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-05",
+            "observed_minutes": 1440,
+            "episodes": 1
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-06",
+            "observed_minutes": 1437,
+            "episodes": 0
+          },
+          {
+            "dataset": "oos_round1",
+            "unit": "carry-2024",
+            "date": "2024-08-07",
+            "observed_minutes": 1439,
+            "episodes": 0
+          }
+        ],
+        "trading_daily": []
+      }
+    },
+    "pooling": {
+      "priority": [
+        "sgx_august",
+        "oos_round1",
+        "oos_round2",
+        "chips_new"
+      ],
+      "duplicate_minutes_by_pair": {
+        "USDJPY": 0
+      },
+      "excluded_storm_ids": [],
+      "excluded_policy_books": [],
+      "rule": "same source/pair/UTC minute, higher-priority dataset first; drop entire overlapping reset book"
+    },
+    "policy": {
+      "independent_reset_books": 1,
+      "synthetic": true,
+      "prepared_minus_unprepared_usd": -3086.716145583254,
+      "prepared": {
+        "margin_calls": 1,
+        "cuts": 1,
+        "restores": 1,
+        "fills": 3,
+        "spread_cost_usd": 1331.323251497356,
+        "pnl_usd": -527005.336589247,
+        "max_book_drawdown_usd": 694443.1274179558,
+        "median_book_drawdown_usd": 694443.1274179558
+      },
+      "unprepared": {
+        "margin_calls": 1,
+        "cuts": 0,
+        "restores": 0,
+        "fills": 1,
+        "spread_cost_usd": 823.1243054888984,
+        "pnl_usd": -523918.6204436638,
+        "max_book_drawdown_usd": 691356.4112723726,
+        "median_book_drawdown_usd": 691356.4112723726
+      }
+    },
+    "policy_books": [
+      {
+        "name": "carry-2024",
+        "pairs": [
+          "USDJPY"
+        ],
+        "start": "2024-08-01 00:00:00+00:00",
+        "end": "2024-08-08 00:00:00+00:00",
+        "include_in_pooled": true,
+        "prepared": {
+          "final_equity_usd": 472994.66341075295,
+          "max_drawdown_usd": 694443.1274179558,
+          "max_drawdown_pct": 59.4843796280574,
+          "margin_calls": 1,
+          "cuts": 1,
+          "restores": 1,
+          "spread_cost_usd": 1331.323251497356,
+          "fills": 3
+        },
+        "unprepared": {
+          "final_equity_usd": 476081.3795563362,
+          "max_drawdown_usd": 691356.4112723726,
+          "max_drawdown_pct": 59.219978717804864,
+          "margin_calls": 1,
+          "cuts": 0,
+          "restores": 0,
+          "spread_cost_usd": 823.1243054888984,
+          "fills": 1
+        }
+      }
+    ],
+    "sensitivity": [
+      {
+        "factor": "spread_multiplier",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -3086.716145583254,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1331.323251497356,
+            "pnl_usd": -527005.336589247,
+            "max_book_drawdown_usd": 694443.1274179558,
+            "median_book_drawdown_usd": 694443.1274179558
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 472994.66341075295,
+              "max_drawdown_usd": 694443.1274179558,
+              "max_drawdown_pct": 59.4843796280574,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1331.323251497356,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -3601.168836513825,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 2662.646502994712,
+            "pnl_usd": -528342.9135856666,
+            "max_book_drawdown_usd": 695780.7044143754,
+            "median_book_drawdown_usd": 695780.7044143754
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 1646.2486109777967,
+            "pnl_usd": -524741.7447491528,
+            "max_book_drawdown_usd": 692179.5355778616,
+            "median_book_drawdown_usd": 692179.5355778616
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 471657.08641433343,
+              "max_drawdown_usd": 695780.7044143754,
+              "max_drawdown_pct": 59.598953355833515,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 2662.646502994712,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 475258.25525084726,
+              "max_drawdown_usd": 692179.5355778616,
+              "max_drawdown_pct": 59.29048562720555,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 1646.2486109777967,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "spread_multiplier",
+        "value": 3,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -4115.621527444338,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 3993.969754492068,
+            "pnl_usd": -529680.4905820859,
+            "max_book_drawdown_usd": 697118.2814107947,
+            "median_book_drawdown_usd": 697118.2814107947
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 2469.372916466695,
+            "pnl_usd": -525564.8690546416,
+            "max_book_drawdown_usd": 693002.6598833504,
+            "median_book_drawdown_usd": 693002.6598833504
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 470319.509417914,
+              "max_drawdown_usd": 697118.2814107947,
+              "max_drawdown_pct": 59.713527083609605,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 3993.969754492068,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 474435.13094535837,
+              "max_drawdown_usd": 693002.6598833504,
+              "max_drawdown_pct": 59.36099253660622,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 2469.372916466695,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 1,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -3086.716145583254,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1331.323251497356,
+            "pnl_usd": -527005.336589247,
+            "max_book_drawdown_usd": 694443.1274179558,
+            "median_book_drawdown_usd": 694443.1274179558
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 472994.66341075295,
+              "max_drawdown_usd": 694443.1274179558,
+              "max_drawdown_pct": 59.4843796280574,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1331.323251497356,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 2,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 22327.246786382282,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1941.0275386243848,
+            "pnl_usd": -501591.3736572815,
+            "max_book_drawdown_usd": 669029.1644859903,
+            "median_book_drawdown_usd": 669029.1644859903
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 498408.6263427185,
+              "max_drawdown_usd": 669029.1644859903,
+              "max_drawdown_pct": 57.30747880031176,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1941.0275386243848,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "fill_delay_bars",
+        "value": 5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 3189.6066837693797,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1586.6228019839564,
+            "pnl_usd": -520729.0137598944,
+            "max_book_drawdown_usd": 688166.8045886032,
+            "median_book_drawdown_usd": 688166.8045886032
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 479270.9862401056,
+              "max_drawdown_usd": 688166.8045886032,
+              "max_drawdown_pct": 58.94676444387723,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1586.6228019839564,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.5,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -2057.810763722169,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1161.9236028278701,
+            "pnl_usd": -525976.431207386,
+            "max_book_drawdown_usd": 693414.2220360948,
+            "median_book_drawdown_usd": 693414.2220360948
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 474023.56879261404,
+              "max_drawdown_usd": 693414.2220360948,
+              "max_drawdown_pct": 59.39624599130655,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1161.9236028278701,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 0.75,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -3086.716145583254,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1331.323251497356,
+            "pnl_usd": -527005.336589247,
+            "max_book_drawdown_usd": 694443.1274179558,
+            "median_book_drawdown_usd": 694443.1274179558
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 472994.66341075295,
+              "max_drawdown_usd": 694443.1274179558,
+              "max_drawdown_pct": 59.4843796280574,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1331.323251497356,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "cut_fraction",
+        "value": 1.0,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -4115.621527444338,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1500.722900166842,
+            "pnl_usd": -528034.2419711081,
+            "max_book_drawdown_usd": 695472.0327998169,
+            "median_book_drawdown_usd": 695472.0327998169
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 471965.75802889187,
+              "max_drawdown_usd": 695472.0327998169,
+              "max_drawdown_pct": 59.572513264808244,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1500.722900166842,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 10,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -1538.0881905588321,
+          "prepared": {
+            "margin_calls": 0,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 2,
+            "spread_cost_usd": 254.09947300422886,
+            "pnl_usd": -228047.20905352745,
+            "max_book_drawdown_usd": 642677.5477880123,
+            "median_book_drawdown_usd": 642677.5477880123
+          },
+          "unprepared": {
+            "margin_calls": 0,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 0,
+            "spread_cost_usd": 0.0,
+            "pnl_usd": -226509.12086296862,
+            "max_book_drawdown_usd": 641089.6973141271,
+            "median_book_drawdown_usd": 641089.6973141271
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 771952.7909464726,
+              "max_drawdown_usd": 642677.5477880123,
+              "max_drawdown_pct": 59.30297520025134,
+              "margin_calls": 0,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 254.09947300422886,
+              "fills": 2
+            },
+            "unprepared": {
+              "final_equity_usd": 773490.8791370314,
+              "max_drawdown_usd": 641089.6973141271,
+              "max_drawdown_pct": 59.15645653377759,
+              "margin_calls": 0,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 0.0,
+              "fills": 0
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 20,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -3086.716145583254,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1331.323251497356,
+            "pnl_usd": -527005.336589247,
+            "max_book_drawdown_usd": 694443.1274179558,
+            "median_book_drawdown_usd": 694443.1274179558
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 472994.66341075295,
+              "max_drawdown_usd": 694443.1274179558,
+              "max_drawdown_pct": 59.4843796280574,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1331.323251497356,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "leverage",
+        "value": 30,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": 0.0,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 2031.942130286281,
+            "pnl_usd": -399683.017027674,
+            "max_book_drawdown_usd": 650839.7032707371,
+            "median_book_drawdown_usd": 650839.7032707371
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 2031.942130286281,
+            "pnl_usd": -399683.017027674,
+            "max_book_drawdown_usd": 650839.7032707371,
+            "median_book_drawdown_usd": 650839.7032707371
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 600316.982972326,
+              "max_drawdown_usd": 650839.7032707371,
+              "max_drawdown_pct": 52.01904049484478,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 2031.942130286281,
+              "fills": 1
+            },
+            "unprepared": {
+              "final_equity_usd": 600316.982972326,
+              "max_drawdown_usd": 650839.7032707371,
+              "max_drawdown_pct": 52.01904049484478,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 2031.942130286281,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.7,
+        "status": "invalid",
+        "reason": "Frozen ordering requires squall_on=0.75 <= storm_on; no other threshold changed."
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.8,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -3086.716145583254,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1331.323251497356,
+            "pnl_usd": -527005.336589247,
+            "max_book_drawdown_usd": 694443.1274179558,
+            "median_book_drawdown_usd": 694443.1274179558
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 472994.66341075295,
+              "max_drawdown_usd": 694443.1274179558,
+              "max_drawdown_pct": 59.4843796280574,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1331.323251497356,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      },
+      {
+        "factor": "storm_on",
+        "value": 0.9,
+        "status": "evaluated",
+        "detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        },
+        "policy": {
+          "independent_reset_books": 1,
+          "synthetic": true,
+          "prepared_minus_unprepared_usd": -3086.716145583254,
+          "prepared": {
+            "margin_calls": 1,
+            "cuts": 1,
+            "restores": 1,
+            "fills": 3,
+            "spread_cost_usd": 1331.323251497356,
+            "pnl_usd": -527005.336589247,
+            "max_book_drawdown_usd": 694443.1274179558,
+            "median_book_drawdown_usd": 694443.1274179558
+          },
+          "unprepared": {
+            "margin_calls": 1,
+            "cuts": 0,
+            "restores": 0,
+            "fills": 1,
+            "spread_cost_usd": 823.1243054888984,
+            "pnl_usd": -523918.6204436638,
+            "max_book_drawdown_usd": 691356.4112723726,
+            "median_book_drawdown_usd": 691356.4112723726
+          }
+        },
+        "books": [
+          {
+            "name": "carry-2024",
+            "pairs": [
+              "USDJPY"
+            ],
+            "start": "2024-08-01 00:00:00+00:00",
+            "end": "2024-08-08 00:00:00+00:00",
+            "include_in_pooled": true,
+            "prepared": {
+              "final_equity_usd": 472994.66341075295,
+              "max_drawdown_usd": 694443.1274179558,
+              "max_drawdown_pct": 59.4843796280574,
+              "margin_calls": 1,
+              "cuts": 1,
+              "restores": 1,
+              "spread_cost_usd": 1331.323251497356,
+              "fills": 3
+            },
+            "unprepared": {
+              "final_equity_usd": 476081.3795563362,
+              "max_drawdown_usd": 691356.4112723726,
+              "max_drawdown_pct": 59.219978717804864,
+              "margin_calls": 1,
+              "cuts": 0,
+              "restores": 0,
+              "spread_cost_usd": 823.1243054888984,
+              "fills": 1
+            }
+          }
+        ],
+        "pooled_detection": {
+          "storms": 2,
+          "alarmed": 1,
+          "caught": 0,
+          "caught_first_onset": 0,
+          "alarmed_share": 0.5,
+          "caught_share": 0.0,
+          "caught_share_first_onset": 0.0,
+          "median_share_ahead_pct": 24.980564913190037,
+          "median_minutes_to_alarm": 5.0,
+          "median_share_ahead_pct_first_onset": 26.33879781420743,
+          "median_minutes_to_alarm_first_onset": 16.0,
+          "observed_days": 4.99375,
+          "false_episodes": 0,
+          "false_alert_episodes_per_observed_day": 0.0
+        }
+      }
+    ],
+    "oracle_checks": [
+      {
+        "book": "carry-2024",
+        "checked_trials": [
+          0,
+          1,
+          501,
+          1001
+        ],
+        "rtol": 1e-09,
+        "atol_usd": 1e-05,
+        "passed": true
+      }
+    ],
+    "elapsed_seconds": 0.28652054099802626
+  }
+}
