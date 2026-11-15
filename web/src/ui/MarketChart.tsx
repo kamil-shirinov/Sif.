@@ -194,7 +194,15 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
       if (player.marginCallI !== null) mark(player.marginCallI, "belowBar", "square", "#ef5350", "Sunk");
     }
     out.sort((a, b) => a.i - b.i);
-    return out;
+    // A unique, stable key per marker: two ships can be margin-called (or cut) on the same minute, as on INTC
+    // (both at minute 189), so minute and text alone repeat. The nth repeat gets "#n".
+    const seen = new Map<string, number>();
+    return out.map((mk) => {
+      const base = `${mk.i}-${mk.text}`;
+      const nth = seen.get(base) ?? 0;
+      seen.set(base, nth + 1);
+      return { ...mk, key: nth === 0 ? base : `${base}#${nth}`, repeat: nth > 0 };
+    });
   }, [bundle, derived, player, B]);
 
   useEffect(() => {
@@ -322,6 +330,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
       }
       const items: { mk: (typeof shown)[number]; above: boolean; cx: number; y: number; w: number }[] = [];
       for (const mk of shown) {
+        if (mk.repeat) continue; // the same word on the same minute (both ships' margin calls): one label for both shapes
         const above = mk.m.position === "aboveBar";
         const bucket = Math.floor(mk.i / B);
         const first = bucket * B;
@@ -358,7 +367,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
         items.forEach(clampX);
         if (!moved) break;
       }
-      for (const it of items) next.push({ key: `${it.mk.i}-${it.mk.text}`, text: it.mk.text, color: it.mk.m.color, x: it.cx, y: it.y });
+      for (const it of items) next.push({ key: it.mk.key, text: it.mk.text, color: it.mk.m.color, x: it.cx, y: it.y });
     }
     setLabels((prev) => (sameLabels(prev, next) ? prev : next));
     };
