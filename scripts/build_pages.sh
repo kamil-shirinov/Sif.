@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Build the public GitHub Pages site into web/dist, with no market data.
 #
-#   scripts/build_pages.sh                    base /stormscore/ (https://<owner>.github.io/stormscore/)
-#   PAGES_BASE=/other/ scripts/build_pages.sh
+#   PAGES_BASE=/<repo>/ scripts/build_pages.sh     for https://<owner>.github.io/<repo>/
+#
+# PAGES_BASE is required: the workflow sets it to the repository's name, so the site follows a rename.
 #
 # The site ships exactly three JSON files: evidence.json (the Explorer's results), the synthetic mock storm and
 # web/pages/index.json (storm list and metrics, every storm marked withheld). Any other JSON in dist fails the build,
@@ -11,7 +12,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BASE="${PAGES_BASE:-/stormscore/}"
+BASE="${PAGES_BASE:?set PAGES_BASE to the Pages base path, e.g. /<repo>/ (the workflow sets it from the repository name)}"
+case "$BASE" in
+  /*/) ;;
+  *) echo "pages: PAGES_BASE must start and end with /, got: $BASE" >&2; exit 1 ;;
+esac
 PY="$(command -v python3 || command -v python)"
 
 "$PY" "$ROOT/scripts/build_pages_index.py" --check
