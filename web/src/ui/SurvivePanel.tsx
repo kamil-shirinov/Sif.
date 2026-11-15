@@ -9,7 +9,7 @@ import { useSurvive } from "../state/survive";
 import { useFrameIndex } from "../state/timeline";
 import { useState } from "react";
 import { Tutorial } from "./survive/Tutorial";
-import { tutorialGate } from "./survive/tutorial";
+import { tutorialGate } from "./survive/tutorialCards";
 import { StormList, useCurrentRating } from "./survive/StormList";
 import { DIFFICULTY_NAMES } from "./survive/difficulty";
 import { Coach } from "./survive/Coach";

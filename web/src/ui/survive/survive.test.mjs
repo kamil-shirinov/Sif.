@@ -27,7 +27,7 @@ async function load(url) {
 const fixture = async (name) => JSON.parse(await readFile(new URL(`./fixtures/${name}`, import.meta.url), "utf8"));
 const hudFixture = async (name) => JSON.parse(await readFile(new URL(`../fixtures/${name}`, import.meta.url), "utf8"));
 
-const tutorial = await load(new URL("./tutorial.ts", import.meta.url));
+const tutorial = await load(new URL("./tutorialCards.ts", import.meta.url));
 const game = await load(new URL("../../lib/survive.ts", import.meta.url));
 
 /** A Storage stand-in. */
@@ -164,7 +164,7 @@ test("difficulty: storms group Easy, Medium, Hard, the gentler first inside a le
 
 // ---------- 3. the coach reads only past frames ----------
 
-const coach = await load(new URL("./coach.ts", import.meta.url));
+const coach = await load(new URL("./coachLine.ts", import.meta.url));
 const lineAt = (b, leverage, presses, f) => coach.coachLine(coach.pastOf(b, game.simulate(b, leverage, presses.filter((a) => a.i <= f)), f));
 
 test("coach: pastOf hands the coach frames 0..f only, and the margin call only once it has happened", async () => {

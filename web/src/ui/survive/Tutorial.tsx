@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { Bundle } from "../../types/bundle";
-import { tutorialCards, type TutorialCard } from "./tutorial";
+import { tutorialCards, type TutorialCard } from "./tutorialCards";
 
 /** Survive's first-run tutorial: three cards over the sea, skippable (Skip, Esc), arrow keys step through. */
 export function Tutorial({ bundle, onClose }: { bundle: Bundle; onClose: () => void }) {
