@@ -42,12 +42,20 @@ def judge_sentences(result):
         f"On SGX's August test month the frozen detector caught {sgx['point']['caught']} of {sgx['point']['storms']} storms, with a storm-bootstrap 95% interval of {percent(sgx['intervals']['caught_share']['ci95'][0])} to {percent(sgx['intervals']['caught_share']['ci95'][1])}; that is a small sample.",
         f"On the selected historical FX windows it caught {oos['point']['caught']} of {oos['point']['storms']}, with timing-randomization p={number(oos.get('chance',{}).get('caught_storms',{}).get('p_value'),4)}, but these events were chosen for stress rather than sampled prospectively.",
         f"On the thirteen new chip tickers it caught {chips['point']['caught']} of {chips['point']['storms']}; their shared dates, sector and already seen shock week weaken independence.",
-        f"The descriptive pooled catch rate is {percent(pooled['point']['caught_share'])}, with a joint-date-block 95% interval of {percent(pooled['intervals']['date_block']['caught_share']['ci95'][0])} to {percent(pooled['intervals']['date_block']['caught_share']['ci95'][1])}; pooling does not create a new holdout.",
+        f"The descriptive pooled catch rate is {percent(pooled['point']['caught_share'])}, with a 95% interval of {percent(pooled['intervals']['date_block']['caught_share']['ci95'][0])} to {percent(pooled['intervals']['date_block']['caught_share']['ci95'][1])} from resampling storm dates within each dataset; pooling does not create a new holdout.",
         f"False-alert burden was {number(sgx['point']['false_alert_episodes_per_observed_day'])} episodes per observed day on SGX and {number(chips['point']['false_alert_episodes_per_trading_day'])} per trading day on chips ({number(chips['point']['false_alert_episodes_per_observed_day'])} per observed day).",
         f"The synthetic prepared books' pooled FX result was USD {number(groups['pooled_fx']['policy']['prepared_minus_unprepared_usd'],0)} relative to holding, but {surviving} of {len(policy_tests)} individual dataset policy tests survived multiplicity correction.",
         f"At five-bar fills, SGX's simulated policy advantage changes from USD {number(sgx['policy']['prepared_minus_unprepared_usd'],0)} to USD {number(sgx_delay['policy']['prepared_minus_unprepared_usd'],0)}, so the benefit is sensitive to execution delay.",
         f"Round-two status is {result['round2_status']}; this retrospective evidence supports assessment of detection and risk response, and does not demonstrate price prediction or causal trading profit."
     ]
+    if "oos_round2" in groups:
+        r2 = groups["oos_round2"]
+        difference = r2["policy"]["prepared_minus_unprepared_usd"]
+        sentences[5] = (f"Round two's synthetic prepared books finished USD {number(abs(difference),0)} "
+                        f"{'behind' if difference<0 else 'ahead of'} holding; {surviving} of {len(policy_tests)} individual dataset policy tests survived multiplicity correction.")
+        coverage = next(v for v in result["coverage"].values() if "planned_pair_months" in v)
+        sentences[7] = (f"Round two caught {r2['point']['caught']} of {r2['point']['storms']} storms with only "
+                        f"{coverage['usable_pair_months']} of {coverage['planned_pair_months']} planned pair-months usable; this evidence does not establish price prediction or causal profit.")
     return sentences
 
 
@@ -63,7 +71,7 @@ def render(result):
     if result.get("round2_origin"):
         origin = result["round2_origin"]
         lines += ["", f"Round-two snapshot: `{origin['commit']}`, first captured `{origin['checked_at_utc']}`. Served coverage: `{json.dumps(result.get('coverage',{}),sort_keys=True)}`. A partial chronological prefix is not a full-year validation; unavailable observations/books are not scored as successes."]
-    lines += ["", "Storm resampling assumes independent storms; the date-block intervals below jointly resample storms across pairs on the same event date. They remain weak with few independent event dates. An all-success sample produces a degenerate empirical bootstrap interval (SGX alarmed share is 100% to 100%); that cannot establish perfect population sensitivity or account for misses absent from the sample. Dataset strata and their actual storm counts are retained in pooled resamples. False-alert intervals resample whole days jointly across pairs, including zero-alarm and partial days; unrelated historical windows are separate timelines.", "",
+    lines += ["", "Storm resampling assumes independent storms; the date-block intervals below jointly resample storms across pairs on the same event date within each dataset/window. They remain weak with few independent event dates. An all-success sample produces a degenerate empirical bootstrap interval (SGX alarmed share is 100% to 100%); that cannot establish perfect population sensitivity or account for misses absent from the sample. Dataset strata and their actual storm counts are retained in pooled resamples. False-alert intervals resample whole days jointly across pairs, including zero-alarm and partial days; unrelated historical windows are separate timelines. Exact duplicate removal does not make different instruments on overlapping round-one/two dates independent: their shared macro shocks are not jointly resampled across dataset strata. Pooled intervals remain descriptive and may understate that dependence.", "",
               "| Dataset | Event-date blocks | Alarmed share, date-block [95%] | Caught share, date-block [95%] | Caught share, first onset [95%] | First-onset median minutes [95%] | Undefined conditional-median replicates |",
               "|---|---:|---|---|---|---|---:|"]
     for name, group in result["groups"].items():
@@ -151,6 +159,7 @@ def write_charts(result):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import FuncFormatter
     matplotlib.rcParams.update({"svg.hashsalt": "stormscore-stats", "font.size": 9})
     names = list(result["groups"])
     fig, ax = plt.subplots(figsize=(9, 4.5))
@@ -188,9 +197,11 @@ def write_charts(result):
             test = result["groups"][name]["chance"][field]
             ax.hist(data[statistic], bins=30, color="#73a8be", edgecolor="#eaf2f5")
             ax.axvline(test["statistic"],color="#b93825",lw=2,label="Observed")
-            ax.set_title(LABELS[name] + (" — caught storms" if x==0 else " — policy USD difference"))
+            ax.set_title(LABELS[name] + (" — caught storms" if x==0 else " — policy, USD thousands"))
             ax.set_ylabel("Shuffles")
             ax.ticklabel_format(axis="x",style="plain",useOffset=False)
+            if x==1:
+                ax.xaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value/1000:,.0f}"))
             ax.legend(fontsize=7)
     fig.tight_layout()
     save_svg(fig, DOCS / "timing-nulls.svg")

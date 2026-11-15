@@ -1,15 +1,11 @@
 {
-  "checked_at_utc": "2026-11-15T07:21:15.147250+00:00",
+  "checked_at_utc": "2026-11-15T07:43:00.639961+00:00",
   "whole_backend": {
     "command": "/Users/kamilshirinov/.venvs/stormscore/bin/python -m pytest -q",
     "exit_code": 0,
-    "passed": 361,
+    "passed": 362,
     "skipped": 9,
-    "elapsed_seconds": 40.89491258400085
-  },
-  "stats_only": {
-    "command": "/Users/kamilshirinov/.venvs/stormscore/bin/python -m pytest -q tests/stats",
-    "passed": 12
+    "elapsed_seconds": 40.05801591699128
   },
   "scope": "backend/storm/stats/**, backend/tests/stats/**, docs/stats/** only; no data committed"
 }

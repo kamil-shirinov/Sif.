@@ -63,7 +63,8 @@ def comparison_to_published(unit, calculated):
         if not published:
             raise ValueError("Explicit round-two metric schema review required")
         reconstructed = calculated
-        keys = ("storms", "alarmed", "caught", "false_alarms", "false_alarm_episodes")
+        keys = ("storms", "alarmed", "caught", "caught_first_onset", "median_move_ahead_pct", "median_minutes_to_alarm",
+                "storm_alarms", "false_alarms", "false_alarm_episodes", "false_alarm_episodes_per_day", "days")
     differences = []
     for key in keys:
         a, b = reconstructed.get(key), published.get(key)
@@ -170,7 +171,8 @@ def analyze_unit(unit, spec, do_null=True, do_sensitivity=True):
             "pairs": list(unit.feats), "published_detection_check": checked,
             "published_policy": published_policy,
             "descriptive_splits": unit.metadata.get("descriptive_splits"),
-            "coverage": {key:unit.metadata[key] for key in ("selected_months","partial") if key in unit.metadata},
+            "coverage": {key:unit.metadata[key] for key in ("selected_months","partial","planned_pair_months","usable_pair_months",
+                                                           "planned_pair_weeks","usable_pair_weeks","published_status") if key in unit.metadata},
             "methods": methods, "pooled_methods": pooled_methods, "pooling": unit.metadata["pooling_summary"],
             "policy": policy, "policy_books": paths,
             "sensitivity": sensitivity, "oracle_checks": checks,
