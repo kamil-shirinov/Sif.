@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useApp } from "../state/app";
-import { closeLanding, openHeadline, openNvda, openSurvive, showLanding } from "./actions";
+import { closeLanding, openHeadline, openNvda, openSurvive, showExplorer, showLanding, startExplorer } from "./actions";
 import { bindPresenterKeys, type PresenterAction } from "./keys";
 
 const RUN: Record<PresenterAction, () => void> = {
@@ -9,6 +9,8 @@ const RUN: Record<PresenterAction, () => void> = {
   survive: openSurvive,
   nvda: openNvda,
   close: closeLanding,
+  start: startExplorer,
+  explore: showExplorer,
 };
 
 /** L, 1, 2, 3 and Esc for the presenter (keys.ts has the rules). Mounted once, in App. */

@@ -1,7 +1,7 @@
 import { useEffect, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { useApp } from "../state/app";
 import { HEADLINE_STORM_ID } from "../lib/session";
-import { closeLanding, openFromLanding, openHeadline, openSurvive } from "./actions";
+import { closeLanding, openFromLanding, startExplorer } from "./actions";
 import {
   headlineFigures,
   NVDA_STORM_ID,
@@ -109,6 +109,8 @@ const HONESTY = [
 ];
 
 const KEYS: [string, string][] = [
+  ["Enter", "Start"],
+  ["E", "Explorer"],
   ["L", "landing"],
   ["1", "30 July"],
   ["2", "Survive"],
@@ -123,7 +125,6 @@ export function Landing({ motion = null }: { motion?: "leave" | "enter" | null }
   const busy = useApp((s) => s.loadingStorm);
   const figures = headlineFigures(metrics ?? null);
   const others = pickerEntries(index?.storms ?? [], HEADLINE_STORM_ID);
-  const watchLabel = `Watch ${story?.date ?? "30 July"}`;
   useEffect(() => {
     document.title = "StormScore";
   }, []);
@@ -143,14 +144,10 @@ export function Landing({ motion = null }: { motion?: "leave" | "enter" | null }
             A storm defence for FX traders: the alarm sounds in the first minutes of a fast move, and two ships show what heeding it saved.
           </p>
           <div className="lp-cta lp-rise" style={delay(3)}>
-            <a className="lp-btn primary" href={`?storm=${HEADLINE_STORM_ID}`} onClick={inApp(openHeadline)}>
-              {watchLabel}
-              <kbd>1</kbd>
-            </a>
-            <a className="lp-btn" href="?mode=survive" onClick={inApp(openSurvive)}>
-              Survive a storm
-              <kbd>2</kbd>
-            </a>
+            <button className="lp-btn primary lp-start" onClick={startExplorer} autoFocus>
+              Start
+              <kbd>Enter</kbd>
+            </button>
           </div>
 
           {figures.length > 0 ? (

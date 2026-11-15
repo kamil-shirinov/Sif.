@@ -1,0 +1,298 @@
+/* The Explorer (landing/Explorer.tsx): a sheet over the sea, the HUD's fonts and colours, sized from the viewport like
+   the landing page. It arrives after the camera has flown in (Start) and fades when a storm is picked. */
+
+.ex {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: clamp(13px, min(0.9vw, 1.6vh), 22px);
+  line-height: 1.45;
+  animation: ex-in 600ms 700ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+.ex.ex-leave {
+  pointer-events: none;
+  animation: ex-out 320ms cubic-bezier(0.5, 0, 0.75, 0.3) both;
+}
+@keyframes ex-in {
+  from {
+    opacity: 0;
+    translate: 0 1.2em;
+  }
+}
+@keyframes ex-out {
+  to {
+    opacity: 0;
+    translate: 0 0.6em;
+  }
+}
+.ex-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 40%, rgba(4, 8, 13, 0.55), rgba(4, 8, 13, 0.85));
+  pointer-events: none;
+}
+.ex-sheet {
+  position: absolute;
+  inset: 2.2em max(16px, 6vw) 2.2em;
+  overflow-y: auto;
+  padding: 1.6em 1.8em 2.4em;
+  background: rgba(8, 13, 20, 0.82);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+.ex-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5em;
+}
+.ex-title {
+  margin: 0;
+  font-size: 2.2em;
+  letter-spacing: -0.02em;
+}
+.ex-sub {
+  margin: 0.2em 0 0;
+  color: var(--muted);
+}
+.ex kbd {
+  display: inline-block;
+  min-width: 1.5em;
+  margin-left: 0.4em;
+  padding: 0.05em 0.35em;
+  border: 1px solid currentColor;
+  border-radius: 0.3em;
+  font-family: var(--mono);
+  font-size: 0.75em;
+  opacity: 0.7;
+  text-align: center;
+}
+.ex button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.ex-back {
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 0.4em 0.8em;
+}
+.ex-back:hover {
+  border-color: var(--text);
+}
+.ex-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8em 1.4em;
+  align-items: center;
+  margin: 1.4em 0 0.4em;
+}
+.ex-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+}
+.ex-chips button {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 0.3em 0.85em;
+  font-size: 0.9em;
+}
+.ex-chips button.on {
+  background: rgba(124, 196, 255, 0.16);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ex-select {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--muted);
+  font-size: 0.9em;
+}
+.ex-select select {
+  font: inherit;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 0.2em 0.4em;
+}
+.ex-book {
+  margin: 0.6em 0 0;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+.ex-quiet {
+  color: var(--muted);
+}
+.ex-quiet.small {
+  font-size: 0.85em;
+  margin: 0.2em 0 0.6em;
+}
+.ex-ds {
+  margin-top: 2em;
+  padding-top: 1.2em;
+  border-top: 1px solid var(--panel-border);
+}
+.ex-ds-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5em 0.8em;
+}
+.ex-ds-head h2 {
+  margin: 0;
+  font-size: 1.35em;
+}
+.ex-period {
+  color: var(--muted);
+  font-size: 0.9em;
+}
+.ex-label {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  font-size: 0.75em;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.ex-label.ok {
+  color: var(--calm);
+  border-color: rgba(63, 163, 122, 0.5);
+}
+.ex-label.warn {
+  color: var(--watch);
+  border-color: rgba(245, 166, 35, 0.5);
+}
+.ex-label.tiny {
+  margin-left: 0.5em;
+  font-size: 0.68em;
+}
+.ex-note {
+  margin: 0.5em 0 0;
+  color: #b8c4d0;
+  max-width: 62em;
+}
+.ex-figs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em 2.2em;
+  margin: 0.9em 0 0.6em;
+}
+.ex-fig {
+  display: flex;
+  flex-direction: column;
+}
+.ex-fig-n {
+  font-size: 1.6em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ex-fig-l {
+  color: var(--muted);
+  font-size: 0.82em;
+}
+.ex-table-wrap {
+  overflow-x: auto;
+}
+.ex-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+.ex-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.85em;
+  padding: 0.4em 0.6em;
+  border-bottom: 1px solid var(--panel-border);
+  white-space: nowrap;
+}
+.ex-table td {
+  padding: 0.38em 0.6em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+.ex-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+.ex-table .num {
+  text-align: right;
+}
+.ex-table .mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.ex-table .down {
+  color: var(--storm);
+}
+.ex-table .up {
+  color: var(--calm);
+}
+.ex .dim {
+  color: var(--muted);
+}
+.ex-group {
+  display: block;
+  font-family: var(--font);
+  font-size: 0.8em;
+  color: var(--muted);
+}
+.ex-res {
+  display: inline-block;
+  padding: 0.05em 0.55em;
+  border-radius: 5px;
+  font-size: 0.85em;
+}
+.ex-res.caught {
+  background: rgba(63, 163, 122, 0.18);
+  color: var(--calm);
+}
+.ex-res.missed {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+}
+.ex-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+.ex-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  border-radius: 7px;
+  padding: 0.22em 0.7em;
+  margin-left: 0.4em;
+  font-size: 0.9em;
+}
+.ex-btn.primary {
+  background: rgba(124, 196, 255, 0.18);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ex-btn:hover {
+  border-color: var(--text);
+}
+.ex button:focus-visible,
+.ex select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ex,
+  .ex.ex-leave {
+    animation-duration: 160ms;
+    animation-delay: 0ms;
+    translate: none;
+  }
+}

@@ -9,6 +9,7 @@ import { BundleError, loadBundle } from "../lib/loadBundle";
 import { setLandingUrl } from "./route";
 import { NVDA_STORM_ID } from "./facts";
 import { runClosing, runOpening, settleFrames, useTransition } from "./transition";
+import { useExplore } from "./explore";
 
 const AUTOPLAY_MS = 700;
 /** The rewind on L waits this long: the panels, captions and end card fade first. */
@@ -28,6 +29,7 @@ export function showLanding() {
   void runClosing(
     () => {
       useApp.getState().setLanding(true);
+      useExplore.getState().set(false);
       document.title = "StormScore";
       setLandingUrl({ storm: null, mode: null });
     },
@@ -105,6 +107,10 @@ function enterReplay() {
 export function openFromLanding(id: string, mode: Mode = "replay") {
   const app = useApp.getState();
   if (busy()) return;
+  if (useExplore.getState().open) {
+    openFromExplorer(id, mode);
+    return;
+  }
   if (!app.landing) {
     switchInPlace(id, mode);
     return;
@@ -176,6 +182,72 @@ function switchInPlace(id: string, mode: Mode) {
     return;
   }
   void openStorm(id, file);
+}
+
+/**
+ * Start (the landing's one button, or Enter): the page gives way exactly as when opening a storm (the text slides
+ * away, the camera flies to the replay's view), but the Explorer arrives instead of the HUD. Nothing is loaded:
+ * the storm under the page stays, paused at calm water, until one is picked.
+ */
+export function startExplorer() {
+  const app = useApp.getState();
+  if (!app.landing || busy()) return;
+  const token = ++opening;
+  useTransition.getState().setPreparing(false);
+  void (async () => {
+    await settleFrames(2);
+    if (token !== opening) return;
+    await runOpening(
+      () => {
+        useExplore.getState().set(true);
+        useApp.getState().setLanding(false);
+        document.title = "StormScore · Explorer";
+        setLandingUrl({ storm: null, mode: null });
+      },
+      () => {},
+    );
+  })();
+}
+
+/** Back to the Explorer from a replay (E): the HUD gives way to it in place; the replay pauses. */
+export function showExplorer() {
+  const app = useApp.getState();
+  if (app.landing || busy() || useExplore.getState().open) return;
+  useTimeline.getState().pause();
+  useExplore.getState().set(true);
+  document.title = "StormScore · Explorer";
+}
+
+/**
+ * A storm picked in the Explorer: it fades while the storm and mode are made ready under it, then the HUD arrives in
+ * sequence (the camera is already on the replay's view) and a replay starts playing.
+ */
+export function openFromExplorer(id: string, mode: Mode = "replay") {
+  if (busy()) return;
+  const token = ++opening;
+  useExplore.getState().set(true, true);
+  useTransition.getState().setPreparing(true);
+  void (async () => {
+    const changed = await prepare(id, mode);
+    if (changed === null) {
+      useTransition.getState().setPreparing(false);
+      useExplore.getState().set(true, false); // could not load: the Explorer comes back
+      return;
+    }
+    if (token !== opening) return;
+    await settleFrames(changed ? 5 : 3);
+    if (token !== opening) return;
+    await runOpening(
+      () => {
+        useExplore.getState().set(false);
+        enterReplay();
+        setLandingUrl({ storm: id, mode: mode === "survive" ? "survive" : null });
+      },
+      () => {
+        if (useApp.getState().mode === "replay" && !useApp.getState().landing) useTimeline.getState().play();
+      },
+    );
+  })();
 }
 
 /** Survive opens on the headline storm when the index lists it (or nothing says otherwise), else on what is loaded. */
