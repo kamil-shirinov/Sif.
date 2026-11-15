@@ -28,6 +28,8 @@ export const MAST_X = -2.75;
 export const MAST_TOP = 9.2;
 export const YARD_Y = 7.6;
 export const SAIL_W = 4.4;
+/** Front edge of the wheelhouse roof, where the backstay is made fast (Ship.tsx: roof at x -5.1, 2.3 long, y 3.46). */
+export const WHEELHOUSE_ROOF: [number, number, number] = [-4.05, 3.52, 0];
 export const SAIL_H = 4.5;
 
 const smooth = (a: number, b: number, x: number) => {
@@ -348,7 +350,11 @@ function rod(a: [number, number, number], b: [number, number, number], r: number
 
 /** Mast, yard, radar mast, jackstaff and the standing rigging, as one geometry. */
 export function makeRigGeometry(): BufferGeometry {
-  const bowTop: [number, number, number] = [HULL_L / 2 - 0.5, sheerAt(1) + BULWARK, 0];
+  // Every stay ends on the ship: on the bulwark top at the stem (the deck rises there), on the wheelhouse roof, on the
+  // rails abreast the mast. tAt(x): position along the hull of a deck x, for the sheer there.
+  const tAt = (x: number) => (x + HULL_L / 2) / HULL_L;
+  const bowX = HULL_L / 2 - 0.9;
+  const bowTop: [number, number, number] = [bowX, sheerAt(tAt(bowX)) + BULWARK * 0.6, 0];
   const mastHead: [number, number, number] = [MAST_X, MAST_TOP - 0.15, 0];
   const parts: BufferGeometry[] = [];
   const mast = new CylinderGeometry(0.1, 0.17, MAST_TOP, 10);
@@ -360,13 +366,15 @@ export function makeRigGeometry(): BufferGeometry {
   parts.push(nest);
   // standing rigging: forestay, backstay, shrouds, yard lifts
   parts.push(rod(mastHead, bowTop, 0.022));
-  parts.push(rod(mastHead, [-HULL_L / 2 + 0.5, 0.42, 0], 0.022));
+  // Backstay to the front edge of the wheelhouse roof (WHEELHOUSE_ROOF), not over the house to the stern.
+  parts.push(rod(mastHead, WHEELHOUSE_ROOF, 0.022));
   for (const s of [-1, 1]) {
     parts.push(rod(mastHead, [MAST_X - 0.9, BULWARK, s * (HULL_B / 2 - 0.12)], 0.022));
     parts.push(rod(mastHead, [MAST_X + 1.0, BULWARK, s * (HULL_B / 2 - 0.12)], 0.022));
   }
   // jackstaff at the bow
-  parts.push(rod([HULL_L / 2 - 0.75, sheerAt(1), 0], [HULL_L / 2 - 0.75, sheerAt(1) + 1.9, 0], 0.035));
+  const jx = HULL_L / 2 - 1.15;
+  parts.push(rod([jx, sheerAt(tAt(jx)), 0], [jx, sheerAt(tAt(jx)) + 1.9, 0], 0.035));
   const withAttrs = parts.map((p) => (p.index ? p.toNonIndexed() : p));
   return mergeGeometries(withAttrs)!;
 }

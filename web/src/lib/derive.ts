@@ -49,9 +49,9 @@ export const CRATE_STAGGER = 0.4;
 /** Frames a thrown crate spends in the air. */
 export const THROW_FRAMES = 2.2;
 /** Frames a hoisted crate spends rising from the water to its place on deck. */
-export const HOIST_FRAMES = 2.4;
+export const HOIST_FRAMES = 3.2;
 /** Frames from a restore until the derrick has swung out over the first container. */
-export const CRANE_LEAD = 1.5;
+export const CRANE_LEAD = 1.8;
 /** Frames a ship takes to go under after its margin call. */
 export const SINK_FRAMES = 30;
 
@@ -208,8 +208,9 @@ function planTrips(actions: BookAction[], total: number, cutFraction: number): C
     } else {
       // Lowest of the thrown crates first, so the stack is rebuilt from the bottom.
       open.sort((x, y) => x.crate - y.crate);
-      // One derrick, one container at a time: each lift starts when the one before has been set down.
-      open.forEach((trip, m) => (trip.back = (a.at ?? a.i) + CRANE_LEAD + m * HOIST_FRAMES));
+      // One derrick, one container at a time: before each lift it swings out and lowers its hook (CRANE_LEAD), then
+      // lifts the box and sets it in its slot (HOIST_FRAMES); the next one starts when that one is down.
+      open.forEach((trip, m) => (trip.back = (a.at ?? a.i) + CRANE_LEAD + m * (CRANE_LEAD + HOIST_FRAMES)));
       open.length = 0;
     }
   }

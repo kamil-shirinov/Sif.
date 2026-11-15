@@ -14,6 +14,7 @@ import {
 } from "./facts";
 import { useLandingData } from "./useLandingData";
 import "../landing.css";
+import "./transition.css";
 
 /** A plain click runs `go` in place (the canvas and sound stay warm); a modified click opens the link as a link. */
 function inApp(go: () => void) {
@@ -115,7 +116,8 @@ const KEYS: [string, string][] = [
   ["Esc", "close"],
 ];
 
-export function Landing() {
+/** `motion`: "leave" while the page gives way to the replay, "enter" while it comes back (landing/transition.ts). */
+export function Landing({ motion = null }: { motion?: "leave" | "enter" | null }) {
   const { metrics, story } = useLandingData();
   const index = useApp((s) => s.index);
   const busy = useApp((s) => s.loadingStorm);
@@ -127,7 +129,7 @@ export function Landing() {
   }, []);
 
   return (
-    <div className="lp" role="dialog" aria-modal="false" aria-label="StormScore">
+    <div className={`lp ${motion === "leave" ? "lp-leave" : motion === "enter" ? "lp-enter" : ""}`} role="dialog" aria-modal="false" aria-label="StormScore">
       <div className="lp-scrim" aria-hidden="true" />
       <div className="lp-scroll">
         <section className="lp-hero">

@@ -227,16 +227,37 @@ export interface ShipPose {
   y: number;
   matrix: Matrix4;
   inv: Matrix4;
-  hook: { active: boolean; x: number; y: number; z: number };
+  hook: Hook;
 }
-const newPose = (): ShipPose => ({ y: 1, matrix: new Matrix4(), inv: new Matrix4(), hook: { active: false, x: 0, y: 0, z: 0 } });
+/**
+ * What the containers ask of the derrick (written by Jettison.tsx each frame). `active`: there is a box to fetch or
+ * carry; (x, y, z) where the hook must be; `lower` 0..1 how far it has been lowered from under the boom's tip to that
+ * point (1 while carrying); `slung`: the slings are on, and `corners` the four top corners they hold (world space).
+ */
+export interface Hook {
+  active: boolean;
+  x: number;
+  y: number;
+  z: number;
+  lower: number;
+  slung: boolean;
+  corners: Float32Array;
+}
+const newPose = (): ShipPose => ({
+  y: 1,
+  matrix: new Matrix4(),
+  inv: new Matrix4(),
+  hook: { active: false, x: 0, y: 0, z: 0, lower: 0, slung: false, corners: new Float32Array(12) },
+});
 export const shipPose: Record<SceneShip, ShipPose> = { prepared: newPose(), unprepared: newPose(), player: newPose() };
 
-// The derrick: a boom stepped on the mast, with a topping lift to the mast head and a cargo runner down to the hook.
-const BOOM_PIVOT = new Vector3(MAST_X + 0.3, 2.55, 0);
-export const BOOM_LEN = 9.5;
+// The derrick: a boom pinned to the mast at a gooseneck (a band round the mast and a pin), held up by a topping lift
+// from the mast head to its tip, and a cargo runner from the tip down to the hook block. Everything ends on the ship.
+const MAST_R_AT_GOOSENECK = 0.155; // the mast tapers from 0.17 at the deck to 0.1 at the head
+const BOOM_PIVOT = new Vector3(MAST_X + MAST_R_AT_GOOSENECK + 0.07, 2.55, 0);
+export const BOOM_LEN = 11.5;
 const BOOM_STOW_LUFF = 0.24; // radians: stowed pointing forward over the cargo
-const BOOM_MIN_LUFF = 0.14;
+const BOOM_MIN_LUFF = 0.1;
 const HOOK_IDLE_DROP = 0.9;
 
 // ---------- motion shared by ship + jettisoned crates ----------
@@ -244,6 +265,10 @@ export function shipBuffer(ship: ShipDerived, t: number): number {
   const mc = ship.marginCallI;
   if (mc !== null && t >= mc - 1) return ship.buffer[Math.max(0, mc - 1)];
   return sampleAt(ship.buffer, t);
+}
+/** Deck height above calm water at playhead t (the waterline rule: margin buffer to freeboard), without the waves. */
+export function freeboardAt(ship: ShipDerived, t: number): number {
+  return FREEBOARD_MIN + (FREEBOARD_MAX - FREEBOARD_MIN) * shipBuffer(ship, t);
 }
 export function sinkProgress(ship: ShipDerived, t: number): number {
   if (ship.marginCallI === null || t < ship.marginCallI) return 0;
@@ -257,6 +282,9 @@ const _m = new Matrix4();
 const ZERO = new Matrix4().makeScale(0, 0, 0);
 const _tip = new Vector3();
 const _hook = new Vector3();
+const _hookIdle = new Vector3();
+const _hookT = new Vector3();
+const _corner = new Vector3();
 const _head = new Vector3(MAST_X, MAST_TOP - 0.25, 0);
 const _dir = new Vector3();
 const _mid = new Vector3();
@@ -325,6 +353,7 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     aboard: -1,
     slew: 0,
     luff: BOOM_STOW_LUFF,
+    hookInit: false,
     // buoyancy: heave, pitch and roll, each a damped spring toward what the water under the hull asks for
     init: false,
     heave: 0,
@@ -340,6 +369,8 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
   const runner = useRef<Mesh>(null);
   const lift = useRef<Mesh>(null);
   const hookBlock = useRef<Mesh>(null);
+  const slings = useRef<(Mesh | null)[]>([]);
+  const _hookNow = useMemo(() => new Vector3(), []);
 
   const anchor = useMemo(() => new Vector3(), []);
   const prevT = useRef(vis.t);
@@ -454,6 +485,7 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     let slewT = 0;
     let boomLuffT = BOOM_STOW_LUFF;
     const lifting = pose.hook.active && sink < 0.05;
+    const hook = pose.hook;
     if (lifting) {
       _hook.set(pose.hook.x, pose.hook.y, pose.hook.z).applyMatrix4(pose.inv);
       const dx = _hook.x - BOOM_PIVOT.x;
@@ -468,10 +500,31 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
     if (boomG.current) boomG.current.rotation.y = sm.slew;
     if (boomTilt.current) boomTilt.current.rotation.z = sm.luff;
     _tip.set(BOOM_PIVOT.x + Math.cos(sm.slew) * Math.cos(sm.luff) * BOOM_LEN, BOOM_PIVOT.y + Math.sin(sm.luff) * BOOM_LEN, BOOM_PIVOT.z - Math.sin(sm.slew) * Math.cos(sm.luff) * BOOM_LEN);
-    if (!lifting) _hook.set(_tip.x, _tip.y - HOOK_IDLE_DROP, _tip.z);
-    if (runner.current) layRod(runner.current, _tip, _hook);
+    // The hook: hanging under the tip when idle; lowered from there onto the box (hook.lower); held to it while carried.
+    // Its world target is moved into the hull's frame (the derrick lives there). Between boxes it is eased, so it never
+    // jumps; while it carries a box it is exactly on the box.
+    _hookIdle.set(_tip.x, _tip.y - HOOK_IDLE_DROP, _tip.z);
+    if (lifting) _hookT.copy(_hookIdle).lerp(_hook, hook.lower);
+    else _hookT.copy(_hookIdle);
+    if (!sm.hookInit) {
+      sm.hookInit = true;
+      _hookNow.copy(_hookT);
+    }
+    if (lifting && hook.slung) _hookNow.copy(_hookT);
+    else _hookNow.lerp(_hookT, 1 - Math.exp(-vis.dt * 9));
+    if (runner.current) layRod(runner.current, _tip, _hookNow);
     if (lift.current) layRod(lift.current, _head, _tip);
-    if (hookBlock.current) hookBlock.current.position.copy(_hook);
+    if (hookBlock.current) hookBlock.current.position.copy(_hookNow);
+    // Slings from the hook to the box's four top corners, while it is held.
+    const slung = lifting && hook.slung;
+    for (let q = 0; q < 4; q++) {
+      const m = slings.current[q];
+      if (!m) continue;
+      m.visible = slung;
+      if (!slung) continue;
+      _corner.set(hook.corners[q * 3], hook.corners[q * 3 + 1], hook.corners[q * 3 + 2]).applyMatrix4(pose.inv);
+      layRod(m, _hookNow, _corner);
+    }
 
     // Lanterns and cabin windows follow the light: on at dusk, at night and while the market is closed.
     const lit = vis.lantern * (1 - sink);
@@ -545,10 +598,10 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
               <mesh geometry={sailGeo} material={S.sailMat} position={[0.2, YARD_Y, 0]} />
             </group>
             {/* ensign on a staff at the stern, streaming with the true wind */}
-            <mesh position={[-HULL_L / 2 + 0.45, 1.4, 0]} material={S.rigMat}>
+            <mesh position={[-HULL_L / 2 + 0.55, 1.0, 0]} material={S.rigMat}>
               <cylinderGeometry args={[0.03, 0.035, 2.0, 5]} />
             </mesh>
-            <mesh geometry={flagGeo} position={[-HULL_L / 2 + 0.45, 2.35, 0]} frustumCulled={false}>
+            <mesh geometry={flagGeo} position={[-HULL_L / 2 + 0.55, 1.95, 0]} frustumCulled={false}>
               <meshStandardMaterial color={funnel} roughness={0.9} side={DoubleSide} />
             </mesh>
             {/* derrick: boom stepped on the mast, topping lift, cargo runner and hook block */}
@@ -567,6 +620,25 @@ export function Ship({ shipKey, derived }: { shipKey: SceneShip; derived: Derive
             </mesh>
             <mesh ref={hookBlock} material={S.darkMat}>
               <boxGeometry args={[0.22, 0.26, 0.22]} />
+            </mesh>
+            {[0, 1, 2, 3].map((q) => (
+              <mesh
+                key={q}
+                visible={false}
+                material={S.darkMat}
+                ref={(m) => {
+                  slings.current[q] = m;
+                }}
+              >
+                <cylinderGeometry args={[0.016, 0.016, 1, 4]} />
+              </mesh>
+            ))}
+            {/* gooseneck: a band round the mast and the pin the boom pivots on */}
+            <mesh position={[MAST_X, BOOM_PIVOT.y, 0]} material={S.rigMat}>
+              <cylinderGeometry args={[MAST_R_AT_GOOSENECK + 0.05, MAST_R_AT_GOOSENECK + 0.05, 0.3, 12]} />
+            </mesh>
+            <mesh position={[BOOM_PIVOT.x - 0.03, BOOM_PIVOT.y, 0]} material={S.darkMat}>
+              <cylinderGeometry args={[0.035, 0.035, 0.42, 6]} />
             </mesh>
             {/* lanterns: masthead, port (red) and starboard (green) */}
             <mesh position={[MAST_X, MAST_TOP + 0.2, 0]} material={lamps.mast}>

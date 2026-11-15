@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { HalfFloatType, WebGLRenderTarget, type BufferGeometry, type Object3D } from "three";
+import { warmupState } from "./cameraDirector";
 
 interface Touched {
   o: Object3D;
@@ -33,10 +34,12 @@ export function Warmup({ stamp, throughComposer, samples }: { stamp: string; thr
   const touched = useMemo<Touched[]>(() => [], []);
   useEffect(() => {
     left.current = 3;
+    warmupState.pending = true;
   }, [stamp, throughComposer, target]);
   useFrame(() => {
     if (left.current <= 0) return;
     left.current--;
+    if (left.current === 0) warmupState.pending = false;
     if (left.current === 1) return;
     // Everything visible, nothing culled, every draw range at least one primitive.
     scene.traverse((o) => {
