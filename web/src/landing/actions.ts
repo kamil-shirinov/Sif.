@@ -30,7 +30,7 @@ export function showLanding() {
     () => {
       useApp.getState().setLanding(true);
       useExplore.getState().set(false);
-      document.title = "StormScore";
+      document.title = "Sif";
       setLandingUrl({ storm: null, mode: null });
     },
     (ms) => {
@@ -94,7 +94,7 @@ export function closeLanding() {
 function enterReplay() {
   const app = useApp.getState();
   app.setLanding(false);
-  if (app.bundle) document.title = `StormScore · ${app.bundle.title}`;
+  if (app.bundle) document.title = `Sif · ${app.bundle.title}`;
   setLandingUrl({ storm: app.baseStormId ?? app.bundle?.storm_id ?? null, mode: app.mode === "survive" ? "survive" : null });
 }
 
@@ -201,7 +201,7 @@ export function startExplorer() {
       () => {
         useExplore.getState().set(true);
         useApp.getState().setLanding(false);
-        document.title = "StormScore · Explorer";
+        document.title = "Sif · Explorer";
         setLandingUrl({ storm: null, mode: null });
       },
       () => {},
@@ -215,7 +215,7 @@ export function showExplorer() {
   if (app.landing || busy() || useExplore.getState().open) return;
   useTimeline.getState().pause();
   useExplore.getState().set(true);
-  document.title = "StormScore · Explorer";
+  document.title = "Sif · Explorer";
 }
 
 /**

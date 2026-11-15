@@ -69,10 +69,10 @@ export function lessonFor(b: Bundle, r: RunResult): string {
   return `At ${L}x you rode out a ${pct(r.worstAdversePct)} move against you with room to spare: your leverage decides how much room you have.`;
 }
 
-/** A plain-text line to paste anywhere, e.g. "StormScore Survive · USDJPY, 30 July 2026 (Hard) · 10x · Land ho! $1,034,000 (+3.4%) · alarm-follower $1,012,000". */
+/** A plain-text line to paste anywhere, e.g. "Sif Survive · USDJPY, 30 July 2026 (Hard) · 10x · Land ho! $1,034,000 (+3.4%) · alarm-follower $1,012,000". */
 export function shareLine(b: Bundle, r: RunResult, difficulty: string | null, url?: string): string {
   const parts = [
-    "StormScore Survive",
+    "Sif Survive",
     `${b.title}${difficulty ? ` (${difficulty})` : ""}${r.scenario ? " what-if" : ""}`,
     `${r.leverage}x`,
     `${r.sunk ? "Sunk" : "Land ho!"} ${fmtUsd(r.score)} (${fmtPct(r.changePct)})`,
