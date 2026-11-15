@@ -38,6 +38,7 @@ const dbGain = (db: number): number => 10 ** (db / 20);
 
 export function createAudioEngine(): AudioEngine {
   const players = new Map<string, Tone.Player>();
+  const lastStarts = new Map<Tone.Player, number>();
   const gains = new Map<string, Tone.Gain>();
   const nodes: Tone.ToneAudioNode[] = [];
   const timers = new Set<ReturnType<typeof setTimeout>>();
@@ -58,10 +59,16 @@ export function createAudioEngine(): AudioEngine {
   let activeVoice: Tone.Player | undefined;
   let voiceVersion = 0;
 
+  function safely(action: () => void): void {
+    try { action(); } catch {
+      // Audio is optional: a failed browser/Tone operation must not stop the replay.
+    }
+  }
+
   function later(action: () => void, seconds: number): void {
     const timer = setTimeout(() => {
       timers.delete(timer);
-      if (!disposed && ready) action();
+      if (!disposed && ready) safely(action);
     }, Math.max(0, seconds) * 1000);
     timers.add(timer);
   }
@@ -74,10 +81,19 @@ export function createAudioEngine(): AudioEngine {
   function play(id: string, gain = 1): number {
     const player = players.get(id);
     if (!player?.loaded) return 0;
-    player.volume.value = 20 * Math.log10(Math.max(0.001, gain));
-    if (player.state === "started") player.stop();
-    player.start();
-    return player.buffer.duration;
+    try {
+      const now = Tone.now();
+      // Player.start() restarts an active player. Its timeline requires strictly
+      // increasing starts, even when several events share one audio-clock tick.
+      const at = Math.max(now, (lastStarts.get(player) ?? -Infinity) + 0.001);
+      // Reserve before calling Tone: a failed start may still have changed its timeline.
+      lastStarts.set(player, at);
+      player.volume.value = 20 * Math.log10(Math.max(0.001, gain));
+      player.start(at);
+      return at - now + player.buffer.duration;
+    } catch {
+      return 0;
+    }
   }
 
   function speak(id: string): void {
@@ -85,10 +101,18 @@ export function createAudioEngine(): AudioEngine {
     if (!player?.loaded) return;
     // A new announcement replaces the old one; an old timer cannot release its ducking.
     const version = ++voiceVersion;
-    activeVoice?.stop();
+    if (activeVoice && activeVoice !== player) {
+      const previous = activeVoice;
+      safely(() => previous.stop(Math.max(Tone.now(), lastStarts.get(previous) ?? 0)));
+    }
     activeVoice = player;
     duck(true);
     const duration = play(id);
+    if (duration === 0) {
+      activeVoice = undefined;
+      duck(false);
+      return;
+    }
     later(() => {
       if (version === voiceVersion) {
         activeVoice = undefined;
@@ -173,52 +197,65 @@ export function createAudioEngine(): AudioEngine {
     if (latest) update(latest);
   }
 
+  function releaseAudio(): void {
+    timers.forEach(timer => clearTimeout(timer));
+    timers.clear();
+    safely(() => melody?.dispose());
+    nodes.splice(0).forEach(node => safely(() => node.dispose()));
+    players.clear();
+    lastStarts.clear();
+    gains.clear();
+    activeVoice = undefined;
+    voiceVersion++;
+    musicState = undefined;
+    lastUpdate = undefined;
+    lastCreak = -Infinity;
+  }
+
   return {
     start(): Promise<void> {
       if (disposed) return Promise.resolve();
       if (!starting) {
-        starting = initialize().catch(error => {
+        starting = initialize().catch(() => {
           // A browser may reject an audio unlock; allow a subsequent user click to retry.
+          ready = false;
+          releaseAudio();
           starting = undefined;
-          throw error;
         });
       }
       return starting;
     },
-    update,
+    update(frame): void { safely(() => update(frame)); },
     trigger(event: AudioEvent): void {
       if (!ready || disposed) return;
-      switch (event.type) {
-        case "jump":
-          play(`thunder_${1 + Math.floor(Math.random() * 3)}`, 0.25 + 0.75 * clamp(Number.isFinite(event.strength) ? event.strength : 0));
-          break;
-        case "alarm": cue("foghorn", "voice_alarm"); break;
-        case "cut": play("splash"); break;
-        case "margin_call": cue("sinking", "voice_margin_call"); break;
-        case "all_clear": cue("bell", "voice_all_clear"); break;
-        case "narrate": {
-          // Existing interface supports named local voice clips; no arbitrary URLs or fetches.
-          const clip = event.clip.replace(/\.mp3$/, "");
-          if (VOICES.some(id => id === clip)) speak(clip);
-          break;
+      safely(() => {
+        switch (event.type) {
+          case "jump":
+            play(`thunder_${1 + Math.floor(Math.random() * 3)}`, 0.25 + 0.75 * clamp(Number.isFinite(event.strength) ? event.strength : 0));
+            break;
+          case "alarm": cue("foghorn", "voice_alarm"); break;
+          case "cut": play("splash"); break;
+          case "margin_call": cue("sinking", "voice_margin_call"); break;
+          case "all_clear": cue("bell", "voice_all_clear"); break;
+          case "narrate": {
+            // Existing interface supports named local voice clips; no arbitrary URLs or fetches.
+            const clip = event.clip.replace(/\.mp3$/, "");
+            if (VOICES.some(id => id === clip)) speak(clip);
+            break;
+          }
+          case "watch": break; // The watch music bed follows update().
         }
-        case "watch": break; // The watch music bed follows update().
-      }
+      });
     },
     setMuted(value: boolean): void {
       muted = value;
-      if (ready && !disposed) master.gain.rampTo(value ? 0 : 0.7, 0.05);
+      if (ready && !disposed) safely(() => master.gain.rampTo(value ? 0 : 0.7, 0.05));
     },
     dispose(): void {
       if (disposed) return;
       disposed = true;
       ready = false;
-      timers.forEach(timer => clearTimeout(timer));
-      timers.clear();
-      melody?.dispose();
-      nodes.forEach(node => node.dispose());
-      players.clear();
-      gains.clear();
+      releaseAudio();
     },
   };
 }
