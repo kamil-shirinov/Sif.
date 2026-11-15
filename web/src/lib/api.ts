@@ -14,7 +14,9 @@ import type { Bundle, Inspector } from "../types/bundle";
 import type { Health, LiveCandles, LiveRow } from "../state/app";
 import { validateBundle } from "./loadBundle";
 
+// VITE_API_BASE=off (the public GitHub Pages build) means there is no live server: no request is made.
 const API = ((import.meta.env.VITE_API_BASE as string | undefined) ?? "/api").replace(/\/$/, "");
+const NO_API = API === "off";
 
 export class ApiError extends Error {}
 
@@ -23,6 +25,7 @@ const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFin
 
 /** fetch with a timeout; `outer` aborts it from the caller too. */
 async function request(path: string, init: RequestInit, timeoutMs: number, outer?: AbortSignal): Promise<Response> {
+  if (NO_API) throw new ApiError("no live server in this build");
   const ctl = new AbortController();
   const timer = window.setTimeout(() => ctl.abort(), timeoutMs);
   const onOuter = () => ctl.abort();

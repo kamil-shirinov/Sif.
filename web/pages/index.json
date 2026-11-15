@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "bundles": "withheld",
+  "note": "Public build: storm list and metrics only. Market data is not redistributed; the replays run in the local demo.",
+  "storms": [
+    {
+      "storm_id": "usdjpy-2026-07-02",
+      "title": "USDJPY, 2 July 2026",
+      "symbol": "USDJPY",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": -58.4,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "usdsgd-2026-07-02",
+      "title": "USDSGD, 2 July 2026",
+      "symbol": "USDSGD",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": -38.4,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "eurusd-2026-07-02",
+      "title": "EURUSD, 2 July 2026",
+      "symbol": "EURUSD",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": 63.1,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "eurusd-2026-07-14",
+      "title": "EURUSD, 14 July 2026",
+      "symbol": "EURUSD",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": 46.2,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "usdjpy-2026-07-14",
+      "title": "USDJPY, 14 July 2026",
+      "symbol": "USDJPY",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": -34.0,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "usdjpy-2026-07-30",
+      "title": "USDJPY, 30 July 2026",
+      "symbol": "USDJPY",
+      "asset_class": "fx",
+      "kind": "unscheduled",
+      "move_bp": -290.4,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "eurusd-2026-07-31",
+      "title": "EURUSD, 31 July 2026",
+      "symbol": "EURUSD",
+      "asset_class": "fx",
+      "kind": "unscheduled",
+      "move_bp": -38.9,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "usdjpy-2026-08-03",
+      "title": "USDJPY, 3 August 2026",
+      "symbol": "USDJPY",
+      "asset_class": "fx",
+      "kind": "unscheduled",
+      "move_bp": -135.5,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "usdjpy-2026-08-07",
+      "title": "USDJPY, 7 August 2026",
+      "symbol": "USDJPY",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": -95.4,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "usdsgd-2026-08-07",
+      "title": "USDSGD, 7 August 2026",
+      "symbol": "USDSGD",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": -32.0,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "eurusd-2026-08-07",
+      "title": "EURUSD, 7 August 2026",
+      "symbol": "EURUSD",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": 40.8,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "usdjpy-2026-08-19",
+      "title": "USDJPY, 19 August 2026",
+      "symbol": "USDJPY",
+      "asset_class": "fx",
+      "kind": "unscheduled",
+      "move_bp": -44.8,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "eurusd-2026-08-28",
+      "title": "EURUSD, 28 August 2026",
+      "symbol": "EURUSD",
+      "asset_class": "fx",
+      "kind": "scheduled",
+      "move_bp": -33.1,
+      "source": "sgx"
+    },
+    {
+      "storm_id": "nvda-2026-11-12",
+      "title": "NVDA, 11 to 12 November 2026",
+      "symbol": "NVDA",
+      "asset_class": "equity",
+      "kind": "unscheduled",
+      "move_bp": -1440.9,
+      "source": "yahoo"
+    },
+    {
+      "storm_id": "scenario-usdjpy-2026-07-30-down3-30m",
+      "title": "What if: USDJPY -3% in 30 min (shaped like 30 July)",
+      "symbol": "USDJPY",
+      "asset_class": "fx",
+      "kind": "unscheduled",
+      "move_bp": -300.0003,
+      "source": "scenario"
+    },
+    {
+      "storm_id": "intc-2026-10-29",
+      "title": "INTC, 29 October 2026",
+      "symbol": "INTC",
+      "asset_class": "equity",
+      "kind": "unscheduled",
+      "move_bp": -2175.4,
+      "source": "yahoo"
+    },
+    {
+      "storm_id": "smci-2026-10-20",
+      "title": "SMCI, 20 October 2026",
+      "symbol": "SMCI",
+      "asset_class": "equity",
+      "kind": "unscheduled",
+      "move_bp": 1318.5,
+      "source": "yahoo"
+    },
+    {
+      "storm_id": "mrvl-2026-10-28",
+      "title": "MRVL, 28 October 2026",
+      "symbol": "MRVL",
+      "asset_class": "equity",
+      "kind": "unscheduled",
+      "move_bp": -1079.2,
+      "source": "yahoo"
+    }
+  ],
+  "metrics": {
+    "split": "test: August 2026",
+    "storms": 6,
+    "alarmed": 6,
+    "caught": 4,
+    "caught_first_onset": 4,
+    "median_move_ahead_pct": 57.4,
+    "median_move_ahead_pct_first_onset": 57.6,
+    "median_minutes_to_alarm": 3.5,
+    "median_minutes_to_alarm_first_onset": 9.0,
+    "false_alarms_per_day": 0.51,
+    "false_alarm_episodes_per_day": 0.33,
+    "watch_precision": 0.29
+  }
+}

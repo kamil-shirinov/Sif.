@@ -5,7 +5,7 @@
 import { useApp, type Mode } from "../state/app";
 import { useTimeline } from "../state/timeline";
 import { applyBundle, HEADLINE_STORM_ID, openStorm } from "../lib/session";
-import { BundleError, loadBundle } from "../lib/loadBundle";
+import { BundleError, isWithheld, loadBundle, WITHHELD_NOTE } from "../lib/loadBundle";
 import { setLandingUrl } from "./route";
 import { NVDA_STORM_ID } from "./facts";
 import { runClosing, runOpening, settleFrames, useTransition } from "./transition";
@@ -138,6 +138,11 @@ export function openFromLanding(id: string, mode: Mode = "replay") {
  */
 async function prepare(id: string, mode: Mode): Promise<boolean | null> {
   const app = useApp.getState();
+  if (isWithheld(app.index, id)) {
+    // The public build has no bundle for this storm: stay where we are, with the reason on the picker's error line.
+    app.setLoadError(`${id}: ${WITHHELD_NOTE}`);
+    return null;
+  }
   useTimeline.getState().pause();
   const loaded = app.bundle !== null && app.bundle.storm_id === id && app.bundle.source !== "scenario";
   let changed = false;

@@ -99,6 +99,9 @@ export function StormPicker({ bundle }: { bundle: Bundle }) {
           <Group title="Scheduled events" rows={scheduled} current={current} busy={busy} onPick={pick} />
           <Group title="Unscheduled storms" rows={unscheduled} current={current} busy={busy} onPick={pick} />
           <Group title="Synthetic example" rows={synthetic} current={current} busy={busy} onPick={pick} />
+          {index?.withheld?.length ? (
+            <div className="picker-note">The real storms replay in the local demo: SGX's market data is not redistributed in this public build.</div>
+          ) : null}
           {index === null && (
             <div className="picker-note">
               No <code>bundles/index.json</code> yet. Real storms appear here after <code>python -m storm.export --all</code>.

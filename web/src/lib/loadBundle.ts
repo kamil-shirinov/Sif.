@@ -310,6 +310,8 @@ function parseMetrics(raw: unknown): IndexMetrics | null {
 export function parseIndex(raw: unknown): StormIndex | null {
   if (!isObj(raw) || !Array.isArray(raw.storms)) return null;
   const storms: StormIndexEntry[] = [];
+  // The public build's index lists the storms and the metrics but ships no bundle for them.
+  const withheld = raw.bundles === "withheld";
   for (const e of raw.storms) {
     if (!isObj(e) || typeof e.storm_id !== "string" || !STORM_ID_RE.test(e.storm_id)) continue;
     storms.push({
@@ -322,5 +324,14 @@ export function parseIndex(raw: unknown): StormIndex | null {
       file: typeof e.file === "string" && FILE_RE.test(e.file) ? e.file : `${e.storm_id}.json`,
     });
   }
-  return { schema_version: 1, storms, metrics: parseMetrics(raw.metrics) };
+  const metrics = parseMetrics(raw.metrics);
+  return withheld ? { schema_version: 1, storms: [], metrics, withheld: storms } : { schema_version: 1, storms, metrics };
 }
+
+/** True when the index lists this storm but this build does not ship its bundle (the public Pages build). */
+export function isWithheld(index: StormIndex | null | undefined, id: string): boolean {
+  return !!index?.withheld?.some((s) => s.storm_id === id);
+}
+
+/** What a reader sees in place of a replay whose market data is not redistributed. */
+export const WITHHELD_NOTE = "Replay in the local demo (market data not redistributed)";

@@ -172,7 +172,7 @@ export function createAudioEngine(): AudioEngine {
       gains.set(id, gain);
       nodes.push(gain, player);
       try {
-        await player.load(`/audio/${id}.mp3`);
+        await player.load(`${import.meta.env.BASE_URL}audio/${id}.mp3`);
         // Trim encoder padding so generated 60s beds retain their shared downbeat.
         if (loop) player.loopEnd = Math.min(id.startsWith("music_") ? 60 : 20, player.buffer.duration);
         if (!disposed) players.set(id, player);
