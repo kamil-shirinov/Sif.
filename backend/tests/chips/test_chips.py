@@ -9,15 +9,15 @@ from storm import equity
 from storm.backtest import code_fingerprint
 from storm.chips.acquire import requests
 from storm.chips.evaluate import bars_from_raw, labels
-from storm.chips.protocol import DOCS, check_frozen, registration
+from storm.chips.protocol import DOCS, check_registration, registration
 from storm.chips.replay import build
 from storm.detector import risk_frame
 from storm.features import bar_features
 from storm.validate import validate_bundle
 
 
-def test_registration_is_immutable_and_core_is_still_frozen():
-    spec = check_frozen()
+def test_registration_is_immutable_without_pinning_current_core():
+    spec = check_registration()
     assert len(spec["tickers"]) == 14
     assert spec["in_sample"] == ["NVDA"]
     assert spec["config"]["storm_minutes"] == 2

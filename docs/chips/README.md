@@ -48,6 +48,13 @@ experiment against today's changed retention window. `storm.chips.verify` checks
 the local raw hashes and reproduces pooled scoring from archived detections and
 features without new downloads or detector runs. Backend tests are offline.
 
+Historical pytest checks rebuild the registered base instead of pinning today's
+backend to old code. Source/artifact checks run on every interpreter; historical
+runtime fingerprints require the exact versions in the
+[dated amendment](amendment-2026-11-15-historical-runtime.md). Other runtimes skip
+only those fingerprint checks, with explicit mismatch details. Under the
+registered runtime, deliberate constant and source changes still fail.
+
 `storm.chips.replay` creates an isolated function namespace for the existing
 equity builder. It binds symbol, synthetic book and selected label facts without
 changing the source or globals. The fifteen-minute label's close-price extrema
