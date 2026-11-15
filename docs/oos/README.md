@@ -8,6 +8,9 @@ record a pre-score decoder correction needed to enforce the registered zero-volu
 exclusion; the saved raw feed bodies were re-decoded without another download.
 Read the protocol for precise endpoints and limitations.
 
+[Validation](validation.md) records the whole-suite and recomputation results and the
+isolated Python dependency snapshot used for the passing checks.
+
 Use this branch's frozen core revision. `storm.backtest.code_fingerprint()` includes
 all ten calculation/provenance modules, not just the detector; verification intentionally
 refuses any changed source or runtime constant, including a later backend fix. Keep
