@@ -175,8 +175,8 @@ The detector did worse, and we published it. Across 13 new tickers over 20 tradi
 
 ### 30. What did the second out-of-sample round (a full year of 2025) show?
 
-{{ROUND2}}
-**Source:** `docs/oos/results-2.md`, `docs/oos/preregistration-2.md`.
+It was still running when this was written, so we claim nothing from it yet. It uses the same frozen detector, registered and pushed before its download, on a full year of 2025 (monthly detector scoring, weekly independent synthetic books), and its June 2025 overlaps round 1, as registered. Read its result file before answering with a number.
+**Source:** `docs/oos/results-2.md` (when published), `docs/oos/preregistration-2.md`.
 
 ---
 

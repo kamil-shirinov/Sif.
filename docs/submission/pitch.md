@@ -45,7 +45,7 @@ And for the beginner who has never met a margin call: Survive the storm. Pick a 
 
 Every number you saw was computed by code and checked by code. Tiger Data serves the chart, ElevenLabs makes the storm. StormScore: a warning you can see.
 
-> *Cut if short on time:* drop the "Our test is August" sentence and the "On stocks it is worse" sentence. *Add if long:* "{{ROUND2}}".
+> *Cut if short on time:* drop the "Our test is August" sentence and the "On stocks it is worse" sentence.
 
 ## 4-minute script (about 560 words)
 
@@ -90,7 +90,7 @@ $762,899 against $494,551. Following the alarm kept $268,348. To be exact: the p
 
 **[Keep the end card up.]** *(about 2:50)*
 
-So we froze the detector and tested it on another vendor's data, before downloading a single bar: six famous events, from the SNB in 2015 to the 2024 carry unwind, and two ordinary months. Twenty-three storms, nineteen alarmed, nine caught with half the move ahead. {{ROUND2}} On fourteen chip stocks it is worse: six of nineteen caught, and 2.35 false alerts a trading day. A detector tuned on FX is not a detector for stocks. Every miss is in the tables.
+So we froze the detector and tested it on another vendor's data, before downloading a single bar: six famous events, from the SNB in 2015 to the 2024 carry unwind, and two ordinary months. Twenty-three storms, nineteen alarmed, nine caught with half the move ahead. On fourteen chip stocks it is worse: six of nineteen caught, and 2.35 false alerts a trading day. A detector tuned on FX is not a detector for stocks. Every miss is in the tables.
 
 **[Press `L`, then `2`.]** *(about 3:20)*
 
@@ -126,7 +126,7 @@ Models read, code judges: an AI writes the report, and code checks every number 
 | Round 1 frozen holdout, all windows: 23 storms, 19 alarmed, 9 caught | 23; 19; 9 | [docs/oos/results.md](../oos/results.md) |
 | Round 1 ordinary months: 0.26 false alert episodes a day over 42.16 days | 0.26; 42.16 | `docs/oos/results.md` |
 | Chip sector (13 new tickers): 19 storms, 6 caught, 2.35 false alerts per trading day | 19; 6; 2.35 | [docs/chips/results.md](../chips/results.md) |
-| Round 2 (a full year of 2025) | {{ROUND2}} | `docs/oos/results-2.md` |
+| Round 2 (a full year of 2025) | not finished when written: do not quote a number until `docs/oos/results-2.md` exists | `docs/oos/results-2.md` |
 | Tiger Data: 347.9 MB compressed to 48.4 MB (7.2x); aggregate 2.8 to 5.5 times less server work | as written | [docs/tiger.md](../tiger.md) |
 | ElevenLabs: 19 sounds generated once | 19 | [web/src/audio/README.md](../../web/src/audio/README.md) |
 
