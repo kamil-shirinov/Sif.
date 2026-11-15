@@ -14,7 +14,6 @@ import {
   type ISeriesApi,
   type ISeriesMarkersPluginApi,
   type MouseEventParams,
-  type SeriesMarker,
   type Time,
   type UTCTimestamp,
   type WhitespaceData,
@@ -25,6 +24,7 @@ import { useFrameIndex, useTimeline } from "../state/timeline";
 import { useApp, type LiveCandles } from "../state/app";
 import { useSurvive } from "../state/survive";
 import { fmtUtc } from "../lib/format";
+import { chartMarkers } from "./chartMarkers";
 
 /** The four price arrays the chart draws: the bundle's own, or the server's candles laid onto its frames. */
 interface PriceSeries {
@@ -111,7 +111,6 @@ function riskColor(r: number): string {
   return "rgba(80, 160, 130, 0.55)";
 }
 
-const bucketTime = (b: Bundle, i: number, size: number) => (b.t0 + Math.floor(i / size) * size * b.step_s) as UTCTimestamp;
 
 /** A marker's word, placed by us in chart-host pixels (centre x, top y). */
 interface MarkerLabel {
@@ -158,44 +157,8 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
   const sim = useSurvive((st) => st.sim);
   const marginPrice = survive ? (setupLine ? setupLine.price : sim ? sim.liq[Math.min(n - 1, frame)] : NaN) : NaN;
 
-  // All markers, revealed as the playhead passes them.
-  const allMarkers = useMemo(() => {
-    const out: { i: number; text: string; m: SeriesMarker<Time> }[] = [];
-    out.push({
-      i: bundle.storm.onset_i,
-      text: "Onset",
-      m: { time: bucketTime(bundle, bundle.storm.onset_i, B), position: "aboveBar", shape: "circle", color: "#e0e6ee" },
-    });
-    const releases = new Set<number>();
-    // The chart draws only the shapes. The words are our own DOM labels (see `labels` below): the library centres
-    // every label on its marker, so two events in the same or neighbouring candles printed on top of each other.
-    const mark = (i: number, position: "aboveBar" | "belowBar", shape: SeriesMarker<Time>["shape"], color: string, text: string) =>
-      out.push({ i, text, m: { time: bucketTime(bundle, i, B), position, shape, color } });
-    for (const e of bundle.events) {
-      // In Survive the demo ships' trades are not the player's: the player's own are marked below.
-      if (player && (e.type === "cut" || e.type === "restore" || e.type === "margin_call")) continue;
-      if (e.type === "alarm") mark(e.i, "aboveBar", "arrowDown", "#f5a623", "Alarm");
-      if (e.type === "margin_call") mark(e.i, "belowBar", "square", "#ef5350", "Margin call");
-      if (e.type === "squall") mark(e.i, "aboveBar", "circle", "#f0b44c", "Squall");
-      if (e.type === "fair_wind") mark(e.i, "aboveBar", "arrowUp", "#5ecf9a", "Fair wind");
-      if (e.type === "watch" && e.at_i !== undefined) releases.add(e.at_i);
-    }
-    // Cuts and restores at their fill frames (cut_i: one bar after the alarm), from the ships' derived actions:
-    // the cut / restore events when the bundle has them, else ships.*.cut_i / restore_i. Same frames as the splash and toast.
-    if (!player) {
-      for (const k of ["prepared", "unprepared"] as const) {
-        for (const a of derived.ships[k].actions) mark(a.i, "belowBar", a.kind === "cut" ? "arrowDown" : "arrowUp", "#7cc4ff", a.kind === "cut" ? "Cut" : "Restore");
-      }
-    }
-    if (bundle.storm.kind === "scheduled" && bundle.storm.event_i !== undefined) releases.add(bundle.storm.event_i);
-    for (const i of releases) mark(i, "aboveBar", "circle", "#d6c450", "Release");
-    if (player) {
-      for (const a of player.actions) mark(a.i, "belowBar", a.kind === "cut" ? "arrowDown" : "arrowUp", "#ffd27a", a.kind === "cut" ? "You cut" : "You restore");
-      if (player.marginCallI !== null) mark(player.marginCallI, "belowBar", "square", "#ef5350", "Sunk");
-    }
-    out.sort((a, b) => a.i - b.i);
-    return out;
-  }, [bundle, derived, player, B]);
+  // All markers, revealed as the playhead passes them (ui/chartMarkers.ts).
+  const allMarkers = useMemo(() => chartMarkers(bundle, derived, player, B), [bundle, derived, player, B]);
 
   useEffect(() => {
     const host = el.current;
@@ -322,6 +285,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
       }
       const items: { mk: (typeof shown)[number]; above: boolean; cx: number; y: number; w: number }[] = [];
       for (const mk of shown) {
+        if (mk.repeat) continue; // the same word on the same minute (both ships' margin calls): one label for both shapes
         const above = mk.m.position === "aboveBar";
         const bucket = Math.floor(mk.i / B);
         const first = bucket * B;
@@ -358,7 +322,7 @@ export function MarketChart({ bundle, derived, large = false }: { bundle: Bundle
         items.forEach(clampX);
         if (!moved) break;
       }
-      for (const it of items) next.push({ key: `${it.mk.i}-${it.mk.text}`, text: it.mk.text, color: it.mk.m.color, x: it.cx, y: it.y });
+      for (const it of items) next.push({ key: it.mk.key, text: it.mk.text, color: it.mk.m.color, x: it.cx, y: it.y });
     }
     setLabels((prev) => (sameLabels(prev, next) ? prev : next));
     };
