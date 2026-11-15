@@ -23,6 +23,7 @@ import { EvidenceCard } from "./ui/EvidenceCard";
 import { ReportPanel } from "./ui/ReportPanel";
 import { NavigatorPanel } from "./ui/NavigatorPanel";
 import { Landing } from "./landing/Landing";
+import { usePresenterKeys } from "./landing/usePresenterKeys";
 
 const StormScene = lazy(() => import("./scene/Scene").then((m) => ({ default: m.StormScene })));
 
@@ -180,6 +181,7 @@ export function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  usePresenterKeys(); // L, 1, 2, 3, Esc (web/src/landing/keys.ts)
   useReplayDriver(bundle, derived, audio);
   useSurviveDriver();
 
