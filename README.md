@@ -1,4 +1,4 @@
-# Sif
+# Sif.
 
 **A storm defence for FX traders, shown as a live 3D sea.** Sif sounds the alarm in the first minutes of a fast move, and two ships show what heeding it saved.
 
